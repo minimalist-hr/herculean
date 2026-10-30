@@ -6,6 +6,7 @@ title: Conventions
 
 - Every change goes on a branch and reaches `main` through a merge request (MR).
 - The wiki is updated in the same MR as the change it describes.
+- A new wiki page is listed both on [Home](/home) and in `_sidebar.md`.
 - A design change is proposed and approved before it is built.
 - Design issues are GitLab issues with the `design` label.
 - Screens are named by ID, for example W10.
