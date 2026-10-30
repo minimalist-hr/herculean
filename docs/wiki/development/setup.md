@@ -27,7 +27,7 @@ docs/
   wiki/               this wiki
 ```
 
-The insides of `api/` and `app/` are on [Backend architecture](backend-architecture#projects) and [Frontend architecture](frontend-architecture#folders).
+The insides of `api/` and `app/` are on [Backend architecture](/architecture/backend#projects) and [Frontend architecture](/architecture/frontend#folders).
 
 ## Run
 

@@ -20,10 +20,10 @@ flowchart LR
     api -. "redirect into the app" .-> app
 ```
 
-- **App:** the phone app. It talks only to the API. See [Frontend architecture](frontend-architecture).
-- **API:** one process with two modules, `Account` and `Training`. It also runs background jobs. See [Backend architecture](backend-architecture).
+- **App:** the phone app. It talks only to the API. See [Frontend architecture](/architecture/frontend).
+- **API:** one process with two modules, `Account` and `Training`. It also runs background jobs. See [Backend architecture](/architecture/backend).
 - **PostgreSQL:** one database, one schema per module.
-- **Resend:** sends email. Locally, Mailpit takes its place. See [Configuration](configuration).
+- **Resend:** sends email. Locally, Mailpit takes its place. See [Configuration](/development/configuration).
 
 ## Email links
 

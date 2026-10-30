@@ -13,7 +13,7 @@ title: Conventions
 
 ## Vocabulary
 
-The terms in [Domain and entities](domain-and-entities#terms) are used unchanged in the app, API, database and docs.
+The terms in [Domain and entities](/product/domain#terms) are used unchanged in the app, API, database and docs.
 
 ## Naming
 
@@ -114,7 +114,7 @@ The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki:
 ## Work items
 
 - **Milestone** `v1` holds the release.
-- **One issue per feature**, as listed in [Scope and features](scope-and-features#features).
+- **One issue per feature**, as listed in [Scope and features](/product/scope#features).
 - **Child tasks** inside a feature issue hold the work steps.
 - **Labels:** `feature`, `bug`, `design`.
 - **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. The MR template is in `.gitlab/merge_request_templates/`. It assigns a new MR to its author, makes the author the reviewer and sets the milestone to `v1`.

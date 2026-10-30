@@ -76,7 +76,7 @@ Herculean.Training.Application/
 
 ## Data access
 
-- **Writes** go through a repository per [aggregate](domain-and-entities#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure.
+- **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure.
 - **Reads** query the DbContext directly with projections.
 - **One database:** one schema and one DbContext per module.
 - **Foreign keys** are `ON DELETE RESTRICT`. Code deletes child rows on purpose.
@@ -116,7 +116,7 @@ Herculean.Training.Application/
 ## Background jobs
 
 - **Outbox:** sends saved events.
-- **Token cleanup:** deletes expired tokens, as set out in [Domain and entities](domain-and-entities#account).
+- **Token cleanup:** deletes expired tokens, as set out in [Domain and entities](/product/domain#account).
 
 ## Tests
 

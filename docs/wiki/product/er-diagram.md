@@ -2,7 +2,7 @@
 title: ER diagram
 ---
 
-Terms and rules are in [Domain and entities](domain-and-entities). Database naming is in [Conventions](conventions#naming).
+Terms and rules are in [Domain and entities](/product/domain). Database naming is in [Conventions](/development/conventions#naming).
 
 ## Common properties
 

@@ -10,7 +10,7 @@ v1 is the full design in `docs/design/`: every screen, state, interaction rule a
 
 Features are built in this order. Each one ships on its own, app and API together, and depends only on the features before it.
 
-Each feature lists what it does, its screens, flows, entities, endpoints, what it leaves to other features, and its own done criteria. Rules are in [Domain and entities](domain-and-entities#rules). Shared done criteria are in [Conventions](conventions#definition-of-done). Endpoints follow the [API conventions](conventions#api) and are refined while building.
+Each feature lists what it does, its screens, flows, entities, endpoints, what it leaves to other features, and its own done criteria. Rules are in [Domain and entities](/product/domain#rules). Shared done criteria are in [Conventions](/development/conventions#definition-of-done). Endpoints follow the [API conventions](/development/conventions#api) and are refined while building.
 
 | # | Feature | Screens |
 |---|---|---|
@@ -164,7 +164,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 **Left to other features:** Start workout, Load routine, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit, Delete and the calendar icon are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
 
 **Done when**
-- Each day shows the status from the [day table](domain-and-entities#how-a-day-is-shown), in the user's time zone.
+- Each day shows the status from the [day table](/product/domain#how-a-day-is-shown), in the user's time zone.
 
 ---
 
@@ -236,7 +236,7 @@ Changes on W30 stay in the app until Save workout.
 
 **Done when**
 - Editing a past workout updates best sets and history everywhere.
-- Month totals follow the [month total rules](domain-and-entities#month-totals-w40).
+- Month totals follow the [month total rules](/product/domain#month-totals-w40).
 
 ---
 
