@@ -5,31 +5,40 @@ workflow:
 
 stages:
   - test
+  - analyze
   - deploy
 
-api:
-  stage: test
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+# SonarQube needs coverage from both the API and the app, so all three jobs run together.
+.code-changes:
   rules:
-    - changes: [api/**/*, .gitlab-ci.yml]
+    - changes: [api/**/*, app/**/*, .gitlab-ci.yml]
+
+.nuget-cache:
   variables:
     NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
   cache:
     key:
       files: [api/Directory.Packages.props]
     paths: [.nuget/]
+
+api:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  extends: [.code-changes, .nuget-cache]
   script:
     - cd api
     - dotnet restore
     - dotnet format --verify-no-changes --no-restore
     - dotnet build --no-restore
-    - dotnet test --no-build
+    - dotnet test --no-build --coverage --coverage-output-format xml --results-directory TestResults
+  artifacts:
+    paths: [api/TestResults/]
+    expire_in: 1 day
 
 app:
   stage: test
   image: node:24
-  rules:
-    - changes: [app/**/*, .gitlab-ci.yml]
+  extends: .code-changes
   cache:
     key:
       files: [app/package-lock.json]
@@ -40,7 +49,37 @@ app:
     - npm run lint
     - npm run format
     - npm run typecheck
-    - npm test
+    - npm test -- --coverage
+  artifacts:
+    paths: [app/coverage/lcov.info]
+    expire_in: 1 day
+
+sonar:
+  stage: analyze
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  extends: [.code-changes, .nuget-cache]
+  needs: [api, app]
+  variables:
+    GIT_DEPTH: "0"
+    SONAR_USER_HOME: $CI_PROJECT_DIR/.sonar
+  script:
+    - cd api
+    - dotnet tool restore
+    - >
+      dotnet sonarscanner begin
+      /o:minimalist-sds
+      /k:minimalist-sds_herculean
+      /d:sonar.host.url=https://sonarcloud.io
+      /d:sonar.token="$SONAR_TOKEN"
+      /d:sonar.projectBaseDir="$CI_PROJECT_DIR"
+      /d:sonar.qualitygate.wait=true
+      /d:sonar.exclusions="docs/**"
+      /d:sonar.test.inclusions="app/**/*.test.ts,app/**/*.test.tsx"
+      /d:sonar.coverage.exclusions="app/src/app/**"
+      /d:sonar.cs.vscoveragexml.reportsPaths="$CI_PROJECT_DIR/api/TestResults/*.xml"
+      /d:sonar.javascript.lcov.reportPaths="$CI_PROJECT_DIR/app/coverage/lcov.info"
+    - dotnet build --no-incremental
+    - dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
 mr-checks:
   stage: test

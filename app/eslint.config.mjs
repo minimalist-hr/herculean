@@ -15,5 +15,5 @@ export default defineConfig([
     },
   },
   { files: ['**/*.mjs'], extends: [configs.disableTypeChecked] },
-  { ignores: ['dist/*', '.expo/*'] },
+  { ignores: ['dist/*', '.expo/*', 'coverage/*'] },
 ]);

@@ -50,4 +50,5 @@ Every app library must work in Expo Go.
 | Local run | Aspire |
 | Local email | Mailpit |
 | CI | GitLab CI |
+| Code quality | SonarQube Cloud |
 | App builds and updates | EAS |
