@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Herculean · Reorder exercises</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 900px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+<main style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 48px 16px 16px; min-height: 0">
+<div style="display: flex; flex-direction: column; gap: 4px"><p style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Chest and arms 2 · 6:40</p><h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Reorder exercises</h1><p style="margin: 4px 0 0; font-size: 14px; color: {{c.muted}}">Drag the handle to move an exercise. Logged sets stay with it.</p></div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px"><li aria-grabbed="false" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"><button aria-label="Move Smith machine incline bench press" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.muted}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Smith machine incline bench press</span><span style="font-size: 12px; color: {{c.muted}}">3 × 8–10</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">1/3</span></li><li aria-grabbed="false" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"><button aria-label="Move Barbell curl" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.muted}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Barbell curl</span><span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">0/3</span></li><li aria-grabbed="true" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.primary}}; background: {{c.raised}}; box-shadow: 0 12px 28px {{shadow}}; transform: translateX(6px) rotate(-1deg)"><button aria-label="Move Pec deck machine" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.primaryText}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Pec deck machine</span><span style="font-size: 12px; color: {{c.muted}}">2 × 10–12</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">0/2</span></li><div aria-hidden="true" style="height: 56px; box-sizing: border-box; border-radius: {{r.card}}; border: 1px dashed {{c.primary}}"></div><li aria-grabbed="false" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"><button aria-label="Move Triceps dip" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.muted}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Triceps dip</span><span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">0/3</span></li><li aria-grabbed="false" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"><button aria-label="Move Flat dumbbell bench press" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.muted}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Flat dumbbell bench press</span><span style="font-size: 12px; color: {{c.muted}}">2 × 10–12</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">0/2</span></li><li aria-grabbed="false" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"><button aria-label="Move Seated incline hammer curl" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.muted}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Seated incline hammer curl</span><span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">0/3</span></li><li aria-grabbed="false" style="display: flex; align-items: center; gap: 4px; min-height: 56px; box-sizing: border-box; padding: 8px 14px 8px 4px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"><button aria-label="Move Rope pushdown" style="width: 44px; height: 44px; flex: none; padding: 0; border: none; background: transparent; color: {{c.muted}}; display: flex; align-items: center; justify-content: center; cursor: grab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3" height="3"></rect><rect x="14" y="5" width="3" height="3"></rect><rect x="7" y="10.5" width="3" height="3"></rect><rect x="14" y="10.5" width="3" height="3"></rect><rect x="7" y="16" width="3" height="3"></rect><rect x="14" y="16" width="3" height="3"></rect></svg></button><span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 16px; font-weight: 700">Rope pushdown</span><span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span></span><span style="flex: none; margin-left: 8px; font-size: 13px; font-weight: 600; color: {{c.muted}}">0/3</span></li></ol>
+</main>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 28px; border-top: 1px solid {{c.border}}; background: {{c.card}}"><a href="L01-Logging.dc.html" style="height: 48px; box-sizing: border-box; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.primary}}; color: {{c.onPrimary}}">Save order</a><a href="L01-Logging.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const pal = this.props.palette ?? 'Racing blue';
+    const font = this.props.font ?? 'Chakra Petch';
+    const sharp = (this.props.corners ?? 'sharp') === 'sharp';
+    const r = sharp
+      ? { card: '6px', ctrl: '4px', pill: '3px', check: '3px', sheet: '10px' }
+      : { card: '16px', ctrl: '10px', pill: '999px', check: '8px', sheet: '24px' };
+    const tint = (hex, a) => {
+      let h = String(hex).replace('#', '');
+      if (h.length === 3) h = h.split('').map((x) => x + x).join('');
+      const n = parseInt(h, 16);
+      return 'rgba(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + a + ')';
+    };
+    const accents = {
+      'Racing blue': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Titanium': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+    };
+    const neutral = dark
+      ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
+      : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
+    const primary = c.primary;
+    c.danger = dark ? '#F87171' : '#DC2626';
+    c.onDanger = dark ? '#050506' : '#FFFFFF';
+    const st = this.state || {};
+    const radio = (items, key, def) => {
+      const cur = st[key] || def;
+      return items.map((it) => {
+        const on = it.id === cur;
+        return Object.assign({}, it, {
+          on: on,
+          hasSub: !!it.sub,
+          edge: on ? c.primary : c.border,
+          bg: on ? c.raised : 'transparent',
+          ring: on ? c.primary : c.muted,
+          dot: on ? c.primary : 'transparent',
+          pick: () => this.setState({ [key]: it.id })
+        });
+      });
+    };
+    const shadow = dark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(10, 11, 13, 0.18)';
+    return { c, r, font, shadow };
+  }
+}
+</script>
+</body>
+</html>

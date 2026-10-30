@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Herculean · Create exercise</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+<main style="flex: 1; display: flex; flex-direction: column; gap: 24px; padding: 48px 16px 16px; min-height: 0">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Create exercise</h1>
+<p style="margin: 0; font-size: 14px; color: {{c.muted}}">It’s added to your exercise list and can be used in any workout.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="ex-name" style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Name</label>
+<input id="ex-name" type="text" value="{{name}}" onChange="{{setName}}" placeholder="Cable lateral raise" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-family: inherit; font-size: 16px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p id="main-label" style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Group</p>
+<div role="radiogroup" aria-labelledby="main-label" style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{mainChips}}" as="g" hint-placeholder-count="6">
+<button role="radio" aria-checked="{{g.on}}" onClick="{{g.pick}}" style="height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{g.edge}}; background: {{g.bg}}; color: {{g.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{g.label}}</button>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 13px; color: {{c.muted}}">Where it shows in your exercise list.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p id="also-label" style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Also works · optional</p>
+<div role="group" aria-labelledby="also-label" style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{alsoChips}}" as="g" hint-placeholder-count="5">
+<button aria-pressed="{{g.on}}" onClick="{{g.pick}}" style="height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{g.edge}}; background: {{g.bg}}; color: {{g.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{g.label}}</button>
+</sc-for>
+</div>
+</div>
+</main>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 28px; border-top: 1px solid {{c.border}}; background: {{c.card}}">
+<a href="L23-Logging-Add-Exercise-New-Selected.dc.html" style="height: 48px; box-sizing: border-box; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.primary}}; color: {{c.onPrimary}}">Save exercise</a>
+<a href="L20-Logging-Add-Exercise.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const pal = this.props.palette ?? 'Racing blue';
+    const font = this.props.font ?? 'Chakra Petch';
+    const sharp = (this.props.corners ?? 'sharp') === 'sharp';
+    const r = sharp
+      ? { card: '6px', ctrl: '4px', pill: '3px', check: '3px', sheet: '10px' }
+      : { card: '16px', ctrl: '10px', pill: '999px', check: '8px', sheet: '24px' };
+    const tint = (hex, a) => {
+      let h = String(hex).replace('#', '');
+      if (h.length === 3) h = h.split('').map((x) => x + x).join('');
+      const n = parseInt(h, 16);
+      return 'rgba(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + a + ')';
+    };
+    const accents = {
+      'Racing blue': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Titanium': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+    };
+    const neutral = dark
+      ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
+      : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
+    const primary = c.primary;
+    c.danger = dark ? '#F87171' : '#DC2626';
+    c.onDanger = dark ? '#050506' : '#FFFFFF';
+    const st = this.state || {};
+    const radio = (items, key, def) => {
+      const cur = st[key] || def;
+      return items.map((it) => {
+        const on = it.id === cur;
+        return Object.assign({}, it, {
+          on: on,
+          hasSub: !!it.sub,
+          edge: on ? c.primary : c.border,
+          bg: on ? c.raised : 'transparent',
+          ring: on ? c.primary : c.muted,
+          dot: on ? c.primary : 'transparent',
+          pick: () => this.setState({ [key]: it.id })
+        });
+      });
+    };
+    const name = st.name ?? 'Cable lateral raise';
+    const setName = (e) => this.setState({ name: e.target.value });
+    const all = ['Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Legs'];
+    const main = st.main || 'Shoulders';
+    const also = st.also || [];
+    const look = (on) => ({ bg: on ? c.primary : 'transparent', fg: on ? c.onPrimary : c.text, edge: on ? c.primary : c.border });
+    const mainChips = all.map((g) => Object.assign({ label: g, on: g === main, pick: () => this.setState({ main: g, also: also.filter((x) => x !== g) }) }, look(g === main)));
+    const alsoChips = all.filter((g) => g !== main).map((g) => {
+      const on = also.indexOf(g) >= 0;
+      return Object.assign({ label: g, on: on, pick: () => this.setState({ also: on ? also.filter((x) => x !== g) : also.concat([g]) }) }, look(on));
+    });
+    return { c, r, font, name, setName, mainChips, alsoChips };
+  }
+}
+</script>
+</body>
+</html>

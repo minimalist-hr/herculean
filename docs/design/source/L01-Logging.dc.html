@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Herculean · Logging chest and arms 2</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1140px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+<main style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 48px 16px 16px; min-height: 0">
+<header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<p style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Friday, 23 October · 6:40</p>
+<h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Chest and arms 2</h1>
+</div>
+<a href="L30-Logging-Finish.dc.html" style="height: 44px; box-sizing: border-box; padding: 0 16px; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; background: {{c.primary}}; color: {{c.onPrimary}}; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Finish</a>
+</header>
+<div style="display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px">
+<p style="margin: 0; font-size: 13px; font-weight: 500; color: {{c.muted}}"><span style="font-weight: 700; color: {{c.text}}">{{count}}</span> of 19 sets</p>
+<div aria-hidden="true" style="height: 4px; background: {{c.border}}; overflow: hidden">
+<div style="height: 4px; width: {{progress}}; background: {{c.primary}}"></div>
+</div>
+</div>
+<section aria-labelledby="ex-bench" style="display: flex; flex-direction: column; gap: 8px; padding: 14px 12px 10px; border-radius: {{r.card}}; border: 1px solid {{c.primary}}; background: {{c.card}}">
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 0 0 0 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 id="ex-bench" style="margin: 0; font-size: 18px; font-weight: 700"><a href="L14-Logging-Exercise-History.dc.html" style="text-decoration: none; color: {{c.text}}">Smith machine incline bench press</a></h2>
+<p style="margin: 0; font-size: 12px; font-weight: 600; color: {{c.muted}}">3 sets · 8–10 reps</p>
+</div>
+<div style="display: flex; margin: -8px -8px -8px 0">
+<a href="L14-Logging-Exercise-History.dc.html" aria-label="History of Smith machine incline bench press" style="width: 44px; height: 44px; color: {{c.muted}}; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4M12 7.5V12l3 2"></path></svg>
+</a>
+<a href="L13-Logging-Remove-Exercise-Confirm.dc.html" aria-label="Remove Smith machine incline bench press" style="width: 44px; height: 44px; color: {{c.muted}}; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg>
+</a>
+</div>
+</div>
+<div aria-hidden="true" style="display: grid; grid-template-columns: 34px minmax(0, 1fr) 64px 52px 44px; gap: 6px; padding: 0 4px 0 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.muted}}">
+<span>Set</span><span>Last time</span><span style="text-align: center">kg</span><span style="text-align: center">Reps</span><span></span>
+</div>
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{sets}}" as="s" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 6px; align-items: center; height: 46px; margin-top: {{s.mt}}; padding: 0 4px 0 0; border-radius: {{r.ctrl}}; background: {{s.rowBg}}">
+<a href="L10-Logging-Edit-Weight.dc.html" aria-label="{{s.editAria}}" style="display: grid; grid-template-columns: 34px minmax(0, 1fr) 64px 52px; gap: 6px; align-items: center; height: 46px; padding-left: 12px; text-decoration: none; color: {{c.text}}">
+<span style="font-size: 15px; font-weight: 700; color: {{c.muted}}">{{s.round}}<span style="color: {{c.primaryText}}">{{s.ex}}</span></span>
+<span style="font-size: 13px; font-weight: 500; white-space: nowrap; color: {{c.muted}}">{{s.last}}</span>
+<span style="height: 38px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: {{r.ctrl}}; border: 1px solid {{s.fieldBorder}}; background: {{s.fieldBg}}; color: {{s.valColor}}; font-size: 16px; font-weight: 700">{{s.kg}}</span>
+<span style="height: 38px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: {{r.ctrl}}; border: 1px solid {{s.fieldBorder}}; background: {{s.fieldBg}}; color: {{s.valColor}}; font-size: 16px; font-weight: 700">{{s.reps}}</span>
+</a>
+<button aria-label="{{s.aria}}" aria-pressed="{{s.done}}" onClick="{{s.toggle}}" style="width: 44px; height: 44px; padding: 0; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<span style="width: 30px; height: 30px; box-sizing: border-box; border-radius: {{r.check}}; border: 1.5px solid {{s.checkBorder}}; background: {{s.checkBg}}; color: {{s.checkIcon}}; display: flex; align-items: center; justify-content: center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+</span>
+</button>
+</div>
+</sc-for>
+</div>
+<button style="height: 40px; margin-top: 2px; border-radius: {{r.ctrl}}; border: none; background: transparent; color: {{c.primaryText}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Add set
+</button>
+</section>
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 16px; font-weight: 700">Barbell curl</span>
+<span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 13px; font-weight: 600">0/3</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 16px; font-weight: 700">Triceps dip</span>
+<span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 13px; font-weight: 600">0/3</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 16px; font-weight: 700">Flat dumbbell bench press</span>
+<span style="font-size: 12px; color: {{c.muted}}">2 × 10–12</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 13px; font-weight: 600">0/2</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 16px; font-weight: 700">Seated incline hammer curl</span>
+<span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 13px; font-weight: 600">0/3</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 16px; font-weight: 700">Rope pushdown</span>
+<span style="font-size: 12px; color: {{c.muted}}">3 × 10–12</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 13px; font-weight: 600">0/3</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 16px; font-weight: 700">Pec deck machine</span>
+<span style="font-size: 12px; color: {{c.muted}}">2 × 10–12</span>
+</span>
+<span style="display: flex; align-items: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 13px; font-weight: 600">0/2</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+</span>
+</button>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<a href="L20-Logging-Add-Exercise.dc.html" style="height: 52px; box-sizing: border-box; text-decoration: none; border-radius: {{r.card}}; border: 1px dashed {{c.border}}; background: transparent; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Add exercise
+</a>
+<a href="L04-Logging-Reorder.dc.html" style="height: 52px; box-sizing: border-box; text-decoration: none; border-radius: {{r.card}}; border: 1px dashed {{c.border}}; background: transparent; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"></path></svg>
+Reorder
+</a>
+</div>
+</main>
+<div role="timer" aria-label="Rest timer" style="position: absolute; left: 16px; right: 16px; bottom: 100px; height: 64px; box-sizing: border-box; padding: 0 8px 0 16px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.raised}}; display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 10px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Rest</span>
+<span style="font-size: 24px; font-weight: 700; color: {{c.text}}">1:24</span>
+</div>
+<div style="display: flex; gap: 4px">
+<button aria-label="Subtract 15 seconds" style="width: 52px; height: 44px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: transparent; color: {{c.text}}; font-size: 13px; font-weight: 600; cursor: pointer">−15</button>
+<button aria-label="Add 15 seconds" style="width: 52px; height: 44px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: transparent; color: {{c.text}}; font-size: 13px; font-weight: 600; cursor: pointer">+15</button>
+<button style="width: 56px; height: 44px; border-radius: {{r.ctrl}}; border: none; background: {{c.primary}}; color: {{c.onPrimary}}; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer">Skip</button>
+</div>
+</div>
+<nav aria-label="Main" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 8px 8px 28px; border-top: 1px solid {{c.border}}; background: {{c.bg}}">
+<a href="H02-Home-In-Progress.dc.html" style="height: 52px; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; color: {{c.muted}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M4 10.5L12 4l8 6.5v10h-5.5v-6h-5v6H4z"></path></svg>
+Home
+</a>
+<a href="W02-Workout-Today-In-Progress.dc.html" aria-current="page" style="height: 52px; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: {{c.primaryText}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"></path></svg>
+Workout
+</a>
+<a href="R01-Routines.dc.html" style="height: 52px; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; color: {{c.muted}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path></svg>
+Routines
+</a>
+<a href="E01-Exercises.dc.html" style="height: 52px; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; color: {{c.muted}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="0.5"></rect><rect x="13" y="4" width="7" height="7" rx="0.5"></rect><rect x="4" y="13" width="7" height="7" rx="0.5"></rect><rect x="13" y="13" width="7" height="7" rx="0.5"></rect></svg>
+Exercises
+</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":1140}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const pal = this.props.palette ?? 'Racing blue';
+    const font = this.props.font ?? 'Chakra Petch';
+    const sharp = (this.props.corners ?? 'sharp') === 'sharp';
+    const r = sharp
+      ? { card: '6px', ctrl: '4px', check: '3px', pill: '3px' }
+      : { card: '16px', ctrl: '10px', check: '8px', pill: '999px' };
+    const tint = (hex, a) => {
+      let h = String(hex).replace('#', '');
+      if (h.length === 3) h = h.split('').map((x) => x + x).join('');
+      const n = parseInt(h, 16);
+      return 'rgba(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + a + ')';
+    };
+    const accents = {
+      'Racing blue': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Titanium': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+    };
+    const neutral = dark
+      ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
+      : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
+    const primary = c.primary;
+    const st = this.state || {};
+    const done = st.done || [true, false, false];
+    const names = { '': 'Smith machine incline bench press' };
+    const base = [
+      { round: '1', ex: '', last: '80 × 10', kg: '80', reps: '10' },
+      { round: '2', ex: '', last: '82.5 × 10', kg: '82.5', reps: '10' },
+      { round: '3', ex: '', last: '82.5 × 8', kg: '82.5', reps: '8' }
+    ];
+    const sets = base.map((s, i) => {
+      const d = !!done[i];
+      const label = 'Set ' + s.round + ', ' + names[s.ex];
+      return {
+        round: s.round,
+        ex: s.ex,
+        last: s.last,
+        kg: s.kg,
+        reps: s.reps,
+        done: d,
+        mt: '0px',
+        kgAria: label + ', weight ' + s.kg + ' kilograms. Tap to change',
+        repsAria: label + ', ' + s.reps + ' reps. Tap to change',
+        editAria: label + ': ' + s.kg + ' kilograms, ' + s.reps + ' reps. Tap to edit',
+        aria: (d ? 'Unmark ' : 'Mark ') + label + ' as done',
+        rowBg: d ? tint(primary, dark ? 0.16 : 0.1) : 'transparent',
+        valColor: d ? c.text : c.muted,
+        fieldBg: d ? 'transparent' : c.raised,
+        fieldBorder: d ? 'transparent' : c.border,
+        checkBg: d ? primary : 'transparent',
+        checkBorder: d ? primary : c.muted,
+        checkIcon: d ? c.onPrimary : 'transparent',
+        toggle: () => {
+          const next = done.slice();
+          next[i] = !next[i];
+          this.setState({ done: next });
+        }
+      };
+    });
+    const count = done.filter(Boolean).length;
+    return { c, r, font, sets, count, progress: Math.round((count / 19) * 100) + '%' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Herculean · New exercise selected</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 48px 16px 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Add exercise</h1>
+</div>
+<div style="position: relative">
+<label for="ex-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search exercises</label>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true" style="position: absolute; left: 12px; top: 13px; color: {{c.muted}}"><path d="M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5L20 20"></path></svg>
+<input id="ex-search" type="search" placeholder="Search exercises" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 12px 0 40px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; font-family: inherit; font-size: 15px">
+</div>
+<div role="group" aria-label="Group" style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{chips}}" as="ch" hint-placeholder-count="7">
+<button aria-pressed="{{ch.on}}" onClick="{{ch.pick}}" style="height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{ch.edge}}; background: {{ch.bg}}; color: {{ch.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{ch.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 16px; padding: 4px 16px 16px">
+<sc-for list="{{visible}}" as="g" hint-placeholder-count="2">
+<section style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">{{g.name}}</h2>
+<div style="display: flex; flex-direction: column; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; overflow: hidden">
+<sc-for list="{{g.items}}" as="it" hint-placeholder-count="3">
+<sc-if value="{{it.isPick}}" hint-placeholder-val="{{ true }}">
+<button aria-pressed="{{it.on}}" onClick="{{it.toggle}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 14px; border: none; border-top: 1px solid {{it.sep}}; background: {{it.bg}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 16px; font-weight: 700">{{it.name}}</span><sc-if value="{{it.isNew}}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 7px; border-radius: {{r.pill}}; border: 1px solid {{c.primaryText}}; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.primaryText}}">New</span></sc-if></span><span style="font-size: 12px; color: {{c.muted}}">{{it.sub}}</span></span>
+<span aria-hidden="true" style="width: 30px; height: 30px; flex: none; box-sizing: border-box; border-radius: {{r.check}}; border: 1.5px solid {{it.checkEdge}}; background: {{it.checkBg}}; color: {{it.checkIcon}}; display: flex; align-items: center; justify-content: center">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+</span>
+</button>
+</sc-if>
+</sc-for>
+</div>
+</section>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 24px 0 0; text-align: center; font-size: 14px; color: {{c.muted}}">No exercises in this group yet.</p>
+</sc-if>
+<a href="L22-Logging-Create-Exercise.dc.html" style="align-self: flex-start; height: 44px; padding: 0 4px; border: none; background: transparent; color: {{c.primaryText}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; text-decoration: none">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Create exercise
+</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 28px; border-top: 1px solid {{c.border}}; background: {{c.card}}">
+<a href="L01-Logging.dc.html" style="height: 48px; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.primary}}; color: {{c.onPrimary}}">{{addLabel}}</a>
+<a href="L01-Logging.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const pal = this.props.palette ?? 'Racing blue';
+    const font = this.props.font ?? 'Chakra Petch';
+    const sharp = (this.props.corners ?? 'sharp') === 'sharp';
+    const r = sharp
+      ? { card: '6px', ctrl: '4px', pill: '3px', check: '3px', sheet: '10px' }
+      : { card: '16px', ctrl: '10px', pill: '999px', check: '8px', sheet: '24px' };
+    const accents = {
+      'Racing blue': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Titanium': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+    };
+    const neutral = dark
+      ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
+      : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
+    const st = this.state || {};
+    const filter = st.filter || 'Shoulders';
+    const sel = st.sel || ['cablelateral'];
+    const groups = [
+      { name: 'Chest', items: [
+        { id: 'crossover', name: 'Cable crossover', sub: 'Chest' },
+        { id: 'flatbench', name: 'Flat barbell bench press', sub: 'Chest · triceps' },
+        { id: 'flatdb', name: 'Flat dumbbell bench press', sub: 'Chest · triceps' },
+        { id: 'inclinebench', name: 'Incline dumbbell bench press', sub: 'Chest · triceps' },
+        { id: 'chestpress', name: 'Machine chest press', sub: 'Chest · triceps' },
+        { id: 'pecdeck', name: 'Pec deck machine', sub: 'Chest' },
+        { id: 'smithincline', name: 'Smith machine incline bench press', sub: 'Chest · triceps' }
+      ] },
+      { name: 'Back', items: [
+        { id: 'bbrow', name: 'Barbell row', sub: 'Back · biceps' },
+        { id: 'latpulldown', name: 'Lat pulldown', sub: 'Back · biceps' },
+        { id: 'machinerow', name: 'Machine row', sub: 'Back' },
+        { id: 'pullup', name: 'Pull-up', sub: 'Back · biceps' },
+        { id: 'cablerow', name: 'Seated cable row', sub: 'Back' },
+        { id: 'tbar', name: 'T-bar row', sub: 'Back' }
+      ] },
+      { name: 'Shoulders', items: [
+        { id: 'cablelateral', name: 'Cable lateral raise', sub: 'Shoulders', isNew: true },
+        { id: 'facepull', name: 'Face pull', sub: 'Shoulders · back' },
+        { id: 'machinepress', name: 'Machine shoulder press', sub: 'Shoulders · triceps' },
+        { id: 'machinelateral', name: 'Machine side lateral raise', sub: 'Shoulders' },
+        { id: 'dbpress', name: 'Seated dumbbell shoulder press', sub: 'Shoulders · triceps' },
+        { id: 'lateral', name: 'Seated side lateral raise', sub: 'Shoulders' },
+        { id: 'smithpress', name: 'Smith machine shoulder press', sub: 'Shoulders · triceps' }
+      ] },
+      { name: 'Biceps', items: [
+        { id: 'bbcurl', name: 'Barbell curl', sub: 'Biceps' },
+        { id: 'ezcurl', name: 'EZ bar bicep curl', sub: 'Biceps' },
+        { id: 'preacher', name: 'Preacher curl', sub: 'Biceps' },
+        { id: 'inclinecurl', name: 'Seated incline dumbbell curl', sub: 'Biceps' },
+        { id: 'hammer', name: 'Seated incline hammer curl', sub: 'Biceps · forearms' }
+      ] },
+      { name: 'Triceps', items: [
+        { id: 'skull', name: 'EZ bar skullcrusher', sub: 'Triceps' },
+        { id: 'overhead', name: 'Overhead cable extension', sub: 'Triceps' },
+        { id: 'pushdown', name: 'Rope pushdown', sub: 'Triceps' },
+        { id: 'straightpush', name: 'Straight bar pushdown', sub: 'Triceps' },
+        { id: 'dip', name: 'Triceps dip', sub: 'Triceps · chest' }
+      ] },
+      { name: 'Legs', items: [
+        { id: 'squat', name: 'Barbell back squat', sub: 'Quads · glutes' },
+        { id: 'legext', name: 'Leg extension', sub: 'Quads' },
+        { id: 'legcurl', name: 'Lying leg curl', sub: 'Hamstrings' },
+        { id: 'rdl', name: 'Romanian deadlift', sub: 'Hamstrings · glutes' },
+        { id: 'calf', name: 'Smith machine calf raise', sub: 'Calves' }
+      ] }
+    ];
+    const chips = ['All', 'Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Legs'].map((label) => {
+      const on = label === filter;
+      return { label, on, bg: on ? c.primary : 'transparent', fg: on ? c.onPrimary : c.text, edge: on ? c.primary : c.border, pick: () => this.setState({ filter: label }) };
+    });
+    const visible = groups
+      .filter((g) => filter === 'All' || g.name === filter)
+      .map((g) => ({
+        name: g.name,
+        items: g.items.map((it, i) => {
+          const on = sel.indexOf(it.id) >= 0;
+          return {
+            name: it.name,
+            sub: it.sub,
+            isNew: !!it.isNew,
+            isVar: !!it.variations,
+            isPick: !it.variations,
+            on: on,
+            sep: i === 0 ? 'transparent' : c.border,
+            bg: on ? c.raised : 'transparent',
+            checkBg: on ? c.primary : 'transparent',
+            checkEdge: on ? c.primary : c.muted,
+            checkIcon: on ? c.onPrimary : 'transparent',
+            toggle: () => this.setState({ sel: on ? sel.filter((x) => x !== it.id) : sel.concat([it.id]) })
+          };
+        })
+      }));
+    return { c, r, font, chips, visible, empty: visible.length === 0, count: sel.length, addLabel: sel.length === 1 ? 'Add exercise' : 'Add exercises' };
+  }
+}
+</script>
+</body>
+</html>
