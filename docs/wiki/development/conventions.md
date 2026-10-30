@@ -103,12 +103,13 @@ We follow REST as closely as possible.
 
 GitLab CI runs `.gitlab-ci.yml` on every merge request and on `main`.
 
-| Job | Runs when | What it does |
-|---|---|---|
-| `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, tests with coverage |
-| `api` | After `app` | Format check, build, tests with coverage, then SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline. |
-| `mr-checks` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git) |
-| `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |
+| Stage | Job | Runs when | What it does |
+|---|---|---|---|
+| check | `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, tests with coverage |
+| check | `api` | Same as `app` | Format check, build, tests with coverage |
+| check | `mr` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git) |
+| analyze | `sonarqube` | After `app` and `api` on `main`. Started by hand on merge requests. | SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline on `main`. |
+| deploy | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |
 
 The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki: the next copy overwrites it.
 

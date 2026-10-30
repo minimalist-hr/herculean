@@ -4,17 +4,17 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 stages:
-  - test
+  - check
   - analyze
   - deploy
 
-# SonarQube needs coverage from both the API and the app, so both jobs run together.
+# SonarQube needs coverage from both the API and the app, so all three jobs run together.
 .code-changes:
   rules:
-    - changes: [api/**/*, app/**/*, .gitlab-ci.yml]
+    - changes: &code-paths [api/**/*, app/**/*, .gitlab-ci.yml]
 
-# Installed once per lockfile, then reused by app (to test) and api (for TypeScript analysis).
-# GitLab adds a cache's position in the list to its key, so keep this cache first in every job.
+# Installed once per lockfile, then reused by app (to test) and sonarqube (for TypeScript analysis).
+# GitLab adds a cache's position in the list to its key, so keep this cache first in every job that uses it.
 .node-modules-cache: &node-modules-cache
   key:
     prefix: node-modules
@@ -22,7 +22,7 @@ stages:
   paths: [app/node_modules/]
 
 app:
-  stage: test
+  stage: check
   image: node:24
   extends: .code-changes
   cache: *node-modules-cache
@@ -38,45 +38,26 @@ app:
     expire_in: 1 day
 
 api:
-  stage: analyze
+  stage: check
   image: mcr.microsoft.com/dotnet/sdk:10.0
   extends: .code-changes
-  needs: [app]
   variables:
-    GIT_DEPTH: "0"
     NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
-    SONAR_USER_HOME: $CI_PROJECT_DIR/.sonar
   cache:
-    - <<: *node-modules-cache
-      policy: pull
     - key:
         files: [api/Directory.Packages.props]
       paths: [.nuget/]
-    - key: sonar
-      paths: [.sonar/cache/]
   script:
     - cd api
     - dotnet format whitespace --verify-no-changes
-    - dotnet tool restore
-    - >
-      dotnet sonarscanner begin
-      /o:minimalist-sds
-      /k:minimalist-sds_herculean
-      /d:sonar.host.url=https://sonarcloud.io
-      /d:sonar.token="$SONAR_TOKEN"
-      /d:sonar.projectBaseDir="$CI_PROJECT_DIR"
-      /d:sonar.qualitygate.wait=true
-      /d:sonar.exclusions="docs/**,.nuget/**,.sonar/**,**/node_modules/**"
-      /d:sonar.test.inclusions="app/**/*.test.ts,app/**/*.test.tsx"
-      /d:sonar.coverage.exclusions="app/src/app/**,api/src/Herculean.Api/Program.cs,api/src/Herculean.ServiceDefaults/**"
-      /d:sonar.cs.vscoveragexml.reportsPaths="$CI_PROJECT_DIR/api/TestResults/*.xml"
-      /d:sonar.javascript.lcov.reportPaths="$CI_PROJECT_DIR/app/coverage/lcov.info"
     - dotnet build
     - dotnet test --no-build --coverage --coverage-output-format xml --results-directory TestResults
-    - dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+  artifacts:
+    paths: [api/TestResults/]
+    expire_in: 1 day
 
-mr-checks:
-  stage: test
+mr:
+  stage: check
   image: alpine:3
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -92,6 +73,50 @@ mr-checks:
         echo "Branch name must look like 'feat/exercise-groups'."
         exit 1
       fi
+
+# The C# analyzers run inside the build, so the API is built again here. Tests are not rerun: coverage comes from app and api.
+# Runs on its own on main. On merge requests it is started by hand, to save compute minutes.
+sonarqube:
+  stage: analyze
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *code-paths
+      when: manual
+      allow_failure: true
+    - changes: *code-paths
+  needs: [app, api]
+  variables:
+    GIT_DEPTH: "0"
+    NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
+    SONAR_USER_HOME: $CI_PROJECT_DIR/.sonar
+  cache:
+    - <<: *node-modules-cache
+      policy: pull
+    - key:
+        files: [api/Directory.Packages.props]
+      paths: [.nuget/]
+      policy: pull
+    - key: sonar
+      paths: [.sonar/cache/]
+  script:
+    - cd api
+    - dotnet tool restore
+    - >
+      dotnet sonarscanner begin
+      /o:minimalist-sds
+      /k:minimalist-sds_herculean
+      /d:sonar.host.url=https://sonarcloud.io
+      /d:sonar.token="$SONAR_TOKEN"
+      /d:sonar.projectBaseDir="$CI_PROJECT_DIR"
+      /d:sonar.qualitygate.wait=true
+      /d:sonar.exclusions="docs/**,.nuget/**,.sonar/**,**/node_modules/**"
+      /d:sonar.test.inclusions="app/**/*.test.ts,app/**/*.test.tsx"
+      /d:sonar.coverage.exclusions="app/src/app/**,api/src/Herculean.Api/Program.cs,api/src/Herculean.ServiceDefaults/**"
+      /d:sonar.cs.vscoveragexml.reportsPaths="$CI_PROJECT_DIR/api/TestResults/*.xml"
+      /d:sonar.javascript.lcov.reportPaths="$CI_PROJECT_DIR/app/coverage/lcov.info"
+    - dotnet build
+    - dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
 wiki:
   stage: deploy
