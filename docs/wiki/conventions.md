@@ -117,7 +117,7 @@ The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki:
 - **One issue per feature**, as listed in [Scope and features](scope-and-features#features).
 - **Child tasks** inside a feature issue hold the work steps.
 - **Labels:** `feature`, `bug`, `design`.
-- **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. The MR template is in `.gitlab/merge_request_templates/`.
+- **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. The MR template is in `.gitlab/merge_request_templates/`. It assigns a new MR to its author, makes the author the reviewer and sets the milestone to `v1`.
 
 ## Definition of done
 

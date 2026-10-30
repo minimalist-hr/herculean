@@ -12,3 +12,7 @@
 - [ ] Guard tests pass
 - [ ] Screens match the design, checked by screen ID
 - [ ] Wiki updated
+
+/assign me
+/assign_reviewer me
+/milestone %v1
