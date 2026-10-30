@@ -14,8 +14,10 @@ stages:
     - changes: [api/**/*, app/**/*, .gitlab-ci.yml]
 
 # Installed once per lockfile, then reused by app (to test) and api (for TypeScript analysis).
+# GitLab adds a cache's position in the list to its key, so keep this cache first in every job.
 .node-modules-cache: &node-modules-cache
   key:
+    prefix: node-modules
     files: [app/package-lock.json]
   paths: [app/node_modules/]
 
@@ -45,13 +47,13 @@ api:
     NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
     SONAR_USER_HOME: $CI_PROJECT_DIR/.sonar
   cache:
+    - <<: *node-modules-cache
+      policy: pull
     - key:
         files: [api/Directory.Packages.props]
       paths: [.nuget/]
     - key: sonar
       paths: [.sonar/cache/]
-    - <<: *node-modules-cache
-      policy: pull
   script:
     - cd api
     - dotnet format whitespace --verify-no-changes
