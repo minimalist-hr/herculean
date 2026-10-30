@@ -98,6 +98,19 @@ We follow REST as closely as possible.
 - **Merging:** squash merge. The MR title becomes the commit on `main`. The branch is deleted after merging.
 - **`main` is protected:** nobody pushes to it directly. The pipeline must pass and all threads must be resolved. Only the project owner merges.
 
+## Pipeline
+
+GitLab CI runs `.gitlab-ci.yml` on every merge request and on `main`.
+
+| Job | Runs when | What it does |
+|---|---|---|
+| `api` | `api/` or the pipeline changes | Format check, build, tests |
+| `app` | `app/` or the pipeline changes | Lint, format check, type check, tests |
+| `mr-checks` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git) |
+| `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |
+
+The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki: the next copy overwrites it.
+
 ## Work items
 
 - **Milestone** `v1` holds the release.

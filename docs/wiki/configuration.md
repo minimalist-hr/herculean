@@ -38,3 +38,9 @@ title: Configuration
 |---|---|
 | `development` | Local development |
 | `preview` | Testers: an Android APK, and updates that open in Expo Go on iPhone |
+
+## CI
+
+| Variable | Secret | Value |
+|---|---|---|
+| `WIKI_TOKEN` | Yes | Personal access token with the `write_repository` scope. Used by the `wiki` job. Masked and protected. |
