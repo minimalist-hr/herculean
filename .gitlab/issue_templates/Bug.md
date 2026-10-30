@@ -17,3 +17,4 @@
 <!-- Phone, OS version, app version or commit -->
 
 /label ~bug
+/assign me

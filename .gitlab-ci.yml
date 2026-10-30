@@ -73,6 +73,11 @@ mr:
         echo "Branch name must look like 'feat/exercise-groups'."
         exit 1
       fi
+    - |
+      if ! echo "$CI_MERGE_REQUEST_DESCRIPTION" | grep -Eiq '(closes|relates to) #[0-9]+'; then
+        echo "MR description must name its issue, for example 'Closes #12'."
+        exit 1
+      fi
 
 # The C# analyzers run inside the build, so the API is built again here. Tests are not rerun: coverage comes from app and api.
 # Runs on its own on main. On merge requests it is started by hand, to save compute minutes.

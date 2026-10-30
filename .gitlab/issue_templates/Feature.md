@@ -8,3 +8,4 @@
 
 /label ~feature
 /milestone %v1
+/assign me

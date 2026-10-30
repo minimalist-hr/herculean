@@ -107,7 +107,7 @@ GitLab CI runs `.gitlab-ci.yml` on every merge request and on `main`.
 |---|---|---|---|
 | check | `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, tests with coverage |
 | check | `api` | Same as `app` | Format check, build, tests with coverage |
-| check | `mr` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git) |
+| check | `mr` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items) |
 | analyze | `sonarqube` | After `app` and `api` on `main`. Started by hand on merge requests. | SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline on `main`. |
 | deploy | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |
 
@@ -116,10 +116,10 @@ The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki:
 ## Work items
 
 - **Milestone** `v1` holds the release.
-- **One issue per feature**, as listed in [Scope and features](/product/scope#features).
-- **Child tasks** inside a feature issue hold the work steps.
-- **Labels:** `feature`, `bug`, `design`.
-- **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. The MR template is in `.gitlab/merge_request_templates/`. It assigns a new MR to its author, makes the author the reviewer and sets the milestone to `v1`.
+- **One issue per flow** of a feature, app and API together. Features are listed in [Scope and features](/product/scope#features).
+- **Labels:** each issue has one type: `feature`, `bug`, `design` or `chore`. An issue about one feature also has its feature label, numbered as in [Scope and features](/product/scope#features): `1-account` to `7-settings`.
+- **Every MR names its issue** at the top of its description: `Closes #12`, or `Relates to #12` when the issue stays open or is already closed. The `mr` job checks this. After fixing the description, retry the job.
+- **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. Each assigns a new issue to its author. The MR template is in `.gitlab/merge_request_templates/`. It assigns a new MR to its author, makes the author the reviewer and sets the milestone to `v1`.
 
 ## Definition of done
 

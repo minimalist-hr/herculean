@@ -11,3 +11,4 @@
 <!-- The proposed design change. It is approved before anything is built. -->
 
 /label ~design
+/assign me
