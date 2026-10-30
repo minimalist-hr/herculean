@@ -8,44 +8,25 @@ stages:
   - analyze
   - deploy
 
-# SonarQube needs coverage from both the API and the app, so all three jobs run together.
+# SonarQube needs coverage from both the API and the app, so both jobs run together.
 .code-changes:
   rules:
     - changes: [api/**/*, app/**/*, .gitlab-ci.yml]
 
-.nuget-cache:
-  variables:
-    NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
-  cache:
-    key:
-      files: [api/Directory.Packages.props]
-    paths: [.nuget/]
-
-api:
-  stage: test
-  image: mcr.microsoft.com/dotnet/sdk:10.0
-  extends: [.code-changes, .nuget-cache]
-  script:
-    - cd api
-    - dotnet restore
-    - dotnet format --verify-no-changes --no-restore
-    - dotnet build --no-restore
-    - dotnet test --no-build --coverage --coverage-output-format xml --results-directory TestResults
-  artifacts:
-    paths: [api/TestResults/]
-    expire_in: 1 day
+# Installed once per lockfile, then reused by app (to test) and api (for TypeScript analysis).
+.node-modules-cache: &node-modules-cache
+  key:
+    files: [app/package-lock.json]
+  paths: [app/node_modules/]
 
 app:
   stage: test
   image: node:24
   extends: .code-changes
-  cache:
-    key:
-      files: [app/package-lock.json]
-    paths: [.npm/]
+  cache: *node-modules-cache
   script:
     - cd app
-    - npm ci --ignore-scripts --cache ../.npm --prefer-offline
+    - if [ ! -d node_modules ]; then npm ci --ignore-scripts; fi
     - npm run lint
     - npm run format
     - npm run typecheck
@@ -54,16 +35,26 @@ app:
     paths: [app/coverage/lcov.info]
     expire_in: 1 day
 
-sonar:
+api:
   stage: analyze
   image: mcr.microsoft.com/dotnet/sdk:10.0
-  extends: [.code-changes, .nuget-cache]
-  needs: [api, app]
+  extends: .code-changes
+  needs: [app]
   variables:
     GIT_DEPTH: "0"
+    NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
     SONAR_USER_HOME: $CI_PROJECT_DIR/.sonar
+  cache:
+    - key:
+        files: [api/Directory.Packages.props]
+      paths: [.nuget/]
+    - key: sonar
+      paths: [.sonar/cache/]
+    - <<: *node-modules-cache
+      policy: pull
   script:
     - cd api
+    - dotnet format whitespace --verify-no-changes
     - dotnet tool restore
     - >
       dotnet sonarscanner begin
@@ -73,12 +64,13 @@ sonar:
       /d:sonar.token="$SONAR_TOKEN"
       /d:sonar.projectBaseDir="$CI_PROJECT_DIR"
       /d:sonar.qualitygate.wait=true
-      /d:sonar.exclusions="docs/**"
+      /d:sonar.exclusions="docs/**,.nuget/**,.sonar/**,**/node_modules/**"
       /d:sonar.test.inclusions="app/**/*.test.ts,app/**/*.test.tsx"
-      /d:sonar.coverage.exclusions="app/src/app/**"
+      /d:sonar.coverage.exclusions="app/src/app/**,api/src/Herculean.Api/Program.cs,api/src/Herculean.ServiceDefaults/**"
       /d:sonar.cs.vscoveragexml.reportsPaths="$CI_PROJECT_DIR/api/TestResults/*.xml"
       /d:sonar.javascript.lcov.reportPaths="$CI_PROJECT_DIR/app/coverage/lcov.info"
-    - dotnet build --no-incremental
+    - dotnet build
+    - dotnet test --no-build --coverage --coverage-output-format xml --results-directory TestResults
     - dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
 mr-checks:

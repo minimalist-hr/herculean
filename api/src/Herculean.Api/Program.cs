@@ -8,4 +8,4 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-app.Run();
+await app.RunAsync();

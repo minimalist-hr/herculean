@@ -43,5 +43,5 @@ title: Configuration
 
 | Variable | Secret | Value |
 |---|---|---|
-| `SONAR_TOKEN` | Yes | SonarQube Cloud token. Used by the `sonar` job. Masked, not protected, because merge request pipelines need it. |
+| `SONAR_TOKEN` | Yes | SonarQube Cloud token. Used by the `api` job. Masked, not protected, because merge request pipelines need it. |
 | `WIKI_TOKEN` | Yes | Personal access token with the `write_repository` scope. Used by the `wiki` job. Masked and protected. |
