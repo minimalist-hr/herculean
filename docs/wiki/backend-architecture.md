@@ -28,9 +28,12 @@ api/
         Herculean.Training.Infrastructure/
         Herculean.Training.Contracts/
   tests/
-    Herculean.Account.UnitTests/
-    Herculean.Training.UnitTests/
     Herculean.ArchitectureTests/
+    modules/
+      account/
+        Herculean.Account.UnitTests/
+      training/
+        Herculean.Training.UnitTests/
 ```
 
 ### Dependencies

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Herculean.Account.Domain\Herculean.Account.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

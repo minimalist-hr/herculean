@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Herculean.Training.Application\Herculean.Training.Application.csproj" />
+  </ItemGroup>
+
+</Project>

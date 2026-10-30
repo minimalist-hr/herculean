@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\modules\account\Herculean.Account.Infrastructure\Herculean.Account.Infrastructure.csproj" />
+    <ProjectReference Include="..\modules\training\Herculean.Training.Infrastructure\Herculean.Training.Infrastructure.csproj" />
+    <ProjectReference Include="..\Herculean.ServiceDefaults\Herculean.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

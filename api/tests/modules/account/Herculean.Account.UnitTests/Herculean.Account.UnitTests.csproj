@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\modules\account\Herculean.Account.Application\Herculean.Account.Application.csproj" />
+  </ItemGroup>
+
+</Project>

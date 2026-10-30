@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Herculean.Api/Herculean.Api.csproj" />
+    <Project Path="src/Herculean.ServiceDefaults/Herculean.ServiceDefaults.csproj" />
+    <Project Path="src/Herculean.SharedKernel/Herculean.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/" />
+  <Folder Name="/src/modules/account/">
+    <Project Path="src/modules/account/Herculean.Account.Domain/Herculean.Account.Domain.csproj" />
+    <Project Path="src/modules/account/Herculean.Account.Application/Herculean.Account.Application.csproj" />
+    <Project Path="src/modules/account/Herculean.Account.Infrastructure/Herculean.Account.Infrastructure.csproj" />
+    <Project Path="src/modules/account/Herculean.Account.Contracts/Herculean.Account.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/training/">
+    <Project Path="src/modules/training/Herculean.Training.Domain/Herculean.Training.Domain.csproj" />
+    <Project Path="src/modules/training/Herculean.Training.Application/Herculean.Training.Application.csproj" />
+    <Project Path="src/modules/training/Herculean.Training.Infrastructure/Herculean.Training.Infrastructure.csproj" />
+    <Project Path="src/modules/training/Herculean.Training.Contracts/Herculean.Training.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Herculean.ArchitectureTests/Herculean.ArchitectureTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/modules/" />
+  <Folder Name="/tests/modules/account/">
+    <Project Path="tests/modules/account/Herculean.Account.UnitTests/Herculean.Account.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/modules/training/">
+    <Project Path="tests/modules/training/Herculean.Training.UnitTests/Herculean.Training.UnitTests.csproj" />
+  </Folder>
+</Solution>

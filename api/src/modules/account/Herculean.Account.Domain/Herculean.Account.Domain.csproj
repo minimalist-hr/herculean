@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Herculean.SharedKernel\Herculean.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

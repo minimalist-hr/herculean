@@ -14,7 +14,6 @@ title: Setup and getting started
 ## Repository layout
 
 ```
-README.md
 .gitlab-ci.yml
 .gitignore            OS and editor files only
 .gitattributes
@@ -35,7 +34,9 @@ The insides of `api/` and `app/` are on [Backend architecture](backend-architect
 1. Clone the repo.
 2. From `aspire/`, run `aspire run`.
 3. Open the Aspire dashboard. It shows the API, PostgreSQL, Mailpit and the app.
-4. Scan the app's QR code with Expo Go.
+4. In Expo Go, tap **Enter URL manually** and type the app's **Expo Go** link from the dashboard, for example `exp://192.168.1.10:8081`.
+
+The phone must be on the same Wi-Fi as the computer. If Windows asks, let .NET and Node.js through the firewall on private networks.
 
 Email sent locally shows up in Mailpit, not in a real inbox.
 
