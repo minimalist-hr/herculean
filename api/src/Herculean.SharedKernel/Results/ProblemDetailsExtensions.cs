@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -12,8 +13,13 @@ public static class ProblemDetailsExtensions
 
     /// <summary>Adds Problem Details where every error has a type, title, status, detail, code and trace ID.</summary>
     /// <param name="services">The API's services.</param>
-    public static IServiceCollection AddStandardProblemDetails(this IServiceCollection services) =>
+    public static IServiceCollection AddStandardProblemDetails(this IServiceCollection services)
+    {
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context => Standardize(context.ProblemDetails));
+        services.Configure<ExceptionHandlerOptions>(options => options.StatusCodeSelector = StatusCodeFor);
+
+        return services;
+    }
 
     // ASP.NET Core has already set the type and trace ID. Only 400 from validation keeps its errors.
     internal static void Standardize(ProblemDetails problem)
@@ -26,4 +32,9 @@ public static class ProblemDetailsExtensions
         problem.Detail ??= title;
         problem.Extensions.TryAdd(CodeKey, title.ToLowerInvariant().Replace(' ', '_'));
     }
+
+    // A body that can't be read, for example an unknown enum value, is the caller's mistake: 400.
+    // In Development ASP.NET Core throws it, and every other exception is a bug: 500.
+    internal static int StatusCodeFor(Exception exception) =>
+        exception is BadHttpRequestException badRequest ? badRequest.StatusCode : StatusCodes.Status500InternalServerError;
 }

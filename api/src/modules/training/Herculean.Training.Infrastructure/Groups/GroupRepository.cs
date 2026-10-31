@@ -1,9 +1,15 @@
+using Herculean.Training.Domain;
 using Herculean.Training.Domain.Groups;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Herculean.Training.Infrastructure.Groups;
 
 internal sealed class GroupRepository(TrainingDbContext dbContext) : IGroupRepository
 {
+    public Task<bool> AnyForUserAsync(UserId userId, CancellationToken cancellationToken) =>
+        dbContext.Groups.AnyAsync(group => group.UserId == userId, cancellationToken);
+
     public void AddRange(IEnumerable<Group> groups)
     {
         dbContext.Groups.AddRange(groups);

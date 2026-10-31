@@ -42,6 +42,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 - An email is unique and not case-sensitive.
 - A password has at least 8 characters.
+- A name has 1 to 50 characters, trimmed.
 - Password reset and email change links expire. Their lifetimes are in [Configuration](/development/configuration#api-settings).
 - An email change takes effect only when the link in the email is opened.
 - Sign out deletes that device's refresh token.
@@ -55,6 +56,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 - Weight is stored in kg. Imperial users see pounds, rounded to 0.1.
 - The weight steppers (L10) change by 2.5 kg, or by 5 lb for imperial users.
+- The default rest time is 1:00, 1:30, 2:00, 2:30 or 3:00. It starts at 1:30.
 - Times are stored in UTC. Dates and day logic use the user's time zone.
 - The app sends the phone's time zone, and it is stored on the user.
 

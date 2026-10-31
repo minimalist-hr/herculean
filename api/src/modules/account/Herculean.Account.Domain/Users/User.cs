@@ -4,6 +4,8 @@ namespace Herculean.Account.Domain.Users;
 
 internal sealed class User : Entity<UserId>
 {
+    internal const int NameMaxLength = 50;
+
     private readonly List<RefreshToken> _refreshTokens = [];
 
     private User(UserId id, string email, string passwordHash, string timeZone) : base(id)
@@ -17,6 +19,11 @@ internal sealed class User : Entity<UserId>
 
     public string PasswordHash { get; private set; }
 
+    /// <summary>Empty until setup.</summary>
+    public string? Name { get; private set; }
+
+    public Units Units { get; private set; } = Units.Metric;
+
     /// <summary>An IANA name, for example <c>Europe/Zagreb</c>.</summary>
     public string TimeZone { get; private set; }
 
@@ -27,6 +34,21 @@ internal sealed class User : Entity<UserId>
 
     /// <summary>Emails are stored this way, so they are unique regardless of case.</summary>
     public static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
+
+    public void ChangeName(string name)
+    {
+        Name = name.Trim();
+    }
+
+    public void ChangeUnits(Units units)
+    {
+        Units = units;
+    }
+
+    public void ChangeTimeZone(string timeZone)
+    {
+        TimeZone = timeZone;
+    }
 
     public void AddRefreshToken(string tokenHash, DateTimeOffset expiresAtUtc)
     {

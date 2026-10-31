@@ -63,6 +63,7 @@ public sealed class GuardTests
     {
         using WebApplication app = CreateApiBuilder().Build();
         app.MapAccountModuleEndpoints();
+        app.MapTrainingModuleEndpoints();
 
         HashSet<Type?> mapped = [.. ((IEndpointRouteBuilder)app).DataSources
             .SelectMany(source => source.Endpoints)
@@ -130,9 +131,20 @@ public sealed class GuardTests
         {
             RequireText(schema.Value, "description", schema.Name, undocumented);
 
-            foreach (JsonProperty property in schema.Value.GetProperty("properties").EnumerateObject())
+            // An enum schema has no properties.
+            if (!schema.Value.TryGetProperty("properties", out JsonElement properties))
             {
-                RequireText(property.Value, "description", $"{schema.Name}.{property.Name}", undocumented);
+                continue;
+            }
+
+            foreach (JsonProperty property in properties.EnumerateObject())
+            {
+                // A nullable reference, for example an optional enum, keeps its description inside oneOf.
+                JsonElement documented = property.Value.TryGetProperty("oneOf", out JsonElement oneOf)
+                    ? oneOf.EnumerateArray().FirstOrDefault(option => option.TryGetProperty("description", out _))
+                    : property.Value;
+
+                RequireText(documented.ValueKind == JsonValueKind.Undefined ? property.Value : documented, "description", $"{schema.Name}.{property.Name}", undocumented);
             }
         }
 

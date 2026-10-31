@@ -1,11 +1,14 @@
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Herculean.Account.Infrastructure;
 using Herculean.ServiceDefaults;
+using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Results;
 using Herculean.Training.Infrastructure;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
@@ -18,8 +21,12 @@ builder.AddServiceDefaults();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddStandardProblemDetails();
 
-// Numbers are JSON numbers only, never strings, so the API client gets number types.
-builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict);
+// Numbers are JSON numbers only, never strings, so the API client gets number types. Enums are camelCase strings.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+});
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, _, _) =>
@@ -29,8 +36,14 @@ builder.Services.AddOpenApi(options =>
 
         return Task.CompletedTask;
     });
+    options.AddDocumentTransformer<BearerSecurityTransformer>();
+    options.AddOperationTransformer<BearerSecurityTransformer>();
     options.AddSchemaTransformer<ProblemDetailsSchemaTransformer>();
 });
+
+// Every endpoint needs a signed-in user, unless it is marked anonymous.
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
 builder.AddAccountModule();
 builder.AddTrainingModule();
@@ -42,7 +55,7 @@ if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
 }
 
 // The browser preview runs on another origin. The phone app doesn't need CORS.
-if (builder.Environment.IsDevelopment() && builder.Configuration["BrowserPreview:Origin"] is { } browserPreviewOrigin)
+if (builder.Environment.IsDevelopment() && builder.Configuration["BrowserPreview:Origin"] is string browserPreviewOrigin)
 {
     builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins(browserPreviewOrigin).AllowAnyHeader().AllowAnyMethod()));
 }
@@ -57,13 +70,17 @@ if (app.Environment.IsDevelopment())
     app.UseCors();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapDefaultEndpoints();
 app.MapAccountModuleEndpoints();
+app.MapTrainingModuleEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapOpenApi().AllowAnonymous();
+    app.MapScalarApiReference().AllowAnonymous();
 
     // Production applies migrations when it deploys.
     await app.Services.MigrateAccountModuleDatabaseAsync();

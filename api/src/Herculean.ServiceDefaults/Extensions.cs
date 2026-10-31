@@ -32,7 +32,7 @@ public static class Extensions
         // Public health endpoints need a security review first, so they exist only in development.
         if (app.Environment.IsDevelopment())
         {
-            app.MapHealthChecks(HealthPath);
+            app.MapHealthChecks(HealthPath).AllowAnonymous();
         }
     }
 

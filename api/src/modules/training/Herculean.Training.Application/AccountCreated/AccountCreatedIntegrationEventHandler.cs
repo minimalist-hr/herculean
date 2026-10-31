@@ -15,14 +15,18 @@ internal sealed class AccountCreatedIntegrationEventHandler(
     {
         UserId userId = UserId.From(@event.UserId);
 
-        // The outbox can send the event twice. The second time, the account is already set up.
-        if (await workoutSettingsRepository.ExistsForUserAsync(userId, cancellationToken))
+        // Each part is checked on its own: the outbox can send the event twice,
+        // and changing the workout settings creates them if they are not there yet.
+        if (!await workoutSettingsRepository.ExistsForUserAsync(userId, cancellationToken))
         {
-            return;
+            workoutSettingsRepository.Add(WorkoutSettings.CreateStarting(userId));
         }
 
-        workoutSettingsRepository.Add(WorkoutSettings.CreateStarting(userId));
-        groupRepository.AddRange(Group.CreateStarting(userId));
+        if (!await groupRepository.AnyForUserAsync(userId, cancellationToken))
+        {
+            groupRepository.AddRange(Group.CreateStarting(userId));
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

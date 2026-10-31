@@ -2,10 +2,12 @@ using System.Text.Json;
 
 using Herculean.SharedKernel.Results;
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Herculean.SharedKernel.UnitTests.Results;
 
@@ -43,6 +45,30 @@ public sealed class ProblemDetailsExtensionsTests
 
         problem.Detail.ShouldBe("Taken.");
         problem.Extensions["code"].ShouldBe("user.email_taken");
+    }
+
+    [Fact]
+    public void BodyThatCannotBeReadIsABadRequest()
+    {
+        ProblemDetailsExtensions.StatusCodeFor(new BadHttpRequestException("Failed to read the request body as JSON."))
+            .ShouldBe(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public void OtherExceptionIsAServerError()
+    {
+        ProblemDetailsExtensions.StatusCodeFor(new InvalidOperationException()).ShouldBe(StatusCodes.Status500InternalServerError);
+    }
+
+    [Fact]
+    public void ExceptionHandlerUsesTheStatusCodes()
+    {
+        ServiceCollection services = new();
+        services.AddStandardProblemDetails();
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        provider.GetRequiredService<IOptions<ExceptionHandlerOptions>>().Value.StatusCodeSelector
+            .ShouldNotBeNull()(new BadHttpRequestException("Bad.")).ShouldBe(StatusCodes.Status400BadRequest);
     }
 
     [Fact]

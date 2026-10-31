@@ -24,6 +24,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change the signed-in user
+         * @description Changes the name, units or time zone. Setup sends the name and units; the app sends a new time zone when the phone's changes.
+         */
+        patch: operations["UpdateCurrentUser"];
+        trace?: never;
+    };
+    "/api/v1/workout-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change the workout settings
+         * @description Changes the default rest time, rest sound or rest vibrate. A new account starts at 90 seconds, with sound and vibrate on.
+         */
+        patch: operations["UpdateWorkoutSettings"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -71,6 +111,54 @@ export interface components {
             /** @description Gets new tokens when the access token expires. Keep it in secure storage. */
             refreshToken: string;
         };
+        /**
+         * @description The units the app shows and takes: metric in kg and cm, imperial in lb and in. The app converts; the API keeps weights in kg.
+         * @enum {unknown}
+         */
+        Units: "metric" | "imperial";
+        /** @description The fields to change. A field left out, or null, stays the same. */
+        UpdateCurrentUserRequest: {
+            /** @description 1 to 50 characters, trimmed. */
+            name?: null | string;
+            units?: null | components["schemas"]["Units"];
+            /** @description The phone's IANA time zone, for example Europe/Zagreb. Sent when the phone's changes. */
+            timeZone?: null | string;
+        };
+        /** @description The fields to change. A field left out, or null, stays the same. */
+        UpdateWorkoutSettingsRequest: {
+            /**
+             * Format: int32
+             * @description The rest time that starts after every checked set, in seconds: 60, 90, 120, 150 or 180.
+             */
+            defaultRestSeconds?: null | number;
+            /** @description Play a sound when the rest ends. */
+            restSound?: null | boolean;
+            /** @description Vibrate when the rest ends. */
+            restVibrate?: null | boolean;
+        };
+        /** @description The signed-in user. */
+        UserResponse: {
+            /** @description Lowercase. Unique regardless of case. */
+            email: string;
+            /** @description Null until setup. The greeting uses its first word. */
+            name: null | string;
+            /** @description The units the app shows weights and lengths in. */
+            units: components["schemas"]["Units"];
+            /** @description The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it. */
+            timeZone: string;
+        };
+        /** @description The signed-in user's workout settings. */
+        WorkoutSettingsResponse: {
+            /**
+             * Format: int32
+             * @description The rest time that starts after every checked set, in seconds: 60, 90, 120, 150 or 180.
+             */
+            defaultRestSeconds: number;
+            /** @description Play a sound when the rest ends. */
+            restSound: boolean;
+            /** @description Vibrate when the rest ends. */
+            restVibrate: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -113,6 +201,99 @@ export interface operations {
             };
             /** @description An account with this email already exists. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description The user after the change. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each field. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateWorkoutSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkoutSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description The workout settings after the change. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutSettingsResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each field. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

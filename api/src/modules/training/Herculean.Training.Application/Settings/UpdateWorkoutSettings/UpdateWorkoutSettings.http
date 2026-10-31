@@ -1,0 +1,49 @@
+# Change the workout settings. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Set the default rest time → 200 with the settings. Sound and vibrate stay on.
+PATCH {{host}}/api/v1/workout-settings
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "defaultRestSeconds": 120
+}
+
+### Turn off the rest sound and vibrate → 200. The rest time stays the same.
+PATCH {{host}}/api/v1/workout-settings
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "restSound": false,
+  "restVibrate": false
+}
+
+### Rest time that is not a choice → 400 validation, with an error for defaultRestSeconds.
+PATCH {{host}}/api/v1/workout-settings
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "defaultRestSeconds": 75
+}
+
+### Not signed in → 401 unauthorized.
+PATCH {{host}}/api/v1/workout-settings
+Content-Type: application/json
+
+{
+  "defaultRestSeconds": 60
+}

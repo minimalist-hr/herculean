@@ -6,6 +6,9 @@ namespace Herculean.Account.Infrastructure.Users;
 
 internal sealed class UserRepository(AccountDbContext dbContext) : IUserRepository
 {
+    public Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken) =>
+        dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
     {
         string normalizedEmail = User.NormalizeEmail(email);

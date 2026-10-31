@@ -36,4 +36,27 @@ public sealed class UserTests
         token.TokenHash.ShouldBe("token-hash");
         token.ExpiresAtUtc.ShouldBe(ExpiresAt);
     }
+
+    [Fact]
+    public void NewUserHasNoNameAndMetricUnits()
+    {
+        User user = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+
+        user.Name.ShouldBeNull();
+        user.Units.ShouldBe(Units.Metric);
+    }
+
+    [Fact]
+    public void ChangesAreKeptWithTheNameTrimmed()
+    {
+        User user = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+
+        user.ChangeName("  Filip  ");
+        user.ChangeUnits(Units.Imperial);
+        user.ChangeTimeZone("Europe/London");
+
+        user.Name.ShouldBe("Filip");
+        user.Units.ShouldBe(Units.Imperial);
+        user.TimeZone.ShouldBe("Europe/London");
+    }
 }

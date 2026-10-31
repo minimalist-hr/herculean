@@ -1,0 +1,59 @@
+# Change the signed-in user. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Set up the name and units → 200 with the user.
+PATCH {{host}}/api/v1/users/me
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Filip",
+  "units": "imperial"
+}
+
+### Change only the time zone → 200. The name and units stay the same.
+PATCH {{host}}/api/v1/users/me
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "timeZone": "Europe/London"
+}
+
+### Invalid fields → 400 validation, with errors for name and timeZone.
+PATCH {{host}}/api/v1/users/me
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "name": " ",
+  "timeZone": "Mars/Olympus"
+}
+
+### Units that don't exist → 400 bad_request. The body can't be read, so there are no field errors.
+PATCH {{host}}/api/v1/users/me
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "units": "stones"
+}
+
+### Not signed in → 401 unauthorized.
+PATCH {{host}}/api/v1/users/me
+Content-Type: application/json
+
+{
+  "name": "Filip"
+}

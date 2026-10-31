@@ -57,6 +57,130 @@
           }
         }
       }
+    },
+    "/api/v1/users/me": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Change the signed-in user",
+        "description": "Changes the name, units or time zone. Setup sends the name and units; the app sends a new time zone when the phone's changes.",
+        "operationId": "UpdateCurrentUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCurrentUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The user after the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each field.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workout-settings": {
+      "patch": {
+        "tags": [
+          "Workout settings"
+        ],
+        "summary": "Change the workout settings",
+        "description": "Changes the default rest time, rest sound or rest vibrate. A new account starts at 90 seconds, with sound and vibrate on.",
+        "operationId": "UpdateWorkoutSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The workout settings after the change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutSettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each field.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -156,12 +280,144 @@
           }
         },
         "description": "The OAuth 2.0 token response (RFC 6749), in camelCase."
+      },
+      "Units": {
+        "enum": [
+          "metric",
+          "imperial"
+        ],
+        "description": "The units the app shows and takes: metric in kg and cm, imperial in lb and in. The app converts; the API keeps weights in kg."
+      },
+      "UpdateCurrentUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "1 to 50 characters, trimmed."
+          },
+          "units": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The units the app shows weights and lengths in.",
+                "$ref": "#/components/schemas/Units"
+              }
+            ]
+          },
+          "timeZone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The phone's IANA time zone, for example Europe/Zagreb. Sent when the phone's changes."
+          }
+        },
+        "description": "The fields to change. A field left out, or null, stays the same."
+      },
+      "UpdateWorkoutSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "defaultRestSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "The rest time that starts after every checked set, in seconds: 60, 90, 120, 150 or 180.",
+            "format": "int32"
+          },
+          "restSound": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Play a sound when the rest ends."
+          },
+          "restVibrate": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Vibrate when the rest ends."
+          }
+        },
+        "description": "The fields to change. A field left out, or null, stays the same."
+      },
+      "UserResponse": {
+        "required": [
+          "email",
+          "name",
+          "units",
+          "timeZone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Lowercase. Unique regardless of case."
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Null until setup. The greeting uses its first word."
+          },
+          "units": {
+            "description": "The units the app shows weights and lengths in.",
+            "$ref": "#/components/schemas/Units"
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it."
+          }
+        },
+        "description": "The signed-in user."
+      },
+      "WorkoutSettingsResponse": {
+        "required": [
+          "defaultRestSeconds",
+          "restSound",
+          "restVibrate"
+        ],
+        "type": "object",
+        "properties": {
+          "defaultRestSeconds": {
+            "type": "integer",
+            "description": "The rest time that starts after every checked set, in seconds: 60, 90, 120, 150 or 180.",
+            "format": "int32"
+          },
+          "restSound": {
+            "type": "boolean",
+            "description": "Play a sound when the rest ends."
+          },
+          "restVibrate": {
+            "type": "boolean",
+            "description": "Vibrate when the rest ends."
+          }
+        },
+        "description": "The signed-in user's workout settings."
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "The accessToken from creating an account or signing in.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   },
   "tags": [
     {
       "name": "Users"
+    },
+    {
+      "name": "Workout settings"
     }
   ]
 }

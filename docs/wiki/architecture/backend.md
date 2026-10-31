@@ -75,7 +75,7 @@ Herculean.Training.Application/
 - **No input, no request:** an endpoint with no input, for example "list my routines", has no request type.
 - **Routes:** each resource keeps its routes and OpenAPI tag as constants in one class in Application, for example `UserRoutes.Me`. Each endpoint keeps its name in a `Name` constant.
 - **Documentation:** each endpoint is fully documented for Scalar when it is built. Its method has a summary, a description and every response with its own description. Each request and response type, and each of their fields, has a `[Description]`.
-- **Requests file:** each slice has a `.http` file next to its endpoint, for example `CreateUser/CreateUser.http`, with an example of every outcome.
+- **Requests file:** each slice has a `.http` file next to its endpoint, for example `CreateUser/CreateUser.http`, with an example of every outcome. When the endpoint needs a signed-in user, the file first creates an account and sends its access token as the Bearer.
 
 ### Explicit wiring
 
@@ -93,7 +93,7 @@ Herculean.Training.Application/
 - **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
 - **Foreign keys** are `ON DELETE RESTRICT`. Code deletes child rows on purpose.
 - **Query filters:** named EF Core filters for `UserId` and for soft delete. A filter can be turned off on its own, for example by a background job.
-- **Current user:** a service in each module, filled from the access token.
+- **Current user:** SharedKernel's `ICurrentUserAccessor` reads the `sub` claim of the access token, for the whole API. Each module wraps it in its own `CurrentUser`, with the module's own `UserId`.
 - **Typed IDs:** each ID is a record struct of our own, with an EF Core converter. Each module has its own `UserId`: Account owns users, and Training only refers to them. Between modules, IDs travel as plain `Guid`s.
 - **Undo:** workouts and groups have a restore endpoint.
 
@@ -126,6 +126,9 @@ Herculean.Training.Application/
 - The access token is a JWT. It is checked by signature and never stored.
 - Refresh tokens, password reset tokens and email change tokens are stored hashed.
 - Each refresh replaces the refresh token with a new one.
+- The API checks every access token's signature, issuer, audience and lifetime.
+- Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, the health check and the API docs are anonymous.
+- The OpenAPI document has the Bearer scheme, so Scalar can send an access token.
 - Tokens are returned as the OAuth 2.0 token response (RFC 6749), in camelCase: `accessToken`, `expiresIn` (seconds) and `refreshToken`.
 
 ## Time

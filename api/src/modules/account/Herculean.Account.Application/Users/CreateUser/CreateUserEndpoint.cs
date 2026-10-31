@@ -17,7 +17,8 @@ internal static class CreateUserEndpoint
     {
         endpoints.MapPost(UserRoutes.Users, HandleAsync)
             .WithName(Name)
-            .WithTags(UserRoutes.Tag);
+            .WithTags(UserRoutes.Tag)
+            .AllowAnonymous();
     }
 
     [EndpointSummary("Create an account")]

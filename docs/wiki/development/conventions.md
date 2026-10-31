@@ -46,6 +46,7 @@ Type suffixes say what a type is for: `Request` comes into the API, `Response` g
 
 - snake_case, set once per DbContext with `UseSnakeCaseNamingConvention()`.
 - Tables are plural: `week_plan_days`.
+- Enums are stored by name, for example `Metric`, so reordering an enum never changes saved data.
 - Schemas are module names: `account`, `training`.
 
 ### API
@@ -63,7 +64,7 @@ We follow REST as closely as possible.
   | GET | Read | 200 |
   | POST | Create | 201, with a `Location` header |
   | PUT | Replace a whole resource | 200 |
-  | PATCH | Change some fields | 200 |
+  | PATCH | Change some fields, as in JSON Merge Patch (RFC 7396). A field left out stays the same. No field can be cleared yet, so null also keeps it. | 200, with the whole resource |
   | DELETE | Delete | 204 |
 
 - **Actions:** when no resource fits, a short verb is added after the resource and called with POST, for example `/restore`, `/refresh`, `/complete`, `/confirm`. This is the exception, not the rule.

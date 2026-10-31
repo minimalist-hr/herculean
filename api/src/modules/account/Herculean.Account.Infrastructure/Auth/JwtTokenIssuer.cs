@@ -30,9 +30,7 @@ internal sealed class JwtTokenIssuer(IOptions<JwtOptions> options, TimeProvider 
             IssuedAt = nowUtc,
             NotBefore = nowUtc,
             Expires = nowUtc + jwtOptions.AccessTokenLifetime,
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SigningKey)),
-                SecurityAlgorithms.HmacSha256),
+            SigningCredentials = new SigningCredentials(jwtOptions.CreateSigningKey(), JwtOptions.Algorithm),
         });
 
         string refreshToken = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(RefreshTokenBytes));

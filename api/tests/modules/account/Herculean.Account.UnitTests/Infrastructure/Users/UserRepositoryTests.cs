@@ -56,6 +56,17 @@ public sealed class UserRepositoryTests : IDisposable
         (await _userRepository.EmailExistsAsync("filip@example.com", TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
+    [Fact]
+    public async Task UserIsFoundByItsId()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _userRepository.GetByIdAsync(newUser.Id, TestContext.Current.CancellationToken)).ShouldBe(newUser);
+        (await _userRepository.GetByIdAsync(UserId.New(), TestContext.Current.CancellationToken)).ShouldBeNull();
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

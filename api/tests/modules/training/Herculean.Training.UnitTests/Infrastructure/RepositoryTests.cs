@@ -25,16 +25,21 @@ public sealed class RepositoryTests : IDisposable
 
         (await workoutSettingsRepository.ExistsForUserAsync(_userId, TestContext.Current.CancellationToken)).ShouldBeTrue();
         (await workoutSettingsRepository.ExistsForUserAsync(UserId.From(Guid.CreateVersion7()), TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await workoutSettingsRepository.GetForUserAsync(_userId, TestContext.Current.CancellationToken)).ShouldNotBeNull().UserId.ShouldBe(_userId);
+        (await workoutSettingsRepository.GetForUserAsync(UserId.From(Guid.CreateVersion7()), TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
     [Fact]
     public async Task AddedGroupsAreSaved()
     {
-        new GroupRepository(_dbContext).AddRange(Group.CreateStarting(_userId));
+        GroupRepository groupRepository = new(_dbContext);
+        groupRepository.AddRange(Group.CreateStarting(_userId));
         await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _dbContext.ChangeTracker.Clear();
         (await _dbContext.Groups.CountAsync(group => group.UserId == _userId, TestContext.Current.CancellationToken)).ShouldBe(6);
+        (await groupRepository.AnyForUserAsync(_userId, TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await groupRepository.AnyForUserAsync(UserId.From(Guid.CreateVersion7()), TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
     public void Dispose()
