@@ -42,6 +42,12 @@ Email sent locally shows up in Mailpit, not in a real inbox.
 
 The API reference (Scalar) is at `/scalar` on the API's address.
 
+## Change an endpoint
+
+1. Build the API. The build writes `api/openapi.json`.
+2. From `app/`, run `npm run api:generate`. It writes `src/api/schema.ts`.
+3. Commit both files.
+
 ## Add a migration
 
 From `api/`, for example for Account:

@@ -32,6 +32,7 @@ app/
 
 ## Data
 
+- **API client:** every API build writes `api/openapi.json`. `npm run api:generate` turns it into `src/api/schema.ts`, which is never edited by hand. CI fails if either file is out of date. Steps are in [Setup](/development/setup#change-an-endpoint).
 - Each endpoint has a TanStack Query hook in its feature.
 - Query keys are defined once per feature.
 - The screen updates before the server answers only in logging (checking, editing and removing sets) and for undo. Everything else waits for the server and shows the design's waiting state.
@@ -44,9 +45,12 @@ app/
 
 ## Theme
 
-- One provider holds Theme (Match my phone, Dark, Light) and Color (Racing blue, Titanium).
+- `src/theme/tokens.ts` is a copy of `docs/design/tokens/design-tokens.json`. A test fails when they differ.
+- One provider holds Theme (Match my phone, Dark, Light) and Color (Racing blue, Titanium). Until Settings saves them, they are Match my phone and Racing blue. A phone with no preference gets dark.
 - `useTheme` gives screens the current tokens.
 - Styles use tokens only, never raw values.
+- Corners are always sharp. Soft corners were a design-tool option, not an app setting.
+- Chakra Petch loads at startup. The splash screen stays up until it is ready.
 
 ## Forms
 

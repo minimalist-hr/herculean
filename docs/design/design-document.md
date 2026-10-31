@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.2 · 30 October 2026 · Minimalist
+Version 0.3 · 31 October 2026 · Minimalist
+
+> Changes since 0.2: the tab bar's padding and label letter spacing are tokens, and its bottom padding follows the phone's safe area (section 5).
 
 > Changes since 0.1: R03 week plan rows read "Rest day" instead of "Not planned". Discard workout now shows an undo bar on W01. Delete routine and delete exercise no longer have undo bars (section 7).
 
@@ -106,7 +108,7 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 | Secondary button, text link | 13 / 600 | Uppercase, letter spacing 0.06em |
 | Eyebrow, field label, section label | 12 / 600 | Uppercase, letter spacing 0.1em, muted |
 | Meta line | 12–13 | Muted, for example "7 exercises · 19 sets" |
-| Tab label | 11 | 700 when active, 500 when not |
+| Tab label | 11 | 700 when active, 500 when not. Letter spacing 0.04em |
 
 ### 4.3 Corners
 
@@ -175,7 +177,7 @@ A centered question ("Delete Chest and arms 1?"), one sentence on what happens a
 - **Content:** two lines (what happened and what it happened to) and an Undo button. Example: "Set 3 removed · Smith machine incline bench press". L12 is the reference.
 
 ### Tab bar
-Four tabs: Home, Workout, Routines, Exercises. Each item is 52 px with an icon and an 11 px label. The active tab is in the accent color and bold.
+Four tabs: Home, Workout, Routines, Exercises. Each item is 52 px with a 22 px icon, a 4 px gap and an 11 px label. The active tab is in the accent color and bold. The bar has 8 px padding at the top and sides. Its bottom padding is the phone's safe area, at least 8 px; the boards draw it as 28 px.
 
 ### Resume bar
 When a workout is running, a bar above the tab bar shows the routine, the progress and the time, with a Resume button (H02). It shows on every tab.

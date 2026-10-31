@@ -1,0 +1,135 @@
+// Edit docs/design/tokens/design-tokens.json first. tokens.test.ts fails until both match.
+export const tokens = {
+  color: {
+    neutral: {
+      dark: {
+        bg: '#050506',
+        card: '#0F1012',
+        raised: '#17181B',
+        border: '#2C2F34',
+        text: '#F2F3F5',
+        muted: '#A9AEB6',
+      },
+      light: {
+        bg: '#F4F5F7',
+        card: '#ECEEF1',
+        raised: '#E2E5E9',
+        border: '#D0D4DA',
+        text: '#0A0B0D',
+        muted: '#4F555D',
+      },
+    },
+    accent: {
+      racingBlue: {
+        dark: {
+          primary: '#1A55E6',
+          primaryText: '#7EA2FF',
+          onPrimary: '#FFFFFF',
+        },
+        light: {
+          primary: '#1446C8',
+          primaryText: '#1446C8',
+          onPrimary: '#FFFFFF',
+        },
+      },
+      titanium: {
+        dark: {
+          primary: '#C9CED6',
+          primaryText: '#DDE1E6',
+          onPrimary: '#050506',
+        },
+        light: {
+          primary: '#2A2D33',
+          primaryText: '#1446C8',
+          onPrimary: '#FFFFFF',
+        },
+      },
+    },
+    status: {
+      dark: {
+        success: '#4ADE80',
+        skipped: '#FB923C',
+        danger: '#F87171',
+        onDanger: '#050506',
+        warn: '#F5B83D',
+      },
+      light: {
+        success: '#166534',
+        skipped: '#9A3412',
+        danger: '#DC2626',
+        onDanger: '#FFFFFF',
+        warn: '#B45309',
+      },
+    },
+    scrim: 'rgba(0,0,0,0.62)',
+  },
+  radius: { card: 6, control: 4, pill: 3, check: 3, sheetTop: 10 },
+  font: {
+    roles: {
+      pageTitle: {
+        size: 32,
+        weight: 700,
+        lineHeight: 1.05,
+        letterSpacing: '-0.01em',
+      },
+      cardTitle: { size: 22, weight: 700 },
+      bigStat: { size: 24, weight: 700 },
+      statValue: { size: 18, weight: 700 },
+      listItemName: { size: 16, weight: 700 },
+      input: { size: 16 },
+      primaryButton: {
+        size: 15,
+        weight: 700,
+        uppercase: true,
+        letterSpacing: '0.06em',
+      },
+      body: { size: 14, lineHeight: 1.5 },
+      secondaryButton: {
+        size: 13,
+        weight: 600,
+        uppercase: true,
+        letterSpacing: '0.06em',
+      },
+      eyebrow: {
+        size: 12,
+        weight: 600,
+        uppercase: true,
+        letterSpacing: '0.1em',
+        color: 'muted',
+      },
+      meta: { size: 12.5, color: 'muted' },
+      tabLabel: {
+        size: 11,
+        weightActive: 700,
+        weightInactive: 500,
+        letterSpacing: '0.04em',
+      },
+    },
+  },
+  size: {
+    screen: { width: 390, height: 844 },
+    sidePadding: 16,
+    topPaddingTab: 48,
+    topPaddingSubPage: 40,
+    touchTargetMin: 44,
+    listRowMin: 56,
+    optionRowMin: 60,
+    chip: 36,
+    primaryButton: 48,
+    secondaryButton: 44,
+    input: 44,
+    headerIconButton: 44,
+    tabItem: 52,
+    tabBar: {
+      paddingTop: 8,
+      paddingX: 8,
+      paddingBottomMin: 8,
+      iconSize: 22,
+      iconGap: 4,
+    },
+    undoBar: 56,
+    sheetGrabber: { width: 36, height: 4 },
+    actionBoxPadding: { top: 12, x: 16, bottom: 28 },
+    gap: { stackedButtons: 8, chips: 6, sectionMin: 14, sectionMax: 20 },
+  },
+} as const;

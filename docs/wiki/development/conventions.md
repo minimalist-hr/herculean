@@ -106,8 +106,8 @@ GitLab CI runs `.gitlab-ci.yml` on every merge request and on `main`.
 
 | Stage | Job | Runs when | What it does |
 |---|---|---|---|
-| check | `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, tests with coverage |
-| check | `api` | Same as `app` | Format check, build, tests with coverage |
+| check | `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, API client up to date, tests with coverage |
+| check | `api` | Same as `app` | Format check, build, OpenAPI document up to date, tests with coverage |
 | check | `mr` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items) |
 | analyze | `sonarqube` | After `app` and `api` on `main`. Started by hand on merge requests. | SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline on `main`. |
 | deploy | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |

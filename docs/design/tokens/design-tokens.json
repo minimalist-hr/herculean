@@ -50,7 +50,7 @@
       "secondaryButton": { "size": 13, "weight": 600, "uppercase": true, "letterSpacing": "0.06em" },
       "eyebrow":       { "size": 12, "weight": 600, "uppercase": true, "letterSpacing": "0.1em", "color": "muted" },
       "meta":          { "size": 12.5, "color": "muted" },
-      "tabLabel":      { "size": 11, "weightActive": 700, "weightInactive": 500 }
+      "tabLabel":      { "size": 11, "weightActive": 700, "weightInactive": 500, "letterSpacing": "0.04em" }
     }
   },
   "size": {
@@ -67,6 +67,7 @@
     "input": 44,
     "headerIconButton": 44,
     "tabItem": 52,
+    "tabBar": { "paddingTop": 8, "paddingX": 8, "paddingBottomMin": 8, "iconSize": 22, "iconGap": 4 },
     "undoBar": 56,
     "sheetGrabber": { "width": 36, "height": 4 },
     "actionBoxPadding": { "top": 12, "x": 16, "bottom": 28 },

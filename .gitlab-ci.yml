@@ -32,6 +32,8 @@ app:
     - npm run lint
     - npm run format
     - npm run typecheck
+    - npm run api:generate
+    - git diff --exit-code -- src/api/schema.ts || (echo "Run npm run api:generate and commit src/api/schema.ts." && exit 1)
     - npm test -- --coverage
   artifacts:
     paths: [app/coverage/lcov.info]
@@ -51,6 +53,7 @@ api:
     - cd api
     - dotnet format whitespace --verify-no-changes
     - dotnet build
+    - git diff --exit-code -- openapi.json || (echo "Build the API and commit api/openapi.json." && exit 1)
     - dotnet test --no-build --coverage --coverage-output-format xml --results-directory TestResults
   artifacts:
     paths: [api/TestResults/]
@@ -115,7 +118,7 @@ sonarqube:
       /d:sonar.token="$SONAR_TOKEN"
       /d:sonar.projectBaseDir="$CI_PROJECT_DIR"
       /d:sonar.qualitygate.wait=true
-      /d:sonar.exclusions="docs/**,.nuget/**,.sonar/**,**/node_modules/**,**/Migrations/**"
+      /d:sonar.exclusions="docs/**,.nuget/**,.sonar/**,**/node_modules/**,**/Migrations/**,app/src/api/schema.ts"
       /d:sonar.test.inclusions="app/**/*.test.ts,app/**/*.test.tsx"
       /d:sonar.coverage.exclusions="app/src/app/**,api/src/Herculean.Api/Program.cs,api/src/Herculean.ServiceDefaults/**"
       /d:sonar.cs.vscoveragexml.reportsPaths="$CI_PROJECT_DIR/api/TestResults/*.xml"

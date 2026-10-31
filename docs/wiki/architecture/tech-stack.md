@@ -17,7 +17,7 @@ Every app library must work in Expo Go.
 | API client | openapi-typescript, openapi-fetch (generated from the API) |
 | Forms | React Hook Form, Zod |
 | Styling | StyleSheet, theme from `design-tokens.json` (no UI kit) |
-| Fonts | expo-font, @expo-google-fonts/chakra-petch |
+| Fonts | expo-font, expo-splash-screen, @expo-google-fonts/chakra-petch |
 | Icons, chart | react-native-svg |
 | Gestures, animation | react-native-gesture-handler, react-native-reanimated |
 | Sheets | @gorhom/bottom-sheet |
