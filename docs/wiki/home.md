@@ -6,6 +6,8 @@ Herculean is a workout log for people who train on a fixed weekly split. It is b
 
 The design is the UI spec. It lives in `docs/design/` in the repo. The wiki refers to screens by ID, for example W10.
 
+[Links](/links) has every service the project uses outside GitLab.
+
 ## Product
 
 - [Scope and features](/product/scope): what v1 contains, feature by feature.

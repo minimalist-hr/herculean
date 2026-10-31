@@ -1,5 +1,7 @@
 [Home](/home)
 
+[Links](/links)
+
 **Product**
 
 - [Scope and features](/product/scope)
