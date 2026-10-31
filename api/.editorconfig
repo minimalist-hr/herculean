@@ -88,6 +88,9 @@ dotnet_code_quality_unused_parameters = all:suggestion
 # Suppression preferences
 dotnet_remove_unnecessary_suppression_exclusions = none
 
+# Names that are keywords in other .NET languages, like Error in Visual Basic. We only write C#.
+dotnet_diagnostic.CA1716.severity = none
+
 #### C# Coding Conventions ####
 [*.cs]
 
@@ -388,3 +391,7 @@ dotnet_naming_style.s_camelcase.required_suffix =
 dotnet_naming_style.s_camelcase.word_separator = 
 dotnet_naming_style.s_camelcase.capitalization = camel_case
 
+
+# EF Core migrations are generated, so format and analyzers skip them.
+[**/Migrations/*.cs]
+generated_code = true

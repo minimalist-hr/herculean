@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\modules\training\Herculean.Training.Application\Herculean.Training.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\src\modules\training\Herculean.Training.Infrastructure\Herculean.Training.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

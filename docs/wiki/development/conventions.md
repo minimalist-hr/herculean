@@ -82,6 +82,7 @@ We follow REST as closely as possible.
 - `Directory.Build.props` for shared settings, `Directory.Packages.props` for package versions.
 - `.editorconfig` with code style enforced in the build.
 - Nullable reference types on. Warnings are errors.
+- XML docs on every public type and member. The build fails without them. Other code has comments only to explain why.
 - .NET analyzers at analysis level `latest-recommended`.
 - Format with `dotnet format`.
 

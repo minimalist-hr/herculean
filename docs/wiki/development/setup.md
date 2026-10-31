@@ -40,6 +40,19 @@ The phone must be on the same Wi-Fi as the computer. If Windows asks, let .NET a
 
 Email sent locally shows up in Mailpit, not in a real inbox.
 
+The API reference (Scalar) is at `/scalar` on the API's address.
+
+## Add a migration
+
+From `api/`, for example for Account:
+
+```
+dotnet tool restore
+dotnet ef migrations add <Name> --project src/modules/account/Herculean.Account.Infrastructure --startup-project src/Herculean.Api --context AccountDbContext --output-dir Migrations -- --ConnectionStrings:database "Host=localhost"
+```
+
+The connection string only satisfies the startup check. Adding a migration doesn't connect to the database.
+
 ## Test
 
 - API: from `api/`, run `dotnet test`.

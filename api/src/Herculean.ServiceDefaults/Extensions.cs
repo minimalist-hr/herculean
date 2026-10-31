@@ -11,10 +11,13 @@ using OpenTelemetry.Trace;
 
 namespace Herculean.ServiceDefaults;
 
+/// <summary>Telemetry and health checks, shared by every service.</summary>
 public static class Extensions
 {
     private const string HealthPath = "/health";
 
+    /// <summary>Adds logs, metrics, traces and health checks.</summary>
+    /// <param name="builder">The service's builder.</param>
     public static void AddServiceDefaults(this IHostApplicationBuilder builder)
     {
         AddTelemetry(builder);
@@ -22,6 +25,8 @@ public static class Extensions
         builder.Services.AddHealthChecks();
     }
 
+    /// <summary>Maps the health endpoint, in Development only.</summary>
+    /// <param name="app">The service's app.</param>
     public static void MapDefaultEndpoints(this WebApplication app)
     {
         // Public health endpoints need a security review first, so they exist only in development.

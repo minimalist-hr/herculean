@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\modules\account\Herculean.Account.Application\Herculean.Account.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\src\modules\account\Herculean.Account.Infrastructure\Herculean.Account.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,4 +4,11 @@
     <ProjectReference Include="..\..\..\Herculean.SharedKernel\Herculean.SharedKernel.csproj" />
   </ItemGroup>
 
+  <!-- Internals stay inside the module. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Herculean.Training.Application" />
+    <InternalsVisibleTo Include="Herculean.Training.Infrastructure" />
+    <InternalsVisibleTo Include="Herculean.Training.UnitTests" />
+  </ItemGroup>
+
 </Project>

@@ -4,4 +4,9 @@
     <ProjectReference Include="..\Herculean.Account.Application\Herculean.Account.Application.csproj" />
   </ItemGroup>
 
+  <!-- Internals stay inside the module. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Herculean.Account.UnitTests" />
+  </ItemGroup>
+
 </Project>

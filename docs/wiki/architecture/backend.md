@@ -4,7 +4,7 @@ title: Backend architecture
 
 ## Principles
 
-Modular monolith, clean architecture, domain-driven design, vertical slices, REPR, test-driven.
+Modular monolith, clean architecture, domain-driven design, SOLID, vertical slices, REPR, test-driven.
 
 **Explicit:** nothing is wired by scanning or hidden in filters. When a piece is missing, a test or the compiler fails.
 
@@ -15,7 +15,7 @@ api/
   src/
     Herculean.Api/                 host: composes the modules
     Herculean.ServiceDefaults/     OpenTelemetry, health checks
-    Herculean.SharedKernel/        Result, typed ID base, entity base, outbox
+    Herculean.SharedKernel/        Result, typed IDs, entity base, module database, outbox
     modules/
       account/
         Herculean.Account.Domain/
@@ -29,6 +29,7 @@ api/
         Herculean.Training.Contracts/
   tests/
     Herculean.ArchitectureTests/
+    Herculean.SharedKernel.UnitTests/
     modules/
       account/
         Herculean.Account.UnitTests/
@@ -41,12 +42,16 @@ api/
 | Project | May reference |
 |---|---|
 | Domain | SharedKernel |
-| Application | Domain, SharedKernel, other modules' Contracts |
+| Application | Domain, SharedKernel, any module's Contracts |
 | Infrastructure | Application, Domain, SharedKernel |
 | Contracts | Nothing |
 | Api (host) | Each module's Infrastructure, ServiceDefaults |
 
 A module never references another module's Domain, Application or Infrastructure.
+
+- **Closed modules:** outside a module, only its Module class and its Contracts are public. Domain and Application types are internal. Each project shows its internals only to the later layers of its own module and to that module's unit tests.
+- **Sealed:** every class is sealed unless another class extends it.
+- **As private as possible:** every type and member gets the narrowest access that works.
 
 ## Slices
 
@@ -70,8 +75,9 @@ Herculean.Training.Application/
 
 ### Explicit wiring
 
-- Each module has one `Add<Module>` method. It registers every handler, validator and repository by name.
-- Each module has one `Map<Module>Endpoints` method. It maps every endpoint by name.
+- Each module has one `Add<Module>Module` method, for example `AddAccountModule`. It registers every handler, validator and repository by name.
+- Each module has one `Map<Module>ModuleEndpoints` method. It maps every endpoint by name.
+- Each module has one `Migrate<Module>ModuleDatabaseAsync` method. The API calls it at startup in Development.
 - Each entity has its own EF Core configuration class.
 
 ## Data access
@@ -79,6 +85,7 @@ Herculean.Training.Application/
 - **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure.
 - **Reads** query the DbContext directly with projections.
 - **One database:** one schema and one DbContext per module.
+- **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
 - **Foreign keys** are `ON DELETE RESTRICT`. Code deletes child rows on purpose.
 - **Query filters:** named EF Core filters for `UserId` and for soft delete. A filter can be turned off on its own, for example by a background job.
 - **Current user:** a service in each module, filled from the access token.
@@ -120,8 +127,8 @@ Herculean.Training.Application/
 
 ## Tests
 
-- **Unit tests:** Domain and handlers. One test project per module.
-- **Architecture tests:** ArchUnitNET checks the dependency rules above.
+- **Unit tests:** Domain, handlers and module wiring. One test project per module, and one for SharedKernel.
+- **Architecture tests:** ArchUnitNET checks the dependency rules, closed modules and sealed classes above.
 - **Guard tests:** they fail when a piece is missing:
   1. Every request has a validator.
   2. Every handler, validator and repository is registered in its module.

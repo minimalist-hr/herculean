@@ -19,6 +19,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Herculean.ArchitectureTests/Herculean.ArchitectureTests.csproj" />
+    <Project Path="tests/Herculean.SharedKernel.UnitTests/Herculean.SharedKernel.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/modules/" />
   <Folder Name="/tests/modules/account/">

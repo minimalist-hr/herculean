@@ -4,4 +4,9 @@
     <ProjectReference Include="..\Herculean.Training.Application\Herculean.Training.Application.csproj" />
   </ItemGroup>
 
+  <!-- Internals stay inside the module. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Herculean.Training.UnitTests" />
+  </ItemGroup>
+
 </Project>
