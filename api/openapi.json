@@ -1,8 +1,167 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "Herculean.Api | v1",
+    "title": "Herculean API",
+    "description": "The API of Herculean, a workout log for people who train on a fixed weekly split.",
     "version": "1.0.0"
   },
-  "paths": { }
+  "paths": {
+    "/api/v1/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create an account",
+        "description": "Creates an account and signs it in. Name, units and default rest time are set afterwards, in setup.",
+        "operationId": "CreateUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The account was created and is signed in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each field.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An account with this email already exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateUserRequest": {
+        "required": [
+          "email",
+          "password",
+          "timeZone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Unique regardless of case. At most 254 characters."
+          },
+          "password": {
+            "type": "string",
+            "description": "At least 8 characters."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "The phone's IANA time zone, for example Europe/Zagreb."
+          }
+        },
+        "description": "A new account."
+      },
+      "ProblemDetails": {
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A link to the HTTP status in RFC 9110."
+          },
+          "title": {
+            "type": "string",
+            "description": "The HTTP status name, for example Conflict."
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code.",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string",
+            "description": "A sentence that explains the error."
+          },
+          "code": {
+            "type": "string",
+            "description": "A stable code for the app, for example user.email_taken. Field errors have validation."
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Only when the code is validation: messages per field, with field names as in the request."
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Finds the request in the logs."
+          }
+        },
+        "description": "An error, as Problem Details (RFC 9457). Every error has the same fields."
+      },
+      "TokenResponse": {
+        "required": [
+          "accessToken",
+          "expiresIn",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "A JWT. Send it as `Authorization: Bearer <accessToken>`."
+          },
+          "expiresIn": {
+            "type": "integer",
+            "description": "Seconds until the access token expires.",
+            "format": "int32"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Gets new tokens when the access token expires. Keep it in secure storage."
+          }
+        },
+        "description": "The OAuth 2.0 token response (RFC 6749), in camelCase."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Users"
+    }
+  ]
 }

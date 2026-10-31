@@ -1,0 +1,32 @@
+# Create an account. Start the API with Aspire first.
+@host = http://localhost:5279
+
+### Create an account → 201 with tokens. The email is new on every send.
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Create the same account twice → the second send is 409 user.email_taken.
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "Filip@Example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Invalid fields → 400 validation, with errors for email, password and timeZone.
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "filip",
+  "password": "short",
+  "timeZone": "Mars/Olympus"
+}

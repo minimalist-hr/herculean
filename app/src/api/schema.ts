@@ -3,10 +3,75 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = Record<string, never>;
+export interface paths {
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an account
+         * @description Creates an account and signs it in. Name, units and default rest time are set afterwards, in setup.
+         */
+        post: operations["CreateUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        /** @description A new account. */
+        CreateUserRequest: {
+            /** @description Unique regardless of case. At most 254 characters. */
+            email: string;
+            /** @description At least 8 characters. */
+            password: string;
+            /** @description The phone's IANA time zone, for example Europe/Zagreb. */
+            timeZone: string;
+        };
+        /** @description An error, as Problem Details (RFC 9457). Every error has the same fields. */
+        ProblemDetails: {
+            /** @description A link to the HTTP status in RFC 9110. */
+            type: string;
+            /** @description The HTTP status name, for example Conflict. */
+            title: string;
+            /**
+             * Format: int32
+             * @description The HTTP status code.
+             */
+            status: number;
+            /** @description A sentence that explains the error. */
+            detail: string;
+            /** @description A stable code for the app, for example user.email_taken. Field errors have validation. */
+            code: string;
+            /** @description Only when the code is validation: messages per field, with field names as in the request. */
+            errors?: {
+                [key: string]: string[];
+            };
+            /** @description Finds the request in the logs. */
+            traceId: string;
+        };
+        /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
+        TokenResponse: {
+            /** @description A JWT. Send it as `Authorization: Bearer <accessToken>`. */
+            accessToken: string;
+            /**
+             * Format: int32
+             * @description Seconds until the access token expires.
+             */
+            expiresIn: number;
+            /** @description Gets new tokens when the access token expires. Keep it in secure storage. */
+            refreshToken: string;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;
@@ -14,4 +79,47 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    CreateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUserRequest"];
+            };
+        };
+        responses: {
+            /** @description The account was created and is signed in. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each field. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description An account with this email already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+}

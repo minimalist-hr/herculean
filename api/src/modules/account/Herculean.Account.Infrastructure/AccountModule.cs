@@ -1,5 +1,15 @@
+using FluentValidation;
+
+using Herculean.Account.Application.Auth;
+using Herculean.Account.Application.Users.CreateUser;
+using Herculean.Account.Domain;
+using Herculean.Account.Domain.Users;
+using Herculean.Account.Infrastructure.Auth;
+using Herculean.Account.Infrastructure.Users;
 using Herculean.SharedKernel.Persistence;
 
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Herculean.Account.Infrastructure;
@@ -12,6 +22,26 @@ public static class AccountModule
     public static void AddAccountModule(this IHostApplicationBuilder builder)
     {
         builder.AddModuleDbContext<AccountDbContext>(AccountDbContext.Schema);
+        builder.Services.AddScoped<IUnitOfWork>(services => services.GetRequiredService<AccountDbContext>());
+
+        builder.Services.AddOptions<JwtOptions>()
+            .BindConfiguration(JwtOptions.Section)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+        builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>();
+        builder.Services.AddScoped<CreateUserHandler>();
+    }
+
+    /// <summary>Maps every Account endpoint.</summary>
+    /// <param name="endpoints">The API's endpoints.</param>
+    public static void MapAccountModuleEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        CreateUserEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Account module's pending migrations.</summary>

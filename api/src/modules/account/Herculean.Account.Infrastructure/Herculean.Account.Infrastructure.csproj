@@ -4,6 +4,10 @@
     <ProjectReference Include="..\Herculean.Account.Application\Herculean.Account.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+  </ItemGroup>
+
   <!-- Internals stay inside the module. -->
   <ItemGroup>
     <InternalsVisibleTo Include="Herculean.Account.UnitTests" />

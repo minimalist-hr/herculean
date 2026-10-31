@@ -38,6 +38,10 @@ The terms in [Domain and entities](/product/domain#terms) are used unchanged in 
 | Namespaces | `Herculean.<Module>.<Layer>` | `Herculean.Training.Domain` |
 | Slice files | `<UseCase><Part>` | `CreateExerciseHandler` |
 
+Names are explicit: a field, parameter or local says what it holds, for example `userRepository`, `dbContext`, `normalizedEmail`. No abbreviations or one-letter names.
+
+Type suffixes say what a type is for: `Request` comes into the API, `Response` goes out of it, and `Event` and `Query` are Contracts between modules. There is no `Dto` suffix: inside a module, types are named for what they are.
+
 ### Database
 
 - snake_case, set once per DbContext with `UseSnakeCaseNamingConvention()`.
@@ -63,8 +67,8 @@ We follow REST as closely as possible.
   | DELETE | Delete | 204 |
 
 - **Actions:** when no resource fits, a short verb is added after the resource and called with POST, for example `/restore`, `/refresh`, `/complete`, `/confirm`. This is the exception, not the rule.
-- **Errors** are Problem Details: 400 validation, 401 not signed in, 404 not found, 409 conflict.
-- **JSON** uses camelCase. Enum values are camelCase strings, for example `inProgress`.
+- **Errors** are Problem Details: 400 validation, 401 not signed in, 404 not found, 409 conflict. Every error has the same fields, as set out in [Errors](/architecture/backend#errors).
+- **JSON** uses camelCase. Enum values are camelCase strings, for example `inProgress`. Numbers are JSON numbers, never strings.
 
 ### TypeScript
 

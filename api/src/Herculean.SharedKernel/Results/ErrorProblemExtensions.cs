@@ -11,25 +11,20 @@ public static class ErrorProblemExtensions
     /// <param name="error">The error to return.</param>
     public static ProblemHttpResult ToProblem(this Error error)
     {
-        if (error.Type == ErrorType.Validation)
-        {
-            return TypedResults.Problem(new HttpValidationProblemDetails(error.Fields.ToDictionary())
+        ProblemDetails problem = error.Type == ErrorType.Validation
+            ? new HttpValidationProblemDetails(error.Fields.ToDictionary()) { Status = StatusCodes.Status400BadRequest }
+            : new ProblemDetails
             {
-                Status = StatusCodes.Status400BadRequest,
-            });
-        }
+                Status = error.Type switch
+                {
+                    ErrorType.NotFound => StatusCodes.Status404NotFound,
+                    ErrorType.Conflict => StatusCodes.Status409Conflict,
+                    _ => throw new ArgumentOutOfRangeException(nameof(error), error.Type, "Unknown error type."),
+                },
+            };
 
-        ProblemDetails problem = new()
-        {
-            Status = error.Type switch
-            {
-                ErrorType.NotFound => StatusCodes.Status404NotFound,
-                ErrorType.Conflict => StatusCodes.Status409Conflict,
-                _ => throw new ArgumentOutOfRangeException(nameof(error), error.Type, "Unknown error type."),
-            },
-            Detail = error.Description,
-        };
-        problem.Extensions["code"] = error.Code;
+        problem.Detail = error.Description;
+        problem.Extensions[ProblemDetailsExtensions.CodeKey] = error.Code;
 
         return TypedResults.Problem(problem);
     }

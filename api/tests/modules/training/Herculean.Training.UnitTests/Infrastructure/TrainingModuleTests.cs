@@ -18,7 +18,7 @@ public sealed class TrainingModuleTests
         builder.AddTrainingModule();
 
         using ServiceProvider services = builder.Services.BuildServiceProvider();
-        using TrainingDbContext db = services.GetRequiredService<TrainingDbContext>();
-        db.Model.GetDefaultSchema().ShouldBe("training");
+        using TrainingDbContext dbContext = services.GetRequiredService<TrainingDbContext>();
+        dbContext.Model.GetDefaultSchema().ShouldBe("training");
     }
 }

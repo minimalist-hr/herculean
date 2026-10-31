@@ -11,7 +11,7 @@ public sealed class TimestampsInterceptorTests : IDisposable
     private static readonly DateTimeOffset Updated = Created.AddHours(1);
 
     private readonly FakeTimeProvider _time = new(Created);
-    private readonly TestDbContext _db;
+    private readonly TestDbContext _dbContext;
 
     public TimestampsInterceptorTests()
     {
@@ -20,16 +20,16 @@ public sealed class TimestampsInterceptorTests : IDisposable
             .AddInterceptors(new TimestampsInterceptor(_time))
             .Options;
 
-        _db = new TestDbContext(options);
+        _dbContext = new TestDbContext(options);
     }
 
     [Fact]
     public async Task NewEntityGetsCreatedAndUpdatedTime()
     {
         TestEntity entity = new(TestId.New(), "Push");
-        _db.Add(entity);
+        _dbContext.Add(entity);
 
-        await _db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         entity.CreatedAtUtc.ShouldBe(Created);
         entity.UpdatedAtUtc.ShouldBe(Created);
@@ -39,9 +39,9 @@ public sealed class TimestampsInterceptorTests : IDisposable
     public void NewEntityGetsTimesOnSyncSaveToo()
     {
         TestEntity entity = new(TestId.New(), "Push");
-        _db.Add(entity);
+        _dbContext.Add(entity);
 
-        _db.SaveChanges();
+        _dbContext.SaveChanges();
 
         entity.CreatedAtUtc.ShouldBe(Created);
         entity.UpdatedAtUtc.ShouldBe(Created);
@@ -51,12 +51,12 @@ public sealed class TimestampsInterceptorTests : IDisposable
     public async Task ChangedEntityGetsUpdatedTimeOnly()
     {
         TestEntity entity = new(TestId.New(), "Push");
-        _db.Add(entity);
-        await _db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.Add(entity);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _time.SetUtcNow(Updated);
         entity.Rename("Pull");
-        await _db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         entity.CreatedAtUtc.ShouldBe(Created);
         entity.UpdatedAtUtc.ShouldBe(Updated);
@@ -64,6 +64,6 @@ public sealed class TimestampsInterceptorTests : IDisposable
 
     public void Dispose()
     {
-        _db.Dispose();
+        _dbContext.Dispose();
     }
 }

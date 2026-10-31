@@ -15,6 +15,8 @@ public sealed class ErrorProblemExtensionsTests
 
         problem.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
         problem.ProblemDetails.ShouldBeOfType<HttpValidationProblemDetails>().Errors.ShouldBe(fields);
+        problem.ProblemDetails.Detail.ShouldBe("One or more fields are not valid.");
+        problem.ProblemDetails.Extensions["code"].ShouldBe("validation");
     }
 
     [Fact]

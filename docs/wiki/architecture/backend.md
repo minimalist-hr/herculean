@@ -66,12 +66,16 @@ Herculean.Training.Application/
       CreateExerciseResponse.cs
       CreateExerciseHandler.cs
       CreateExerciseValidator.cs
+      CreateExercise.http
 ```
 
-- **Endpoint:** HTTP only. It holds the route and auth, calls the handler and turns its `Result` into an HTTP response.
+- **Endpoint:** HTTP only. It holds the route and auth, calls the handler and turns its `Result` into an HTTP response. Each parameter names where it comes from: `[FromBody]`, `[FromRoute]`, `[FromQuery]` or `[FromServices]`.
 - **Handler:** the use case. Its first step calls the validator.
 - **Validator:** FluentValidation. Every request has one.
 - **No input, no request:** an endpoint with no input, for example "list my routines", has no request type.
+- **Routes:** each resource keeps its routes and OpenAPI tag as constants in one class in Application, for example `UserRoutes.Me`. Each endpoint keeps its name in a `Name` constant.
+- **Documentation:** each endpoint is fully documented for Scalar when it is built. Its method has a summary, a description and every response with its own description. Each request and response type, and each of their fields, has a `[Description]`.
+- **Requests file:** each slice has a `.http` file next to its endpoint, for example `CreateUser/CreateUser.http`, with an example of every outcome.
 
 ### Explicit wiring
 
@@ -83,6 +87,7 @@ Herculean.Training.Application/
 ## Data access
 
 - **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure.
+- **Unit of work:** a handler saves once, through its module's `IUnitOfWork`, which is the module's DbContext. Repositories never save.
 - **Reads** query the DbContext directly with projections.
 - **One database:** one schema and one DbContext per module.
 - **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
@@ -95,7 +100,9 @@ Herculean.Training.Application/
 ## Errors
 
 - Expected failures (validation, not found, conflict) return our own `Result` type.
-- The endpoint turns a failed `Result` into a Problem Details response.
+- Each aggregate's errors are in Domain, next to it, for example `UserErrors.EmailTaken`.
+- The endpoint turns a failed `Result` into a Problem Details response (RFC 9457).
+- Every error has the same fields: `type`, `title` (the HTTP status name), `status`, `detail`, `code` and `traceId`. A validation error is 400 with code `validation`, and also has `errors`, with messages per field. Errors that ASP.NET Core creates get the same fields, with a code from the status name, for example `not_found`.
 - Exceptions are only for bugs.
 
 ## Events between modules
@@ -114,6 +121,7 @@ Herculean.Training.Application/
 - The access token is a JWT. It is checked by signature and never stored.
 - Refresh tokens, password reset tokens and email change tokens are stored hashed.
 - Each refresh replaces the refresh token with a new one.
+- Tokens are returned as the OAuth 2.0 token response (RFC 6749), in camelCase: `accessToken`, `expiresIn` (seconds) and `refreshToken`.
 
 ## Time
 
@@ -136,4 +144,5 @@ Herculean.Training.Application/
   4. Every entity has a configuration class.
   5. Every handler has a unit test class.
   6. Every Training entity has a `UserId`.
+  7. Every endpoint, response, schema and field in `openapi.json` has a description.
 - **Integration tests:** the API against a real PostgreSQL in Testcontainers. Written last.

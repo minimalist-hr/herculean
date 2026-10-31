@@ -7,9 +7,10 @@ title: Setup and getting started
 - Git
 - .NET 10 SDK
 - Node.js LTS, with npm
-- Docker Desktop, for PostgreSQL and Mailpit
+- Docker Desktop, for PostgreSQL, pgweb and Mailpit
 - Aspire CLI
 - Expo Go on your phone
+- VS Code with the REST Client extension, Visual Studio or Rider, to send the requests in the `.http` files
 
 ## Repository layout
 
@@ -19,7 +20,7 @@ title: Setup and getting started
 .gitattributes
 .gitlab/              issue and merge request templates
 aspire/
-  apphost.cs          starts PostgreSQL, Mailpit, the API and the app
+  apphost.cs          starts PostgreSQL, pgweb, Mailpit, the API and the app
 api/                  .NET: solution, shared .NET settings, src/, tests/
 app/                  Expo app
 docs/
@@ -33,7 +34,7 @@ The insides of `api/` and `app/` are on [Backend architecture](/architecture/bac
 
 1. Clone the repo.
 2. From `aspire/`, run `aspire run`.
-3. Open the Aspire dashboard. It shows the API, PostgreSQL, Mailpit and the app.
+3. Open the Aspire dashboard. It shows the API, PostgreSQL, pgweb, Mailpit and the app.
 4. In Expo Go, tap **Enter URL manually** and type the app's **Expo Go** link from the dashboard, for example `exp://192.168.1.10:8081`.
 
 To use a browser instead of the phone, open the app's **Browser** link from the dashboard. The browser is for development only. Secure storage, rest timer alerts and vibration don't work the same there, so check those on the phone.
@@ -42,7 +43,11 @@ The phone must be on the same Wi-Fi as the computer. If Windows asks, let .NET a
 
 Email sent locally shows up in Mailpit, not in a real inbox.
 
-The API reference (Scalar) is at `/scalar` on the API's address.
+The API reference (Scalar) opens from the API's **Scalar** link in the dashboard.
+
+To browse the database, open pgweb from the dashboard.
+
+To send a request, open a `.http` file, for example `CreateUser.http`, and send one of its requests.
 
 ## Change an endpoint
 

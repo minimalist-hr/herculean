@@ -15,27 +15,27 @@ public sealed class ModuleDatabaseExtensionsTests
     public void KeepsMigrationHistoryInTheModuleSchema()
     {
         using ServiceProvider services = BuildServices(connectionString: "Host=localhost");
-        using TestDbContext db = services.GetRequiredService<TestDbContext>();
+        using TestDbContext dbContext = services.GetRequiredService<TestDbContext>();
 
-        RelationalOptionsExtension.Extract(db.GetService<IDbContextOptions>()).MigrationsHistoryTableSchema.ShouldBe(Schema);
+        RelationalOptionsExtension.Extract(dbContext.GetService<IDbContextOptions>()).MigrationsHistoryTableSchema.ShouldBe(Schema);
     }
 
     [Fact]
     public void NamesColumnsInSnakeCase()
     {
         using ServiceProvider services = BuildServices(connectionString: "Host=localhost");
-        using TestDbContext db = services.GetRequiredService<TestDbContext>();
+        using TestDbContext dbContext = services.GetRequiredService<TestDbContext>();
 
-        db.Model.FindEntityType(typeof(TestEntity))!.FindProperty(nameof(TestEntity.CreatedAtUtc))!.GetColumnName().ShouldBe("created_at_utc");
+        dbContext.Model.FindEntityType(typeof(TestEntity))!.FindProperty(nameof(TestEntity.CreatedAtUtc))!.GetColumnName().ShouldBe("created_at_utc");
     }
 
     [Fact]
     public void SetsTimestampsOnSave()
     {
         using ServiceProvider services = BuildServices(connectionString: "Host=localhost");
-        using TestDbContext db = services.GetRequiredService<TestDbContext>();
+        using TestDbContext dbContext = services.GetRequiredService<TestDbContext>();
 
-        db.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.Interceptors!.ShouldContain(interceptor => interceptor is TimestampsInterceptor);
+        dbContext.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.Interceptors!.ShouldContain(interceptor => interceptor is TimestampsInterceptor);
     }
 
     [Fact]

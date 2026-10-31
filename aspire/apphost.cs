@@ -25,9 +25,13 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var database = builder.AddPostgres("postgres")
     .WithDataVolume()
+    .WithPgWeb()
     .AddDatabase("database", "herculean");
 
 builder.AddMailPit("mailpit");
+
+// A new key on each run is fine locally: the app gets new tokens with its refresh token.
+var jwtSigningKey = builder.AddParameter("jwt-signing-key", new GenerateParameterDefault { MinLength = 32, Special = false }, secret: true);
 
 var api = builder.AddProject("api", "../api/src/Herculean.Api/Herculean.Api.csproj")
     .WithEndpoint("http", endpoint =>
@@ -36,8 +40,24 @@ var api = builder.AddProject("api", "../api/src/Herculean.Api/Herculean.Api.cspr
         endpoint.TargetPort = endpoint.Port;
         endpoint.TargetHost = "0.0.0.0";
     })
+    .WithUrls(context =>
+    {
+        // Scalar is the link to click, so it comes first. The other addresses stay in the details.
+        var scalar = context.Urls.First(url => url.Endpoint?.EndpointName == "http");
+        scalar.Url += "/scalar";
+        scalar.DisplayText = "Scalar";
+
+        foreach (var url in context.Urls.Where(url => url != scalar))
+        {
+            url.DisplayLocation = UrlDisplayLocation.DetailsOnly;
+        }
+
+        context.Urls.Remove(scalar);
+        context.Urls.Insert(0, scalar);
+    })
     .WithHttpHealthCheck("/health")
     .WithReference(database)
+    .WithEnvironment("Jwt__SigningKey", jwtSigningKey)
     .WaitFor(database);
 
 var apiPort = api.GetEndpoint("http").Property(EndpointProperty.Port);

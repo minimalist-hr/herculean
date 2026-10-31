@@ -65,7 +65,7 @@ public sealed class DependencyTests
     }
 
     private static IEnumerable<Assembly> AllLayersExcept(string? module, string? layer) =>
-        Modules.SelectMany(m => Layers.Where(l => m != module || l != layer).Select(l => Layer(m, l)));
+        Modules.SelectMany(eachModule => Layers.Where(eachLayer => eachModule != module || eachLayer != layer).Select(eachLayer => Layer(eachModule, eachLayer)));
 
     // A module never references another module's Domain, Application or Infrastructure.
     private static IEnumerable<Assembly> OtherModulesInternals(string module) =>
