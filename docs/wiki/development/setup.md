@@ -36,6 +36,8 @@ The insides of `api/` and `app/` are on [Backend architecture](/architecture/bac
 3. Open the Aspire dashboard. It shows the API, PostgreSQL, Mailpit and the app.
 4. In Expo Go, tap **Enter URL manually** and type the app's **Expo Go** link from the dashboard, for example `exp://192.168.1.10:8081`.
 
+To use a browser instead of the phone, open the app's **Browser** link from the dashboard. The browser is for development only. Secure storage, rest timer alerts and vibration don't work the same there, so check those on the phone.
+
 The phone must be on the same Wi-Fi as the computer. If Windows asks, let .NET and Node.js through the firewall on private networks.
 
 Email sent locally shows up in Mailpit, not in a real inbox.

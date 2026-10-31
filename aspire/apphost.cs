@@ -45,6 +45,7 @@ var expoGoUrl = $"exp://{lanAddress}:{MetroPort}";
 
 builder.AddJavaScriptApp("app", "../app", "start")
     .WithHttpEndpoint(port: MetroPort, targetPort: MetroPort, env: "RCT_METRO_PORT", isProxied: false)
+    .WithUrlForEndpoint("http", url => url.DisplayText = "Browser")
     .WithUrl(expoGoUrl, "Expo Go")
     .WithEnvironment("EXPO_PUBLIC_API_URL", ReferenceExpression.Create($"http://{lanAddress}:{apiPort}"))
     .WaitFor(api);

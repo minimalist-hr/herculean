@@ -21,6 +21,11 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
   },
+  // The browser is for development only. The product is the phone app.
+  web: {
+    bundler: 'metro',
+    output: 'single',
+  },
   plugins: ['expo-router', 'expo-status-bar'],
   experiments: {
     typedRoutes: true,

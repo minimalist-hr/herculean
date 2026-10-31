@@ -25,6 +25,7 @@ Every app library must work in Expo Go.
 | Token storage | expo-secure-store |
 | Profile photo | expo-image-picker |
 | Rest timer end | expo-notifications, expo-haptics, expo-audio |
+| Browser preview, development only | react-native-web, @expo/metro-runtime |
 | Tests | Jest (jest-expo), React Native Testing Library |
 | Lint, format | ESLint, Prettier |
 
