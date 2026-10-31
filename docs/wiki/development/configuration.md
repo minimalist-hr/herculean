@@ -23,6 +23,7 @@ title: Configuration
 | Email | ResendApiKey | Yes | |
 | Email | From | | `Herculean <no-reply@minimalist.hr>` |
 | Links | BaseUrl | | Public URL of the API, used in email links |
+| BrowserPreview | Origin | | Development only. The browser preview's address, the only origin CORS allows. Set by Aspire. |
 
 ## App
 

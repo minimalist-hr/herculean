@@ -15,10 +15,10 @@ builder.Services.AddOpenApi();
 builder.AddAccountModule();
 builder.AddTrainingModule();
 
-if (builder.Environment.IsDevelopment())
+// The browser preview runs on another origin. The phone app doesn't need CORS.
+if (builder.Environment.IsDevelopment() && builder.Configuration["BrowserPreview:Origin"] is { } browserPreviewOrigin)
 {
-    // The browser preview runs on another origin. The phone app doesn't need CORS.
-    builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+    builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins(browserPreviewOrigin).AllowAnyHeader().AllowAnyMethod()));
 }
 
 var app = builder.Build();

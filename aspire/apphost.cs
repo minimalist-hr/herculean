@@ -43,11 +43,14 @@ var api = builder.AddProject("api", "../api/src/Herculean.Api/Herculean.Api.cspr
 var apiPort = api.GetEndpoint("http").Property(EndpointProperty.Port);
 var expoGoUrl = $"exp://{lanAddress}:{MetroPort}";
 
-builder.AddJavaScriptApp("app", "../app", "start")
+var app = builder.AddJavaScriptApp("app", "../app", "start")
     .WithHttpEndpoint(port: MetroPort, targetPort: MetroPort, env: "RCT_METRO_PORT", isProxied: false)
     .WithUrlForEndpoint("http", url => url.DisplayText = "Browser")
     .WithUrl(expoGoUrl, "Expo Go")
     .WithEnvironment("EXPO_PUBLIC_API_URL", ReferenceExpression.Create($"http://{lanAddress}:{apiPort}"))
     .WaitFor(api);
+
+// The API allows the browser preview's origin, and only that one.
+api.WithEnvironment("BrowserPreview__Origin", app.GetEndpoint("http"));
 
 builder.Build().Run();
