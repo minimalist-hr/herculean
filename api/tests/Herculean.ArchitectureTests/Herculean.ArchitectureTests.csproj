@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Herculean.Api\Herculean.Api.csproj" />
-    <!-- Nothing references Contracts yet, so they are not copied with the API. -->
+    <!-- Not every Contracts project is referenced yet, so not all are copied with the API. -->
     <ProjectReference Include="..\..\src\modules\account\Herculean.Account.Contracts\Herculean.Account.Contracts.csproj" />
     <ProjectReference Include="..\..\src\modules\training\Herculean.Training.Contracts\Herculean.Training.Contracts.csproj" />
   </ItemGroup>

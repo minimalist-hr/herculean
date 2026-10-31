@@ -45,7 +45,7 @@ Email sent locally shows up in Mailpit, not in a real inbox.
 
 The API reference (Scalar) opens from the API's **Scalar** link in the dashboard.
 
-To browse the database, open pgweb from the dashboard.
+To browse the database, open pgweb from the dashboard. It always runs at `http://localhost:8082`.
 
 To send a request, open a `.http` file, for example `CreateUser.http`, and send one of its requests.
 

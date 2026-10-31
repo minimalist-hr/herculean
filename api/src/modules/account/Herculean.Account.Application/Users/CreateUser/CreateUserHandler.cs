@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 
 using Herculean.Account.Application.Auth;
+using Herculean.Account.Contracts;
 using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Results;
@@ -13,6 +14,7 @@ internal sealed class CreateUserHandler(
     IValidator<CreateUserRequest> validator,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
+    IOutbox outbox,
     IPasswordHasher passwordHasher,
     ITokenIssuer tokenIssuer)
 {
@@ -33,6 +35,7 @@ internal sealed class CreateUserHandler(
         TokenResponse tokenResponse = tokenIssuer.Issue(user);
 
         userRepository.Add(user);
+        outbox.Add(new AccountCreatedIntegrationEvent(user.Id.Value));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return tokenResponse;

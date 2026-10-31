@@ -49,7 +49,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | GET | `/links/reset-password` | Redirect page from the email |
 | POST | `/api/v1/users` | A20, with the phone's time zone |
 | PATCH | `/api/v1/users/me` | A30 (name, units). Also sends a new time zone when the phone's changes. |
-| PATCH | `/api/v1/training-settings` | A30 (default rest time) |
+| PATCH | `/api/v1/workout-settings` | A30 (default rest time) |
 
 **Left to other features:** Sign out, Delete account and every other setting are in [7. Settings](#7-settings).
 
@@ -182,7 +182,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 - **Finish:** Finish → L30, or L31 if nothing is checked. Save workout → H03. Keep logging → L01. Discard workout → W01, with an undo bar.
 - **Resume:** Resume on H02 or W02, or the Resume bar on any tab → L01.
 
-**Entities:** Workout, Workout exercise, Set. Reads Training settings for the rest timer.
+**Entities:** Workout, Workout exercise, Set. Reads Workout settings for the rest timer.
 
 **Endpoints**
 
@@ -201,7 +201,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | PATCH | `/api/v1/workouts/{id}` | Save workout: status completed |
 | DELETE | `/api/v1/workouts/{id}` | Discard workout |
 | POST | `/api/v1/workouts/{id}/restore` | Undo discard on W01 |
-| GET | `/api/v1/training-settings` | Rest timer |
+| GET | `/api/v1/workout-settings` | Rest timer |
 
 **Done when**
 - Closing the app mid-workout and opening it again resumes the workout as it was.
@@ -254,7 +254,7 @@ Changes on W30 stay in the app until Save workout.
 - **Sign out:** → A01.
 - **Delete account:** → H19 → A01.
 
-**Entities:** User, Email change token, Refresh token, Training settings.
+**Entities:** User, Email change token, Refresh token, Workout settings.
 
 **Endpoints**
 
@@ -268,8 +268,8 @@ Changes on W30 stay in the app until Save workout.
 | POST | `/api/v1/email-changes` | H17 |
 | POST | `/api/v1/email-changes/confirm` | Opened from the email link |
 | GET | `/links/confirm-email` | Redirect page from the email |
-| GET | `/api/v1/training-settings` | H10 |
-| PATCH | `/api/v1/training-settings` | H15, sound and vibrate toggles |
+| GET | `/api/v1/workout-settings` | H10 |
+| PATCH | `/api/v1/workout-settings` | H15, sound and vibrate toggles |
 | DELETE | `/api/v1/sessions/current` | Sign out |
 | DELETE | `/api/v1/users/me` | H19 |
 

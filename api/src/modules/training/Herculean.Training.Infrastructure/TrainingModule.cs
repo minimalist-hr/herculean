@@ -1,5 +1,14 @@
+using Herculean.Account.Contracts;
+using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
+using Herculean.Training.Application.AccountCreated;
+using Herculean.Training.Domain;
+using Herculean.Training.Domain.Groups;
+using Herculean.Training.Domain.Settings;
+using Herculean.Training.Infrastructure.Groups;
+using Herculean.Training.Infrastructure.Settings;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Herculean.Training.Infrastructure;
@@ -12,6 +21,12 @@ public static class TrainingModule
     public static void AddTrainingModule(this IHostApplicationBuilder builder)
     {
         builder.AddModuleDbContext<TrainingDbContext>(TrainingDbContext.Schema);
+        builder.Services.AddScoped<IUnitOfWork>(services => services.GetRequiredService<TrainingDbContext>());
+
+        builder.Services.AddScoped<IWorkoutSettingsRepository, WorkoutSettingsRepository>();
+        builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+
+        builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

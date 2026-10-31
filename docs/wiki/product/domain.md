@@ -19,7 +19,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | Workout | What you did on one date: its exercises and sets. |
 | Set | Weight and reps for one exercise in a workout. A bodyweight set has weight 0. |
 | Checked set | A set marked done while logging. |
-| Training settings | Default rest time, rest sound and rest vibrate. |
+| Workout settings | Default rest time, rest sound and rest vibrate. |
 | Best set | The heaviest weight for an exercise, then the most reps at that weight. |
 | Record | A set that beats every earlier set of that exercise, by heaviest weight or by most reps at a weight. |
 | Volume | Weight × reps, summed over sets. |
@@ -29,7 +29,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | Module | Aggregate | Child entities |
 |---|---|---|
 | Account | User | Refresh token, Password reset token, Email change token |
-| Training | Training settings | |
+| Training | Workout settings | |
 | Training | Group | |
 | Training | Exercise | Exercise also works |
 | Training | Routine | Routine exercise |

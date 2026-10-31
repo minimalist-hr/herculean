@@ -9,6 +9,9 @@ using System.Net.Sockets;
 
 const int MetroPort = 8081;
 
+// A fixed port keeps an open pgweb tab working after Aspire restarts.
+const int PgWebPort = 8082;
+
 // The phone reaches the API and Metro over the local network, not localhost.
 // Like Expo, use the IPv4 address of the network interface that has a gateway.
 var lanAddress = NetworkInterface.GetAllNetworkInterfaces()
@@ -25,7 +28,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var database = builder.AddPostgres("postgres")
     .WithDataVolume()
-    .WithPgWeb()
+    .WithPgWeb(pgWeb => pgWeb.WithHostPort(PgWebPort))
     .AddDatabase("database", "herculean");
 
 builder.AddMailPit("mailpit");

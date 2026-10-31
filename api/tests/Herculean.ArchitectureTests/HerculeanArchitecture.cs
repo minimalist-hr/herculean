@@ -23,5 +23,8 @@ internal static class HerculeanArchitecture
     /// <summary>EF Core generates migrations as public, unsealed classes.</summary>
     public const string MigrationsNamespace = @".*\.Migrations$";
 
+    /// <summary>Coverage on Linux (CI) adds a tracker type with the same name to every assembly, so it seems to link them.</summary>
+    public const string CodeCoverageNamespace = @"^Microsoft\.CodeCoverage\..*";
+
     public static Assembly Layer(string module, string layer) => Assembly.Load($"Herculean.{module}.{layer}");
 }

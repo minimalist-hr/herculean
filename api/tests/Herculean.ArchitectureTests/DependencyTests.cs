@@ -55,7 +55,8 @@ public sealed class DependencyTests
 
     private static void Check(Assembly assembly, Assembly[] forbidden)
     {
-        GivenTypesConjunction forbiddenTypes = Types().That().ResideInAssembly(forbidden[0], forbidden[1..]);
+        GivenTypesConjunction forbiddenTypes = Types().That().ResideInAssembly(forbidden[0], forbidden[1..])
+            .And().DoNotResideInNamespaceMatching(CodeCoverageNamespace);
 
         // Projects with no types yet still pass.
         Types().That().ResideInAssembly(assembly)

@@ -29,6 +29,17 @@ internal sealed class FakeUnitOfWork : IUnitOfWork
     }
 }
 
+internal sealed class FakeOutbox : IOutbox
+{
+    public List<object> Events { get; } = [];
+
+    public void Add<TEvent>(TEvent @event)
+        where TEvent : class
+    {
+        Events.Add(@event);
+    }
+}
+
 internal sealed class FakePasswordHasher : IPasswordHasher
 {
     public string Hash(string password) => $"hashed:{password}";

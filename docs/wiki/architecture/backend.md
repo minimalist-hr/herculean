@@ -43,7 +43,7 @@ api/
 |---|---|
 | Domain | SharedKernel |
 | Application | Domain, SharedKernel, any module's Contracts |
-| Infrastructure | Application, Domain, SharedKernel |
+| Infrastructure | Application, Domain, SharedKernel, any module's Contracts (to register its event handlers) |
 | Contracts | Nothing |
 | Api (host) | Each module's Infrastructure, ServiceDefaults |
 
@@ -94,7 +94,7 @@ Herculean.Training.Application/
 - **Foreign keys** are `ON DELETE RESTRICT`. Code deletes child rows on purpose.
 - **Query filters:** named EF Core filters for `UserId` and for soft delete. A filter can be turned off on its own, for example by a background job.
 - **Current user:** a service in each module, filled from the access token.
-- **Typed IDs:** each ID is a record struct of our own, with an EF Core converter.
+- **Typed IDs:** each ID is a record struct of our own, with an EF Core converter. Each module has its own `UserId`: Account owns users, and Training only refers to them. Between modules, IDs travel as plain `Guid`s.
 - **Undo:** workouts and groups have a restore endpoint.
 
 ## Errors
@@ -108,11 +108,16 @@ Herculean.Training.Application/
 ## Events between modules
 
 - Modules talk through events and through queries in Contracts.
-- Events use an outbox. Each module has an outbox table. An event is saved in the same transaction as the change, and a background job sends it.
+- Events use an outbox. A module that sends events has an `outbox_messages` table in its schema.
+- An event is a record in the sending module's Contracts, for example `AccountCreatedIntegrationEvent`. The handler adds it with `IOutbox`, and the unit of work saves it in the same transaction as the change.
+- A receiving module handles it with an `IIntegrationEventHandler<T>`, named after the event, for example `AccountCreatedIntegrationEventHandler`, and registered with `AddIntegrationEventHandler`.
+- After the save, the outbox job wakes and sends the event to every registered handler, each in its own scope. It also checks every 5 seconds.
+- A failed event is tried again on each check, up to 5 times. Its last error stays in the table and in the logs.
+- Event handlers are idempotent, because the outbox can send an event twice.
 
 | Event | From | Handled by | What happens |
 |---|---|---|---|
-| Account created | Account | Training | Creates training settings with their starting values, and the 6 groups |
+| Account created | Account | Training | Creates workout settings with their starting values, and the 6 groups |
 | Account deleted | Account | Training | Deletes the user's training data |
 
 ## Auth
@@ -130,8 +135,16 @@ Herculean.Training.Application/
 
 ## Background jobs
 
+- Jobs are `BackgroundService`s. There is no job library.
 - **Outbox:** sends saved events.
 - **Token cleanup:** deletes expired tokens, as set out in [Domain and entities](/product/domain#account).
+
+## Logging
+
+- Code logs through `ILogger<T>` with `[LoggerMessage]` methods. The build writes their bodies, checks each template against its parameters, and skips the work when the level is off.
+- Background jobs log their errors, and so does code that catches a failure. ASP.NET Core logs unhandled errors.
+- Passwords, tokens and emails are never logged.
+- Logs, traces and metrics go through OpenTelemetry to the Aspire dashboard.
 
 ## Tests
 

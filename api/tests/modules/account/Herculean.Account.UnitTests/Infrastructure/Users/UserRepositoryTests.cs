@@ -2,6 +2,7 @@ using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.Account.Infrastructure;
 using Herculean.Account.Infrastructure.Users;
+using Herculean.SharedKernel.Events;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,15 +10,16 @@ namespace Herculean.Account.UnitTests.Infrastructure.Users;
 
 public sealed class UserRepositoryTests : IDisposable
 {
-    private readonly AccountDbContext _dbContext = new(new DbContextOptionsBuilder<AccountDbContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options);
-
+    private readonly OutboxSignal<AccountDbContext> _outboxSignal = new();
+    private readonly AccountDbContext _dbContext;
     private readonly UserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UserRepositoryTests()
     {
+        _dbContext = new AccountDbContext(
+            new DbContextOptionsBuilder<AccountDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options,
+            _outboxSignal);
         _userRepository = new UserRepository(_dbContext);
         _unitOfWork = _dbContext;
     }
@@ -57,5 +59,6 @@ public sealed class UserRepositoryTests : IDisposable
     public void Dispose()
     {
         _dbContext.Dispose();
+        _outboxSignal.Dispose();
     }
 }

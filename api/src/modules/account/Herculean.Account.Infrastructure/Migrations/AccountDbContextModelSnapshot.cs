@@ -103,6 +103,48 @@ namespace Herculean.Account.Infrastructure.Migrations
                     b.ToTable("users", "account");
                 });
 
+            modelBuilder.Entity("Herculean.SharedKernel.Events.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("content");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at_utc");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at_utc");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_outbox_messages");
+
+                    b.HasIndex("OccurredAtUtc")
+                        .HasDatabaseName("ix_outbox_messages_occurred_at_utc")
+                        .HasFilter("processed_at_utc IS NULL");
+
+                    b.ToTable("outbox_messages", "account");
+                });
+
             modelBuilder.Entity("Herculean.Account.Domain.Users.RefreshToken", b =>
                 {
                     b.HasOne("Herculean.Account.Domain.Users.User", null)

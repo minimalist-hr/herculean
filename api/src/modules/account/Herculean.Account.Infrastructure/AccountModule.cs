@@ -6,6 +6,7 @@ using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.Account.Infrastructure.Auth;
 using Herculean.Account.Infrastructure.Users;
+using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
 
 using Microsoft.AspNetCore.Routing;
@@ -23,6 +24,8 @@ public static class AccountModule
     {
         builder.AddModuleDbContext<AccountDbContext>(AccountDbContext.Schema);
         builder.Services.AddScoped<IUnitOfWork>(services => services.GetRequiredService<AccountDbContext>());
+        builder.Services.AddScoped<IOutbox, Outbox>();
+        builder.Services.AddOutbox<AccountDbContext>();
 
         builder.Services.AddOptions<JwtOptions>()
             .BindConfiguration(JwtOptions.Section)

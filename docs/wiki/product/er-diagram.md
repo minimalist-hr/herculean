@@ -88,7 +88,7 @@ erDiagram
     WorkoutExercise ||--o{ Set : has
 ```
 
-### TrainingSettings
+### WorkoutSettings
 
 | Property | Type | Notes |
 |---|---|---|

@@ -1,5 +1,6 @@
 using Herculean.Account.Application.Auth;
 using Herculean.Account.Application.Users.CreateUser;
+using Herculean.Account.Contracts;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Results;
 
@@ -11,11 +12,12 @@ public sealed class CreateUserHandlerTests
 
     private readonly FakeUserRepository _userRepository = new();
     private readonly FakeUnitOfWork _unitOfWork = new();
+    private readonly FakeOutbox _outbox = new();
     private readonly CreateUserHandler _handler;
 
     public CreateUserHandlerTests()
     {
-        _handler = new CreateUserHandler(new CreateUserValidator(), _userRepository, _unitOfWork, new FakePasswordHasher(), new FakeTokenIssuer());
+        _handler = new CreateUserHandler(new CreateUserValidator(), _userRepository, _unitOfWork, _outbox, new FakePasswordHasher(), new FakeTokenIssuer());
     }
 
     [Fact]
@@ -30,6 +32,7 @@ public sealed class CreateUserHandlerTests
         user.TimeZone.ShouldBe("Europe/Zagreb");
         user.RefreshTokens.ShouldHaveSingleItem();
         _unitOfWork.Saved.ShouldBeTrue();
+        _outbox.Events.ShouldHaveSingleItem().ShouldBe(new AccountCreatedIntegrationEvent(user.Id.Value));
     }
 
     [Fact]
@@ -41,6 +44,7 @@ public sealed class CreateUserHandlerTests
         result.Error.Fields.ShouldContainKey("password");
         _userRepository.Users.ShouldBeEmpty();
         _unitOfWork.Saved.ShouldBeFalse();
+        _outbox.Events.ShouldBeEmpty();
     }
 
     [Fact]
@@ -53,5 +57,6 @@ public sealed class CreateUserHandlerTests
         result.Error.ShouldBe(UserErrors.EmailTaken);
         _userRepository.Users.Count.ShouldBe(1);
         _unitOfWork.Saved.ShouldBeFalse();
+        _outbox.Events.ShouldBeEmpty();
     }
 }

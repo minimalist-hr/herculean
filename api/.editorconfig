@@ -392,6 +392,10 @@ dotnet_naming_style.s_camelcase.word_separator =
 dotnet_naming_style.s_camelcase.capitalization = camel_case
 
 
+# Integration event handlers keep their usual name, IIntegrationEventHandler. They are not delegates.
+[*.cs]
+dotnet_code_quality.CA1711.allowed_suffixes = EventHandler
+
 # EF Core migrations are generated, so format and analyzers skip them.
 [**/Migrations/*.cs]
 generated_code = true

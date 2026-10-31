@@ -40,7 +40,7 @@ The terms in [Domain and entities](/product/domain#terms) are used unchanged in 
 
 Names are explicit: a field, parameter or local says what it holds, for example `userRepository`, `dbContext`, `normalizedEmail`. No abbreviations or one-letter names.
 
-Type suffixes say what a type is for: `Request` comes into the API, `Response` goes out of it, and `Event` and `Query` are Contracts between modules. There is no `Dto` suffix: inside a module, types are named for what they are.
+Type suffixes say what a type is for: `Request` comes into the API, `Response` goes out of it, `IntegrationEvent` and `Query` are Contracts between modules, and `IntegrationEventHandler` handles an integration event. There is no `Dto` suffix: inside a module, types are named for what they are.
 
 ### Database
 

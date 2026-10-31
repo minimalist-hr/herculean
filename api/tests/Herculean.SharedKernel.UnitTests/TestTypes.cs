@@ -1,4 +1,5 @@
 using Herculean.SharedKernel.Entities;
+using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
 
 using Microsoft.EntityFrameworkCore;
@@ -27,5 +28,8 @@ internal sealed class TestDbContext(DbContextOptions<TestDbContext> options) : D
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TestEntity>().Property(entity => entity.Id).HasConversion<TypedIdConverter<TestId>>();
+        modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
     }
 }
+
+internal sealed record TestEvent(string Name);

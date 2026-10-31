@@ -6,8 +6,8 @@ POST {{host}}/api/v1/users
 Content-Type: application/json
 
 {
-  "email": "user-{{$guid}}@example.com",
-  "password": "password",
+  "email": "fmucnjak@herculean.com",
+  "password": "fMucnjak123!",
   "timeZone": "Europe/Zagreb"
 }
 
