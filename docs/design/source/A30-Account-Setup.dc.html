@@ -31,8 +31,8 @@ button{font-family:inherit}
 <p id="units-label" style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Units</p>
 <div role="radiogroup" aria-labelledby="units-label" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
 <sc-for list="{{units}}" as="o" hint-placeholder-count="2">
-<button role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: {{r.ctrl}}; border: 1px solid {{o.edge}}; background: {{o.bg}}; color: {{c.text}}; text-align: left; cursor: pointer">
-<span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">{{o.title}}</span><span style="font-size: 12px; color: {{c.muted}}">{{o.sub}}</span></span>
+<button role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="display: flex; align-items: center; gap: 8px; min-height: 60px; padding: 12px; border-radius: {{r.ctrl}}; border: 1px solid {{o.edge}}; background: {{o.bg}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">{{o.title}}</span><span style="font-size: 12px; color: {{c.muted}}">{{o.sub}}</span></span>
 <span aria-hidden="true" style="width: 22px; height: 22px; flex: none; box-sizing: border-box; border-radius: 999px; border: 1.5px solid {{o.ring}}; display: flex; align-items: center; justify-content: center"><span style="width: 10px; height: 10px; border-radius: 999px; background: {{o.dot}}"></span></span>
 </button>
 </sc-for>
@@ -42,7 +42,7 @@ button{font-family:inherit}
 <p id="rest-label" style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Default rest time</p>
 <div style="display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; gap: 8px; align-items: center">
 <button aria-label="15 seconds less" onClick="{{less}}" style="height: 52px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
-<input aria-labelledby="rest-label" inputmode="numeric" value="{{time}}" style="width: 100%; height: 52px; box-sizing: border-box; padding: 0; text-align: center; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-family: inherit; font-size: 32px; font-weight: 700">
+<div role="slider" aria-labelledby="rest-label" style="display: flex; align-items: center; justify-content: center; height: 52px; box-sizing: border-box; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 32px; font-weight: 700">{{time}}</div>
 <button aria-label="15 seconds more" onClick="{{more}}" style="height: 52px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
 </div>
 <div role="group" aria-label="Quick picks" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
@@ -103,9 +103,9 @@ class Component extends DCLogic {
       });
     };
     const units = radio([{ id: 'metric', title: 'Metric', sub: 'kg, cm' }, { id: 'imperial', title: 'Imperial', sub: 'lb, in' }], 'units', 'metric');
-    const secs = st.secs || 90;
+    const secs = st.secs || 180;
     const fmt = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-    const presets = [60, 90, 120, 150, 180].map((s) => {
+    const presets = [60, 120, 180, 240, 300].map((s) => {
       const on = s === secs;
       return { label: fmt(s), on, edge: on ? c.primary : c.border, bg: on ? c.primary : c.raised, fg: on ? c.onPrimary : c.text, pick: () => this.setState({ secs: s }) };
     });

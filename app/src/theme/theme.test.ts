@@ -16,7 +16,7 @@ test('light Titanium uses the light neutrals and the Titanium accent', () => {
   expect(colors.success).toBe('#166534');
 });
 
-test('type roles become text styles with the right font, sizes and tabular numbers', () => {
+test('type roles become text styles with the right font, sizes, tabular numbers and no Android font padding', () => {
   const { text } = createTheme('dark', 'racingBlue');
 
   expect(text.pageTitle).toEqual({
@@ -25,6 +25,7 @@ test('type roles become text styles with the right font, sizes and tabular numbe
     lineHeight: 33.6,
     letterSpacing: -0.32,
     fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
   });
   expect(text.primaryButton).toMatchObject({
     letterSpacing: 0.9,

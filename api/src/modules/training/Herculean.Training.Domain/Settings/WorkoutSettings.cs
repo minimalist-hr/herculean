@@ -4,10 +4,12 @@ namespace Herculean.Training.Domain.Settings;
 
 internal sealed class WorkoutSettings : Entity<WorkoutSettingsId>
 {
-    internal const int StartingDefaultRestSeconds = 90;
+    internal const int StartingDefaultRestSeconds = 180;
 
-    /// <summary>The default rest times the user can choose, in seconds.</summary>
-    internal static readonly int[] DefaultRestSecondsChoices = [60, 90, 120, 150, 180];
+    // The default rest time moves in 15 second steps, from 0:15 to 10:00.
+    internal const int DefaultRestStepSeconds = 15;
+    internal const int MinDefaultRestSeconds = 15;
+    internal const int MaxDefaultRestSeconds = 600;
 
     private WorkoutSettings(WorkoutSettingsId id, UserId userId, int defaultRestSeconds, bool restSound, bool restVibrate) : base(id)
     {
@@ -30,10 +32,13 @@ internal sealed class WorkoutSettings : Entity<WorkoutSettingsId>
 
     public void ChangeDefaultRest(int defaultRestSeconds)
     {
-        DefaultRestSeconds = DefaultRestSecondsChoices.Contains(defaultRestSeconds)
+        DefaultRestSeconds = IsDefaultRest(defaultRestSeconds)
             ? defaultRestSeconds
-            : throw new ArgumentOutOfRangeException(nameof(defaultRestSeconds), defaultRestSeconds, "Not one of the default rest time choices.");
+            : throw new ArgumentOutOfRangeException(nameof(defaultRestSeconds), defaultRestSeconds, "Not a default rest time.");
     }
+
+    public static bool IsDefaultRest(int seconds) =>
+        seconds is >= MinDefaultRestSeconds and <= MaxDefaultRestSeconds && seconds % DefaultRestStepSeconds == 0;
 
     public void ChangeRestSound(bool restSound)
     {

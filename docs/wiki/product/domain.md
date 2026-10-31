@@ -56,7 +56,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 - Weight is stored in kg. Imperial users see pounds, rounded to 0.1.
 - The weight steppers (L10) change by 2.5 kg, or by 5 lb for imperial users.
-- The default rest time is 1:00, 1:30, 2:00, 2:30 or 3:00. It starts at 1:30.
+- The default rest time moves in 15 second steps, from 0:15 to 10:00. It starts at 3:00. Setup (A30) and Settings (H15) also offer quick picks: 1, 2, 3, 4 and 5 minutes.
 - Times are stored in UTC. Dates and day logic use the user's time zone.
 - The app sends the phone's time zone, and it is stored on the user.
 

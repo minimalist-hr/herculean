@@ -2,7 +2,7 @@
 
 Version 0.4 · 31 October 2026 · Minimalist
 
-> Changes since 0.3: a spacing scale, the dimmed opacity and the spinner in the tokens (sections 4.4 and 5). Error states for forms, which the canvas does not show, and the bottom action box with the keyboard open (section 5). A01 and A20 link to each other with a text link line instead of a secondary button (sections 5 and 9). Their screens, HTML and source show it; the area panel `areas/A-Account.png` still shows the old button. Page transitions (section 6).
+> Changes since 0.3: a spacing scale, the dimmed opacity and the spinner in the tokens (sections 4.4 and 5). Error states for forms, which the canvas does not show, and the bottom action box with the keyboard open (section 5). A01 and A20 link to each other with a text link line instead of a secondary button (sections 5 and 9). Their screens, HTML and source show it; the area panel `areas/A-Account.png` still shows the old button. Page transitions (section 6). Radio cards, steppers and quick picks, with their sizes and type roles in the tokens; on A30 the rest time is shown, not typed, and the card spacing is on the scale (sections 5 and 9). The quick picks on A30 and H15 are 1 to 5 minutes, and a new account starts at 3:00 instead of 1:30.
 
 > Changes since 0.2: the tab bar's padding and label letter spacing are tokens, and its bottom padding follows the phone's safe area (section 5).
 
@@ -153,7 +153,7 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 **Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
 
 ### Bottom action box
-Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. The primary button comes first and Cancel goes below it. While the keyboard is open, the box stays behind it and only the form makes room. The keyboard's return key moves to the next field, and on the last field it does the primary action.
+Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. Above a navigation bar or home indicator, the bottom padding is that bar plus 12 px, so the buttons never touch it. The primary button comes first and Cancel goes below it. While the keyboard is open, the box stays behind it and only the form makes room. The keyboard's return key moves to the next text field. On the last field of a form it does the primary action; when choices that are not text follow, it closes the keyboard.
 
 ### Inputs
 44 px high, `raised` fill, 1 px border. Every input has a visible uppercase label above it and helper text below when needed (for example "At least 8 characters."). Password fields have a show/hide eye button.
@@ -171,6 +171,12 @@ The canvas shows no error states, so every form follows these:
 
 ### Lists
 Grouped lists sit inside one card, with rows divided by 1 px borders. Section labels above lists are 12 px uppercase and muted. Long names wrap; they are never cut off with "…".
+
+### Radio cards
+A choice of two or three side by side, like Units on A30: each card is at least `size.optionRowMin` tall, with 12 px padding, the name in `listItemName`, a `meta` line and a radio circle (`size.radio`). The chosen card has the `primary` border and `raised` fill.
+
+### Steppers and quick picks
+A value between − and + buttons (`size.stepper`), like the default rest time on A30 and H15. The value is shown in `stepperValue`, not typed; the buttons and the quick picks reach every allowed value. At a limit, its button is dimmed. Screen readers get one adjustable control that says the value in words. Quick picks are a row of common values in `quickPick` type; the one that matches the value is filled with `primary`.
 
 ### Sheets
 - **Look:** a dimmed backdrop (62% black), a sheet rising from the bottom with rounded top corners and a 36 × 4 px grabber, and a 22 px title with a one-line explanation.
@@ -294,7 +300,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 | **A0 Launch** | A00 Splash | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens. |
 | **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
 | **A2 Reset password** | A10 Reset password, A11 Link sent, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → New password twice → Save password → A01. |
-| **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. Finish setup → H05. |
+| **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. |
 
 ### H · Home
 

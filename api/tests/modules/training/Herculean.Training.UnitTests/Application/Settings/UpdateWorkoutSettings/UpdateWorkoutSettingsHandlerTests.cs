@@ -51,7 +51,7 @@ public sealed class UpdateWorkoutSettingsHandlerTests
     public async Task InvalidRequestFailsWithFieldErrors()
     {
         Result<WorkoutSettingsResponse> result = await _handler.HandleAsync(
-            new UpdateWorkoutSettingsRequest(75, RestSound: null, RestVibrate: null),
+            new UpdateWorkoutSettingsRequest(70, RestSound: null, RestVibrate: null),
             TestContext.Current.CancellationToken);
 
         result.Error.ShouldNotBeNull().Fields.ShouldContainKey("defaultRestSeconds");

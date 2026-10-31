@@ -18,8 +18,11 @@ export function BottomActionBox({ children }: { children: ReactNode }) {
           gap: size.gap.stackedButtons,
           paddingTop: actionBoxPadding.top,
           paddingHorizontal: actionBoxPadding.x,
-          // Clears the home indicator on phones that have one.
-          paddingBottom: Math.max(insets.bottom, actionBoxPadding.bottom),
+          // Above a navigation bar or home indicator, the same space as at the top, so buttons never touch it.
+          paddingBottom: Math.max(
+            insets.bottom + actionBoxPadding.top,
+            actionBoxPadding.bottom,
+          ),
           borderTopColor: colors.border,
           backgroundColor: colors.card,
         },

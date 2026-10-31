@@ -98,3 +98,19 @@ export function SpinnerArcIcon({ color, size }: IconProps) {
     </Icon>
   );
 }
+
+export function MinusIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M5 12h14" />
+    </Icon>
+  );
+}
+
+export function PlusIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M12 5v14M5 12h14" />
+    </Icon>
+  );
+}

@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
     // Android adds its own padding and top-aligns the text, so the text sits off center.
     paddingVertical: 0,
     textAlignVertical: 'center',
-    includeFontPadding: false,
   },
   eye: {
     position: 'absolute',

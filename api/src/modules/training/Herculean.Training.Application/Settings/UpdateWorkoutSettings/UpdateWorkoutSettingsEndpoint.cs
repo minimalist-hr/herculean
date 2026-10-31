@@ -20,7 +20,7 @@ internal static class UpdateWorkoutSettingsEndpoint
     }
 
     [EndpointSummary("Change the workout settings")]
-    [EndpointDescription("Changes the default rest time, rest sound or rest vibrate. A new account starts at 90 seconds, with sound and vibrate on.")]
+    [EndpointDescription("Changes the default rest time, rest sound or rest vibrate. A new account starts at 3:00 (180 seconds), with sound and vibrate on.")]
     [ProducesResponseType<WorkoutSettingsResponse>(StatusCodes.Status200OK, Description = "The workout settings after the change.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each field.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]

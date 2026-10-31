@@ -31,13 +31,13 @@ Content-Type: application/json
   "restVibrate": false
 }
 
-### Rest time that is not a choice → 400 validation, with an error for defaultRestSeconds.
+### Rest time off the 15 second steps → 400 validation, with an error for defaultRestSeconds.
 PATCH {{host}}/api/v1/workout-settings
 Authorization: Bearer {{createAccount.response.body.$.accessToken}}
 Content-Type: application/json
 
 {
-  "defaultRestSeconds": 75
+  "defaultRestSeconds": 70
 }
 
 ### Not signed in → 401 unauthorized.

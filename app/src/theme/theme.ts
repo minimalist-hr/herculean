@@ -76,6 +76,8 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
       secondaryButton: toTextStyle(roles.secondaryButton, colors),
       eyebrow: toTextStyle(roles.eyebrow, colors),
       meta: toTextStyle(roles.meta, colors),
+      quickPick: toTextStyle(roles.quickPick, colors),
+      stepperValue: toTextStyle(roles.stepperValue, colors),
       tabLabelActive: toTextStyle(
         { ...roles.tabLabel, weight: roles.tabLabel.weightActive },
         colors,
@@ -94,6 +96,8 @@ function toTextStyle(role: Role, colors: Colors): TextStyle {
     fontSize: role.size,
     // Tabular numbers line up weights, reps and timers.
     fontVariant: ['tabular-nums'],
+    // Android adds font padding above the text, so it sits low in its box. iOS has none.
+    includeFontPadding: false,
     ...(role.lineHeight !== undefined && {
       lineHeight: round(role.size * role.lineHeight),
     }),

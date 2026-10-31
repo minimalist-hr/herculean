@@ -9,7 +9,7 @@ internal sealed class UpdateWorkoutSettingsValidator : AbstractValidator<UpdateW
     public UpdateWorkoutSettingsValidator()
     {
         RuleFor(request => request.DefaultRestSeconds)
-            .Must(seconds => seconds is null || WorkoutSettings.DefaultRestSecondsChoices.Contains(seconds.Value))
-            .WithMessage($"'{{PropertyName}}' must be one of {string.Join(", ", WorkoutSettings.DefaultRestSecondsChoices)}.");
+            .Must(seconds => seconds is null || WorkoutSettings.IsDefaultRest(seconds.Value))
+            .WithMessage("'{PropertyName}' must be a multiple of 15 seconds, from 15 to 600.");
     }
 }

@@ -98,6 +98,8 @@ export const tokens = {
         color: 'muted',
       },
       meta: { size: 12.5, color: 'muted' },
+      quickPick: { size: 14, weight: 700 },
+      stepperValue: { size: 32, weight: 700 },
       tabLabel: {
         size: 11,
         weightActive: 700,
@@ -132,6 +134,8 @@ export const tokens = {
     },
     undoBar: 56,
     spinner: 18,
+    stepper: { button: 56, height: 52 },
+    radio: { ring: 22, ringWidth: 1.5, dot: 10 },
     sheetGrabber: { width: 36, height: 4 },
     actionBoxPadding: { top: 12, x: 16, bottom: 28 },
     gap: { stackedButtons: 8, chips: 6, sectionMin: 14, sectionMax: 20 },

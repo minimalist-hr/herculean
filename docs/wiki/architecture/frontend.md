@@ -17,6 +17,7 @@ app/
       settings/
     components/   shared components from design section 5
     theme/        theme built from design-tokens.json
+    formats/      every format from design section 8
     api/          client generated from the API's OpenAPI document
 ```
 
@@ -51,6 +52,7 @@ app/
 - One provider holds Theme (Match my phone, Dark, Light) and Color (Racing blue, Titanium). Until Settings saves them, they are Match my phone and Racing blue. A phone with no preference gets dark.
 - `useTheme` gives screens the current tokens.
 - Styles use tokens only, never raw values.
+- Every text style turns off Android's extra font padding, so text sits in the middle of its box on both platforms.
 - Corners are always sharp. Soft corners were a design-tool option, not an app setting.
 - Chakra Petch loads at startup. The splash screen stays up until it is ready.
 
@@ -61,7 +63,7 @@ app/
 
 ## Formats
 
-- One module holds every format from design section 8: dates, sets, targets, durations, large numbers and units.
+- One module, `formats/formats.ts`, holds every format from design section 8: dates, sets, targets, durations, large numbers and units. Each format is added when a screen first needs it.
 - It is the only place formatting is defined.
 
 ## Text

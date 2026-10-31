@@ -100,7 +100,7 @@ class Component extends DCLogic {
     };
     const secs = st.secs || 90;
     const fmt = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-    const presets = [60, 90, 120, 150, 180].map((s) => {
+    const presets = [60, 120, 180, 240, 300].map((s) => {
       const on = s === secs;
       return { label: fmt(s), on: on, bg: on ? c.primary : c.raised, fg: on ? c.onPrimary : c.text, edge: on ? c.primary : c.border, pick: () => this.setState({ secs: s }) };
     });

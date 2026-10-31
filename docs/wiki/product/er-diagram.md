@@ -93,7 +93,7 @@ erDiagram
 | Property | Type | Notes |
 |---|---|---|
 | UserId | UserId | Unique |
-| DefaultRestSeconds | int | Starts at 90 |
+| DefaultRestSeconds | int | Starts at 180 (3:00) |
 | RestSound | bool | Starts on |
 | RestVibrate | bool | Starts on |
 

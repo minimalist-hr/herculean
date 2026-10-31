@@ -8,17 +8,18 @@ public sealed class UpdateWorkoutSettingsValidatorTests
 
     [Theory]
     [InlineData(null)]
-    [InlineData(60)]
-    [InlineData(180)]
-    public void ChosenRestTimePasses(int? defaultRestSeconds)
+    [InlineData(15)]
+    [InlineData(105)]
+    [InlineData(600)]
+    public void RestTimeInFifteenSecondStepsPasses(int? defaultRestSeconds)
     {
         _validator.Validate(new UpdateWorkoutSettingsRequest(defaultRestSeconds, RestSound: false, RestVibrate: null)).IsValid.ShouldBeTrue();
     }
 
     [Theory]
     [InlineData(0)]
-    [InlineData(75)]
-    [InlineData(240)]
+    [InlineData(70)]
+    [InlineData(615)]
     public void OtherRestTimeFails(int defaultRestSeconds)
     {
         _validator.Validate(new UpdateWorkoutSettingsRequest(defaultRestSeconds, RestSound: null, RestVibrate: null))

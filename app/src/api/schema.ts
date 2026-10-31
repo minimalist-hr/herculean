@@ -59,7 +59,7 @@ export interface paths {
         head?: never;
         /**
          * Change the workout settings
-         * @description Changes the default rest time, rest sound or rest vibrate. A new account starts at 90 seconds, with sound and vibrate on.
+         * @description Changes the default rest time, rest sound or rest vibrate. A new account starts at 3:00 (180 seconds), with sound and vibrate on.
          */
         patch: operations["UpdateWorkoutSettings"];
         trace?: never;
@@ -128,7 +128,7 @@ export interface components {
         UpdateWorkoutSettingsRequest: {
             /**
              * Format: int32
-             * @description The rest time that starts after every checked set, in seconds: 60, 90, 120, 150 or 180.
+             * @description The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.
              */
             defaultRestSeconds?: null | number;
             /** @description Play a sound when the rest ends. */
@@ -151,7 +151,7 @@ export interface components {
         WorkoutSettingsResponse: {
             /**
              * Format: int32
-             * @description The rest time that starts after every checked set, in seconds: 60, 90, 120, 150 or 180.
+             * @description The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.
              */
             defaultRestSeconds: number;
             /** @description Play a sound when the rest ends. */
