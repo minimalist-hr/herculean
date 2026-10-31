@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.3 · 31 October 2026 · Minimalist
+Version 0.4 · 31 October 2026 · Minimalist
+
+> Changes since 0.3: a spacing scale, the dimmed opacity and the spinner in the tokens (sections 4.4 and 5). Error states for forms, which the canvas does not show, and the bottom action box with the keyboard open (section 5). A01 and A20 link to each other with a text link line instead of a secondary button (sections 5 and 9). Their screens, HTML and source show it; the area panel `areas/A-Account.png` still shows the old button. Page transitions (section 6).
 
 > Changes since 0.2: the tab bar's padding and label letter spacing are tokens, and its bottom padding follows the phone's safe area (section 5).
 
@@ -128,6 +130,7 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 - **List rows:** at least 56 px; radio and option rows at least 60 px.
 - **Chips:** 36 px high.
 - **Gaps:** 8 px between stacked buttons, 6 px between chips, and 14–20 px between sections.
+- **Spacing scale:** `space` in the tokens, 6, 8, 12, 16 and 24 px (xs to xl). Every other gap and inset uses it. On A20, for example: 6 px inside the heading, 8 px between a label, its input and its helper, 12 px inside an input, 16 px between fields and 24 px between the heading, the form and the terms.
 
 ### 4.5 Icons
 
@@ -144,16 +147,21 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 | **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout, View workout |
 | **Danger** | 48 px, filled `danger` | The confirm action in delete and remove confirms |
 | **Danger text** | 44 px, `danger` text | Delete … inside edit screens (R20, E20) and Remove set |
-| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Create exercise, Add set |
+| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Create exercise, Add set, and the way between A01 and A20 |
 | **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 groups, E10 edit |
 
-**Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
+**Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
 
 ### Bottom action box
-Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. The primary button comes first and Cancel goes below it.
+Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. The primary button comes first and Cancel goes below it. While the keyboard is open, the box stays behind it and only the form makes room. The keyboard's return key moves to the next field, and on the last field it does the primary action.
 
 ### Inputs
 44 px high, `raised` fill, 1 px border. Every input has a visible uppercase label above it and helper text below when needed (for example "At least 8 characters."). Password fields have a show/hide eye button.
+
+### Form errors
+The canvas shows no error states, so every form follows these:
+- **Field error:** the message replaces the helper text under the field, in `danger`, and the field's border turns `danger`. It covers the form's own checks and the API's field errors, for example "An account with this email already exists." under Email on A20.
+- **Any other error** (no connection, a server error, an error with no field): one line in `danger` at the top of the form, above the first field, for example "Couldn't create the account. Try again." The form scrolls up to show it. It clears when a field changes or the action is tried again.
 
 ### Chips
 36 px filter chips: "All" plus one per group, in the group order set in E30. The selected chip uses the accent. Chips wrap onto new lines; this was decided and is kept.
@@ -200,6 +208,7 @@ A short title, one sentence saying what to do, and the one action that fixes it.
 - **Settings** opens from the FM avatar on Home. The avatar appears only on Home.
 - **Logging** opens from Load routine (W01), Start workout (Home) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
 - **Sub-pages** have a back link above the title, named after the page it returns to (for example "‹ Settings"). Sub-pages never have both a back link and a bottom Cancel.
+- **Moving between pages:** a page slides in from the right, and slides back out when you go back. The screen behind it keeps the theme's background, never white.
 - **Day screens** opened from the week strip have "Back to today". Opened from the month, the same link reads "Back to month".
 
 ---
@@ -283,9 +292,9 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 | Row | Screens | What happens |
 |---|---|---|
 | **A0 Launch** | A00 Splash | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens. |
-| **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, Sign in and Create account. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
+| **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
 | **A2 Reset password** | A10 Reset password, A11 Link sent, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → New password twice → Save password → A01. |
-| **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Then Setup: name, units and default rest time, all changeable later in Settings. Finish setup → H05. |
+| **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. Finish setup → H05. |
 
 ### H · Home
 

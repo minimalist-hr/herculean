@@ -22,6 +22,9 @@ type TextRole =
 export interface Theme {
   colors: Colors;
   radius: typeof tokens.radius;
+  space: typeof tokens.space;
+  opacity: typeof tokens.opacity;
+  motion: typeof tokens.motion;
   size: typeof tokens.size;
   text: Record<TextRole, TextStyle>;
 }
@@ -57,6 +60,9 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
   return {
     colors,
     radius: tokens.radius,
+    space: tokens.space,
+    opacity: tokens.opacity,
+    motion: tokens.motion,
     size: tokens.size,
     text: {
       pageTitle: toTextStyle(roles.pageTitle, colors),

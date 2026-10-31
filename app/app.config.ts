@@ -26,7 +26,12 @@ const config: ExpoConfig = {
     bundler: 'metro',
     output: 'single',
   },
-  plugins: ['expo-router', 'expo-status-bar'],
+  plugins: [
+    'expo-router',
+    'expo-status-bar',
+    'expo-secure-store',
+    'expo-localization',
+  ],
   experiments: {
     typedRoutes: true,
   },

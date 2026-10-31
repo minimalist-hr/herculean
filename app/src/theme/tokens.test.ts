@@ -15,6 +15,9 @@ interface DesignTokens {
   };
   radius: { sharp: unknown };
   font: { roles: unknown };
+  space: unknown;
+  opacity: unknown;
+  motion: unknown;
   size: unknown;
 }
 
@@ -56,4 +59,13 @@ test('type roles match the design', () => {
 
 test('sizes match the design', () => {
   expect(tokens.size).toEqual(design.size);
+});
+
+test('spacing matches the design', () => {
+  expect(tokens.space).toEqual(design.space);
+});
+
+test('opacity and motion match the design', () => {
+  expect(tokens.opacity).toEqual(design.opacity);
+  expect(tokens.motion).toEqual(design.motion);
 });

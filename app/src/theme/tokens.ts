@@ -106,6 +106,9 @@ export const tokens = {
       },
     },
   },
+  space: { xs: 6, sm: 8, md: 12, lg: 16, xl: 24 },
+  opacity: { dimmed: 0.5 },
+  motion: { spinMs: 800 },
   size: {
     screen: { width: 390, height: 844 },
     sidePadding: 16,
@@ -128,6 +131,7 @@ export const tokens = {
       iconGap: 4,
     },
     undoBar: 56,
+    spinner: 18,
     sheetGrabber: { width: 36, height: 4 },
     actionBoxPadding: { top: 12, x: 16, bottom: 28 },
     gap: { stackedButtons: 8, chips: 6, sectionMin: 14, sectionMax: 20 },

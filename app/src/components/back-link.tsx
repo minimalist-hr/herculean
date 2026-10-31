@@ -1,0 +1,46 @@
+import { Pressable, StyleSheet, Text } from 'react-native';
+
+import { useTheme } from '@/theme/theme-provider';
+
+import { ChevronLeftIcon } from './icons';
+
+/** The link at the top of a sub-page, named after the screen it goes back to. */
+export function BackLink({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress: () => void;
+}) {
+  const { colors, size, space, text } = useTheme();
+
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={[
+        styles.link,
+        // The padding widens the touch target without moving the label off the edge.
+        {
+          height: size.touchTargetMin,
+          paddingHorizontal: space.sm,
+          marginLeft: -space.sm,
+        },
+      ]}
+    >
+      <ChevronLeftIcon color={colors.muted} size={16} />
+      <Text style={[text.secondaryButton, { color: colors.muted }]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  link: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+});
