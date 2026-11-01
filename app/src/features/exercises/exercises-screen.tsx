@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -13,6 +13,7 @@ import {
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
+import { FormSuccess } from '@/components/form-success';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PlusIcon } from '@/components/icons';
 import { ScreenHeading } from '@/components/screen-heading';
@@ -21,6 +22,7 @@ import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useTheme } from '@/theme/theme-provider';
 
+import { takeExerciseCreated } from './exercise-notice';
 import { ExerciseRow } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -42,6 +44,7 @@ export function ExercisesScreen() {
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState<string>();
+  const [createdName, setCreatedName] = useState<string>();
   const typedSearch = searchText.trim();
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   // Clearing the search shows the whole list right away.
@@ -62,8 +65,35 @@ export function ExercisesScreen() {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [search, groupId]);
 
+  // The list stays open behind create exercise, so it checks each time it comes back.
+  // Clearing the filters makes sure the new exercise is in the list.
+  useFocusEffect(
+    useCallback(() => {
+      const created = takeExerciseCreated();
+      if (created !== undefined) {
+        setSearchText('');
+        setGroupId(undefined);
+        setCreatedName(created);
+        listRef.current?.scrollToOffset({ offset: 0, animated: false });
+      }
+    }, []),
+  );
+
+  function changeSearch(text: string) {
+    setCreatedName(undefined);
+    setSearchText(text);
+  }
+
+  function pickGroup(id: string | undefined) {
+    setCreatedName(undefined);
+    setGroupId(id);
+  }
+
   function openCreateExercise() {
-    router.push('/create-exercise');
+    router.push({
+      pathname: '/create-exercise',
+      params: { name: typedSearch, groupId: groupId ?? '' },
+    });
   }
 
   function renderTitle() {
@@ -110,7 +140,7 @@ export function ExercisesScreen() {
             <SearchField
               label="Search exercises"
               value={searchText}
-              onChangeText={setSearchText}
+              onChangeText={changeSearch}
             />
           </View>
           <HeaderIconButton
@@ -138,7 +168,7 @@ export function ExercisesScreen() {
                 label="All"
                 selected={groupId === undefined}
                 onPress={() => {
-                  setGroupId(undefined);
+                  pickGroup(undefined);
                 }}
               />
               {groups.data.map((group) => (
@@ -147,13 +177,19 @@ export function ExercisesScreen() {
                   label={group.name}
                   selected={groupId === group.id}
                   onPress={() => {
-                    setGroupId(group.id);
+                    pickGroup(group.id);
                   }}
                 />
               ))}
             </>
           )}
         </ScrollView>
+
+        {createdName !== undefined && (
+          <View style={{ paddingHorizontal: size.sidePadding }}>
+            <FormSuccess message={`${createdName} created.`} />
+          </View>
+        )}
       </View>
     );
   }

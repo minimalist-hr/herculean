@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.11 · 1 November 2026 · Minimalist
+Version 0.12 · 1 November 2026 · Minimalist
+
+> Changes since 0.11: what L22 fills in, its errors and limit, and what E01 shows after saving (sections 5 and 9). The groups on L22 wrap. On L22 and E20, "optional" is quieter than the "Also works" label.
 
 > Changes since 0.10: on E01 to E03, the title, search, Create exercise and the chips stay pinned and only the list scrolls, and the chips are one line that scrolls sideways (sections 5 and 9). Groups is a text link on the title row. E01 has no dashed Create exercise at the end of the list. The area panel `areas/E-Exercises.png` doesn't show this.
 
@@ -185,7 +187,7 @@ The canvas shows no error states, so every form follows these:
 **Search fields.** Every search has a search icon at the start. Once it has text, a clear button (44 × 44 px) sits at the end, and tapping it shows the whole list again right away.
 
 ### Chips
-36 px filter chips: "All" plus one per group, in the group order set in E30. The selected chip uses the accent. Chips stay on one line that scrolls sideways, with the last ones running off the edge, so they stay small enough to pin above a list.
+36 px filter chips: "All" plus one per group, in the group order set in E30. The selected chip uses the accent. Chips stay on one line that scrolls sideways, with the last ones running off the edge, so they stay small enough to pin above a list. Chips for picking in a form, like the groups on L22, wrap instead.
 
 ### Cards
 `card` fill, 1 px border, card radius, 16 px padding. A status card has an eyebrow with the status, a 22 px title and a meta line.
@@ -353,7 +355,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 | Row | Screens | What happens |
 |---|---|---|
 | **L1 Log sets** | L03 Loading, L01 Logging, L10 Edit weight, L11 Edit reps, L12 Set removed, L14 Exercise history, L15 History empty, L04 Reorder | The header shows the date and elapsed time, the routine name, Finish and "x of 19 sets". The current exercise is open, with rows for set, last time, kg and reps plus a check box. The other exercises are collapsed with their progress (0/3). Add set, Add exercise and Reorder are available. After each checked set, a rest timer appears with −15, +15 and Skip. Tapping a value opens a sheet with steppers (±2.5 kg or ±1 rep), Save set, Cancel and Remove set. The clock icon or the exercise name opens its recent history, with Full history → E10. |
-| **L2 Exercises** | L13 Remove exercise, L20 Add exercise, L24 Loading, L21 No matches, L22 Create exercise, L23 New one selected | The trash asks first (L13). Add exercise has search, group chips and a multi-select list. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). The new exercise comes back selected and marked "New". |
+| **L2 Exercises** | L13 Remove exercise, L20 Add exercise, L24 Loading, L21 No matches, L22 Create exercise, L23 New one selected | The trash asks first (L13). Add exercise has search, group chips and a multi-select list. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises the top of the form says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". |
 | **L3 Finish** | L30 Finish workout, L02 No exercises left, L31 Nothing logged | L30 shows a warning for unchecked sets, then Duration, Sets, Volume and Records, plus New records, with Save workout, Keep logging and Discard workout. With nothing checked (L31), there's no Save. L02 is the logging screen after every exercise has been removed. |
 
 ### R · Routines
@@ -369,7 +371,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 | Row | Screens | What happens |
 |---|---|---|
-| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
+| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a success line above the list says "Cable lateral raise created." It clears when the search or a group changes. A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
 | **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise, Cancel and Delete exercise. Changes show everywhere, past workouts included. Deleting removes the exercise from routines; logged workouts keep it. |
 | **E4 Groups** | E31 Loading, E30 Groups, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). New group, Rename and Delete; only an empty group can be deleted. |

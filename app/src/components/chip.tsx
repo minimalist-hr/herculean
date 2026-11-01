@@ -4,12 +4,19 @@ import { useTheme } from '@/theme/theme-provider';
 
 interface ChipProps {
   label: string;
+  /** What the chip shows, when a screen reader needs more than that. It shows the label otherwise. */
+  text?: string;
   selected: boolean;
   onPress: () => void;
 }
 
 /** A filter chip. The selected one uses the accent. */
-export function Chip({ label, selected, onPress }: ChipProps) {
+export function Chip({
+  label,
+  text: shownText = label,
+  selected,
+  onPress,
+}: ChipProps) {
   const { colors, radius, size, space, text } = useTheme();
 
   return (
@@ -34,7 +41,7 @@ export function Chip({ label, selected, onPress }: ChipProps) {
           { color: selected ? colors.onPrimary : colors.text },
         ]}
       >
-        {label}
+        {shownText}
       </Text>
     </Pressable>
   );

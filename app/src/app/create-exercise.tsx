@@ -1,6 +1,26 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-// Built in feature 2, Exercises: create exercise.
+import { CreateExerciseScreen } from '@/features/exercises/create-exercise-screen';
+import { noteExerciseCreated } from '@/features/exercises/exercise-notice';
+
 export default function CreateExerciseRoute() {
-  return <PlaceholderScreen title="Create exercise" back="Exercises" />;
+  const router = useRouter();
+  const { name, groupId } = useLocalSearchParams<{
+    name?: string;
+    groupId?: string;
+  }>();
+
+  return (
+    <CreateExerciseScreen
+      initialName={name ?? ''}
+      initialGroupId={groupId ?? ''}
+      onCreated={(exercise) => {
+        noteExerciseCreated(exercise.name);
+        router.back();
+      }}
+      onCancel={() => {
+        router.back();
+      }}
+    />
+  );
 }

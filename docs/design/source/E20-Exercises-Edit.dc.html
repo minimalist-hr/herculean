@@ -35,7 +35,7 @@ button{font-family:inherit}
 <p style="margin: 0; font-size: 13px; color: {{c.muted}}">Where it shows in your exercise list.</p>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p id="also-label" style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Also works · optional</p>
+<p id="also-label" style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Also works<span style="font-size: 12.5px; font-weight: 400; letter-spacing: 0; text-transform: none"> · optional</span></p>
 <div role="group" aria-labelledby="also-label" style="display: flex; flex-wrap: wrap; gap: 6px">
 <sc-for list="{{alsoChips}}" as="g" hint-placeholder-count="5">
 <button aria-pressed="{{g.on}}" onClick="{{g.pick}}" style="height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{g.edge}}; background: {{g.bg}}; color: {{g.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{g.label}}</button>
