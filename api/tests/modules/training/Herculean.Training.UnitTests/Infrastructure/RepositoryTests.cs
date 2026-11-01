@@ -1,9 +1,11 @@
+using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
 using Herculean.Training.Infrastructure;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Settings;
+using Herculean.Training.UnitTests.Application;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +14,14 @@ namespace Herculean.Training.UnitTests.Infrastructure;
 public sealed class RepositoryTests : IDisposable
 {
     private readonly UserId _userId = UserId.From(Guid.CreateVersion7());
-    private readonly TrainingDbContext _dbContext = new(new DbContextOptionsBuilder<TrainingDbContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options);
+    private readonly TrainingDbContext _dbContext;
+
+    public RepositoryTests()
+    {
+        _dbContext = new TrainingDbContext(
+            new DbContextOptionsBuilder<TrainingDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options,
+            new CurrentUser(new FakeCurrentUserAccessor { UserId = _userId.Value }));
+    }
 
     [Fact]
     public async Task WorkoutSettingsExistOnlyForTheirUser()
@@ -25,8 +32,7 @@ public sealed class RepositoryTests : IDisposable
 
         (await workoutSettingsRepository.ExistsForUserAsync(_userId, TestContext.Current.CancellationToken)).ShouldBeTrue();
         (await workoutSettingsRepository.ExistsForUserAsync(UserId.From(Guid.CreateVersion7()), TestContext.Current.CancellationToken)).ShouldBeFalse();
-        (await workoutSettingsRepository.GetForUserAsync(_userId, TestContext.Current.CancellationToken)).ShouldNotBeNull().UserId.ShouldBe(_userId);
-        (await workoutSettingsRepository.GetForUserAsync(UserId.From(Guid.CreateVersion7()), TestContext.Current.CancellationToken)).ShouldBeNull();
+        (await workoutSettingsRepository.GetForCurrentUserAsync(TestContext.Current.CancellationToken)).ShouldNotBeNull().UserId.ShouldBe(_userId);
     }
 
     [Fact]

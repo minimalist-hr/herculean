@@ -7,11 +7,13 @@ namespace Herculean.Training.Infrastructure.Settings;
 
 internal sealed class WorkoutSettingsRepository(TrainingDbContext dbContext) : IWorkoutSettingsRepository
 {
-    public Task<WorkoutSettings?> GetForUserAsync(UserId userId, CancellationToken cancellationToken) =>
-        dbContext.WorkoutSettings.SingleOrDefaultAsync(workoutSettings => workoutSettings.UserId == userId, cancellationToken);
+    public Task<WorkoutSettings?> GetForCurrentUserAsync(CancellationToken cancellationToken) =>
+        dbContext.WorkoutSettings.SingleOrDefaultAsync(cancellationToken);
 
     public Task<bool> ExistsForUserAsync(UserId userId, CancellationToken cancellationToken) =>
-        dbContext.WorkoutSettings.AnyAsync(workoutSettings => workoutSettings.UserId == userId, cancellationToken);
+        dbContext.WorkoutSettings
+            .IgnoreQueryFilters([TrainingDbContext.UserFilter])
+            .AnyAsync(workoutSettings => workoutSettings.UserId == userId, cancellationToken);
 
     public void Add(WorkoutSettings workoutSettings)
     {

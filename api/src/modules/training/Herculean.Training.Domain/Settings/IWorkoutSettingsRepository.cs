@@ -2,7 +2,7 @@ namespace Herculean.Training.Domain.Settings;
 
 internal interface IWorkoutSettingsRepository
 {
-    Task<WorkoutSettings?> GetForUserAsync(UserId userId, CancellationToken cancellationToken);
+    Task<WorkoutSettings?> GetForCurrentUserAsync(CancellationToken cancellationToken);
 
     Task<bool> ExistsForUserAsync(UserId userId, CancellationToken cancellationToken);
 

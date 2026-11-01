@@ -1,3 +1,4 @@
+using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
@@ -8,13 +9,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Herculean.Training.Infrastructure;
 
-internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> options) : DbContext(options), IUnitOfWork
+internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> options, CurrentUser currentUser) : DbContext(options), IUnitOfWork
 {
     internal const string Schema = "training";
+
+    // Without a signed-in user this throws, so a query never runs unfiltered by accident. A background job turns the filter off by name.
+    internal const string UserFilter = "User";
+
+    internal const string SoftDeleteFilter = "SoftDelete";
 
     public DbSet<WorkoutSettings> WorkoutSettings => Set<WorkoutSettings>();
 
     public DbSet<Group> Groups => Set<Group>();
+
+    private UserId CurrentUserId => currentUser.UserId;
 
     Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
@@ -24,5 +32,11 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
 
         modelBuilder.ApplyConfiguration(new WorkoutSettingsConfiguration());
         modelBuilder.ApplyConfiguration(new GroupConfiguration());
+
+        modelBuilder.Entity<WorkoutSettings>()
+            .HasQueryFilter(UserFilter, workoutSettings => workoutSettings.UserId == CurrentUserId);
+        modelBuilder.Entity<Group>()
+            .HasQueryFilter(UserFilter, group => group.UserId == CurrentUserId)
+            .HasQueryFilter(SoftDeleteFilter, group => group.DeletedAtUtc == null);
     }
 }

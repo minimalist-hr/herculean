@@ -14,8 +14,8 @@ internal sealed class FakeWorkoutSettingsRepository : IWorkoutSettingsRepository
 {
     public List<WorkoutSettings> WorkoutSettings { get; } = [];
 
-    public Task<WorkoutSettings?> GetForUserAsync(UserId userId, CancellationToken cancellationToken) =>
-        Task.FromResult(WorkoutSettings.SingleOrDefault(workoutSettings => workoutSettings.UserId == userId));
+    public Task<WorkoutSettings?> GetForCurrentUserAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(WorkoutSettings.SingleOrDefault());
 
     public Task<bool> ExistsForUserAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(WorkoutSettings.Any(workoutSettings => workoutSettings.UserId == userId));

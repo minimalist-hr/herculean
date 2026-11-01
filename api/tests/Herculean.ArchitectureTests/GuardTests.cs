@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
 using static Herculean.ArchitectureTests.HerculeanArchitecture;
@@ -101,6 +102,21 @@ public sealed class GuardTests
     }
 
     [Fact]
+    public void EveryTrainingEntityHasItsQueryFilters()
+    {
+        WebApplicationBuilder builder = CreateApiBuilder();
+        builder.Services.AddSingleton(TimeProvider.System);
+        using WebApplication app = builder.Build();
+        using IServiceScope scope = app.Services.CreateScope();
+        Type dbContextType = Layer("Training", "Infrastructure").GetTypes().Single(type => type.IsSubclassOf(typeof(DbContext)));
+        IModel model = ((DbContext)scope.ServiceProvider.GetRequiredService(dbContextType)).Model;
+
+        Entities("Training")
+            .SelectMany(type => MissingQueryFilters(type, model))
+            .ShouldBeEmpty();
+    }
+
+    [Fact]
     public void EveryEndpointResponseAndFieldIsDocumented()
     {
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(OpenApiDocumentPath()));
@@ -149,6 +165,22 @@ public sealed class GuardTests
         }
 
         undocumented.ShouldBeEmpty();
+    }
+
+    private static IEnumerable<string> MissingQueryFilters(Type entity, IModel model)
+    {
+        HashSet<string?> filters = [.. model.FindEntityType(entity)!.GetDeclaredQueryFilters().Select(filter => filter.Key)];
+
+        // The filters follow the properties, so a new entity can't leave one out.
+        if (entity.GetProperty("UserId") is not null && !filters.Contains("User"))
+        {
+            yield return $"{entity.Name} User";
+        }
+
+        if (entity.GetProperty("DeletedAtUtc") is not null && !filters.Contains("SoftDelete"))
+        {
+            yield return $"{entity.Name} SoftDelete";
+        }
     }
 
     private static void RequireText(JsonElement element, string key, string name, List<string> undocumented)

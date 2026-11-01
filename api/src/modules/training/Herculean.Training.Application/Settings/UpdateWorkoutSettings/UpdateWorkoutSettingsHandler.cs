@@ -23,7 +23,7 @@ internal sealed class UpdateWorkoutSettingsHandler(
             return validationResult.ToError();
         }
 
-        WorkoutSettings? workoutSettings = await workoutSettingsRepository.GetForUserAsync(currentUser.UserId, cancellationToken);
+        WorkoutSettings? workoutSettings = await workoutSettingsRepository.GetForCurrentUserAsync(cancellationToken);
 
         // Setup can change them right after sign-up, before the Account created event has created them.
         if (workoutSettings is null)

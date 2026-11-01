@@ -8,7 +8,9 @@ namespace Herculean.Training.Infrastructure.Groups;
 internal sealed class GroupRepository(TrainingDbContext dbContext) : IGroupRepository
 {
     public Task<bool> AnyForUserAsync(UserId userId, CancellationToken cancellationToken) =>
-        dbContext.Groups.AnyAsync(group => group.UserId == userId, cancellationToken);
+        dbContext.Groups
+            .IgnoreQueryFilters([TrainingDbContext.UserFilter, TrainingDbContext.SoftDeleteFilter])
+            .AnyAsync(group => group.UserId == userId, cancellationToken);
 
     public void AddRange(IEnumerable<Group> groups)
     {
