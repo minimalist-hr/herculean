@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.7 · 1 November 2026 · Minimalist
+Version 0.8 · 1 November 2026 · Minimalist
+
+> Changes since 0.7: the wording of H20 and H21 is final. H21 now says passwords are stored in a protected form that can't be read, and names the email service.
 
 > Changes since 0.6: a success line for forms (section 5). A11 waits a minute before Send link again can be pressed, and says "Link sent again." A01 says "Password changed. Sign in with the new one." after a reset (sections 7 and 9). A11 and A13 use the type scale: `meta` for A11's card text and `body` for A13's text.
 
@@ -323,7 +325,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 |---|---|---|
 | **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 No routines | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
 | **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Each row opens its own sheet. The theme options are Match my phone (default), Dark and Light. The colors are Racing blue and Titanium. The units are Metric (kg, cm) and Imperial (lb, in). |
-| **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". The final wording comes from a lawyer before release. |
+| **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout
 

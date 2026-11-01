@@ -11,6 +11,7 @@ title: Conventions
 - Design issues are GitLab issues with the `design` label.
 - Screens are named by ID, for example W10.
 - Each fact is written once, in one place, and linked from elsewhere.
+- H20 and H21 stay true: a change to what the app stores, who receives it or where it lives updates them in the same MR, with a new "Last updated" date.
 
 ## Vocabulary
 

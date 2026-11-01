@@ -7,6 +7,8 @@ import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { CreateAccountScreen } from './create-account-screen';
+import { privacyPolicy, termsOfService } from './legal-documents';
+import { LegalScreen } from './legal-screen';
 import { endSession, getAccessToken, useSessionStatus } from './session';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -65,9 +67,8 @@ async function renderCreateAccount() {
       _layout: Layout,
       'create-account': CreateAccountScreen,
       setup: () => <PlaceholderScreen title="Setup screen" />,
-      terms: () => (
-        <PlaceholderScreen title="Terms screen" back="Create account" />
-      ),
+      terms: () => <LegalScreen document={termsOfService} />,
+      privacy: () => <LegalScreen document={privacyPolicy} />,
     },
     { initialUrl: '/create-account' },
   );
@@ -179,15 +180,27 @@ test('while waiting, the button says so and Sign in is dimmed', async () => {
   expect(screen.getByRole('link', { name: 'Sign in' })).toBeDisabled();
 });
 
-test('the terms open and their back link returns to create account', async () => {
-  await renderCreateAccount();
+test.each([
+  ['Terms of service', '1. Your account'],
+  ['Privacy policy', '1. What we store'],
+])(
+  '%s opens and its back link returns to the form as it was',
+  async (link, firstSection) => {
+    await renderCreateAccount();
+    await fireEvent.changeText(
+      screen.getByLabelText('Email'),
+      'filip@example.com',
+    );
 
-  await fireEvent.press(screen.getByRole('link', { name: 'Terms of service' }));
-  expect(await screen.findByText('Terms screen')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('link', { name: link }));
+    expect(await screen.findByText(firstSection)).toBeOnTheScreen();
 
-  await fireEvent.press(screen.getByRole('link', { name: 'Create account' }));
-  expect(await screen.findByLabelText('Email')).toBeOnTheScreen();
-});
+    await fireEvent.press(screen.getByRole('link', { name: 'Create account' }));
+    expect(await screen.findByLabelText('Email')).toHaveDisplayValue(
+      'filip@example.com',
+    );
+  },
+);
 
 test('Go on the last field creates the account', async () => {
   mockFetch.mockResolvedValue(Response.json(tokens, { status: 201 }));

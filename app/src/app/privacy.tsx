@@ -1,6 +1,6 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { privacyPolicy } from '@/features/account/legal-documents';
+import { LegalScreen } from '@/features/account/legal-screen';
 
-// Built in feature 1, Account: terms and privacy.
 export default function PrivacyRoute() {
-  return <PlaceholderScreen title="Privacy policy" back="Create account" />;
+  return <LegalScreen document={privacyPolicy} />;
 }
