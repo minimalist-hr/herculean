@@ -204,9 +204,17 @@ export interface paths {
          * @description Returns one of the signed-in user's exercises, with its group and the other groups it also works.
          */
         get: operations["GetExercise"];
-        put?: never;
+        /**
+         * Change an exercise
+         * @description Replaces the name, the group and the other groups an exercise also works. Changes show everywhere it is used.
+         */
+        put: operations["UpdateExercise"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete an exercise
+         * @description Removes an exercise from the signed-in user's list. Logged workouts keep it, and its name can be used again.
+         */
+        delete: operations["DeleteExercise"];
         options?: never;
         head?: never;
         patch?: never;
@@ -404,6 +412,18 @@ export interface components {
             units?: null | components["schemas"]["Units"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Sent when the phone's changes. */
             timeZone?: null | string;
+        };
+        /** @description The new values of an exercise. They replace the old ones. */
+        UpdateExerciseRequest: {
+            /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other exercises, regardless of case. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The group it belongs to, which orders the exercise list.
+             */
+            groupId: string;
+            /** @description Other groups it also works. Leaving it out clears them. It can't repeat a group, or include the group it belongs to. */
+            alsoWorksGroupIds: null | string[];
         };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateWorkoutSettingsRequest: {
@@ -970,6 +990,108 @@ export interface operations {
                 };
             };
             /** @description The exercise does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description The changed exercise. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise or one of the groups does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user already has another exercise with this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exercise is deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise does not exist, is already deleted, or belongs to another user. */
             404: {
                 headers: {
                     [name: string]: unknown;

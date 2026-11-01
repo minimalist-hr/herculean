@@ -16,7 +16,7 @@ internal static class GetExerciseEndpoint
 
     internal static void Map(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet($"{ExerciseRoutes.Exercises}/{{id:guid}}", HandleAsync)
+        endpoints.MapGet(ExerciseRoutes.Exercise, HandleAsync)
             .WithName(Name)
             .WithTags(ExerciseRoutes.Tag);
     }

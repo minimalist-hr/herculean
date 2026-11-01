@@ -43,5 +43,21 @@ internal sealed class Exercise : Entity<ExerciseId>
         return exercise;
     }
 
+    public void Update(string name, GroupId groupId, IReadOnlyCollection<GroupId> alsoWorksGroupIds)
+    {
+        Name = name.Trim();
+        NormalizedName = NormalizeName(name);
+        GroupId = groupId;
+
+        _alsoWorks.RemoveAll(alsoWorks => !alsoWorksGroupIds.Contains(alsoWorks.GroupId));
+        IEnumerable<GroupId> added = alsoWorksGroupIds.Where(alsoWorksGroupId => _alsoWorks.All(alsoWorks => alsoWorks.GroupId != alsoWorksGroupId));
+        _alsoWorks.AddRange([.. added.Select(alsoWorksGroupId => ExerciseAlsoWorks.Create(UserId, Id, alsoWorksGroupId))]);
+    }
+
+    public void Delete(DateTimeOffset deletedAtUtc)
+    {
+        DeletedAtUtc = deletedAtUtc;
+    }
+
     public static string NormalizeName(string name) => name.Trim().ToLowerInvariant();
 }

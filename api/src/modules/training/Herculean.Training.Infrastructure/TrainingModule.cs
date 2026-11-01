@@ -8,8 +8,10 @@ using Herculean.Training.Application.AccountCreated;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.CreateExercise;
+using Herculean.Training.Application.Exercises.DeleteExercise;
 using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
+using Herculean.Training.Application.Exercises.UpdateExercise;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
@@ -56,6 +58,9 @@ public static class TrainingModule
         builder.Services.AddScoped<ListGroupsHandler>();
         builder.Services.AddScoped<IValidator<CreateExerciseRequest>, CreateExerciseValidator>();
         builder.Services.AddScoped<CreateExerciseHandler>();
+        builder.Services.AddScoped<IValidator<UpdateExerciseRequest>, UpdateExerciseValidator>();
+        builder.Services.AddScoped<UpdateExerciseHandler>();
+        builder.Services.AddScoped<DeleteExerciseHandler>();
     }
 
     /// <summary>Maps every Training endpoint.</summary>
@@ -67,6 +72,8 @@ public static class TrainingModule
         GetExerciseEndpoint.Map(endpoints);
         ListGroupsEndpoint.Map(endpoints);
         CreateExerciseEndpoint.Map(endpoints);
+        UpdateExerciseEndpoint.Map(endpoints);
+        DeleteExerciseEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

@@ -90,10 +90,52 @@ public sealed class RepositoryTests : IDisposable
         _dbContext.Entry(deleted).Property(exercise => exercise.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
         await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        (await exerciseRepository.NameExistsAsync(" BENCH press ", TestContext.Current.CancellationToken)).ShouldBeTrue();
-        (await exerciseRepository.NameExistsAsync("Pull-up", TestContext.Current.CancellationToken)).ShouldBeFalse();
-        (await exerciseRepository.NameExistsAsync("Pec deck", TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await exerciseRepository.NameExistsAsync(" BENCH press ", null, TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await exerciseRepository.NameExistsAsync("Pull-up", null, TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await exerciseRepository.NameExistsAsync("Pec deck", null, TestContext.Current.CancellationToken)).ShouldBeFalse();
         (await exerciseRepository.CountAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task TheNameCheckCanLeaveOutOneExercise()
+    {
+        ExerciseRepository exerciseRepository = new(_dbContext);
+        Exercise exercise = Exercise.Create(_userId, "Bench press", GroupId.New(), []);
+        exerciseRepository.Add(exercise);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await exerciseRepository.NameExistsAsync("BENCH PRESS", exercise.Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await exerciseRepository.NameExistsAsync("BENCH PRESS", ExerciseId.New(), TestContext.Current.CancellationToken)).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task AnExerciseComesWithItsAlsoWorks()
+    {
+        ExerciseRepository exerciseRepository = new(_dbContext);
+        GroupId alsoWorksGroupId = GroupId.New();
+        Exercise saved = Exercise.Create(_userId, "Bench press", GroupId.New(), [alsoWorksGroupId]);
+        exerciseRepository.Add(saved);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        Exercise? exercise = await exerciseRepository.GetAsync(saved.Id, TestContext.Current.CancellationToken);
+
+        exercise.ShouldNotBeNull().AlsoWorks.ShouldHaveSingleItem().GroupId.ShouldBe(alsoWorksGroupId);
+    }
+
+    [Fact]
+    public async Task ADeletedExerciseAndAnotherUsersAreLeftOut()
+    {
+        ExerciseRepository exerciseRepository = new(_dbContext);
+        Exercise deleted = Exercise.Create(_userId, "Bench press", GroupId.New(), []);
+        deleted.Delete(DateTimeOffset.UnixEpoch);
+        Exercise other = Exercise.Create(UserId.From(Guid.CreateVersion7()), "Pec deck", GroupId.New(), []);
+        exerciseRepository.Add(deleted);
+        exerciseRepository.Add(other);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await exerciseRepository.GetAsync(deleted.Id, TestContext.Current.CancellationToken)).ShouldBeNull();
+        (await exerciseRepository.GetAsync(other.Id, TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
     private async Task<IReadOnlyList<Group>> SaveGroupsAsync(UserId userId)

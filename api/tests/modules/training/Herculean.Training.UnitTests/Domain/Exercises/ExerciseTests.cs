@@ -7,6 +7,36 @@ namespace Herculean.Training.UnitTests.Domain.Exercises;
 public sealed class ExerciseTests
 {
     [Fact]
+    public void UpdatingChangesTheFieldsAndKeepsTheAlsoWorksThatStay()
+    {
+        UserId userId = UserId.From(Guid.CreateVersion7());
+        GroupId stays = GroupId.New();
+        GroupId leaves = GroupId.New();
+        GroupId arrives = GroupId.New();
+        GroupId groupId = GroupId.New();
+        Exercise exercise = Exercise.Create(userId, "Pull-up", GroupId.New(), [stays, leaves]);
+        ExerciseAlsoWorks kept = exercise.AlsoWorks[0];
+
+        exercise.Update("  Chin-Up ", groupId, [stays, arrives]);
+
+        exercise.Name.ShouldBe("Chin-Up");
+        exercise.NormalizedName.ShouldBe("chin-up");
+        exercise.GroupId.ShouldBe(groupId);
+        exercise.AlsoWorks.Select(alsoWorks => alsoWorks.GroupId).ShouldBe([stays, arrives]);
+        exercise.AlsoWorks[0].ShouldBeSameAs(kept);
+    }
+
+    [Fact]
+    public void DeletingRecordsTheTime()
+    {
+        Exercise exercise = Exercise.Create(UserId.From(Guid.CreateVersion7()), "Pull-up", GroupId.New(), []);
+
+        exercise.Delete(DateTimeOffset.UnixEpoch);
+
+        exercise.DeletedAtUtc.ShouldBe(DateTimeOffset.UnixEpoch);
+    }
+
+    [Fact]
     public void ANewExerciseHasATrimmedNameAndIsNotDeleted()
     {
         UserId userId = UserId.From(Guid.CreateVersion7());

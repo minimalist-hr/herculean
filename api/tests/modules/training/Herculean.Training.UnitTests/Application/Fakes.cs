@@ -86,8 +86,12 @@ internal sealed class FakeExerciseRepository : IExerciseRepository
 
     public Task<int> CountAsync(CancellationToken cancellationToken) => Task.FromResult(Count ?? Exercises.Count);
 
-    public Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken) =>
-        Task.FromResult(Exercises.Any(exercise => exercise.NormalizedName == Exercise.NormalizeName(name)));
+    public Task<Exercise?> GetAsync(ExerciseId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Exercises.SingleOrDefault(exercise => exercise.Id == id && exercise.DeletedAtUtc is null));
+
+    public Task<bool> NameExistsAsync(string name, ExerciseId? exceptId, CancellationToken cancellationToken) =>
+        Task.FromResult(Exercises.Any(exercise =>
+            exercise.DeletedAtUtc is null && exercise.Id != exceptId && exercise.NormalizedName == Exercise.NormalizeName(name)));
 
     public void Add(Exercise exercise)
     {

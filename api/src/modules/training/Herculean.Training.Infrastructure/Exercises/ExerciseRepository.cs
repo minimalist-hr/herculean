@@ -9,11 +9,18 @@ internal sealed class ExerciseRepository(TrainingDbContext dbContext) : IExercis
     public Task<int> CountAsync(CancellationToken cancellationToken) =>
         dbContext.Exercises.CountAsync(cancellationToken);
 
-    public Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken)
+    public Task<Exercise?> GetAsync(ExerciseId id, CancellationToken cancellationToken) =>
+        dbContext.Exercises
+            .Include(exercise => exercise.AlsoWorks)
+            .SingleOrDefaultAsync(exercise => exercise.Id == id, cancellationToken);
+
+    public Task<bool> NameExistsAsync(string name, ExerciseId? exceptId, CancellationToken cancellationToken)
     {
         string normalizedName = Exercise.NormalizeName(name);
 
-        return dbContext.Exercises.AnyAsync(exercise => exercise.NormalizedName == normalizedName, cancellationToken);
+        return dbContext.Exercises.AnyAsync(
+            exercise => exercise.NormalizedName == normalizedName && exercise.Id != exceptId,
+            cancellationToken);
     }
 
     public void Add(Exercise exercise)

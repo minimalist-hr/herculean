@@ -34,7 +34,7 @@ internal sealed class CreateExerciseHandler(
             return GroupErrors.NotFound;
         }
 
-        if (await exerciseRepository.NameExistsAsync(request.Name, cancellationToken))
+        if (await exerciseRepository.NameExistsAsync(request.Name, null, cancellationToken))
         {
             return ExerciseErrors.NameTaken;
         }
