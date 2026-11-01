@@ -71,7 +71,73 @@ export function ExercisesSkeleton() {
   );
 }
 
+/** The exercise details while they load. */
+export function ExerciseSkeleton() {
+  const { colors, radius, size, space } = useTheme();
+
+  return (
+    <View
+      accessible
+      accessibilityLabel="Loading the exercise"
+      accessibilityLiveRegion="polite"
+      style={{ gap: size.gap.sectionMax, marginTop: 2 }}
+    >
+      <View style={styles.heading}>
+        <View style={[styles.titleRow, { height: size.headerIconButton }]}>
+          <Skeleton width={260} height={32} />
+        </View>
+        <Skeleton width={110} height={14} />
+      </View>
+      <View
+        style={[
+          styles.noSessions,
+          {
+            gap: space.sm,
+            paddingTop: 28,
+            paddingBottom: size.gap.sectionMax,
+            borderRadius: radius.card,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <Skeleton width={28} height={28} />
+        <Skeleton width={130} height={16} />
+        <Skeleton width={260} height={12} />
+      </View>
+      <View style={{ gap: space.sm }}>
+        <Skeleton width={60} height={10} />
+        <View
+          style={[
+            styles.card,
+            {
+              gap: space.sm,
+              padding: space.lg,
+              borderRadius: radius.card,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            },
+          ]}
+        >
+          <Skeleton width={280} height={14} />
+          <Skeleton width={140} height={14} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  heading: {
+    gap: 4,
+  },
+  titleRow: {
+    justifyContent: 'center',
+  },
+  noSessions: {
+    alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+  },
   card: {
     borderWidth: 1,
     overflow: 'hidden',

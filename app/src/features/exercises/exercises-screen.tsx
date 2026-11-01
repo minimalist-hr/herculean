@@ -331,7 +331,7 @@ export function ExercisesScreen() {
               last={item.last}
               onPress={() => {
                 router.push({
-                  pathname: '/exercise/[id]',
+                  pathname: '/exercises/[id]',
                   params: { id: item.exercise.id },
                 });
               }}

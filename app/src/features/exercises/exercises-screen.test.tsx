@@ -87,7 +87,7 @@ async function renderExercises() {
         <PlaceholderScreen title="Create exercise screen" />
       ),
       groups: () => <PlaceholderScreen title="Groups screen" />,
-      'exercise/[id]': () => <PlaceholderScreen title="Exercise screen" />,
+      'exercises/[id]': () => <PlaceholderScreen title="Exercise screen" />,
     },
     { initialUrl: '/' },
   );

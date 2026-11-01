@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.12 · 1 November 2026 · Minimalist
+Version 0.13 · 1 November 2026 · Minimalist
+
+> Changes since 0.12: on E10 and E11, the edit button sits on the title's line, not the back link's.
 
 > Changes since 0.11: what L22 fills in, its errors and limit, and what E01 shows after saving (sections 5 and 9). The groups on L22 wrap. On L22 and E20, "optional" is quieter than the "Also works" label.
 
