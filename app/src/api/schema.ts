@@ -233,6 +233,74 @@ export interface paths {
          */
         get: operations["ListGroups"];
         put?: never;
+        /**
+         * Create a group
+         * @description Adds a group at the end of the signed-in user's groups.
+         */
+        post: operations["CreateGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a group
+         * @description Removes a group no exercise uses. It can be restored, and its name can be used again.
+         */
+        delete: operations["DeleteGroup"];
+        options?: never;
+        head?: never;
+        /**
+         * Rename a group
+         * @description Changes a group's name. It shows on every chip and section.
+         */
+        patch: operations["RenameGroup"];
+        trace?: never;
+    };
+    "/api/v1/groups/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore a group
+         * @description Brings a deleted group back in the place it had.
+         */
+        post: operations["RestoreGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/group-order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change the order of the groups
+         * @description Sets the order of the signed-in user's groups, which orders the exercise list and the chips.
+         */
+        put: operations["UpdateGroupOrder"];
         post?: never;
         delete?: never;
         options?: never;
@@ -280,6 +348,11 @@ export interface components {
             groupId: string;
             /** @description Other groups it also works. Optional. It can't repeat a group, or include the group it belongs to. */
             alsoWorksGroupIds: null | string[];
+        };
+        /** @description A new group. */
+        CreateGroupRequest: {
+            /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case. */
+            name: string;
         };
         /** @description Where to send the password reset link. */
         CreatePasswordResetRequest: {
@@ -351,6 +424,21 @@ export interface components {
             /** @description The other groups it also works. */
             alsoWorksGroupIds: string[];
         };
+        /** @description A group in the list. */
+        GroupListItemResponse: {
+            /**
+             * Format: uuid
+             * @description The group's ID.
+             */
+            id: string;
+            /** @description The group's name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description How many exercises use it, as their group or as also works. It can only be deleted at 0.
+             */
+            exerciseCount: number;
+        };
         /** @description A muscle group. It orders the exercise list and the chips. */
         GroupResponse: {
             /**
@@ -388,6 +476,11 @@ export interface components {
             /** @description The refreshToken from signing in, creating the account or the last refresh. It works once. */
             refreshToken: string;
         };
+        /** @description A group's new name. */
+        RenameGroupRequest: {
+            /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case. */
+            name: string;
+        };
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
             /** @description A JWT. Send it as `Authorization: Bearer <accessToken>`. */
@@ -424,6 +517,11 @@ export interface components {
             groupId: string;
             /** @description Other groups it also works. Leaving it out clears them. It can't repeat a group, or include the group it belongs to. */
             alsoWorksGroupIds: null | string[];
+        };
+        /** @description The order of the user's groups. */
+        UpdateGroupOrderRequest: {
+            /** @description Every one of the user's groups, once each, in the new order. */
+            groupIds: string[];
         };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateWorkoutSettingsRequest: {
@@ -1117,11 +1215,272 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GroupResponse"][];
+                    "application/json": components["schemas"]["GroupListItemResponse"][];
                 };
             };
             /** @description Not signed in, or the access token expired. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description The new group. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResponse"];
+                };
+            };
+            /** @description The name is not valid. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user already has a group with this name, or has reached the limit of 50 groups. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The group is deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The group does not exist, is already deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description An exercise uses the group, as its group or as also works. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RenameGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description The renamed group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResponse"];
+                };
+            };
+            /** @description The name is not valid. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The group does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user already has another group with this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RestoreGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The restored group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The group does not exist, is not deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Another group has its name now. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateGroupOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGroupOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description The order is saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The list repeats a group. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The list doesn't match the user's groups, which have changed. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

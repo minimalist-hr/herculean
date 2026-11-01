@@ -839,7 +839,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/GroupResponse"
+                    "$ref": "#/components/schemas/GroupListItemResponse"
                   }
                 }
               }
@@ -847,6 +847,349 @@
           },
           "401": {
             "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Create a group",
+        "description": "Adds a group at the end of the signed-in user's groups.",
+        "operationId": "CreateGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The name is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user already has a group with this name, or has reached the limit of 50 groups.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/groups/{id}": {
+      "patch": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Rename a group",
+        "description": "Changes a group's name. It shows on every chip and section.",
+        "operationId": "RenameGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The group's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The renamed group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The name is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user already has another group with this name.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Delete a group",
+        "description": "Removes a group no exercise uses. It can be restored, and its name can be used again.",
+        "operationId": "DeleteGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The group's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The group is deleted."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group does not exist, is already deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An exercise uses the group, as its group or as also works.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/groups/{id}/restore": {
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Restore a group",
+        "description": "Brings a deleted group back in the place it had.",
+        "operationId": "RestoreGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The group's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The restored group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The group does not exist, is not deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another group has its name now.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/group-order": {
+      "put": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Change the order of the groups",
+        "description": "Sets the order of the signed-in user's groups, which orders the exercise list and the chips.",
+        "operationId": "UpdateGroupOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGroupOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The order is saved."
+          },
+          "400": {
+            "description": "The list repeats a group.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The list doesn't match the user's groups, which have changed.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -940,6 +1283,19 @@
           }
         },
         "description": "A new exercise."
+      },
+      "CreateGroupRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case."
+          }
+        },
+        "description": "A new group."
       },
       "CreatePasswordResetRequest": {
         "required": [
@@ -1103,6 +1459,31 @@
         },
         "description": "An exercise."
       },
+      "GroupListItemResponse": {
+        "required": [
+          "id",
+          "name",
+          "exerciseCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The group's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The group's name."
+          },
+          "exerciseCount": {
+            "type": "integer",
+            "description": "How many exercises use it, as their group or as also works. It can only be deleted at 0.",
+            "format": "int32"
+          }
+        },
+        "description": "A group in the list."
+      },
       "GroupResponse": {
         "required": [
           "id",
@@ -1183,6 +1564,19 @@
           }
         },
         "description": "The refresh token to swap for new tokens."
+      },
+      "RenameGroupRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case."
+          }
+        },
+        "description": "A group's new name."
       },
       "TokenResponse": {
         "required": [
@@ -1276,6 +1670,23 @@
           }
         },
         "description": "The new values of an exercise. They replace the old ones."
+      },
+      "UpdateGroupOrderRequest": {
+        "required": [
+          "groupIds"
+        ],
+        "type": "object",
+        "properties": {
+          "groupIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Every one of the user's groups, once each, in the new order."
+          }
+        },
+        "description": "The order of the user's groups."
       },
       "UpdateWorkoutSettingsRequest": {
         "type": "object",

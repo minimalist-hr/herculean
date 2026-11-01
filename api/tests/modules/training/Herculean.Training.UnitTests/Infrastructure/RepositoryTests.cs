@@ -138,6 +138,44 @@ public sealed class RepositoryTests : IDisposable
         (await exerciseRepository.GetAsync(other.Id, TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
+    [Fact]
+    public async Task TheGroupNameCheckIgnoresCaseAndCanLeaveOutOneGroup()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        GroupRepository groupRepository = new(_dbContext);
+
+        (await groupRepository.NameExistsAsync(" CHEST ", null, TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await groupRepository.NameExistsAsync("CHEST", groups[0].Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ADeletedGroupIsFoundOnlyAsDeleted()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        GroupRepository groupRepository = new(_dbContext);
+        groups[0].Delete(DateTimeOffset.UnixEpoch);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await groupRepository.GetAsync(groups[0].Id, TestContext.Current.CancellationToken)).ShouldBeNull();
+        (await groupRepository.GetDeletedAsync(groups[0].Id, TestContext.Current.CancellationToken)).ShouldBe(groups[0]);
+        (await groupRepository.GetDeletedAsync(groups[1].Id, TestContext.Current.CancellationToken)).ShouldBeNull();
+        (await groupRepository.CountAsync(TestContext.Current.CancellationToken)).ShouldBe(groups.Count - 1);
+        (await groupRepository.NextOrderAsync(TestContext.Current.CancellationToken)).ShouldBe(groups.Count);
+    }
+
+    [Fact]
+    public async Task AGroupIsInUseByAnExerciseUsingItEitherWay()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        GroupRepository groupRepository = new(_dbContext);
+        _dbContext.Exercises.Add(Exercise.Create(_userId, "Bench press", groups[0].Id, [groups[1].Id]));
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await groupRepository.IsInUseAsync(groups[0].Id, TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await groupRepository.IsInUseAsync(groups[1].Id, TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await groupRepository.IsInUseAsync(groups[2].Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
+    }
+
     private async Task<IReadOnlyList<Group>> SaveGroupsAsync(UserId userId)
     {
         IReadOnlyList<Group> groups = Group.CreateStarting(userId);

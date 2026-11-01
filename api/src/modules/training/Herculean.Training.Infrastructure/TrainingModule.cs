@@ -13,7 +13,12 @@ using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Exercises.UpdateExercise;
 using Herculean.Training.Application.Groups;
+using Herculean.Training.Application.Groups.CreateGroup;
+using Herculean.Training.Application.Groups.DeleteGroup;
 using Herculean.Training.Application.Groups.ListGroups;
+using Herculean.Training.Application.Groups.RenameGroup;
+using Herculean.Training.Application.Groups.RestoreGroup;
+using Herculean.Training.Application.Groups.UpdateGroupOrder;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
@@ -61,6 +66,14 @@ public static class TrainingModule
         builder.Services.AddScoped<IValidator<UpdateExerciseRequest>, UpdateExerciseValidator>();
         builder.Services.AddScoped<UpdateExerciseHandler>();
         builder.Services.AddScoped<DeleteExerciseHandler>();
+        builder.Services.AddScoped<IValidator<CreateGroupRequest>, CreateGroupValidator>();
+        builder.Services.AddScoped<CreateGroupHandler>();
+        builder.Services.AddScoped<IValidator<RenameGroupRequest>, RenameGroupValidator>();
+        builder.Services.AddScoped<RenameGroupHandler>();
+        builder.Services.AddScoped<DeleteGroupHandler>();
+        builder.Services.AddScoped<RestoreGroupHandler>();
+        builder.Services.AddScoped<IValidator<UpdateGroupOrderRequest>, UpdateGroupOrderValidator>();
+        builder.Services.AddScoped<UpdateGroupOrderHandler>();
     }
 
     /// <summary>Maps every Training endpoint.</summary>
@@ -74,6 +87,11 @@ public static class TrainingModule
         CreateExerciseEndpoint.Map(endpoints);
         UpdateExerciseEndpoint.Map(endpoints);
         DeleteExerciseEndpoint.Map(endpoints);
+        CreateGroupEndpoint.Map(endpoints);
+        RenameGroupEndpoint.Map(endpoints);
+        DeleteGroupEndpoint.Map(endpoints);
+        RestoreGroupEndpoint.Map(endpoints);
+        UpdateGroupOrderEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

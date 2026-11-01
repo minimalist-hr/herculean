@@ -13,8 +13,10 @@ internal sealed class GroupConfiguration : IEntityTypeConfiguration<Group>
     {
         builder.Property(group => group.Id).HasConversion<TypedIdConverter<GroupId>>().ValueGeneratedNever();
         builder.Property(group => group.UserId).HasConversion<TypedIdConverter<UserId>>();
+        builder.Property(group => group.Name).HasMaxLength(Group.NameMaxLength);
+        builder.Property(group => group.NormalizedName).HasMaxLength(Group.NameMaxLength);
 
         // A deleted group's name can be used again.
-        builder.HasIndex(group => new { group.UserId, group.Name }).IsUnique().HasFilter("deleted_at_utc IS NULL");
+        builder.HasIndex(group => new { group.UserId, group.NormalizedName }).IsUnique().HasFilter("deleted_at_utc IS NULL");
     }
 }

@@ -130,8 +130,15 @@ namespace Herculean.Training.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
                         .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("normalized_name");
 
                     b.Property<int>("Order")
                         .HasColumnType("integer")
@@ -148,9 +155,9 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_groups");
 
-                    b.HasIndex("UserId", "Name")
+                    b.HasIndex("UserId", "NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("ix_groups_user_id_name")
+                        .HasDatabaseName("ix_groups_user_id_normalized_name")
                         .HasFilter("deleted_at_utc IS NULL");
 
                     b.ToTable("groups", "training");

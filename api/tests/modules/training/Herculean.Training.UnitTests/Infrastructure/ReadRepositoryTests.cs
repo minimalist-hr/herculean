@@ -31,7 +31,7 @@ public sealed class ReadRepositoryTests : IDisposable
     {
         await SaveGroupsAsync(_userId);
 
-        List<GroupResponse> groups = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
+        List<GroupListItemResponse> groups = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
 
         groups.Select(group => group.Name).ShouldBe(Group.StartingNames);
     }
@@ -43,9 +43,23 @@ public sealed class ReadRepositoryTests : IDisposable
         await SaveGroupsAsync(UserId.From(Guid.CreateVersion7()));
         await MarkDeletedAsync(groups[0]);
 
-        List<GroupResponse> read = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
+        List<GroupListItemResponse> read = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
 
         read.Select(group => group.Name).ShouldBe(Group.StartingNames.Skip(1));
+    }
+
+    [Fact]
+    public async Task AGroupCountsExercisesUsingItAsTheirGroupOrAlsoWorks()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        await SaveExerciseAsync("Bench press", groups[0], groups[1].Id);
+        await SaveExerciseAsync("Pec deck", groups[0]);
+        Exercise deleted = await SaveExerciseAsync("Pull-up", groups[1]);
+        await MarkDeletedAsync(deleted);
+
+        List<GroupListItemResponse> read = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
+
+        read.Select(group => group.ExerciseCount).ShouldBe([2, 1, 0, 0, 0, 0]);
     }
 
     [Fact]

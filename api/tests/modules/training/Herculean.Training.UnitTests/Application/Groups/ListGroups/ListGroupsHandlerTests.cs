@@ -8,11 +8,11 @@ public sealed class ListGroupsHandlerTests
     public async Task ReadsTheGroups()
     {
         FakeGroupReadRepository groupReadRepository = new();
-        GroupResponse group = new(Guid.CreateVersion7(), "Chest");
+        GroupListItemResponse group = new(Guid.CreateVersion7(), "Chest", 0);
         groupReadRepository.Groups.Add(group);
         ListGroupsHandler handler = new(groupReadRepository);
 
-        List<GroupResponse> groups = await handler.HandleAsync(TestContext.Current.CancellationToken);
+        List<GroupListItemResponse> groups = await handler.HandleAsync(TestContext.Current.CancellationToken);
 
         groups.ShouldHaveSingleItem().ShouldBe(group);
     }

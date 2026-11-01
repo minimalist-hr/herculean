@@ -19,9 +19,9 @@ internal static class ListGroupsEndpoint
 
     [EndpointSummary("List the groups")]
     [EndpointDescription("Returns the signed-in user's groups in their order. Deleted groups are left out. A new account starts with six.")]
-    [ProducesResponseType<List<GroupResponse>>(StatusCodes.Status200OK, Description = "The groups.")]
+    [ProducesResponseType<List<GroupListItemResponse>>(StatusCodes.Status200OK, Description = "The groups.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]
-    private static async Task<Ok<List<GroupResponse>>> HandleAsync(
+    private static async Task<Ok<List<GroupListItemResponse>>> HandleAsync(
         [FromServices] ListGroupsHandler handler,
         CancellationToken cancellationToken)
     {

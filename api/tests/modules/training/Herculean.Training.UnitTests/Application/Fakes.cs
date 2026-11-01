@@ -36,23 +36,56 @@ internal sealed class FakeGroupRepository : IGroupRepository
 {
     public List<Group> Groups { get; } = [];
 
+    public HashSet<GroupId> UsedGroupIds { get; } = [];
+
+    /// <summary>The count to report, so a test needs no 50 groups.</summary>
+    public int? Count { get; set; }
+
     public Task<bool> AnyForUserAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Groups.Any(group => group.UserId == userId));
 
     public Task<List<GroupId>> ListIdsAsync(CancellationToken cancellationToken) =>
-        Task.FromResult(Groups.Select(group => group.Id).ToList());
+        Task.FromResult(Active.Select(group => group.Id).ToList());
+
+    public Task<List<Group>> ListAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Active.ToList());
+
+    public Task<Group?> GetAsync(GroupId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Active.SingleOrDefault(group => group.Id == id));
+
+    public Task<Group?> GetDeletedAsync(GroupId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Groups.SingleOrDefault(group => group.Id == id && group.DeletedAtUtc is not null));
+
+    public Task<int> CountAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Count ?? Active.Count());
+
+    public Task<int> NextOrderAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Groups.Count == 0 ? 0 : Groups.Max(group => group.Order) + 1);
+
+    public Task<bool> NameExistsAsync(string name, GroupId? exceptId, CancellationToken cancellationToken) =>
+        Task.FromResult(Active.Any(group => group.Id != exceptId && group.NormalizedName == Group.NormalizeName(name)));
+
+    public Task<bool> IsInUseAsync(GroupId id, CancellationToken cancellationToken) =>
+        Task.FromResult(UsedGroupIds.Contains(id));
+
+    public void Add(Group group)
+    {
+        Groups.Add(group);
+    }
 
     public void AddRange(IEnumerable<Group> groups)
     {
         Groups.AddRange(groups);
     }
+
+    private IEnumerable<Group> Active => Groups.Where(group => group.DeletedAtUtc is null);
 }
 
 internal sealed class FakeGroupReadRepository : IGroupReadRepository
 {
-    public List<GroupResponse> Groups { get; } = [];
+    public List<GroupListItemResponse> Groups { get; } = [];
 
-    public Task<List<GroupResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Groups);
+    public Task<List<GroupListItemResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Groups);
 }
 
 internal sealed class FakeExerciseReadRepository : IExerciseReadRepository

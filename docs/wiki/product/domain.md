@@ -100,6 +100,8 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Edits to an exercise show everywhere, past workouts included.
 - Deleting an exercise removes it from routines. Past workouts keep it.
 - Deleting a routine turns its weekdays into rest days from today on. Past workouts keep their name.
+- A group's name has 1 to 30 characters, trimmed. It differs from the user's other groups, regardless of case. A deleted group's name can be used again.
+- A user can have at most 50 groups.
 - A group can only be deleted when no exercise uses it, as its group or as "also works".
 
 ### Delete and undo

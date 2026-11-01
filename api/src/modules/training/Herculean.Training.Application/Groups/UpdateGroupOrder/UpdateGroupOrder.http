@@ -1,0 +1,27 @@
+# Change the order of the groups. Start the API with Aspire first, then send the first two requests once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### The groups → 200. A new account's groups can take a moment to appear.
+# @name groups
+GET {{host}}/api/v1/groups
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### A list that leaves out groups → 409 group.order_out_of_date.
+PUT {{host}}/api/v1/group-order
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "groupIds": ["{{groups.response.body.$[1].id}}", "{{groups.response.body.$[0].id}}"]
+}
