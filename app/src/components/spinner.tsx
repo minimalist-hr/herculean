@@ -1,14 +1,10 @@
 import { useEffect, useState } from 'react';
-import {
-  AccessibilityInfo,
-  Animated,
-  Platform,
-  type ColorValue,
-} from 'react-native';
+import { Animated, Platform, type ColorValue } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { SpinnerArcIcon } from './icons';
+import { useReduceMotion } from './use-reduce-motion';
 
 /** Turns while something waits on the server. Stands still when the phone asks for reduced motion. */
 export function Spinner({ color }: { color: ColorValue }) {
@@ -47,21 +43,4 @@ export function Spinner({ color }: { color: ColorValue }) {
       <SpinnerArcIcon color={color} size={size.spinner} />
     </Animated.View>
   );
-}
-
-function useReduceMotion() {
-  const [reduceMotion, setReduceMotion] = useState(false);
-
-  useEffect(() => {
-    void AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
-    const subscription = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      setReduceMotion,
-    );
-    return () => {
-      subscription.remove();
-    };
-  }, []);
-
-  return reduceMotion;
 }

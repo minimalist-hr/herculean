@@ -1,0 +1,75 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import type { components } from '@/api/schema';
+import { ChevronRightIcon } from '@/components/icons';
+import { formatSet, formatShortDate } from '@/formats/formats';
+import { useTheme } from '@/theme/theme-provider';
+
+interface ExerciseRowProps {
+  exercise: components['schemas']['ExerciseListItemResponse'];
+  units: components['schemas']['Units'];
+  first: boolean;
+  last: boolean;
+  onPress: () => void;
+}
+
+/** A row of a group's card. The first and last rows close the card. */
+export function ExerciseRow({
+  exercise,
+  units,
+  first,
+  last,
+  onPress,
+}: ExerciseRowProps) {
+  const { colors, radius, size, space, text } = useTheme();
+  const { bestSet } = exercise;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={[
+        styles.row,
+        {
+          gap: space.md,
+          minHeight: size.listRowMin,
+          paddingVertical: space.sm,
+          paddingHorizontal: space.md,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+          borderBottomWidth: last ? 1 : 0,
+          borderTopLeftRadius: first ? radius.card : 0,
+          borderTopRightRadius: first ? radius.card : 0,
+          borderBottomLeftRadius: last ? radius.card : 0,
+          borderBottomRightRadius: last ? radius.card : 0,
+        },
+      ]}
+    >
+      <View style={styles.text}>
+        <Text style={[text.listItemName, { color: colors.text }]}>
+          {exercise.name}
+        </Text>
+        <Text style={text.meta}>
+          {bestSet === null
+            ? 'Not done yet'
+            : `${formatSet(bestSet.weightKg, bestSet.reps, units)} · ${formatShortDate(bestSet.date)}`}
+        </Text>
+      </View>
+      <ChevronRightIcon color={colors.muted} size={16} />
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+  },
+  text: {
+    flex: 1,
+    gap: 2,
+  },
+});

@@ -63,6 +63,40 @@ export function ExercisesIcon({ color, size }: IconProps) {
   );
 }
 
+export function GroupsIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M12 3.5l8.5 4.5-8.5 4.5L3.5 8z" />
+      <Path d="M3.5 12.5l8.5 4.5 8.5-4.5" />
+      <Path d="M3.5 16.5l8.5 4.5 8.5-4.5" />
+    </Icon>
+  );
+}
+
+export function SearchIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5L20 20" />
+    </Icon>
+  );
+}
+
+export function CloseIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M6 6l12 12M18 6L6 18" />
+    </Icon>
+  );
+}
+
+export function ChevronRightIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M9 6l6 6-6 6" />
+    </Icon>
+  );
+}
+
 export function EyeIcon({ color, size }: IconProps) {
   return (
     <Icon color={color} size={size}>

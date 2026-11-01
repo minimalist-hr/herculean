@@ -102,7 +102,7 @@ Herculean.Training.Application/
 - Expected failures (validation, not found, conflict) return our own `Result` type.
 - Each aggregate's errors are in Domain, next to it, for example `UserErrors.EmailTaken`.
 - The endpoint turns a failed `Result` into a Problem Details response (RFC 9457).
-- Every error has the same fields: `type`, `title` (the HTTP status name), `status`, `detail`, `code` and `traceId`. A validation error is 400 with code `validation`, and also has `errors`, with messages per field. Errors that ASP.NET Core creates get the same fields, with a code from the status name, for example `not_found`.
+- Every error has the same fields: `type`, `title` (the HTTP status name), `status`, `detail`, `code` and `traceId`. A validation error is 400 with code `validation`, and also has `errors`, with messages per field. Errors that ASP.NET Core creates get the same fields, with a code from the status name, for example `not_found`. A value it can't read, for example a group that isn't an ID, is 400 with code `bad_request`, in every environment and without an exception.
 - Exceptions are only for bugs.
 
 ## Events between modules

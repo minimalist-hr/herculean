@@ -1,6 +1,12 @@
 # Herculean: design document
 
-Version 0.8 · 1 November 2026 · Minimalist
+Version 0.11 · 1 November 2026 · Minimalist
+
+> Changes since 0.10: on E01 to E03, the title, search, Create exercise and the chips stay pinned and only the list scrolls, and the chips are one line that scrolls sideways (sections 5 and 9). Groups is a text link on the title row. E01 has no dashed Create exercise at the end of the list. The area panel `areas/E-Exercises.png` doesn't show this.
+
+> Changes since 0.9: every search has a clear button once it has text (section 5). E01 to E04 have Create exercise in the header too, so a long list needs no scrolling to reach it. E01 to E04 and L21 are updated; the area panels `areas/E-Exercises.png` and `areas/L-Logging.png` don't show this.
+
+> Changes since 0.8: what E01 shows when a list fails to load, and for a group without exercises (sections 5 and 9). A type role for chips, the dashed action's height and the skeleton's pulse in the tokens (sections 4.2 and 5).
 
 > Changes since 0.7: the wording of H20 and H21 is final. H21 now says passwords are stored in a protected form that can't be read, and names the email service.
 
@@ -118,6 +124,7 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 | Primary button | 15 / 700 | Uppercase, letter spacing 0.06em |
 | Body | 14 | Line height 1.45–1.55 for long text |
 | Secondary button, text link | 13 / 600 | Uppercase, letter spacing 0.06em |
+| Filter chip | 13 / 600 | |
 | Eyebrow, field label, section label | 12 / 600 | Uppercase, letter spacing 0.1em, muted |
 | Meta line | 12–13 | Muted, for example "7 exercises · 19 sets" |
 | Tab label | 11 | 700 when active, 500 when not. Letter spacing 0.04em |
@@ -157,8 +164,8 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 | **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout, View workout |
 | **Danger** | 48 px, filled `danger` | The confirm action in delete and remove confirms |
 | **Danger text** | 44 px, `danger` text | Delete … inside edit screens (R20, E20) and Remove set |
-| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Create exercise, Add set, and the way between A01 and A20 |
-| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 groups, E10 edit |
+| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Create exercise, Add set, Groups on E01, and the way between A01 and A20 |
+| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, E10 edit |
 
 **Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
 
@@ -175,8 +182,10 @@ The canvas shows no error states, so every form follows these:
 
 **Success line.** When something worked and the user stays on or returns to a form, one line in `success` sits in the same place as the general error, for example "Link sent again." It clears when a field changes or the action is tried again.
 
+**Search fields.** Every search has a search icon at the start. Once it has text, a clear button (44 × 44 px) sits at the end, and tapping it shows the whole list again right away.
+
 ### Chips
-36 px filter chips: "All" plus one per group, in the group order set in E30. The selected chip uses the accent. Chips wrap onto new lines; this was decided and is kept.
+36 px filter chips: "All" plus one per group, in the group order set in E30. The selected chip uses the accent. Chips stay on one line that scrolls sideways, with the last ones running off the edge, so they stay small enough to pin above a list.
 
 ### Cards
 `card` fill, 1 px border, card radius, 16 px padding. A status card has an eyebrow with the status, a 22 px title and a meta line.
@@ -213,6 +222,8 @@ When a workout is running, a bar above the tab bar shows the routine, the progre
 
 ### Loading
 A skeleton in the shape of the real content, with a gentle pulse that turns off when the phone is set to reduce motion. Each loading screen also has a screen-reader message, such as "Loading today's workout".
+
+**If it fails,** one muted line says what couldn't load, with a Try again text link below it, like A02. On E01: "Couldn't load your exercises."
 
 ### Empty states
 A short title, one sentence saying what to do, and the one action that fixes it. Examples: "No routines yet" with Create routine, and "No exercises yet" with Create exercise.
@@ -358,7 +369,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 | Row | Screens | What happens |
 |---|---|---|
-| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The groups icon (→ E30) and Create exercise are on this screen. |
+| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
 | **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise, Cancel and Delete exercise. Changes show everywhere, past workouts included. Deleting removes the exercise from routines; logged workouts keep it. |
 | **E4 Groups** | E31 Loading, E30 Groups, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). New group, Rename and Delete; only an empty group can be deleted. |

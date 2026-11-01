@@ -3,16 +3,43 @@ using System.Text.Json;
 using Herculean.SharedKernel.Results;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Herculean.SharedKernel.UnitTests.Results;
 
 public sealed class ProblemDetailsExtensionsTests
 {
+    [Fact]
+    public async Task AValueThatCantBeReadIsABadRequestWithoutAnException()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { EnvironmentName = Environments.Development });
+        builder.WebHost.UseTestServer();
+        builder.Services.AddRouting();
+        builder.Services.AddStandardProblemDetails();
+        await using WebApplication app = builder.Build();
+        app.Services.GetRequiredService<IOptions<RouteHandlerOptions>>().Value.ThrowOnBadRequest.ShouldBeFalse();
+        app.UseExceptionHandler();
+        app.UseStatusCodePages();
+        app.MapGet("/items", ([FromQuery] Guid? groupId) => TypedResults.Ok(groupId));
+        await app.StartAsync(TestContext.Current.CancellationToken);
+        using HttpClient client = app.GetTestClient();
+
+        using HttpResponseMessage response = await client.GetAsync(new Uri("/items?groupId=not-an-id", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        response.StatusCode.ShouldBe(System.Net.HttpStatusCode.BadRequest);
+        using JsonDocument problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        problem.RootElement.GetProperty("code").GetString().ShouldBe("bad_request");
+        await app.StopAsync(TestContext.Current.CancellationToken);
+    }
+
     [Fact]
     public void ProblemWithOnlyAStatusGetsEveryField()
     {

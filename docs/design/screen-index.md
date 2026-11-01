@@ -123,7 +123,7 @@ Flow map: [open](areas/E-Exercises.png)
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | E02 | Exercises · loading | E1 Exercises tab | 390×844 | [png](screens/E02-Exercises-Loading.png) · [html](html/E02-Exercises-Loading.html) · [source](source/E02-Exercises-Loading.dc.html) |
-| E01 | Exercises · full scroll | E1 Exercises tab | 390×2660 | [png](screens/E01-Exercises.png) · [html](html/E01-Exercises.html) · [source](source/E01-Exercises.dc.html) |
+| E01 | Exercises · full scroll | E1 Exercises tab | 390×2538 | [png](screens/E01-Exercises.png) · [html](html/E01-Exercises.html) · [source](source/E01-Exercises.dc.html) |
 | E03 | Exercises · no search matches | E1 Exercises tab | 390×844 | [png](screens/E03-Exercises-No-Matches.png) · [html](html/E03-Exercises-No-Matches.html) · [source](source/E03-Exercises-No-Matches.dc.html) |
 | E04 | Exercises · no exercises yet | E1 Exercises tab | 390×844 | [png](screens/E04-Exercises-Empty.png) · [html](html/E04-Exercises-Empty.html) · [source](source/E04-Exercises-Empty.dc.html) |
 | E10 | Exercises › Exercise · full scroll | E2 Exercise details | 390×1600 | [png](screens/E10-Exercises-Detail.png) · [html](html/E10-Exercises-Detail.html) · [source](source/E10-Exercises-Detail.dc.html) |

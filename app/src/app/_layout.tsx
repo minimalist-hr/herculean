@@ -20,7 +20,10 @@ import { ThemeProvider, useTheme } from '@/theme/theme-provider';
 // Keep the splash screen up until the font is ready, so text never flashes in another font.
 void SplashScreen.preventAutoHideAsync();
 
-const queryClient = new QueryClient();
+// A request with no answer already waits 15 seconds, so a failed read shows its error instead of trying again.
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
 
 // Where each status opens. A screen the status doesn't allow sends the user here.
 const homeOf: Record<SessionStatus, Href> = {
@@ -98,6 +101,9 @@ function AppStack() {
       </Stack.Protected>
       <Stack.Protected guard={status === 'ready'} redirectTo={home}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="exercise/[id]" />
+        <Stack.Screen name="create-exercise" />
+        <Stack.Screen name="groups" />
       </Stack.Protected>
       <Stack.Screen name="terms" />
       <Stack.Screen name="privacy" />

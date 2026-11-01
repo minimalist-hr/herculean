@@ -1,6 +1,5 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { ExercisesScreen } from '@/features/exercises/exercises-screen';
 
-// Built in feature 2, Exercises.
 export default function ExercisesRoute() {
-  return <PlaceholderScreen title="Exercises" />;
+  return <ExercisesScreen />;
 }

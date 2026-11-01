@@ -1,4 +1,9 @@
-import { formatClock, formatSpokenDuration } from './formats';
+import {
+  formatClock,
+  formatSpokenDuration,
+  formatSet,
+  formatShortDate,
+} from './formats';
 
 test.each([
   [15, '0:15'],
@@ -17,4 +22,25 @@ test.each([
   [1, '1 second'],
 ])('%i seconds are spoken as %s', (seconds, text) => {
   expect(formatSpokenDuration(seconds)).toBe(text);
+});
+
+test.each([
+  [82.5, 10, 'metric', '82.5 kg × 10'],
+  [15, 12, 'metric', '15 kg × 12'],
+  [82.5, 10, 'imperial', '181.9 lb × 10'],
+  [0, 10, 'metric', '10 reps'],
+  [0, 1, 'imperial', '1 rep'],
+] as const)(
+  'a set of %d kg × %d in %s reads %s',
+  (weightKg, reps, units, text) => {
+    expect(formatSet(weightKg, reps, units)).toBe(text);
+  },
+);
+
+test.each([
+  ['2026-10-16', 'Fri, 16 Oct'],
+  ['2026-10-19', 'Mon, 19 Oct'],
+  ['2026-01-04', 'Sun, 4 Jan'],
+])('the date %s reads %s', (date, text) => {
+  expect(formatShortDate(date)).toBe(text);
 });

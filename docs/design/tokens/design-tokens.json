@@ -51,14 +51,15 @@
       "eyebrow":       { "size": 12, "weight": 600, "uppercase": true, "letterSpacing": "0.1em", "color": "muted" },
       "meta":          { "size": 12.5, "color": "muted" },
       "quickPick":     { "size": 14, "weight": 700 },
+      "chip": { "size": 13, "weight": 600 },
       "stepperValue":  { "size": 32, "weight": 700 },
       "wordmark":      { "size": 32, "weight": 700, "lineHeight": 1, "letterSpacing": "0.14em" },
       "tabLabel":      { "size": 11, "weightActive": 700, "weightInactive": 500, "letterSpacing": "0.04em" }
     }
   },
   "space": { "xs": 6, "sm": 8, "md": 12, "lg": 16, "xl": 24 },
-  "opacity": { "dimmed": 0.5, "glow": { "dark": 0.2, "light": 0.1 } },
-  "motion": { "spinMs": 800 },
+  "opacity": { "dimmed": 0.5, "pulse": 0.45, "glow": { "dark": 0.2, "light": 0.1 } },
+  "motion": { "spinMs": 800, "pulseMs": 1400 },
   "size": {
     "screen": { "width": 390, "height": 844 },
     "sidePadding": 16,
@@ -75,6 +76,7 @@
     "tabItem": 52,
     "tabBar": { "paddingTop": 8, "paddingX": 8, "paddingBottomMin": 8, "iconSize": 22, "iconGap": 4 },
     "undoBar": 56,
+    "dashedAction": 52,
     "spinner": 18,
     "signInHeroMax": 400,
     "signInErrorRoom": 56,

@@ -23,7 +23,7 @@ export interface Theme {
   colors: Colors;
   radius: typeof tokens.radius;
   space: typeof tokens.space;
-  opacity: { dimmed: number; glow: number };
+  opacity: { dimmed: number; pulse: number; glow: number };
   motion: typeof tokens.motion;
   size: typeof tokens.size;
   text: Record<TextRole, TextStyle>;
@@ -63,6 +63,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
     space: tokens.space,
     opacity: {
       dimmed: tokens.opacity.dimmed,
+      pulse: tokens.opacity.pulse,
       // The soft accent light behind the logo is stronger on dark than on light.
       glow: tokens.opacity.glow[scheme],
     },
@@ -81,6 +82,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
       eyebrow: toTextStyle(roles.eyebrow, colors),
       meta: toTextStyle(roles.meta, colors),
       quickPick: toTextStyle(roles.quickPick, colors),
+      chip: toTextStyle(roles.chip, colors),
       stepperValue: toTextStyle(roles.stepperValue, colors),
       wordmark: toTextStyle(roles.wordmark, colors),
       tabLabelActive: toTextStyle(

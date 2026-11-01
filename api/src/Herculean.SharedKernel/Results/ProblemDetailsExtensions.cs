@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +19,10 @@ public static class ProblemDetailsExtensions
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context => Standardize(context.ProblemDetails));
         services.Configure<ExceptionHandlerOptions>(options => options.StatusCodeSelector = StatusCodeFor);
 
+        // In Development ASP.NET Core throws for a value it can't read, and the exception handler logs that as a failure.
+        // It is the caller's mistake, so every environment answers 400 without an exception.
+        services.PostConfigure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = false);
+
         return services;
     }
 
@@ -33,8 +38,8 @@ public static class ProblemDetailsExtensions
         problem.Extensions.TryAdd(CodeKey, title.ToLowerInvariant().Replace(' ', '_'));
     }
 
-    // A body that can't be read, for example an unknown enum value, is the caller's mistake: 400.
-    // In Development ASP.NET Core throws it, and every other exception is a bug: 500.
+    // The server can still throw this for a request that breaks a limit, for example a body that is too large.
+    // That is the caller's mistake too. Every other exception is a bug: 500.
     internal static int StatusCodeFor(Exception exception) =>
         exception is BadHttpRequestException badRequest ? badRequest.StatusCode : StatusCodes.Status500InternalServerError;
 }
