@@ -33,11 +33,12 @@ app/
   | Status | Screens | Opens |
   |---|---|---|
   | Restoring | Launch | A00 |
-  | Signed out | Sign in, Create account, Reset password | A01 |
+  | Signed out | Sign in, Create account, A10–A12 | A01 |
   | Needs setup | Setup | A30 |
   | Ready | The tabs | Home |
 
 - Terms and privacy are open in every status.
+- A10–A12 are also open while restoring, so a reset link can open the app from closed. A signed-in user who opens a link with the app already running goes to Home.
 - Four tabs: Home, Workout, Routines, Exercises. Sub-pages open on top of a tab.
 - Sheets are components inside the screen that opens them, not routes. A sheet closes back to that screen.
 

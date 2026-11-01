@@ -1,0 +1,117 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { BottomActionBox } from '@/components/bottom-action-box';
+import { Button } from '@/components/button';
+import { FormError } from '@/components/form-error';
+import { FormSuccess } from '@/components/form-success';
+import { ScreenHeading } from '@/components/screen-heading';
+import { formatClock } from '@/formats/formats';
+import { useTheme } from '@/theme/theme-provider';
+
+import { useCountdown } from './use-countdown';
+import { useSendResetLink } from './use-send-reset-link';
+
+// Long enough for an email to arrive, and it keeps people from sending link after link.
+const sendAgainWaitSeconds = 60;
+
+export function ResetLinkSentScreen() {
+  const { colors, radius, size, space, text } = useTheme();
+  const router = useRouter();
+  const { email } = useLocalSearchParams<{ email: string }>();
+  const sendResetLink = useSendResetLink();
+  const { secondsLeft, restart } = useCountdown(sendAgainWaitSeconds);
+  const [generalError, setGeneralError] = useState(false);
+  const [sentAgain, setSentAgain] = useState(false);
+
+  function sendAgain() {
+    setGeneralError(false);
+    setSentAgain(false);
+    sendResetLink.mutate(email, {
+      onSuccess: () => {
+        setSentAgain(true);
+        restart();
+      },
+      onError: () => {
+        setGeneralError(true);
+      },
+    });
+  }
+
+  const waiting = sendResetLink.isPending;
+
+  return (
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={{
+          gap: space.xl,
+          paddingTop: size.topPaddingTab,
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: space.lg,
+        }}
+      >
+        <ScreenHeading label="Forgot password?" title="Check your email" />
+
+        <View style={{ gap: space.lg }}>
+          {generalError && (
+            <FormError message="Couldn't send the link. Try again." />
+          )}
+          {sentAgain && <FormSuccess message="Link sent again." />}
+          <View
+            style={[
+              styles.card,
+              {
+                gap: space.sm,
+                padding: space.lg,
+                borderRadius: radius.card,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              },
+            ]}
+          >
+            <Text style={[text.listItemName, { color: colors.text }]}>
+              Reset link sent to {email}
+            </Text>
+            <Text style={text.meta}>
+              Open the link on this phone to set a new password. It works for
+              one hour. Can’t find it? Check your spam folder.
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+
+      <BottomActionBox>
+        <Button
+          label="Back to sign in"
+          dimmed={waiting}
+          onPress={() => {
+            router.dismissTo('/sign-in');
+          }}
+        />
+        <Button
+          label={
+            secondsLeft > 0
+              ? `Send link again in ${formatClock(secondsLeft)}`
+              : 'Send link again'
+          }
+          waitingLabel="Sending link"
+          variant="secondary"
+          waiting={waiting}
+          dimmed={secondsLeft > 0}
+          onPress={sendAgain}
+        />
+      </BottomActionBox>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  card: {
+    borderWidth: 1,
+  },
+});

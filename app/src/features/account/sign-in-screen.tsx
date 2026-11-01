@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -15,6 +15,7 @@ import { ApiProblemError } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { FormError } from '@/components/form-error';
+import { FormSuccess } from '@/components/form-success';
 import { Glow } from '@/components/glow';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
@@ -22,6 +23,7 @@ import { TextLink } from '@/components/text-link';
 import { Wordmark } from '@/components/wordmark';
 import { useTheme } from '@/theme/theme-provider';
 
+import { takePasswordChanged } from './sign-in-notice';
 import { signInSchema, type SignInValues } from './sign-in-schema';
 import { useSignIn } from './use-sign-in';
 
@@ -33,12 +35,23 @@ export function SignInScreen() {
   const signIn = useSignIn();
   const scrollView = useRef<ScrollViewInstance>(null);
   const [generalError, setGeneralError] = useState<string>();
+  const [passwordChanged, setPasswordChanged] = useState(false);
   const [heroHeight, setHeroHeight] = useState<number>();
   const { control, handleSubmit, setFocus, formState } = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: emptyValues,
   });
   const { errors } = formState;
+
+  // This page can already be open behind the reset pages, so it checks each time it comes back.
+  useFocusEffect(
+    useCallback(() => {
+      if (takePasswordChanged()) {
+        setGeneralError(undefined);
+        setPasswordChanged(true);
+      }
+    }, []),
+  );
 
   // The general error sits above the first field, so the form scrolls up to show it.
   useEffect(() => {
@@ -49,6 +62,7 @@ export function SignInScreen() {
 
   const submit = handleSubmit(async (values) => {
     setGeneralError(undefined);
+    setPasswordChanged(false);
     try {
       // Signed in, so the app moves on to Home, or to setup if it is not done.
       await signIn.mutateAsync(values);
@@ -62,10 +76,11 @@ export function SignInScreen() {
     }
   });
 
-  // Typing again clears the general error.
+  // Typing again clears the line above the form.
   function changeText(onChange: (value: string) => void) {
     return (value: string) => {
       setGeneralError(undefined);
+      setPasswordChanged(false);
       onChange(value);
     };
   }
@@ -121,6 +136,9 @@ export function SignInScreen() {
             <View style={{ gap: space.lg }}>
               {generalError !== undefined && (
                 <FormError message={generalError} />
+              )}
+              {passwordChanged && (
+                <FormSuccess message="Password changed. Sign in with the new one." />
               )}
               <Controller
                 control={control}

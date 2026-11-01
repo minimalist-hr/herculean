@@ -83,7 +83,15 @@ function AppStack() {
       <Stack.Protected guard={status === 'signedOut'} redirectTo={home}>
         <Stack.Screen name="sign-in" />
         <Stack.Screen name="create-account" />
+      </Stack.Protected>
+      {/* A reset link can open the app from closed, so these don't wait for the session to be restored. */}
+      <Stack.Protected
+        guard={status === 'signedOut' || status === 'restoring'}
+        redirectTo={home}
+      >
         <Stack.Screen name="forgot-password" />
+        <Stack.Screen name="reset-link-sent" />
+        <Stack.Screen name="new-password" />
       </Stack.Protected>
       <Stack.Protected guard={status === 'needsSetup'} redirectTo={home}>
         <Stack.Screen name="setup" />

@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.6 · 1 November 2026 · Minimalist
+Version 0.7 · 1 November 2026 · Minimalist
+
+> Changes since 0.6: a success line for forms (section 5). A11 waits a minute before Send link again can be pressed, and says "Link sent again." A01 says "Password changed. Sign in with the new one." after a reset (sections 7 and 9). A11 and A13 use the type scale: `meta` for A11's card text and `body` for A13's text.
 
 > Changes since 0.5: A13, the reset email, and A14, the page its link opens (sections 5 and 9). An expired link on A14 goes to A10 with an error line. The area panel `areas/A-Account.png` doesn't show any of this. Screens are rendered in dark only, directly in `screens/`; light stays in the tokens and the app.
 
@@ -169,6 +171,8 @@ The canvas shows no error states, so every form follows these:
 - **Field error:** the message replaces the helper text under the field, in `danger`, and the field's border turns `danger`. It covers the form's own checks and the API's field errors, for example "An account with this email already exists." under Email on A20.
 - **Any other error** (no connection, a server error, an error with no field): one line in `danger` at the top of the form, above the first field, for example "Couldn't create the account. Try again." The form scrolls up to show it. It clears when a field changes or the action is tried again.
 
+**Success line.** When something worked and the user stays on or returns to a form, one line in `success` sits in the same place as the general error, for example "Link sent again." It clears when a field changes or the action is tried again.
+
 ### Chips
 36 px filter chips: "All" plus one per group, in the group order set in E30. The selected chip uses the accent. Chips wrap onto new lines; this was decided and is kept.
 
@@ -253,6 +257,8 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 - **Other:** workout deleted, and profile photo removed (shown on H10).
 - **Exceptions:** delete account, delete routine and delete exercise have no undo. Each asks first (H19, R22, E21).
 
+**Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it is dimmed and counts down: "Send link again in 0:42".
+
 **Delete inside edit screens.** "Delete routine" (R20) and "Delete exercise" (E20) sit below Cancel, styled as danger text.
 
 **Groups.** A group can only be deleted when it has no exercises. E30 explains this, and only an empty group's trash is active.
@@ -308,7 +314,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 |---|---|---|
 | **A0 Launch** | A00 Splash, A02 Couldn't connect | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens, or A30 if setup isn't finished. Without a connection, A02 shows "Couldn't connect." and a Try again text link below the logo, which stays in place. |
 | **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
-| **A2 Reset password** | A10 Reset password, A11 Link sent, A13 Reset email, A14 Opening the app, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → the link in A13 opens A14, which opens the app → New password twice → Save password → A01. A14 is the page a browser shows for a moment; its button is there in case the app doesn't open by itself. An expired or used link opens A10 with the error line "This link has expired. Send a new one." If the link expires while the user types, the same line shows at the top of A12. |
+| **A2 Reset password** | A10 Reset password, A11 Link sent, A13 Reset email, A14 Opening the app, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → the link in A13 opens A14, which opens the app → New password twice → Save password → A01, which says "Password changed. Sign in with the new one." If saving fails, A12 stays open with the error line. A14 is the page a browser shows for a moment; its button is there in case the app doesn't open by itself. An expired or used link opens A10 with the error line "This link has expired. Send a new one." If the link expires while the user types, the same line shows at the top of A12. |
 | **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. |
 
 ### H · Home

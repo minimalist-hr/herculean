@@ -7,6 +7,7 @@ import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { endSession, getAccessToken, useSessionStatus } from './session';
+import { notePasswordChanged } from './sign-in-notice';
 import { SignInScreen } from './sign-in-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -131,6 +132,22 @@ test('signing in opens setup for a user without a name', async () => {
   await pressSignIn();
 
   expect(await screen.findByText('Setup screen')).toBeOnTheScreen();
+});
+
+test('after a password reset it says so once, until a field changes', async () => {
+  notePasswordChanged();
+  await renderSignIn();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Password changed. Sign in with the new one.',
+  );
+
+  await fireEvent.changeText(
+    screen.getByLabelText('Email'),
+    'filip@example.com',
+  );
+
+  expect(screen.queryByRole('alert')).toBeNull();
 });
 
 test('both fields are needed before anything is sent', async () => {
