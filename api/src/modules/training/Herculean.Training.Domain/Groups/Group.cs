@@ -1,9 +1,12 @@
 using Herculean.SharedKernel.Entities;
+using Herculean.Training.Domain.Exercises;
 
 namespace Herculean.Training.Domain.Groups;
 
 internal sealed class Group : Entity<GroupId>
 {
+    private readonly List<Exercise> _exercises = [];
+
     internal static readonly string[] StartingNames = ["Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs"];
 
     private Group(GroupId id, UserId userId, string name, int order) : base(id)
@@ -20,6 +23,8 @@ internal sealed class Group : Entity<GroupId>
     public int Order { get; private set; }
 
     public DateTimeOffset? DeletedAtUtc { get; private set; }
+
+    public IReadOnlyList<Exercise> Exercises => _exercises;
 
     /// <summary>The groups a new account starts with, in their order.</summary>
     public static IReadOnlyList<Group> CreateStarting(UserId userId) =>

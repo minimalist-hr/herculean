@@ -6,10 +6,15 @@ using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
 using Herculean.Training.Application.AccountCreated;
 using Herculean.Training.Application.Auth;
+using Herculean.Training.Application.Exercises;
+using Herculean.Training.Application.Exercises.ListExercises;
+using Herculean.Training.Application.Groups;
+using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Settings;
 
@@ -34,11 +39,16 @@ public static class TrainingModule
 
         builder.Services.AddScoped<IWorkoutSettingsRepository, WorkoutSettingsRepository>();
         builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+        builder.Services.AddScoped<IGroupReadRepository, GroupReadRepository>();
+        builder.Services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
 
         builder.Services.AddScoped<IValidator<UpdateWorkoutSettingsRequest>, UpdateWorkoutSettingsValidator>();
         builder.Services.AddScoped<UpdateWorkoutSettingsHandler>();
+        builder.Services.AddScoped<IValidator<ListExercisesRequest>, ListExercisesValidator>();
+        builder.Services.AddScoped<ListExercisesHandler>();
+        builder.Services.AddScoped<ListGroupsHandler>();
     }
 
     /// <summary>Maps every Training endpoint.</summary>
@@ -46,6 +56,8 @@ public static class TrainingModule
     public static void MapTrainingModuleEndpoints(this IEndpointRouteBuilder endpoints)
     {
         UpdateWorkoutSettingsEndpoint.Map(endpoints);
+        ListExercisesEndpoint.Map(endpoints);
+        ListGroupsEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

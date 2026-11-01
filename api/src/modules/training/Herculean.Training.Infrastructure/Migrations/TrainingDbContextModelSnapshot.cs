@@ -23,6 +23,49 @@ namespace Herculean.Training.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Herculean.Training.Domain.Exercises.Exercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at_utc");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_exercises");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_exercises_group_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_exercises_user_id");
+
+                    b.ToTable("exercises", "training");
+                });
+
             modelBuilder.Entity("Herculean.Training.Domain.Groups.Group", b =>
                 {
                     b.Property<Guid>("Id")
@@ -103,6 +146,23 @@ namespace Herculean.Training.Infrastructure.Migrations
                         .HasDatabaseName("ix_workout_settings_user_id");
 
                     b.ToTable("workout_settings", "training");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Exercises.Exercise", b =>
+                {
+                    b.HasOne("Herculean.Training.Domain.Groups.Group", "Group")
+                        .WithMany("Exercises")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_exercises_groups_group_id");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Groups.Group", b =>
+                {
+                    b.Navigation("Exercises");
                 });
 #pragma warning restore 612, 618
         }

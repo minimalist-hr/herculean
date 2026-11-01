@@ -1,0 +1,32 @@
+# List the exercises. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Every exercise → 200. A new account has none.
+GET {{host}}/api/v1/exercises
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Search in any case → 200.
+GET {{host}}/api/v1/exercises?search=BENCH
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### One group → 200. Empty for a group that does not exist.
+GET {{host}}/api/v1/exercises?groupId=0198a000-0000-7000-8000-000000000000
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### A group that is not an ID → 400.
+GET {{host}}/api/v1/exercises?groupId=not-an-id
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/exercises

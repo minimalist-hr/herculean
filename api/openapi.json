@@ -482,10 +482,145 @@
           }
         ]
       }
+    },
+    "/api/v1/exercises": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "List the exercises",
+        "description": "Returns the signed-in user's exercises by group order, then name. Search and group narrow the list. Deleted exercises are left out.",
+        "operationId": "ListExercises",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Part of the exercise's name, in any case.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Only exercises in this group.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The exercises. Empty when none match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseListItemResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The search is too long, or the group is not a valid ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/groups": {
+      "get": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "List the groups",
+        "description": "Returns the signed-in user's groups in their order. Deleted groups are left out. A new account starts with six.",
+        "operationId": "ListGroups",
+        "responses": {
+          "200": {
+            "description": "The groups.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
     "schemas": {
+      "BestSetResponse": {
+        "required": [
+          "weightKg",
+          "reps",
+          "date"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg. A bodyweight set has 0.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string",
+            "description": "The date of the workout, in the user's time zone.",
+            "format": "date"
+          }
+        },
+        "description": "The best set of an exercise."
+      },
       "CompletePasswordResetRequest": {
         "required": [
           "token",
@@ -557,6 +692,67 @@
           }
         },
         "description": "A new account."
+      },
+      "ExerciseListItemResponse": {
+        "required": [
+          "id",
+          "name",
+          "groupId",
+          "groupName",
+          "bestSet"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The group it belongs to.",
+            "format": "uuid"
+          },
+          "groupName": {
+            "type": "string",
+            "description": "The name of the group it belongs to."
+          },
+          "bestSet": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The heaviest weight, then the most reps at that weight. Null until the exercise has been done.",
+                "$ref": "#/components/schemas/BestSetResponse"
+              }
+            ]
+          }
+        },
+        "description": "An exercise in the list."
+      },
+      "GroupResponse": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The group's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The group's name."
+          }
+        },
+        "description": "A muscle group. It orders the exercise list and the chips."
       },
       "ProblemDetails": {
         "required": [
@@ -787,6 +983,12 @@
     },
     {
       "name": "Workout settings"
+    },
+    {
+      "name": "Exercises"
+    },
+    {
+      "name": "Groups"
     }
   ]
 }

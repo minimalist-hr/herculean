@@ -88,7 +88,7 @@ Herculean.Training.Application/
 
 - **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure.
 - **Unit of work:** a handler saves once, through its module's `IUnitOfWork`, which is the module's DbContext. Repositories never save.
-- **Reads** query the DbContext directly with projections.
+- **Reads** query the DbContext directly with projections. Each has a read repository: its interface in Application, for example `IExerciseReadRepository`, and its code in Infrastructure.
 - **One database:** one schema and one DbContext per module.
 - **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
 - **Foreign keys** never cascade in the database: they are `ON DELETE RESTRICT`, or `NO ACTION` where EF deletes the children itself. Code deletes child rows on purpose. A child removed from its aggregate, for example a used refresh token, is deleted on save (EF client cascade).
