@@ -38,4 +38,14 @@ public sealed class ErrorProblemExtensionsTests
         problem.ProblemDetails.Detail.ShouldBe("This email is already used.");
         problem.ProblemDetails.Extensions["code"].ShouldBe("user.email_taken");
     }
+
+    [Fact]
+    public void UnauthorizedErrorIsUnauthorized()
+    {
+        var problem = Error.Unauthorized("user.invalid_credentials", "Email or password is wrong.").ToProblem();
+
+        problem.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
+        problem.ProblemDetails.Detail.ShouldBe("Email or password is wrong.");
+        problem.ProblemDetails.Extensions["code"].ShouldBe("user.invalid_credentials");
+    }
 }

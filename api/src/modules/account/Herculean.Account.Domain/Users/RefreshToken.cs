@@ -17,6 +17,8 @@ internal sealed class RefreshToken : Entity<RefreshTokenId>
 
     public DateTimeOffset ExpiresAtUtc { get; private set; }
 
+    public bool IsExpired(DateTimeOffset nowUtc) => ExpiresAtUtc <= nowUtc;
+
     internal static RefreshToken Create(UserId userId, string tokenHash, DateTimeOffset expiresAtUtc) =>
         new(RefreshTokenId.New(), userId, tokenHash, expiresAtUtc);
 }

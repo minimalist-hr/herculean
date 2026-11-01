@@ -39,6 +39,8 @@ internal sealed class JwtTokenIssuer(IOptions<JwtOptions> options, TimeProvider 
         return new TokenResponse(accessToken, (int)jwtOptions.AccessTokenLifetime.TotalSeconds, refreshToken);
     }
 
+    public string HashRefreshToken(string refreshToken) => Hash(refreshToken);
+
     // The token is random and long, so a fast hash is enough. Only the hash is stored.
     internal static string Hash(string token) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 }

@@ -1,0 +1,49 @@
+# Sign in. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201, or 409 if it was created before. The requests below sign in to it.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "signin@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Sign in, with the email in any case → 200 with new tokens.
+POST {{host}}/api/v1/sessions
+Content-Type: application/json
+
+{
+  "email": "SignIn@Example.com",
+  "password": "password"
+}
+
+### Wrong password → 401 user.invalid_credentials. An unknown email gets the same answer.
+POST {{host}}/api/v1/sessions
+Content-Type: application/json
+
+{
+  "email": "signin@example.com",
+  "password": "wrong password"
+}
+
+### Missing fields → 400 validation, with errors for email and password.
+POST {{host}}/api/v1/sessions
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": ""
+}
+
+### Send this more than 10 times in a minute → 429 too_many_requests, with Retry-After.
+POST {{host}}/api/v1/sessions
+Content-Type: application/json
+
+{
+  "email": "signin@example.com",
+  "password": "wrong password"
+}

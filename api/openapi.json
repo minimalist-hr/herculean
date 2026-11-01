@@ -123,6 +123,175 @@
             "Bearer": [ ]
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get the signed-in user",
+        "description": "Returns the signed-in user. A user without a name has not finished setup.",
+        "operationId": "GetCurrentUser",
+        "responses": {
+          "200": {
+            "description": "The signed-in user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Sign in",
+        "description": "Signs in with email and password and returns new tokens. The email can be in any case.",
+        "operationId": "CreateSession",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The email or password is missing.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The email or password is wrong. The message never says which.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/refresh": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Refresh the tokens",
+        "description": "Swaps a refresh token for a new access token and a new refresh token. The old refresh token stops working.",
+        "operationId": "RefreshSession",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "New tokens. Keep the new refresh token; the old one no longer works.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The refresh token is missing.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The refresh token is unknown, already used or expired. Sign in again.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/workout-settings": {
@@ -185,6 +354,24 @@
   },
   "components": {
     "schemas": {
+      "CreateSessionRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The account's email, in any case."
+          },
+          "password": {
+            "type": "string",
+            "description": "The account's password."
+          }
+        },
+        "description": "Email and password to sign in with."
+      },
       "CreateUserRequest": {
         "required": [
           "email",
@@ -256,6 +443,19 @@
           }
         },
         "description": "An error, as Problem Details (RFC 9457). Every error has the same fields."
+      },
+      "RefreshSessionRequest": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "The refreshToken from signing in, creating the account or the last refresh. It works once."
+          }
+        },
+        "description": "The refresh token to swap for new tokens."
       },
       "TokenResponse": {
         "required": [
@@ -415,6 +615,9 @@
   "tags": [
     {
       "name": "Users"
+    },
+    {
+      "name": "Sessions"
     },
     {
       "name": "Workout settings"

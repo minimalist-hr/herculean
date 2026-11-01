@@ -30,6 +30,11 @@ public sealed record Error
     public static Error Validation(IReadOnlyDictionary<string, string[]> fields) =>
         new(ErrorType.Validation, "validation", "One or more fields are not valid.", fields);
 
+    /// <summary>Creates an error for a caller who could not be identified.</summary>
+    /// <param name="code">A stable code for the app.</param>
+    /// <param name="description">A sentence that explains the failure.</param>
+    public static Error Unauthorized(string code, string description) => new(ErrorType.Unauthorized, code, description, NoFields);
+
     /// <summary>Creates an error for a resource that does not exist.</summary>
     /// <param name="code">A stable code for the app.</param>
     /// <param name="description">A sentence that explains the failure.</param>

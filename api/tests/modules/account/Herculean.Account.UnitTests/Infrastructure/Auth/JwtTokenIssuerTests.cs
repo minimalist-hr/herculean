@@ -59,7 +59,7 @@ public sealed class JwtTokenIssuerTests
         TokenResponse tokens = _issuer.Issue(_user);
 
         RefreshToken stored = _user.RefreshTokens.ShouldHaveSingleItem();
-        stored.TokenHash.ShouldBe(JwtTokenIssuer.Hash(tokens.RefreshToken));
+        stored.TokenHash.ShouldBe(_issuer.HashRefreshToken(tokens.RefreshToken));
         stored.TokenHash.ShouldNotBe(tokens.RefreshToken);
         stored.ExpiresAtUtc.ShouldBe(Now + Jwt.RefreshTokenLifetime);
     }

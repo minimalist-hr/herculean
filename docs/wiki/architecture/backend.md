@@ -91,7 +91,7 @@ Herculean.Training.Application/
 - **Reads** query the DbContext directly with projections.
 - **One database:** one schema and one DbContext per module.
 - **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
-- **Foreign keys** are `ON DELETE RESTRICT`. Code deletes child rows on purpose.
+- **Foreign keys** never cascade in the database: they are `ON DELETE RESTRICT`, or `NO ACTION` where EF deletes the children itself. Code deletes child rows on purpose. A child removed from its aggregate, for example a used refresh token, is deleted on save (EF client cascade).
 - **Query filters:** named EF Core filters for `UserId` and for soft delete. A filter can be turned off on its own, for example by a background job.
 - **Current user:** SharedKernel's `ICurrentUserAccessor` reads the `sub` claim of the access token, for the whole API. Each module wraps it in its own `CurrentUser`, with the module's own `UserId`.
 - **Typed IDs:** each ID is a record struct of our own, with an EF Core converter. Each module has its own `UserId`: Account owns users, and Training only refers to them. Between modules, IDs travel as plain `Guid`s.
@@ -122,10 +122,12 @@ Herculean.Training.Application/
 
 ## Auth
 
-- Passwords are hashed with the ASP.NET Core password hasher.
+- Passwords are hashed with the ASP.NET Core password hasher. Sign in hashes a password again when the hasher's settings get stronger.
 - The access token is a JWT. It is checked by signature and never stored.
 - Refresh tokens, password reset tokens and email change tokens are stored hashed.
-- Each refresh replaces the refresh token with a new one.
+- Each refresh replaces the refresh token with a new one. An expired refresh token is removed when it is used, and the user signs in again.
+- A wrong email and a wrong password get the same 401 and take as long, so sign in never tells which emails have an account.
+- Sign in and refresh each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
 - The API checks every access token's signature, issuer, audience and lifetime.
 - Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, the health check and the API docs are anonymous.
 - The OpenAPI document has the Bearer scheme, so Scalar can send an access token.
@@ -161,4 +163,5 @@ Herculean.Training.Application/
   5. Every handler has a unit test class.
   6. Every Training entity has a `UserId`.
   7. Every endpoint, response, schema and field in `openapi.json` has a description.
+- **Endpoint tests:** HTTP behaviour, like status codes, auth and rate limits, through an in-memory server (TestHost) with the module's own wiring and fake stores.
 - **Integration tests:** the API against a real PostgreSQL in Testcontainers. Written last.

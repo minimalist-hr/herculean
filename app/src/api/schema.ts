@@ -31,7 +31,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get the signed-in user
+         * @description Returns the signed-in user. A user without a name has not finished setup.
+         */
+        get: operations["GetCurrentUser"];
         put?: never;
         post?: never;
         delete?: never;
@@ -42,6 +46,46 @@ export interface paths {
          * @description Changes the name, units or time zone. Setup sends the name and units; the app sends a new time zone when the phone's changes.
          */
         patch: operations["UpdateCurrentUser"];
+        trace?: never;
+    };
+    "/api/v1/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign in
+         * @description Signs in with email and password and returns new tokens. The email can be in any case.
+         */
+        post: operations["CreateSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh the tokens
+         * @description Swaps a refresh token for a new access token and a new refresh token. The old refresh token stops working.
+         */
+        post: operations["RefreshSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/workout-settings": {
@@ -68,6 +112,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Email and password to sign in with. */
+        CreateSessionRequest: {
+            /** @description The account's email, in any case. */
+            email: string;
+            /** @description The account's password. */
+            password: string;
+        };
         /** @description A new account. */
         CreateUserRequest: {
             /** @description Unique regardless of case. At most 254 characters. */
@@ -98,6 +149,11 @@ export interface components {
             };
             /** @description Finds the request in the logs. */
             traceId: string;
+        };
+        /** @description The refresh token to swap for new tokens. */
+        RefreshSessionRequest: {
+            /** @description The refreshToken from signing in, creating the account or the last refresh. It works once. */
+            refreshToken: string;
         };
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
@@ -210,6 +266,44 @@ export interface operations {
             };
         };
     };
+    GetCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The signed-in user. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     UpdateCurrentUser: {
         parameters: {
             query?: never;
@@ -252,6 +346,108 @@ export interface operations {
             };
             /** @description The account no longer exists. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Signed in. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description The email or password is missing. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The email or password is wrong. The message never says which. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RefreshSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description New tokens. Keep the new refresh token; the old one no longer works. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description The refresh token is missing. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The refresh token is unknown, already used or expired. Sign in again. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

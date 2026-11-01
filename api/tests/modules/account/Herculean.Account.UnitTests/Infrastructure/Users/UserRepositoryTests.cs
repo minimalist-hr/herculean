@@ -67,6 +67,48 @@ public sealed class UserRepositoryTests : IDisposable
         (await _userRepository.GetByIdAsync(UserId.New(), TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
+    [Fact]
+    public async Task UserIsFoundByEmailRegardlessOfCase()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _userRepository.GetByEmailAsync(" Filip@Example.COM ", TestContext.Current.CancellationToken)).ShouldBe(newUser);
+        (await _userRepository.GetByEmailAsync("other@example.com", TestContext.Current.CancellationToken)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task UserIsFoundByRefreshTokenWithOnlyThatTokenLoaded()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddRefreshToken("first", DateTimeOffset.UnixEpoch);
+        newUser.AddRefreshToken("second", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        User? found = await _userRepository.GetByRefreshTokenHashAsync("second", TestContext.Current.CancellationToken);
+
+        found.ShouldNotBeNull().RefreshTokens.ShouldHaveSingleItem().TokenHash.ShouldBe("second");
+        (await _userRepository.GetByRefreshTokenHashAsync("unknown", TestContext.Current.CancellationToken)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task RemovedRefreshTokenIsDeletedOnSave()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddRefreshToken("token-hash", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        newUser.RemoveRefreshToken(newUser.RefreshTokens[0]);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        _dbContext.ChangeTracker.Clear();
+        (await _userRepository.GetByRefreshTokenHashAsync("token-hash", TestContext.Current.CancellationToken)).ShouldBeNull();
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

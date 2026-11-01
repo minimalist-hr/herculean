@@ -50,8 +50,20 @@ internal sealed class User : Entity<UserId>
         TimeZone = timeZone;
     }
 
+    /// <summary>For a new hash of the same password, when the hasher's settings get stronger.</summary>
+    public void ChangePasswordHash(string passwordHash)
+    {
+        PasswordHash = passwordHash;
+    }
+
     public void AddRefreshToken(string tokenHash, DateTimeOffset expiresAtUtc)
     {
         _refreshTokens.Add(RefreshToken.Create(Id, tokenHash, expiresAtUtc));
+    }
+
+    /// <summary>A refresh token works once: refreshing removes it, and so does signing out.</summary>
+    public void RemoveRefreshToken(RefreshToken refreshToken)
+    {
+        _refreshTokens.Remove(refreshToken);
     }
 }

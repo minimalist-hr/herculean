@@ -1,0 +1,29 @@
+# Refresh the tokens. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its refresh token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Refresh → 200 with new tokens. Send it twice: the second time is 401, because a refresh token works once.
+POST {{host}}/api/v1/sessions/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{createAccount.response.body.$.refreshToken}}"
+}
+
+### Unknown refresh token → 401 user.invalid_refresh_token.
+POST {{host}}/api/v1/sessions/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "not-a-real-token"
+}

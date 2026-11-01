@@ -17,6 +17,7 @@ public static class ErrorProblemExtensions
             {
                 Status = error.Type switch
                 {
+                    ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
                     ErrorType.NotFound => StatusCodes.Status404NotFound,
                     ErrorType.Conflict => StatusCodes.Status409Conflict,
                     _ => throw new ArgumentOutOfRangeException(nameof(error), error.Type, "Unknown error type."),

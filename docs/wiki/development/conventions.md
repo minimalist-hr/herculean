@@ -62,7 +62,7 @@ We follow REST as closely as possible.
   | Method | Meaning | Success |
   |---|---|---|
   | GET | Read | 200 |
-  | POST | Create | 201, with a `Location` header |
+  | POST | Create | 201, with a `Location` header. Sign in and refresh return 200, like an OAuth 2.0 token endpoint. |
   | PUT | Replace a whole resource | 200 |
   | PATCH | Change some fields, as in JSON Merge Patch (RFC 7396). A field left out stays the same. No field can be cleared yet, so null also keeps it. | 200, with the whole resource |
   | DELETE | Delete | 204 |

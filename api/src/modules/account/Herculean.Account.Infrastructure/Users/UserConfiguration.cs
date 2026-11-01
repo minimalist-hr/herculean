@@ -22,6 +22,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasMany(user => user.RefreshTokens)
             .WithOne()
             .HasForeignKey(token => token.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

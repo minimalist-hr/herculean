@@ -160,7 +160,7 @@ namespace Herculean.Account.Infrastructure.Migrations
                     b.HasOne("Herculean.Account.Domain.Users.User", null)
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired()
                         .HasConstraintName("fk_refresh_tokens_users_user_id");
                 });

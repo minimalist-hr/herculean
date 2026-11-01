@@ -4,6 +4,9 @@ using Herculean.Account.Infrastructure;
 using Herculean.Account.Infrastructure.Auth;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -67,5 +70,29 @@ public sealed class AccountModuleTests
         result.IsValid.ShouldBeTrue();
         result.ClaimsIdentity.FindFirst("sub")?.Value.ShouldBe(user.Id.Value.ToString());
         bearerOptions.MapInboundClaims.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void SignInAndRefreshEachHaveTheirOwnRateLimit()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateSlimBuilder();
+        builder.Configuration["ConnectionStrings:database"] = "Host=localhost";
+        builder.AddAccountModule();
+        using WebApplication app = builder.Build();
+        app.MapAccountModuleEndpoints();
+
+        Dictionary<string, string?> rateLimits = ((IEndpointRouteBuilder)app).DataSources
+            .SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>()
+            .Where(endpoint => endpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>() is not null)
+            .ToDictionary(
+                endpoint => endpoint.RoutePattern.RawText!,
+                endpoint => endpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>()!.PolicyName);
+
+        rateLimits.ShouldBe(new Dictionary<string, string?>
+        {
+            ["/api/v1/sessions"] = "sign-in",
+            ["/api/v1/sessions/refresh"] = "refresh",
+        });
     }
 }
