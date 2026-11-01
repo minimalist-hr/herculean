@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -35,7 +34,6 @@ const startingValues: SetupValues = {
 
 export function SetupScreen() {
   const { colors, size, space, text } = useTheme();
-  const router = useRouter();
   const finishSetup = useFinishSetup();
   const scrollView = useRef<ScrollViewInstance>(null);
   const [generalError, setGeneralError] = useState(false);
@@ -55,9 +53,8 @@ export function SetupScreen() {
   const submit = handleSubmit(async (values) => {
     setGeneralError(false);
     try {
+      // Setup done, so the app opens Home in its place.
       await finishSetup.mutateAsync(values);
-      // Home replaces setup, so going back can't return to it.
-      router.replace('/');
     } catch (error) {
       const formErrors = toFormErrors(error, ['name']);
       if (formErrors.fields.name !== undefined) {

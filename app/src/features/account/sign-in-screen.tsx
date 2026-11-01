@@ -1,0 +1,219 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type ScrollViewInstance,
+} from 'react-native';
+
+import { ApiProblemError } from '@/api/problem';
+import { BottomActionBox } from '@/components/bottom-action-box';
+import { Button } from '@/components/button';
+import { FormError } from '@/components/form-error';
+import { Glow } from '@/components/glow';
+import { ScreenHeading } from '@/components/screen-heading';
+import { TextField } from '@/components/text-field';
+import { TextLink } from '@/components/text-link';
+import { Wordmark } from '@/components/wordmark';
+import { useTheme } from '@/theme/theme-provider';
+
+import { signInSchema, type SignInValues } from './sign-in-schema';
+import { useSignIn } from './use-sign-in';
+
+const emptyValues: SignInValues = { email: '', password: '' };
+
+export function SignInScreen() {
+  const { colors, size, space, text } = useTheme();
+  const router = useRouter();
+  const signIn = useSignIn();
+  const scrollView = useRef<ScrollViewInstance>(null);
+  const [generalError, setGeneralError] = useState<string>();
+  const [heroHeight, setHeroHeight] = useState<number>();
+  const { control, handleSubmit, setFocus, formState } = useForm({
+    resolver: zodResolver(signInSchema),
+    defaultValues: emptyValues,
+  });
+  const { errors } = formState;
+
+  // The general error sits above the first field, so the form scrolls up to show it.
+  useEffect(() => {
+    if (generalError !== undefined) {
+      scrollView.current?.scrollTo({ y: 0 });
+    }
+  }, [generalError]);
+
+  const submit = handleSubmit(async (values) => {
+    setGeneralError(undefined);
+    try {
+      // Signed in, so the app moves on to Home, or to setup if it is not done.
+      await signIn.mutateAsync(values);
+    } catch (error) {
+      setGeneralError(
+        error instanceof ApiProblemError &&
+          error.problem.code === 'user.invalid_credentials'
+          ? error.problem.detail
+          : "Couldn't sign in. Try again.",
+      );
+    }
+  });
+
+  // Typing again clears the general error.
+  function changeText(onChange: (value: string) => void) {
+    return (value: string) => {
+      setGeneralError(undefined);
+      onChange(value);
+    };
+  }
+
+  // The leftover height less room for an error under each field, within the maximum, and never smaller than the logo.
+  function fitHero(leftover: number) {
+    const logoHeight = space.xl * 2 + (text.wordmark.lineHeight ?? 0);
+    return Math.max(
+      Math.min(leftover - size.signInErrorRoom, size.signInHeroMax),
+      logoHeight,
+    );
+  }
+
+  const waiting = signIn.isPending;
+
+  return (
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+      {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
+      <KeyboardAvoidingView behavior="padding" style={styles.screen}>
+        <ScrollView
+          ref={scrollView}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.content}
+        >
+          {/* Takes the height the form leaves, minus room for its errors, so the screen fits without scrolling.
+              That height is kept once measured: the keyboard then scrolls the screen instead of squeezing the logo. */}
+          <View
+            onLayout={(event) => {
+              const leftover = event.nativeEvent.layout.height;
+              setHeroHeight((measured) => measured ?? fitHero(leftover));
+            }}
+            style={[
+              styles.hero,
+              { paddingVertical: space.xl },
+              heroHeight === undefined
+                ? { flexGrow: 1 }
+                : { height: heroHeight },
+            ]}
+          >
+            <Glow radiusX={0.7} radiusY={0.55} fadeAt={0.9} />
+            <Wordmark />
+          </View>
+
+          <View
+            style={{
+              gap: space.xl,
+              paddingHorizontal: size.sidePadding,
+              paddingBottom: space.lg,
+            }}
+          >
+            <ScreenHeading title="Sign in" />
+
+            <View style={{ gap: space.lg }}>
+              {generalError !== undefined && (
+                <FormError message={generalError} />
+              )}
+              <Controller
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <TextField
+                    ref={field.ref}
+                    label="Email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => {
+                      setFocus('password');
+                    }}
+                    value={field.value}
+                    onChangeText={changeText(field.onChange)}
+                    onBlur={field.onBlur}
+                    error={errors.email?.message}
+                  />
+                )}
+              />
+              <View>
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field }) => (
+                    <TextField
+                      ref={field.ref}
+                      label="Password"
+                      placeholder="Your password"
+                      autoComplete="current-password"
+                      password
+                      returnKeyType="go"
+                      onSubmitEditing={() => void submit()}
+                      value={field.value}
+                      onChangeText={changeText(field.onChange)}
+                      onBlur={field.onBlur}
+                      error={errors.password?.message}
+                    />
+                  )}
+                />
+                <TextLink
+                  label="Forgot password?"
+                  dimmed={waiting}
+                  onPress={() => {
+                    router.push('/forgot-password');
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <BottomActionBox>
+        <Button
+          label="Sign in"
+          waitingLabel="Signing in"
+          waiting={waiting}
+          onPress={() => void submit()}
+        />
+        <View style={styles.otherAction}>
+          <Text style={[text.body, { color: colors.muted }]}>New here?</Text>
+          <TextLink
+            label="Create account"
+            dimmed={waiting}
+            onPress={() => {
+              router.push('/create-account');
+            }}
+          />
+        </View>
+      </BottomActionBox>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  content: {
+    flexGrow: 1,
+  },
+  hero: {
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  otherAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

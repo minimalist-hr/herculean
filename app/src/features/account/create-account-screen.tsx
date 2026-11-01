@@ -209,7 +209,8 @@ export function CreateAccountScreen() {
             label="Sign in"
             dimmed={waiting}
             onPress={() => {
-              router.push('/sign-in');
+              // Sign in usually opened this page, so it goes back to it.
+              router.dismissTo('/sign-in');
             }}
           />
         </View>

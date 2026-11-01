@@ -31,6 +31,11 @@ const config: ExpoConfig = {
     'expo-status-bar',
     'expo-secure-store',
     'expo-localization',
+    // Only the background. The launch screen draws the logo and its glow.
+    [
+      'expo-splash-screen',
+      { backgroundColor: '#F4F5F7', dark: { backgroundColor: '#050506' } },
+    ],
   ],
   experiments: {
     typedRoutes: true,

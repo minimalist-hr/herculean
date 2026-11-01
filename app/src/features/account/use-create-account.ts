@@ -4,7 +4,7 @@ import { getCalendars } from 'expo-localization';
 import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 
-import { startSession } from './session';
+import { enterApp, saveTokens } from './session';
 
 interface CreateAccount {
   email: string;
@@ -22,7 +22,9 @@ export function useCreateAccount() {
         throw toApiError(error);
       }
 
-      await startSession(data);
+      await saveTokens(data);
+      // A new account has no name yet, so it goes to setup.
+      enterApp(false);
     },
   });
 }

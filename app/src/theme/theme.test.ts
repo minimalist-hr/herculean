@@ -54,3 +54,8 @@ test('tab labels have an active and an inactive weight', () => {
   });
   expect(text.tabLabelInactive.fontFamily).toBe('ChakraPetch_500Medium');
 });
+
+test('the glow opacity follows the scheme', () => {
+  expect(createTheme('dark', 'racingBlue').opacity.glow).toBe(0.2);
+  expect(createTheme('light', 'racingBlue').opacity.glow).toBe(0.1);
+});

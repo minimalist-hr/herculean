@@ -6,7 +6,15 @@ import type { components } from '@/api/schema';
 
 type TokenResponse = components['schemas']['TokenResponse'];
 
+/**
+ * Where the user is, which decides the screens the app shows:
+ * restoring at launch, signed out, signed in but setup not finished, or ready.
+ */
+export type SessionStatus = 'restoring' | 'signedOut' | 'needsSetup' | 'ready';
+
 const refreshTokenKey = 'refreshToken';
+
+let status: SessionStatus = 'restoring';
 
 // The access token is never stored. It lives as long as the app is open.
 let accessToken: string | null = null;
@@ -16,25 +24,29 @@ let webRefreshToken: string | null = null;
 
 const listeners = new Set<() => void>();
 
-/** Signs the user in with the tokens from creating an account or signing in. */
-export async function startSession(tokens: TokenResponse) {
+/** Keeps new tokens, from creating an account, signing in or a refresh. The status stays as it is. */
+export async function saveTokens(tokens: TokenResponse) {
   accessToken = tokens.accessToken;
   if (Platform.OS === 'web') {
     webRefreshToken = tokens.refreshToken;
   } else {
     await SecureStore.setItemAsync(refreshTokenKey, tokens.refreshToken);
   }
-  notify();
 }
 
-/** Signs the user out on this device. */
+/** Shows the app to a signed-in user: setup until it is done, then the tabs. */
+export function enterApp(setupDone: boolean) {
+  setStatus(setupDone ? 'ready' : 'needsSetup');
+}
+
+/** Signs the user out on this device, or confirms there is no session at launch. */
 export async function endSession() {
   accessToken = null;
   webRefreshToken = null;
   if (Platform.OS !== 'web') {
     await SecureStore.deleteItemAsync(refreshTokenKey);
   }
-  notify();
+  setStatus('signedOut');
 }
 
 /** The token the API client sends with every request, or null when signed out. */
@@ -49,18 +61,19 @@ export function readRefreshToken(): Promise<string | null> {
     : SecureStore.getItemAsync(refreshTokenKey);
 }
 
-/** True while a user is signed in. Screens re-render when it changes. */
-export function useIsSignedIn() {
-  return useSyncExternalStore(subscribe, () => accessToken !== null);
+/** The session status. Screens re-render when it changes. */
+export function useSessionStatus() {
+  return useSyncExternalStore(subscribe, () => status);
+}
+
+function setStatus(nextStatus: SessionStatus) {
+  status = nextStatus;
+  for (const listener of listeners) {
+    listener();
+  }
 }
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => listeners.delete(listener);
-}
-
-function notify() {
-  for (const listener of listeners) {
-    listener();
-  }
 }

@@ -7,7 +7,7 @@ import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { CreateAccountScreen } from './create-account-screen';
-import { endSession, getAccessToken, useIsSignedIn } from './session';
+import { endSession, getAccessToken, useSessionStatus } from './session';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -38,7 +38,7 @@ const tokens = {
 };
 
 function Layout() {
-  const signedIn = useIsSignedIn();
+  const status = useSessionStatus();
   return (
     <QueryClientProvider
       client={
@@ -47,11 +47,11 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Protected guard={signedIn} redirectTo="/create-account">
-            <Stack.Screen name="setup" />
-          </Stack.Protected>
-          <Stack.Protected guard={!signedIn} redirectTo="/setup">
+          <Stack.Protected guard={status === 'signedOut'}>
             <Stack.Screen name="create-account" />
+          </Stack.Protected>
+          <Stack.Protected guard={status === 'needsSetup'}>
+            <Stack.Screen name="setup" />
           </Stack.Protected>
         </Stack>
       </ThemeProvider>
@@ -90,11 +90,10 @@ async function pressCreateAccount() {
   await fireEvent.press(screen.getByRole('button', { name: 'Create account' }));
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   mockFetch.mockReset();
+  await endSession();
 });
-
-afterEach(() => endSession());
 
 test('a new account is created with the phone time zone, signed in and sent to setup', async () => {
   mockFetch.mockResolvedValue(Response.json(tokens, { status: 201 }));

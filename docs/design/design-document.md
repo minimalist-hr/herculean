@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.4 · 31 October 2026 · Minimalist
+Version 0.5 · 1 November 2026 · Minimalist
+
+> Changes since 0.4: A02, the splash without a connection (section 9). The area panel `areas/A-Account.png` doesn't show it. The logo's type role, its glow and the sign in logo area in the tokens. The glow is half as strong on A00 to A03, and ERCULEAN sits in the vertical middle of the pillars instead of on their baseline (section 3). The logo area shrinks on shorter phones and keeps room for field errors, so sign in never scrolls; at 844 px it is 344 px (sections 3 and 4.2). Pages cross-fade instead of sliding, because on Android a slide showed the page you leave empty while it moved (section 6).
 
 > Changes since 0.3: a spacing scale, the dimmed opacity and the spinner in the tokens (sections 4.4 and 5). Error states for forms, which the canvas does not show, and the bottom action box with the keyboard open (section 5). A01 and A20 link to each other with a text link line instead of a secondary button (sections 5 and 9). Their screens, HTML and source show it; the area panel `areas/A-Account.png` still shows the old button. Page transitions (section 6). Radio cards, steppers and quick picks, with their sizes and type roles in the tokens; on A30 the rest time is shown, not typed, and the card spacing is on the scale (sections 5 and 9). The quick picks on A30 and H15 are 1 to 5 minutes, and a new account starts at 3:00 instead of 1:30.
 
@@ -19,7 +21,7 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 ## 1. Scope
 
 - **Platform:** phone app, designed at 390 × 844 px (iPhone 14/15 size). Long screens are drawn at full scroll height and marked "full scroll".
-- **Screens:** 87 app screens in six areas, plus one brand board.
+- **Screens:** 88 app screens in six areas, plus one brand board.
 - **Themes:** dark (default) and light, two accent colors, four fonts and two corner styles. Each one can be switched on every board through Tweaks.
 - **Not in scope yet:** see section 11, Parked.
 
@@ -45,9 +47,10 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 
 - **Name:** Herculean = Hercules + lean.
 - **Mark:** the Pillars of Hercules, drawn to match Chakra Petch: square stems, 45° cut corners on the capitals and bases, and a crossbar in the accent color that leans forward. It's used alone for the app icon and small spaces.
-- **Logo in the app:** the pillars replace the H. They are scaled 1.3× so they stand taller than ERCULEAN, like an initial. "ERCU" is in the text color and "LEAN" is in the accent text color.
+- **Logo in the app:** the pillars replace the H. They are scaled 1.3× so they stand taller than ERCULEAN, like an initial, and ERCULEAN sits in their vertical middle. "ERCU" is in the text color and "LEAN" is in the accent text color.
 - **Plain wordmark:** HERCULEAN in Chakra Petch Bold with wide letter spacing. Below about 18 px, use it instead of the pillars, because the pillar capitals blur.
-- **Where the logo appears:** A00 Splash (centered, with a soft accent glow) and A01/A03 Sign in (in the same place, so it carries over from the splash).
+- **Where the logo appears:** A00 and A02 Splash (centered, with a soft accent glow) and A01/A03 Sign in (in the same place, so it carries over from the splash). On sign in, it sits in the middle of an area that takes the height the form leaves, less `size.signInErrorRoom` for an error under each field, and at most `size.signInHeroMax`. So the screen never scrolls before the keyboard opens, even with errors. The keyboard scrolls the screen and never resizes this area. At 844 px the area is 344 px, as drawn.
+- **Glow:** `primary` at `opacity.glow`, fading out in an ellipse. It stays soft, a hint of the accent behind the logo.
 
 ---
 
@@ -99,6 +102,7 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 
 | Role | Size / weight | Notes |
 |---|---|---|
+| Logo | 32 / 700 | Line height 1, letter spacing 0.14em |
 | Page title | 32 / 700 | Line height 1.05, letter spacing −0.01em |
 | Card title, sheet title | 22 / 700 | |
 | Big stat number | 24 / 700 | Month summary tiles |
@@ -214,7 +218,7 @@ A short title, one sentence saying what to do, and the one action that fixes it.
 - **Settings** opens from the FM avatar on Home. The avatar appears only on Home.
 - **Logging** opens from Load routine (W01), Start workout (Home) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
 - **Sub-pages** have a back link above the title, named after the page it returns to (for example "‹ Settings"). Sub-pages never have both a back link and a bottom Cancel.
-- **Moving between pages:** a page slides in from the right, and slides back out when you go back. The screen behind it keeps the theme's background, never white.
+- **Moving between pages:** pages cross-fade, going forward and back. The screen behind them keeps the theme's background, never white.
 - **Day screens** opened from the week strip have "Back to today". Opened from the month, the same link reads "Back to month".
 
 ---
@@ -297,7 +301,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 | Row | Screens | What happens |
 |---|---|---|
-| **A0 Launch** | A00 Splash | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens. |
+| **A0 Launch** | A00 Splash, A02 Couldn't connect | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens, or A30 if setup isn't finished. Without a connection, A02 shows "Couldn't connect." and a Try again text link below the logo, which stays in place. |
 | **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
 | **A2 Reset password** | A10 Reset password, A11 Link sent, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → New password twice → Save password → A01. |
 | **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. |

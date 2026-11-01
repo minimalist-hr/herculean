@@ -1,6 +1,6 @@
 # Screen index
 
-87 screens. Each row links the dark render, the light render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+88 screens. Each row links the dark render, the light render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -11,6 +11,7 @@ Flow map: [open](areas/A-Account.png)
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | A00 | Account › Splash | A0 Launch | 390×844 | [dark](screens/dark/A00-Account-Splash.png) · [light](screens/light/A00-Account-Splash.png) · [html](html/A00-Account-Splash.html) · [source](source/A00-Account-Splash.dc.html) |
+| A02 | Account › Splash · couldn't connect | A0 Launch | 390×844 | [dark](screens/dark/A02-Account-Splash-No-Connection.png) · [light](screens/light/A02-Account-Splash-No-Connection.png) · [html](html/A02-Account-Splash-No-Connection.html) · [source](source/A02-Account-Splash-No-Connection.dc.html) |
 | A01 | Account › Sign in | A1 Sign in | 390×844 | [dark](screens/dark/A01-Account-Sign-In.png) · [light](screens/light/A01-Account-Sign-In.png) · [html](html/A01-Account-Sign-In.html) · [source](source/A01-Account-Sign-In.dc.html) |
 | A03 | Account › Sign in · signing in | A1 Sign in | 390×844 | [dark](screens/dark/A03-Account-Sign-In-Signing-In.png) · [light](screens/light/A03-Account-Sign-In-Signing-In.png) · [html](html/A03-Account-Sign-In-Signing-In.html) · [source](source/A03-Account-Sign-In-Signing-In.dc.html) |
 | A10 | Account › Reset password | A2 Reset password | 390×844 | [dark](screens/dark/A10-Account-Reset-Password.png) · [light](screens/light/A10-Account-Reset-Password.png) · [html](html/A10-Account-Reset-Password.html) · [source](source/A10-Account-Reset-Password.dc.html) |

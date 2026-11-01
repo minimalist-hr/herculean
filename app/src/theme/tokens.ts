@@ -100,6 +100,12 @@ export const tokens = {
       meta: { size: 12.5, color: 'muted' },
       quickPick: { size: 14, weight: 700 },
       stepperValue: { size: 32, weight: 700 },
+      wordmark: {
+        size: 32,
+        weight: 700,
+        lineHeight: 1,
+        letterSpacing: '0.14em',
+      },
       tabLabel: {
         size: 11,
         weightActive: 700,
@@ -109,7 +115,7 @@ export const tokens = {
     },
   },
   space: { xs: 6, sm: 8, md: 12, lg: 16, xl: 24 },
-  opacity: { dimmed: 0.5 },
+  opacity: { dimmed: 0.5, glow: { dark: 0.2, light: 0.1 } },
   motion: { spinMs: 800 },
   size: {
     screen: { width: 390, height: 844 },
@@ -134,6 +140,8 @@ export const tokens = {
     },
     undoBar: 56,
     spinner: 18,
+    signInHeroMax: 400,
+    signInErrorRoom: 56,
     stepper: { button: 56, height: 52 },
     radio: { ring: 22, ringWidth: 1.5, dot: 10 },
     sheetGrabber: { width: 36, height: 4 },

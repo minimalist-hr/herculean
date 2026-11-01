@@ -28,7 +28,16 @@ app/
 ## Navigation
 
 - Account screens sit outside the tabs.
-- The root layout guards screens with `Stack.Protected`: signed-out users see the account screens, signed-in users the tabs. Until sign in is built, a restart signs the user out, and a new account goes on to setup.
+- The session status decides the screens. The root layout guards each group with `Stack.Protected`, and a screen the status doesn't allow opens that status's first screen:
+
+  | Status | Screens | Opens |
+  |---|---|---|
+  | Restoring | Launch | A00 |
+  | Signed out | Sign in, Create account, Reset password | A01 |
+  | Needs setup | Setup | A30 |
+  | Ready | The tabs | Home |
+
+- Terms and privacy are open in every status.
 - Four tabs: Home, Workout, Routines, Exercises. Sub-pages open on top of a tab.
 - Sheets are components inside the screen that opens them, not routes. A sheet closes back to that screen.
 
@@ -42,9 +51,10 @@ app/
 
 ## Auth
 
-- The access token is kept in memory. The refresh token is kept in secure storage on the phone, and in memory on the web, which has no secure storage. `features/account/session.ts` holds both.
+- The access token is kept in memory. The refresh token is kept in secure storage on the phone, and in memory on the web, which has no secure storage. `features/account/session.ts` holds both, and the session status.
+- At launch, A00 refreshes the stored token, then reads the current user. A user without a name still needs setup. No token, or a refused one, signs the user out. With no answer, the token is kept and A02 offers to try again.
 - The API client adds the access token to every request.
-- On a 401 the client refreshes once and retries. If that fails, the app opens A01.
+- On a 401 the client refreshes once and retries. Requests that fail together share one refresh. If the refresh is refused, the user is signed out and A01 opens.
 
 ## Theme
 
@@ -54,7 +64,7 @@ app/
 - Styles use tokens only, never raw values.
 - Every text style turns off Android's extra font padding, so text sits in the middle of its box on both platforms.
 - Corners are always sharp. Soft corners were a design-tool option, not an app setting.
-- Chakra Petch loads at startup. The splash screen stays up until it is ready.
+- Chakra Petch loads at startup. The native splash screen stays up until it is ready. It shows only the background; A00 draws the logo and its glow.
 
 ## Forms
 

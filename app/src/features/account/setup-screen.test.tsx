@@ -6,6 +6,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import { enterApp, useSessionStatus } from './session';
 import { SetupScreen } from './setup-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -34,6 +35,7 @@ const workoutSettings = {
 };
 
 function Layout() {
+  const status = useSessionStatus();
   return (
     <QueryClientProvider
       client={
@@ -41,7 +43,14 @@ function Layout() {
       }
     >
       <ThemeProvider theme="dark">
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Protected guard={status === 'needsSetup'}>
+            <Stack.Screen name="setup" />
+          </Stack.Protected>
+          <Stack.Protected guard={status === 'ready'}>
+            <Stack.Screen name="index" />
+          </Stack.Protected>
+        </Stack>
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -76,6 +85,7 @@ async function sentBodies() {
 
 beforeEach(() => {
   mockFetch.mockReset();
+  enterApp(false);
 });
 
 test('finishing setup saves the name, units and rest time, then opens Home', async () => {

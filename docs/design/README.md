@@ -9,7 +9,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 | Path | What it is | Use it for |
 |---|---|---|
 | `design-document.md` | The written spec: brand, tokens, components, navigation, interaction and content rules, every screen by area, sample data, parked ideas | Read first. The source of truth for rules. |
-| `screen-index.md` | All 87 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
+| `screen-index.md` | All 88 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
 | `areas/*.png` | One image per area (A, H, W, L, R, E) with every flow row, the screens in place, labelled arrows and "already designed" notes | Seeing how screens connect |
 | `screens/dark/*.png`, `screens/light/*.png` | Every screen rendered at 2× (780 px wide), default settings: Racing blue, Chakra Petch, sharp corners | Looking at a screen |
 | `html/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |

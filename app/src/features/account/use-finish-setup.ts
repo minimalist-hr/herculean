@@ -4,6 +4,8 @@ import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import type { components } from '@/api/schema';
 
+import { enterApp } from './session';
+
 type Units = components['schemas']['Units'];
 
 interface FinishSetup {
@@ -26,6 +28,8 @@ export function useFinishSetup() {
       if (workoutSettings.data === undefined) {
         throw toApiError(workoutSettings.error);
       }
+
+      enterApp(true);
     },
   });
 }

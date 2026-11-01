@@ -4,10 +4,11 @@ import { Platform } from 'react-native';
 
 import {
   endSession,
+  enterApp,
   getAccessToken,
   readRefreshToken,
-  startSession,
-  useIsSignedIn,
+  saveTokens,
+  useSessionStatus,
 } from './session';
 
 jest.mock('expo-secure-store', () => {
@@ -36,14 +37,21 @@ afterEach(async () => {
   Platform.OS = 'ios';
 });
 
-test('starting a session keeps the access token in memory', async () => {
-  await startSession(tokens);
+test('the app starts by restoring the session', async () => {
+  // The first test in this file, so the module is as it is at launch.
+  const { result } = await renderHook(() => useSessionStatus());
+
+  expect(result.current).toBe('restoring');
+});
+
+test('saved tokens keep the access token in memory', async () => {
+  await saveTokens(tokens);
 
   expect(getAccessToken()).toBe('access');
 });
 
 test('on the phone the refresh token goes to secure storage', async () => {
-  await startSession(tokens);
+  await saveTokens(tokens);
 
   expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
     'refreshToken',
@@ -56,28 +64,37 @@ test('on the web the refresh token stays in memory', async () => {
   Platform.OS = 'web';
   jest.mocked(SecureStore.setItemAsync).mockClear();
 
-  await startSession(tokens);
+  await saveTokens(tokens);
 
   expect(SecureStore.setItemAsync).not.toHaveBeenCalled();
   await expect(readRefreshToken()).resolves.toBe('refresh');
 });
 
-test('ending the session forgets both tokens', async () => {
-  await startSession(tokens);
+test('ending the session forgets both tokens and signs out', async () => {
+  await saveTokens(tokens);
+  enterApp(true);
 
   await endSession();
 
   expect(getAccessToken()).toBeNull();
   await expect(readRefreshToken()).resolves.toBeNull();
+  const { result } = await renderHook(() => useSessionStatus());
+  expect(result.current).toBe('signedOut');
 });
 
-test('screens follow whether a user is signed in', async () => {
-  const { result } = await renderHook(() => useIsSignedIn());
-  expect(result.current).toBe(false);
+test('screens follow the status: setup first, then the app', async () => {
+  const { result } = await renderHook(() => useSessionStatus());
 
-  await act(() => startSession(tokens));
-  expect(result.current).toBe(true);
+  await act(() => {
+    enterApp(false);
+  });
+  expect(result.current).toBe('needsSetup');
+
+  await act(() => {
+    enterApp(true);
+  });
+  expect(result.current).toBe('ready');
 
   await act(() => endSession());
-  expect(result.current).toBe(false);
+  expect(result.current).toBe('signedOut');
 });

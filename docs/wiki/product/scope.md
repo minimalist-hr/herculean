@@ -28,11 +28,11 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 
 **What it does:** you open the app and stay signed in. You can sign in with email and password, reset a forgotten password by email, create an account and set up your name, units and default rest time, and read the terms of service and privacy policy.
 
-**Screens:** A00 Splash, A01 Sign in, A03 Signing in, A10 Reset password, A11 Link sent, A12 New password, A20 Create account, A30 Setup, H20 Terms of service, H21 Privacy policy.
+**Screens:** A00 Splash, A02 Couldn't connect, A01 Sign in, A03 Signing in, A10 Reset password, A11 Link sent, A12 New password, A20 Create account, A30 Setup, H20 Terms of service, H21 Privacy policy.
 
 **Flows**
-- **Launch:** A00 checks for a stored refresh token. With one, H07 opens. Without one, A01 opens.
-- **Sign in:** A01 → A03 → H07.
+- **Launch:** A00 checks for a stored refresh token. With one, H07 opens, or A30 if setup isn't finished. Without one, or when it is refused, A01 opens. With no connection, A02 offers to try again.
+- **Sign in:** A01 → A03 → H07, or A30 if setup isn't finished.
 - **Reset password:** A01 → A10 → A11 → link in the email → A12 → A01.
 - **Create account:** A01 → A20 → A30 → H05. A20 links to H20 and H21, whose back link reads "Create account".
 
