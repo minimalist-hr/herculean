@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   Animated,
   Easing,
-  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
@@ -18,6 +17,7 @@ import {
   useNotification,
   useNotificationInset,
 } from './notifications';
+import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
 
 /** Shows the latest notification above whatever is at the bottom of the screen. */
@@ -27,27 +27,13 @@ export function NotificationBar() {
   const reduceMotion = useReduceMotion();
   const notification = useNotification();
   const actionBoxHeight = useNotificationInset();
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardHeight = useKeyboardHeight();
   const [progress] = useState(() => new Animated.Value(0));
   // It stays on the screen after it is dismissed, until it has gone down.
   const [shown, setShown] = useState(notification);
   if (notification !== null && notification !== shown) {
     setShown(notification);
   }
-
-  useEffect(() => {
-    const showing = Keyboard.addListener('keyboardDidShow', (event) => {
-      setKeyboardHeight(event.endCoordinates.height);
-    });
-    const hiding = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardHeight(0);
-    });
-
-    return () => {
-      showing.remove();
-      hiding.remove();
-    };
-  }, []);
 
   useEffect(() => {
     if (shown === null) {
@@ -80,7 +66,8 @@ export function NotificationBar() {
 
     const timer = setTimeout(
       dismissNotification,
-      notification.kind === 'success'
+      // A failure takes longer to read, and an action longer to reach for.
+      notification.kind === 'success' && notification.action === undefined
         ? motion.notificationSuccessMs
         : motion.notificationFailureMs,
     );
@@ -150,6 +137,21 @@ export function NotificationBar() {
         >
           {shown.message}
         </Text>
+        {shown.action !== undefined && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={shown.action.label}
+            onPress={shown.action.onPress}
+            style={[
+              styles.action,
+              { height: size.touchTargetMin, paddingHorizontal: space.md },
+            ]}
+          >
+            <Text style={[text.secondaryButton, { color: colors.primaryText }]}>
+              {shown.action.label}
+            </Text>
+          </Pressable>
+        )}
       </Pressable>
     </Animated.View>
   );
@@ -166,5 +168,11 @@ const styles = StyleSheet.create({
   },
   message: {
     flex: 1,
+  },
+  // The label lines up with the padding. The rest of its touch target hangs over it.
+  action: {
+    justifyContent: 'center',
+    marginVertical: -10,
+    marginRight: -12,
   },
 });

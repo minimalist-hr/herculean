@@ -1,6 +1,7 @@
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
+using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
@@ -60,6 +61,36 @@ public sealed class ReadRepositoryTests : IDisposable
         List<GroupListItemResponse> read = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
 
         read.Select(group => group.ExerciseCount).ShouldBe([2, 1, 0, 0, 0, 0]);
+    }
+
+    [Fact]
+    public async Task AGroupComesWithItsExercisesAndThoseThatAlsoWorkItByName()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        await SaveExerciseAsync("Pec deck", groups[0]);
+        await SaveExerciseAsync("Bench press", groups[0]);
+        await SaveExerciseAsync("Row", groups[1], groups[0].Id);
+        Exercise deleted = await SaveExerciseAsync("Dip", groups[0]);
+        await MarkDeletedAsync(deleted);
+
+        GroupDetailsResponse? group = await new GroupReadRepository(_dbContext).GetAsync(groups[0].Id, TestContext.Current.CancellationToken);
+
+        group.ShouldNotBeNull().Name.ShouldBe(groups[0].Name);
+        group.Exercises.Select(exercise => exercise.Name).ShouldBe(["Bench press", "Pec deck"]);
+        group.AlsoWorksExercises.ShouldHaveSingleItem().GroupName.ShouldBe(groups[1].Name);
+    }
+
+    [Fact]
+    public async Task AnUnknownOrDeletedOrOtherUsersGroupReadsAsNull()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        await MarkDeletedAsync(groups[0]);
+        IReadOnlyList<Group> others = await SaveGroupsAsync(UserId.From(Guid.CreateVersion7()));
+        GroupReadRepository repository = new(_dbContext);
+
+        (await repository.GetAsync(groups[0].Id, TestContext.Current.CancellationToken)).ShouldBeNull();
+        (await repository.GetAsync(others[0].Id, TestContext.Current.CancellationToken)).ShouldBeNull();
+        (await repository.GetAsync(GroupId.New(), TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
     [Fact]

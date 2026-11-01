@@ -71,14 +71,14 @@ export function ExercisesSkeleton() {
   );
 }
 
-/** The exercise details while they load. */
-export function ExerciseSkeleton() {
+/** The details of an exercise or a group while they load. */
+export function DetailsSkeleton({ label }: { label: string }) {
   const { colors, radius, size, space } = useTheme();
 
   return (
     <View
       accessible
-      accessibilityLabel="Loading the exercise"
+      accessibilityLabel={label}
       accessibilityLiveRegion="polite"
       style={{ gap: size.gap.sectionMax, marginTop: 2 }}
     >

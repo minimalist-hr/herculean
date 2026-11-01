@@ -1,9 +1,15 @@
 import { useSyncExternalStore } from 'react';
 
+interface NotificationAction {
+  label: string;
+  onPress: () => void;
+}
+
 export interface Notification {
   id: number;
   kind: 'success' | 'failure';
   message: string;
+  action?: NotificationAction;
 }
 
 let notification: Notification | null = null;
@@ -26,15 +32,19 @@ function subscribe(listener: () => void) {
   };
 }
 
-function show(kind: Notification['kind'], message: string) {
-  notification = { id: nextId, kind, message };
+function show(
+  kind: Notification['kind'],
+  message: string,
+  action?: NotificationAction,
+) {
+  notification = { id: nextId, kind, message, action };
   nextId += 1;
   changed();
 }
 
-/** Says something worked. It replaces any notification showing, and outlives the screen that sent it. */
-export function notifySuccess(message: string) {
-  show('success', message);
+/** Says something worked, with an action such as Undo if there is one. It replaces any notification showing, and outlives the screen that sent it. */
+export function notifySuccess(message: string, action?: NotificationAction) {
+  show('success', message, action);
 }
 
 /** Says something failed that belongs to no field. It replaces any notification showing. */

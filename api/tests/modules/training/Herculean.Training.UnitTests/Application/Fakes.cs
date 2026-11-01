@@ -3,6 +3,7 @@ using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
+using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
@@ -85,7 +86,12 @@ internal sealed class FakeGroupReadRepository : IGroupReadRepository
 {
     public List<GroupListItemResponse> Groups { get; } = [];
 
+    public List<GroupDetailsResponse> Details { get; } = [];
+
     public Task<List<GroupListItemResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Groups);
+
+    public Task<GroupDetailsResponse?> GetAsync(GroupId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Details.SingleOrDefault(group => group.Id == id.Value));
 }
 
 internal sealed class FakeExerciseReadRepository : IExerciseReadRepository

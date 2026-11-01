@@ -1,0 +1,254 @@
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import type { components } from '@/api/schema';
+import { BackLink } from '@/components/back-link';
+import { Button } from '@/components/button';
+import { HeaderIconButton } from '@/components/header-icon-button';
+import { PencilIcon, TrashIcon } from '@/components/icons';
+import { LoadFailure } from '@/components/load-failure';
+import { notifyFailure } from '@/components/notifications';
+import { Sheet } from '@/components/sheet';
+import { useCurrentUser } from '@/features/account/use-current-user';
+import { useTheme } from '@/theme/theme-provider';
+
+import { ExerciseRow } from './exercise-row';
+import { DetailsSkeleton } from './exercises-skeleton';
+import { countOf, GroupNameSheet } from './group-name-sheet';
+import { NoSessionsCard } from './no-sessions-card';
+import { useDeleteGroup } from './use-delete-group';
+import { useGroup } from './use-group';
+import { useRenameGroup } from './use-rename-group';
+
+type Group = components['schemas']['GroupDetailsResponse'];
+type Exercise = components['schemas']['ExerciseListItemResponse'];
+
+export function GroupScreen({ id }: { id: string }) {
+  const { colors, size } = useTheme();
+  const router = useRouter();
+  const group = useGroup(id);
+
+  function renderContent() {
+    if (group.data !== undefined) {
+      return <Details group={group.data} />;
+    }
+
+    if (group.isError) {
+      return (
+        <LoadFailure
+          message="Couldn't load this group."
+          onRetry={() => {
+            void group.refetch();
+          }}
+        />
+      );
+    }
+
+    return <DetailsSkeleton label="Loading the group" />;
+  }
+
+  return (
+    <ScrollView
+      // The rename sheet opens inside this list, so a tap on its buttons must not just close the keyboard.
+      keyboardShouldPersistTaps="handled"
+      style={{ backgroundColor: colors.bg }}
+      contentContainerStyle={{
+        paddingTop: size.topPaddingSubPage,
+        paddingHorizontal: size.sidePadding,
+        paddingBottom: size.gap.sectionMax,
+      }}
+    >
+      <BackLink
+        label="Groups"
+        onPress={() => {
+          router.back();
+        }}
+      />
+      {renderContent()}
+    </ScrollView>
+  );
+}
+
+function Details({ group }: { group: Group }) {
+  const { colors, opacity, radius, size, space, text } = useTheme();
+  const router = useRouter();
+  const user = useCurrentUser();
+  const units = user.data?.units ?? 'metric';
+  const renameGroup = useRenameGroup();
+  const deleteGroup = useDeleteGroup();
+  const [renaming, setRenaming] = useState(false);
+  // Each rename starts from the group's name at that moment.
+  const [renameKey, setRenameKey] = useState(0);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const exerciseCount =
+    group.exercises.length + group.alsoWorksExercises.length;
+  const count = countOf({ exerciseCount });
+  const inUse = exerciseCount > 0;
+
+  function renderRows(exercises: Exercise[]) {
+    return exercises.map((exercise, index) => (
+      <ExerciseRow
+        key={exercise.id}
+        exercise={exercise}
+        units={units}
+        first={index === 0}
+        last={index === exercises.length - 1}
+        onPress={() => {
+          router.push({
+            pathname: '/exercises/[id]',
+            params: { id: exercise.id, back: group.name },
+          });
+        }}
+      />
+    ));
+  }
+
+  return (
+    <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
+      <View style={styles.heading}>
+        <View style={[styles.titleRow, { gap: space.sm }]}>
+          <Text
+            accessibilityRole="header"
+            style={[text.pageTitle, styles.title, { color: colors.text }]}
+          >
+            {group.name}
+          </Text>
+          <HeaderIconButton
+            label="Edit group"
+            onPress={() => {
+              setRenameKey((key) => key + 1);
+              setRenaming(true);
+            }}
+          >
+            <PencilIcon color={colors.text} size={20} />
+          </HeaderIconButton>
+          <HeaderIconButton
+            label={
+              inUse
+                ? `Delete ${group.name}, not available while it has exercises`
+                : `Delete ${group.name}`
+            }
+            onPress={() => {
+              if (inUse) {
+                notifyFailure("Move or delete this group's exercises first.");
+              } else {
+                setConfirmingDelete(true);
+              }
+            }}
+          >
+            <View style={{ opacity: inUse ? opacity.disabled : 1 }}>
+              <TrashIcon
+                color={inUse ? colors.muted : colors.danger}
+                size={20}
+              />
+            </View>
+          </HeaderIconButton>
+        </View>
+        <Text style={[text.body, { color: colors.muted }]}>{count}</Text>
+      </View>
+
+      <NoSessionsCard message="Finish a workout with an exercise in this group and its progress shows up here." />
+
+      <View style={{ gap: space.sm }}>
+        <Text style={[text.eyebrow, styles.sectionTitle]}>Exercises</Text>
+        {group.exercises.length > 0 ? (
+          <View>{renderRows(group.exercises)}</View>
+        ) : (
+          <View
+            style={[
+              styles.empty,
+              {
+                paddingVertical: space.lg,
+                paddingHorizontal: 14,
+                borderRadius: radius.card,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              },
+            ]}
+          >
+            <Text style={[text.body, { color: colors.muted }]}>
+              No exercises yet. Choose this group when you create or edit one.
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {group.alsoWorksExercises.length > 0 && (
+        <View style={{ gap: space.sm }}>
+          <Text style={[text.eyebrow, styles.sectionTitle]}>Also works</Text>
+          <View>{renderRows(group.alsoWorksExercises)}</View>
+        </View>
+      )}
+
+      {renameKey > 0 && (
+        <GroupNameSheet
+          key={renameKey}
+          visible={renaming}
+          title="Rename group"
+          message={`${group.name} · ${count}. The new name shows on every chip and section.`}
+          initialName={group.name}
+          saving={renameGroup.isPending}
+          onSave={(name) => renameGroup.mutateAsync({ id: group.id, name })}
+          onClose={() => {
+            setRenaming(false);
+          }}
+          savedMessage={(name) => `${name} saved.`}
+        />
+      )}
+
+      <Sheet
+        visible={confirmingDelete}
+        title={`Delete ${group.name}?`}
+        message="It has no exercises, so nothing else changes."
+        onClose={() => {
+          setConfirmingDelete(false);
+        }}
+      >
+        <Button
+          label="Delete group"
+          variant="danger"
+          waitingLabel="Deleting group"
+          waiting={deleteGroup.isPending}
+          onPress={() => {
+            deleteGroup.mutate(group, {
+              onSuccess: () => {
+                router.back();
+              },
+              onError: () => {
+                setConfirmingDelete(false);
+              },
+            });
+          }}
+        />
+        <Button
+          label="Cancel"
+          variant="secondary"
+          dimmed={deleteGroup.isPending}
+          onPress={() => {
+            setConfirmingDelete(false);
+          }}
+        />
+      </Sheet>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  heading: {
+    gap: 4,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  title: {
+    flex: 1,
+  },
+  sectionTitle: {
+    paddingHorizontal: 4,
+  },
+  empty: {
+    borderWidth: 1,
+  },
+});

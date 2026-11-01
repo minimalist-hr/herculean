@@ -1,10 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { TextLink } from '@/components/text-link';
 import { useTheme } from '@/theme/theme-provider';
 
-/** Says an exercise didn't load, and offers to read it again. */
-export function ExerciseLoadFailure({ onRetry }: { onRetry: () => void }) {
+import { TextLink } from './text-link';
+
+/** Says something didn't load, in its place, and offers to read it again. */
+export function LoadFailure({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
   const { colors, space, text } = useTheme();
 
   return (
@@ -13,7 +20,7 @@ export function ExerciseLoadFailure({ onRetry }: { onRetry: () => void }) {
         accessibilityRole="alert"
         style={[text.body, { color: colors.muted }]}
       >
-        Couldn&apos;t load this exercise.
+        {message}
       </Text>
       <TextLink label="Try again" onPress={onRetry} />
     </View>

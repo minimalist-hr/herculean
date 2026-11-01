@@ -1,6 +1,6 @@
 # Screen index
 
-90 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+91 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -135,3 +135,4 @@ Flow map: [open](areas/E-Exercises.png)
 | E33 | Exercises › Groups › Rename group · sheet | E4 Groups | 390×844 | [png](screens/E33-Exercises-Groups-Rename.png) · [html](html/E33-Exercises-Groups-Rename.html) · [source](source/E33-Exercises-Groups-Rename.dc.html) |
 | E32 | Exercises › Groups › New group · sheet | E4 Groups | 390×844 | [png](screens/E32-Exercises-Groups-New.png) · [html](html/E32-Exercises-Groups-New.html) · [source](source/E32-Exercises-Groups-New.dc.html) |
 | E34 | Exercises › Groups › Delete group · confirm | E4 Groups | 390×844 | [png](screens/E34-Exercises-Groups-Delete-Confirm.png) · [html](html/E34-Exercises-Groups-Delete-Confirm.html) · [source](source/E34-Exercises-Groups-Delete-Confirm.dc.html) |
+| E35 | Exercises › Groups › Group | E4 Groups | 390×844 | [png](screens/E35-Exercises-Groups-Group.png) · [html](html/E35-Exercises-Groups-Group.html) · [source](source/E35-Exercises-Groups-Group.dc.html) |

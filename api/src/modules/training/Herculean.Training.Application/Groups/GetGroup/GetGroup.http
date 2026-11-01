@@ -1,0 +1,26 @@
+# Get a group. Start the API with Aspire first, then send the first two requests once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### The groups → 200. A new account's groups can take a moment to appear.
+# @name groups
+GET {{host}}/api/v1/groups
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### The group → 200, with its exercises.
+GET {{host}}/api/v1/groups/{{groups.response.body.$[0].id}}
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### A group that does not exist → 404 group.not_found.
+GET {{host}}/api/v1/groups/0198a000-0000-7000-8000-000000000000
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}

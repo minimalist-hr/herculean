@@ -113,7 +113,6 @@ function AppStack() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="edit-exercise/[id]" />
           <Stack.Screen name="create-exercise" />
-          <Stack.Screen name="groups" />
         </Stack.Protected>
         <Stack.Screen name="terms" />
         <Stack.Screen name="privacy" />

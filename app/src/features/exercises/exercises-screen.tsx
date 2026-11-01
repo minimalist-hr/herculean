@@ -111,7 +111,7 @@ export function ExercisesScreen() {
           <TextLink
             label="Groups"
             onPress={() => {
-              router.push('/groups');
+              router.push('/exercises/groups');
             }}
           />
         </View>

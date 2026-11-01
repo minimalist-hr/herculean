@@ -5,18 +5,28 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { HistoryIcon, PencilIcon, TrashIcon } from '@/components/icons';
+import { PencilIcon, TrashIcon } from '@/components/icons';
+import { LoadFailure } from '@/components/load-failure';
 import { notifySuccess } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
-import { ExerciseLoadFailure } from './exercise-load-failure';
-import { ExerciseSkeleton } from './exercises-skeleton';
+import { DetailsSkeleton } from './exercises-skeleton';
+import { NoSessionsCard } from './no-sessions-card';
 import { useExercise } from './use-exercise';
 
 type Exercise = components['schemas']['ExerciseDetailsResponse'];
 
-export function ExerciseScreen({ id }: { id: string }) {
+interface ExerciseScreenProps {
+  id: string;
+  /** The screen its back link returns to, when that isn't the exercise list. */
+  back?: string;
+}
+
+export function ExerciseScreen({
+  id,
+  back = 'Exercises',
+}: ExerciseScreenProps) {
   const { colors, size } = useTheme();
   const router = useRouter();
   const exercise = useExercise(id);
@@ -28,7 +38,8 @@ export function ExerciseScreen({ id }: { id: string }) {
 
     if (exercise.isError) {
       return (
-        <ExerciseLoadFailure
+        <LoadFailure
+          message="Couldn't load this exercise."
           onRetry={() => {
             void exercise.refetch();
           }}
@@ -36,7 +47,7 @@ export function ExerciseScreen({ id }: { id: string }) {
       );
     }
 
-    return <ExerciseSkeleton />;
+    return <DetailsSkeleton label="Loading the exercise" />;
   }
 
   return (
@@ -49,7 +60,7 @@ export function ExerciseScreen({ id }: { id: string }) {
       }}
     >
       <BackLink
-        label="Exercises"
+        label={back}
         onPress={() => {
           router.back();
         }}
@@ -99,28 +110,7 @@ function Details({ exercise }: { exercise: Exercise }) {
         </Text>
       </View>
 
-      <View
-        style={[
-          styles.noSessions,
-          {
-            gap: space.sm,
-            paddingTop: 28,
-            paddingBottom: size.gap.sectionMax,
-            paddingHorizontal: space.lg,
-            borderRadius: radius.card,
-            borderColor: colors.border,
-          },
-        ]}
-      >
-        <HistoryIcon color={colors.muted} size={28} />
-        <Text style={[text.listItemName, { color: colors.text }]}>
-          No sessions yet
-        </Text>
-        <Text style={[text.meta, styles.centered]}>
-          Finish a workout with this exercise and its sets, best set and
-          progress show up here.
-        </Text>
-      </View>
+      <NoSessionsCard message="Finish a workout with this exercise and its sets, best set and progress show up here." />
 
       <View style={{ gap: space.sm }}>
         <Text style={[text.eyebrow, styles.sectionTitle]}>Used in</Text>
@@ -175,14 +165,6 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-  },
-  noSessions: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-  },
-  centered: {
-    textAlign: 'center',
   },
   sectionTitle: {
     paddingHorizontal: 4,

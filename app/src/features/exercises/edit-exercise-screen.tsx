@@ -3,11 +3,11 @@ import { View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
+import { LoadFailure } from '@/components/load-failure';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseForm } from './exercise-form';
-import { ExerciseLoadFailure } from './exercise-load-failure';
-import { ExerciseSkeleton } from './exercises-skeleton';
+import { DetailsSkeleton } from './exercises-skeleton';
 import { useExercise } from './use-exercise';
 import { useUpdateExercise } from './use-update-exercise';
 
@@ -50,13 +50,14 @@ export function EditExerciseScreen({
         }}
       />
       {exercise.isError ? (
-        <ExerciseLoadFailure
+        <LoadFailure
+          message="Couldn't load this exercise."
           onRetry={() => {
             void exercise.refetch();
           }}
         />
       ) : (
-        <ExerciseSkeleton />
+        <DetailsSkeleton label="Loading the exercise" />
       )}
     </View>
   );

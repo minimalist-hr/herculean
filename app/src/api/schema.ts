@@ -251,7 +251,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get a group
+         * @description Returns one of the signed-in user's groups, with the exercises that belong to it and the ones that also work it. Deleted exercises are left out.
+         */
+        get: operations["GetGroup"];
         put?: never;
         post?: never;
         /**
@@ -423,6 +427,20 @@ export interface components {
             groupId: string;
             /** @description The other groups it also works. */
             alsoWorksGroupIds: string[];
+        };
+        /** @description A group and the exercises that use it. */
+        GroupDetailsResponse: {
+            /**
+             * Format: uuid
+             * @description The group's ID.
+             */
+            id: string;
+            /** @description The group's name. */
+            name: string;
+            /** @description The exercises that belong to it, by name. */
+            exercises: components["schemas"]["ExerciseListItemResponse"][];
+            /** @description The exercises that also work it, by name. */
+            alsoWorksExercises: components["schemas"]["ExerciseListItemResponse"][];
         };
         /** @description A group in the list. */
         GroupListItemResponse: {
@@ -1271,6 +1289,47 @@ export interface operations {
             };
             /** @description The user already has a group with this name, or has reached the limit of 50 groups. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupDetailsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The group does not exist, is deleted, or belongs to another user. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

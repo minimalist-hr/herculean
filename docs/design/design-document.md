@@ -1,6 +1,10 @@
 # Herculean: design document
 
-Version 0.16 · 1 November 2026 · Minimalist
+Version 0.18 · 1 November 2026 · Minimalist
+
+> Changes since 0.17: E35, a group's details: its exercises, what also works it, and edit and trash icons. E30 rows open it, and E33 and E34 now open from it, though their drawings still show E30 behind them. The area panel `areas/E-Exercises.png` doesn't show this. An action that isn't available stays tappable and says why (section 8).
+
+> Changes since 0.16: a notification can carry an action, which is how E30 offers Undo after a delete. It stays 6 seconds then. A group's name has 1 to 30 characters. An empty group's trash on E30 is red, and a disabled one is muted at 35%, in the tokens.
 
 > Changes since 0.15: a notification bar replaces the general error and the success line at the top of forms, and the green line on E01 (section 5). E20 says when it saved. A wrong email or password on A01 turns both fields red, with the message under Password. Tokens for the bar's text, height and timing. Screens aren't redrawn: the bar only appears after an action.
 
@@ -196,6 +200,7 @@ Says that something worked or failed, when it belongs to no field. It looks like
 - **Place:** 12 px above what is at the bottom of the screen: the tab bar or the bottom action box. It moves above the keyboard when that is open.
 - **Behavior:** it rises in, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
 - **Sheets:** it can't show above a sheet, so a sheet that fails closes first.
+- **Action:** it can carry one action at its right, such as Undo on E30. It then stays 6 seconds.
 - **Examples:** "Bench press saved.", "Bench press created.", "Bench press deleted.", "Link sent again.", "Password changed. Sign in with the new one."
 
 **Search fields.** Every search has a search icon at the start. Once it has text, a clear button (44 × 44 px) sits at the end, and tapping it shows the whole list again right away.
@@ -290,7 +295,9 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 **Delete inside edit screens.** "Delete routine" (R20) sits below Cancel, styled as danger text. An exercise is deleted from its details: a red trash icon to the right of the edit button on E10 and E11.
 
-**Groups.** A group can only be deleted when it has no exercises. E30 explains this, and only an empty group's trash is active.
+**Groups.** A group can only be deleted when it has no exercises. Only an empty group's trash on E35 is active, in red.
+
+**Actions that aren't available.** An action that isn't available looks muted but stays tappable, and a notification says why, for example "Move or delete this group's exercises first." A button dimmed while another action waits is different: it can't be pressed.
 
 **Schedule.** The week plan repeats every week. Missing a day doesn't shift the schedule. Picking another routine for today (W10) replaces only today's plan.
 
@@ -388,7 +395,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 | **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
 | **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The trash icon on E10 and E11 opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
-| **E4 Groups** | E31 Loading, E30 Groups, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). New group, Rename and Delete; only an empty group can be deleted. |
+| **E4 Groups** | E31 Loading, E30 Groups, E35 Group, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order), and New group. A row opens E35: the exercises in the group and those that also work it, each opening its exercise, with Rename and Delete in the header; only an empty group can be deleted. |
 
 ---
 

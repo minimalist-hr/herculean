@@ -124,6 +124,14 @@ export function ChevronLeftIcon({ color, size }: IconProps) {
   );
 }
 
+export function DragHandleIcon({ color, size = 20 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <Path d="M7 5h3v3H7zM14 5h3v3h-3zM7 10.5h3v3H7zM14 10.5h3v3h-3zM7 16h3v3H7zM14 16h3v3h-3z" />
+    </Svg>
+  );
+}
+
 export function CheckIcon({ color, size }: IconProps) {
   return (
     <Icon color={color} size={size}>

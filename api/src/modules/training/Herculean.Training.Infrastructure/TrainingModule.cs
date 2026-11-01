@@ -15,6 +15,7 @@ using Herculean.Training.Application.Exercises.UpdateExercise;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.CreateGroup;
 using Herculean.Training.Application.Groups.DeleteGroup;
+using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Groups.RenameGroup;
 using Herculean.Training.Application.Groups.RestoreGroup;
@@ -61,6 +62,7 @@ public static class TrainingModule
         builder.Services.AddScoped<ListExercisesHandler>();
         builder.Services.AddScoped<GetExerciseHandler>();
         builder.Services.AddScoped<ListGroupsHandler>();
+        builder.Services.AddScoped<GetGroupHandler>();
         builder.Services.AddScoped<IValidator<CreateExerciseRequest>, CreateExerciseValidator>();
         builder.Services.AddScoped<CreateExerciseHandler>();
         builder.Services.AddScoped<IValidator<UpdateExerciseRequest>, UpdateExerciseValidator>();
@@ -84,6 +86,7 @@ public static class TrainingModule
         ListExercisesEndpoint.Map(endpoints);
         GetExerciseEndpoint.Map(endpoints);
         ListGroupsEndpoint.Map(endpoints);
+        GetGroupEndpoint.Map(endpoints);
         CreateExerciseEndpoint.Map(endpoints);
         UpdateExerciseEndpoint.Map(endpoints);
         DeleteExerciseEndpoint.Map(endpoints);

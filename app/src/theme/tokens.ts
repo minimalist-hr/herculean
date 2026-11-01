@@ -117,7 +117,12 @@ export const tokens = {
     },
   },
   space: { xs: 6, sm: 8, md: 12, lg: 16, xl: 24 },
-  opacity: { dimmed: 0.5, pulse: 0.45, glow: { dark: 0.2, light: 0.1 } },
+  opacity: {
+    dimmed: 0.5,
+    disabled: 0.35,
+    pulse: 0.45,
+    glow: { dark: 0.2, light: 0.1 },
+  },
   motion: {
     spinMs: 800,
     pulseMs: 1400,
