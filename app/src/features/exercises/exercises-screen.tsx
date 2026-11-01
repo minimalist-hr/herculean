@@ -13,16 +13,16 @@ import {
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
-import { FormSuccess } from '@/components/form-success';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PlusIcon } from '@/components/icons';
+import { dismissNotification } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useTheme } from '@/theme/theme-provider';
 
-import { takeExerciseNotice } from './exercise-notice';
+import { takeExerciseCreated } from './exercise-notice';
 import { ExerciseRow } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -44,7 +44,6 @@ export function ExercisesScreen() {
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState<string>();
-  const [notice, setNotice] = useState<string>();
   const typedSearch = searchText.trim();
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   // Clearing the search shows the whole list right away.
@@ -65,30 +64,25 @@ export function ExercisesScreen() {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [search, groupId]);
 
-  // The list stays open behind other screens, so it checks each time it comes back.
-  // Clearing the filters makes sure a new exercise is in the list.
+  // The list stays open behind create exercise, so it checks each time it comes back.
+  // Clearing the filters makes sure the new exercise is in the list.
   useFocusEffect(
     useCallback(() => {
-      const taken = takeExerciseNotice();
-      if (taken?.kind === 'created') {
+      if (takeExerciseCreated()) {
         setSearchText('');
         setGroupId(undefined);
-        setNotice(`${taken.name} created.`);
         listRef.current?.scrollToOffset({ offset: 0, animated: false });
-      }
-      if (taken?.kind === 'deleted') {
-        setNotice(`${taken.name} deleted.`);
       }
     }, []),
   );
 
   function changeSearch(text: string) {
-    setNotice(undefined);
+    dismissNotification();
     setSearchText(text);
   }
 
   function pickGroup(id: string | undefined) {
-    setNotice(undefined);
+    dismissNotification();
     setGroupId(id);
   }
 
@@ -187,19 +181,7 @@ export function ExercisesScreen() {
             </>
           )}
         </ScrollView>
-
-        {renderNotice()}
       </View>
-    );
-  }
-
-  function renderNotice() {
-    return (
-      notice !== undefined && (
-        <View style={{ paddingHorizontal: size.sidePadding }}>
-          <FormSuccess message={notice} />
-        </View>
-      )
     );
   }
 
@@ -353,7 +335,7 @@ export function ExercisesScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
       {renderTitle()}
-      {noExercises ? renderNotice() : renderControls()}
+      {!noExercises && renderControls()}
       <FlatList
         ref={listRef}
         data={toItems(list)}

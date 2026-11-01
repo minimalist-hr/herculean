@@ -1,15 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
 import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { NewPasswordScreen } from './new-password-screen';
 import { ResetLinkSentScreen } from './reset-link-sent-screen';
 import { ResetPasswordScreen } from './reset-password-screen';
-import { takePasswordChanged } from './sign-in-notice';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -35,6 +35,7 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -119,7 +120,7 @@ describe('reset password', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  test('no connection shows the general error until the email changes', async () => {
+  test('no connection shows a notification until the email changes', async () => {
     mockFetch.mockRejectedValue(new TypeError('Network request failed'));
     await renderAt('/forgot-password');
 
@@ -138,20 +139,24 @@ describe('reset password', () => {
       'other@example.com',
     );
 
-    expect(screen.queryByRole('alert')).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
   });
 
   test('an expired link shows its line until the email changes', async () => {
     await renderAt('/forgot-password?linkExpired=true');
 
-    expect(screen.getByRole('alert')).toHaveTextContent(expiredMessage);
+    expect(await screen.findByRole('alert')).toHaveTextContent(expiredMessage);
 
     await fireEvent.changeText(
       screen.getByLabelText('Email'),
       'filip@example.com',
     );
 
-    expect(screen.queryByRole('alert')).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
   });
 
   test('cancel opens sign in', async () => {
@@ -214,7 +219,7 @@ describe('link sent', () => {
     ).toBeDisabled();
   });
 
-  test('a failed send shows the general error and can be tried right away', async () => {
+  test('a failed send shows a notification and can be tried right away', async () => {
     mockFetch.mockRejectedValue(new TypeError('Network request failed'));
     await renderAt(url);
     await waitOut();
@@ -259,7 +264,9 @@ describe('new password', () => {
       token: 'a-token',
       password: 'new-password',
     });
-    expect(takePasswordChanged()).toBe(true);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Password changed. Sign in with the new one.',
+    );
   });
 
   test('a short password and a different repeat are stopped before anything is sent', async () => {
@@ -283,10 +290,12 @@ describe('new password', () => {
     await press('Save password');
 
     expect(await screen.findByRole('alert')).toHaveTextContent(expiredMessage);
-    expect(takePasswordChanged()).toBe(false);
+    expect(
+      screen.queryByText('Password changed. Sign in with the new one.'),
+    ).toBeNull();
   });
 
-  test('no connection shows the general error until a field changes', async () => {
+  test('no connection shows a notification until a field changes', async () => {
     mockFetch.mockRejectedValue(new TypeError('Network request failed'));
     await renderAt(url);
 
@@ -302,7 +311,9 @@ describe('new password', () => {
       'another-password',
     );
 
-    expect(screen.queryByRole('alert')).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).toBeNull();
+    });
   });
 
   test('cancel opens sign in', async () => {
@@ -311,7 +322,9 @@ describe('new password', () => {
     await press('Cancel');
 
     expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
-    expect(takePasswordChanged()).toBe(false);
+    expect(
+      screen.queryByText('Password changed. Sign in with the new one.'),
+    ).toBeNull();
   });
 
   test('a link without a token opens reset password with the expired line', async () => {

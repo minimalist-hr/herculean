@@ -99,6 +99,7 @@ export const tokens = {
       },
       meta: { size: 12.5, color: 'muted' },
       quickPick: { size: 14, weight: 700 },
+      notification: { size: 14, weight: 600 },
       chip: { size: 13, weight: 600 },
       stepperValue: { size: 32, weight: 700 },
       wordmark: {
@@ -117,7 +118,13 @@ export const tokens = {
   },
   space: { xs: 6, sm: 8, md: 12, lg: 16, xl: 24 },
   opacity: { dimmed: 0.5, pulse: 0.45, glow: { dark: 0.2, light: 0.1 } },
-  motion: { spinMs: 800, pulseMs: 1400, sheetMs: 220 },
+  motion: {
+    spinMs: 800,
+    pulseMs: 1400,
+    sheetMs: 220,
+    notificationSuccessMs: 4000,
+    notificationFailureMs: 6000,
+  },
   size: {
     screen: { width: 390, height: 844 },
     sidePadding: 16,
@@ -140,6 +147,7 @@ export const tokens = {
       iconGap: 4,
     },
     undoBar: 56,
+    notificationMin: 56,
     dashedAction: 52,
     spinner: 18,
     signInHeroMax: 400,

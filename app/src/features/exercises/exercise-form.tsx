@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -7,7 +6,6 @@ import {
   StyleSheet,
   Text,
   View,
-  type ScrollViewInstance,
 } from 'react-native';
 
 import { ApiProblemError, toFormErrors } from '@/api/problem';
@@ -19,6 +17,7 @@ import { FormError } from '@/components/form-error';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { exerciseSchema, type ExerciseValues } from './exercise-schema';
@@ -46,8 +45,6 @@ export function ExerciseForm({
 }: ExerciseFormProps) {
   const { colors, size, space, text } = useTheme();
   const groups = useGroups();
-  const scrollView = useRef<ScrollViewInstance>(null);
-  const [generalError, setGeneralError] = useState<string>();
   const { control, handleSubmit, setError, setValue, formState } = useForm({
     resolver: zodResolver(exerciseSchema),
     defaultValues: initialValues,
@@ -56,15 +53,8 @@ export function ExerciseForm({
   const groupId = useWatch({ control, name: 'groupId' });
   const alsoWorksGroupIds = useWatch({ control, name: 'alsoWorksGroupIds' });
 
-  // The general error sits above the first field, so the form scrolls up to show it.
-  useEffect(() => {
-    if (generalError !== undefined) {
-      scrollView.current?.scrollTo({ y: 0 });
-    }
-  }, [generalError]);
-
   const submit = handleSubmit(async (values) => {
-    setGeneralError(undefined);
+    dismissNotification();
     try {
       await onSave(values);
     } catch (error) {
@@ -72,7 +62,7 @@ export function ExerciseForm({
         error instanceof ApiProblemError &&
         error.problem.code === 'exercise.limit_reached'
       ) {
-        setGeneralError(error.problem.detail);
+        notifyFailure(error.problem.detail);
         return;
       }
 
@@ -83,13 +73,13 @@ export function ExerciseForm({
         setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
-        setGeneralError("Couldn't save the exercise. Try again.");
+        notifyFailure("Couldn't save the exercise. Try again.");
       }
     }
   });
 
   function pickGroup(id: string) {
-    setGeneralError(undefined);
+    dismissNotification();
     setValue('groupId', id, { shouldValidate: errors.groupId !== undefined });
     // An exercise can't also work the group it belongs to.
     setValue(
@@ -99,7 +89,7 @@ export function ExerciseForm({
   }
 
   function toggleAlsoWorks(id: string) {
-    setGeneralError(undefined);
+    dismissNotification();
     setValue(
       'alsoWorksGroupIds',
       alsoWorksGroupIds.includes(id)
@@ -129,7 +119,6 @@ export function ExerciseForm({
       {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
       <KeyboardAvoidingView behavior="padding" style={styles.screen}>
         <ScrollView
-          ref={scrollView}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
@@ -139,8 +128,6 @@ export function ExerciseForm({
           }}
         >
           <ScreenHeading title={title} subtitle={subtitle} />
-
-          {generalError !== undefined && <FormError message={generalError} />}
 
           <Controller
             control={control}
@@ -154,7 +141,7 @@ export function ExerciseForm({
                 returnKeyType="done"
                 value={field.value}
                 onChangeText={(value) => {
-                  setGeneralError(undefined);
+                  dismissNotification();
                   field.onChange(value);
                 }}
                 onBlur={field.onBlur}

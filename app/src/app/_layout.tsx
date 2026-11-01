@@ -16,6 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useMemo } from 'react';
 
+import { NotificationBar } from '@/components/notification-bar';
 import { usePageOptions } from '@/components/use-page-options';
 import {
   useSessionStatus,
@@ -117,6 +118,7 @@ function AppStack() {
         <Stack.Screen name="terms" />
         <Stack.Screen name="privacy" />
       </Stack>
+      <NotificationBar />
     </NavigationThemeProvider>
   );
 }

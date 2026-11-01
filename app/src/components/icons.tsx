@@ -124,6 +124,22 @@ export function ChevronLeftIcon({ color, size }: IconProps) {
   );
 }
 
+export function CheckIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M5 12.5l4.5 4.5L19 7.5" />
+    </Icon>
+  );
+}
+
+export function AlertIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M12 7v6M12 16.5v.5M12 3l10 18H2z" />
+    </Icon>
+  );
+}
+
 export function TrashIcon({ color, size }: IconProps) {
   return (
     <Icon color={color} size={size}>

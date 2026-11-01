@@ -2,7 +2,7 @@ import { Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
-/** An error that belongs to no field, at the top of the form, above the first field. */
+/** Says a part of a form couldn't load, in that part's place. */
 export function FormError({ message }: { message: string }) {
   const { colors, text } = useTheme();
 

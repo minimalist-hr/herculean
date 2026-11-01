@@ -82,6 +82,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
       eyebrow: toTextStyle(roles.eyebrow, colors),
       meta: toTextStyle(roles.meta, colors),
       quickPick: toTextStyle(roles.quickPick, colors),
+      notification: toTextStyle(roles.notification, colors),
       chip: toTextStyle(roles.chip, colors),
       stepperValue: toTextStyle(roles.stepperValue, colors),
       wordmark: toTextStyle(roles.wordmark, colors),

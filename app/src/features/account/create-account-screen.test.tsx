@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
 import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { CreateAccountScreen } from './create-account-screen';
@@ -56,6 +57,7 @@ function Layout() {
             <Stack.Screen name="setup" />
           </Stack.Protected>
         </Stack>
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -149,7 +151,7 @@ test('a taken email shows the API message under Email', async () => {
   expect(getAccessToken()).toBeNull();
 });
 
-test('no connection shows the general error until a field changes', async () => {
+test('no connection shows a notification until a field changes', async () => {
   mockFetch.mockRejectedValue(new TypeError('Network request failed'));
   await renderCreateAccount();
 

@@ -4,10 +4,10 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
 import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { endSession, getAccessToken, useSessionStatus } from './session';
-import { notePasswordChanged } from './sign-in-notice';
 import { SignInScreen } from './sign-in-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -56,6 +56,7 @@ function Layout() {
             <Stack.Screen name="index" />
           </Stack.Protected>
         </Stack>
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -134,22 +135,6 @@ test('signing in opens setup for a user without a name', async () => {
   expect(await screen.findByText('Setup screen')).toBeOnTheScreen();
 });
 
-test('after a password reset it says so once, until a field changes', async () => {
-  notePasswordChanged();
-  await renderSignIn();
-
-  expect(await screen.findByRole('alert')).toHaveTextContent(
-    'Password changed. Sign in with the new one.',
-  );
-
-  await fireEvent.changeText(
-    screen.getByLabelText('Email'),
-    'filip@example.com',
-  );
-
-  expect(screen.queryByRole('alert')).toBeNull();
-});
-
 test('both fields are needed before anything is sent', async () => {
   await renderSignIn();
 
@@ -179,13 +164,27 @@ test('a wrong email or password shows the API message', async () => {
   await fillIn('filip@example.com', 'wrong password');
   await pressSignIn();
 
-  expect(await screen.findByRole('alert')).toHaveTextContent(
-    'Email or password is wrong.',
-  );
+  expect(
+    await screen.findByText('Email or password is wrong.'),
+  ).toBeOnTheScreen();
+  expect(screen.getByLabelText('Email')).toHaveStyle({
+    borderColor: '#F87171',
+  });
+  expect(screen.getByLabelText('Password')).toHaveStyle({
+    borderColor: '#F87171',
+  });
+  expect(screen.queryByRole('alert')).toBeNull();
   expect(getAccessToken()).toBeNull();
+
+  await fireEvent.changeText(screen.getByLabelText('Email'), 'a@example.com');
+
+  expect(screen.queryByText('Email or password is wrong.')).toBeNull();
+  expect(screen.getByLabelText('Password')).not.toHaveStyle({
+    borderColor: '#F87171',
+  });
 });
 
-test('no connection shows the general error until a field changes', async () => {
+test('no connection shows a notification until a field changes', async () => {
   mockFetch.mockRejectedValue(new TypeError('Network request failed'));
   await renderSignIn();
 

@@ -46,7 +46,7 @@ app/
 
 - **API client:** every API build writes `api/openapi.json`. `npm run api:generate` turns it into `src/api/schema.ts`, which is never edited by hand. CI fails if either file is out of date. Steps are in [Setup](/development/setup#change-an-endpoint).
 - Each endpoint has a TanStack Query hook in its feature.
-- A request with no answer fails after 15 seconds and shows the screen's general error, so no screen waits forever.
+- A request with no answer fails after 15 seconds and shows a notification or the screen's error, so no screen waits forever.
 - Query keys are defined once per feature.
 - The screen updates before the server answers only in logging (checking, editing and removing sets) and for undo. Everything else waits for the server and shows the design's waiting state.
 
@@ -70,7 +70,7 @@ app/
 ## Forms
 
 - React Hook Form with a Zod schema per form.
-- Errors show as set out in the design's Form errors (section 5). `toFormErrors` in `api/problem.ts` sorts the API's Problem Details into field errors and the general error.
+- Errors show as set out in the design's Form errors (section 5). `toFormErrors` in `api/problem.ts` sorts the API's Problem Details into field errors and the general error. A general error goes to `notifyFailure` in `components/notifications.ts`.
 
 ## Formats
 

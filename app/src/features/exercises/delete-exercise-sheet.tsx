@@ -1,5 +1,5 @@
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
+import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 
 import { useDeleteExercise } from './use-delete-exercise';
@@ -19,35 +19,34 @@ export function DeleteExerciseSheet({
 }: DeleteExerciseSheetProps) {
   const deleteExercise = useDeleteExercise(exercise.id);
 
-  function close() {
-    deleteExercise.reset();
-    onClose();
-  }
-
   return (
     <Sheet
       visible={visible}
       title={`Delete ${exercise.name}?`}
       message="It's removed from your list. Workouts you already logged keep it."
-      onClose={close}
+      onClose={onClose}
     >
-      {deleteExercise.isError && (
-        <FormError message="Couldn't delete the exercise. Try again." />
-      )}
       <Button
         label="Delete exercise"
         variant="danger"
         waitingLabel="Deleting exercise"
         waiting={deleteExercise.isPending}
         onPress={() => {
-          deleteExercise.mutate(undefined, { onSuccess: onDeleted });
+          deleteExercise.mutate(undefined, {
+            onSuccess: onDeleted,
+            // The bar can't show above a sheet, so the sheet makes way for it.
+            onError: () => {
+              onClose();
+              notifyFailure("Couldn't delete the exercise. Try again.");
+            },
+          });
         }}
       />
       <Button
         label="Cancel"
         variant="secondary"
         dimmed={deleteExercise.isPending}
-        onPress={close}
+        onPress={onClose}
       />
     </Sheet>
   );

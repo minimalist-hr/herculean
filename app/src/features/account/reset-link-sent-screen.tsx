@@ -1,11 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
-import { FormSuccess } from '@/components/form-success';
+import {
+  dismissNotification,
+  notifyFailure,
+  notifySuccess,
+} from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
@@ -22,19 +24,16 @@ export function ResetLinkSentScreen() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const sendResetLink = useSendResetLink();
   const { secondsLeft, restart } = useCountdown(sendAgainWaitSeconds);
-  const [generalError, setGeneralError] = useState(false);
-  const [sentAgain, setSentAgain] = useState(false);
 
   function sendAgain() {
-    setGeneralError(false);
-    setSentAgain(false);
+    dismissNotification();
     sendResetLink.mutate(email, {
       onSuccess: () => {
-        setSentAgain(true);
+        notifySuccess('Link sent again.');
         restart();
       },
       onError: () => {
-        setGeneralError(true);
+        notifyFailure("Couldn't send the link. Try again.");
       },
     });
   }
@@ -55,10 +54,6 @@ export function ResetLinkSentScreen() {
         <ScreenHeading label="Forgot password?" title="Check your email" />
 
         <View style={{ gap: space.lg }}>
-          {generalError && (
-            <FormError message="Couldn't send the link. Try again." />
-          )}
-          {sentAgain && <FormSuccess message="Link sent again." />}
           <View
             style={[
               styles.card,

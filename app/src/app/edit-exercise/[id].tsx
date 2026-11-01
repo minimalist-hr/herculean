@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { notifySuccess } from '@/components/notifications';
 import { EditExerciseScreen } from '@/features/exercises/edit-exercise-screen';
 
 export default function EditExerciseRoute() {
@@ -9,7 +10,8 @@ export default function EditExerciseRoute() {
   return (
     <EditExerciseScreen
       id={id}
-      onSaved={() => {
+      onSaved={(exercise) => {
+        notifySuccess(`${exercise.name} saved.`);
         router.back();
       }}
       onCancel={() => {

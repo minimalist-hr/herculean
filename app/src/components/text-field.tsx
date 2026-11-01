@@ -18,7 +18,7 @@ interface TextFieldProps extends Omit<
   'style' | 'secureTextEntry'
 > {
   label: string;
-  /** Shown under the field, for example "At least 8 characters." An error replaces it. */
+  /** Shown under the field, for example "At least 8 characters." An error replaces it. An empty error only turns the border red, when another field carries the message. */
   helper?: string;
   error?: string;
   /** Hides what is typed, with an eye button to show it. */
@@ -85,7 +85,7 @@ export function TextField({
           </Pressable>
         )}
       </View>
-      {message !== undefined && (
+      {message !== undefined && message !== '' && (
         <Text
           style={[text.meta, error !== undefined && { color: colors.danger }]}
         >

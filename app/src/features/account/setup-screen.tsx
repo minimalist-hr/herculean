@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -7,13 +6,11 @@ import {
   StyleSheet,
   Text,
   View,
-  type ScrollViewInstance,
 } from 'react-native';
 
 import { toFormErrors } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
 import { QuickPicks } from '@/components/quick-picks';
 import { RadioCard } from '@/components/radio-card';
 import { ScreenHeading } from '@/components/screen-heading';
@@ -21,6 +18,7 @@ import { Stepper } from '@/components/stepper';
 import { TextField } from '@/components/text-field';
 import { defaultRest } from '@/features/settings/default-rest';
 import { formatClock, formatSpokenDuration } from '@/formats/formats';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { setupSchema, type SetupValues } from './setup-schema';
@@ -35,23 +33,14 @@ const startingValues: SetupValues = {
 export function SetupScreen() {
   const { colors, size, space, text } = useTheme();
   const finishSetup = useFinishSetup();
-  const scrollView = useRef<ScrollViewInstance>(null);
-  const [generalError, setGeneralError] = useState(false);
   const { control, handleSubmit, setError, formState } = useForm({
     resolver: zodResolver(setupSchema),
     defaultValues: startingValues,
   });
   const { errors } = formState;
 
-  // The general error sits above the first field, so the form scrolls up to show it.
-  useEffect(() => {
-    if (generalError) {
-      scrollView.current?.scrollTo({ y: 0 });
-    }
-  }, [generalError]);
-
   const submit = handleSubmit(async (values) => {
-    setGeneralError(false);
+    dismissNotification();
     try {
       // Setup done, so the app opens Home in its place.
       await finishSetup.mutateAsync(values);
@@ -60,14 +49,16 @@ export function SetupScreen() {
       if (formErrors.fields.name !== undefined) {
         setError('name', { message: formErrors.fields.name });
       }
-      setGeneralError(formErrors.general);
+      if (formErrors.general) {
+        notifyFailure("Couldn't finish setup. Try again.");
+      }
     }
   });
 
   // Any change clears the general error.
   function change<Value>(onChange: (value: Value) => void) {
     return (value: Value) => {
-      setGeneralError(false);
+      dismissNotification();
       onChange(value);
     };
   }
@@ -77,7 +68,6 @@ export function SetupScreen() {
       {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
       <KeyboardAvoidingView behavior="padding" style={styles.screen}>
         <ScrollView
-          ref={scrollView}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
@@ -93,9 +83,6 @@ export function SetupScreen() {
           />
 
           <View style={{ gap: space.lg }}>
-            {generalError && (
-              <FormError message="Couldn't finish setup. Try again." />
-            )}
             <Controller
               control={control}
               name="name"

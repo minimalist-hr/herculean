@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
 import CreateExerciseRoute from '@/app/create-exercise';
+import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ExercisesScreen } from './exercises-screen';
@@ -111,6 +112,7 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -187,7 +189,9 @@ test('the green line clears when the search or a group changes', async () => {
 
   await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
 
-  expect(screen.queryByText('Pull-up created.')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByText('Pull-up created.')).toBeNull();
+  });
 });
 
 test('after saving, a filter that would hide the new exercise is cleared', async () => {
@@ -284,10 +288,12 @@ test('a name the user already has shows under the name', async () => {
   expect(
     await screen.findByText('You already have an exercise with this name.'),
   ).toBeOnTheScreen();
-  expect(screen.queryByRole('alert')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });
 
-test('reaching the limit shows the API message at the top of the form', async () => {
+test('reaching the limit shows the API message', async () => {
   answer(() =>
     problem(
       409,
@@ -307,7 +313,7 @@ test('reaching the limit shows the API message at the top of the form', async ()
   );
 });
 
-test('no connection shows the general error until a field changes', async () => {
+test('no connection shows a notification until a field changes', async () => {
   answer(() => {
     throw new TypeError('Network request failed');
   });
@@ -324,7 +330,9 @@ test('no connection shows the general error until a field changes', async () => 
 
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pull-ups');
 
-  expect(screen.queryByRole('alert')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });
 
 test('cancel returns to the list without saving or a message', async () => {
@@ -335,6 +343,8 @@ test('cancel returns to the list without saving or a message', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
 
   expect(await screen.findByText('Bench press')).toBeOnTheScreen();
-  expect(screen.queryByRole('alert')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
   expect(savedBody()).toBeUndefined();
 });

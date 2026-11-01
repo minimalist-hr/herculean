@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.15 · 1 November 2026 · Minimalist
+Version 0.16 · 1 November 2026 · Minimalist
+
+> Changes since 0.15: a notification bar replaces the general error and the success line at the top of forms, and the green line on E01 (section 5). E20 says when it saved. A wrong email or password on A01 turns both fields red, with the message under Password. Tokens for the bar's text, height and timing. Screens aren't redrawn: the bar only appears after an action.
 
 > Changes since 0.14: Delete exercise moves from E20 to a red trash icon to the right of the edit button on E10 and E11, and E21 opens over those screens (sections 5, 8 and 9). E20 keeps Save exercise and Cancel only. Sheets rise over 220 ms, in the tokens. A confirmation's question is left-aligned, as drawn (section 5). The area panel `areas/E-Exercises.png` doesn't show this.
 
@@ -186,9 +188,15 @@ Bottom actions sit in a box pinned to the bottom of the screen. It has the `card
 ### Form errors
 The canvas shows no error states, so every form follows these:
 - **Field error:** the message replaces the helper text under the field, in `danger`, and the field's border turns `danger`. It covers the form's own checks and the API's field errors, for example "An account with this email already exists." under Email on A20.
-- **Any other error** (no connection, a server error, an error with no field): one line in `danger` at the top of the form, above the first field, for example "Couldn't create the account. Try again." The form scrolls up to show it. It clears when a field changes or the action is tried again.
+- **Any other error** (no connection, a server error, an error with no field): a notification, for example "Couldn't create the account. Try again."
+- **A part of the screen that didn't load** says so in its place, with Try again.
 
-**Success line.** When something worked and the user stays on or returns to a form, one line in `success` sits in the same place as the general error, for example "Link sent again." It clears when a field changes or the action is tried again.
+### Notification bar
+Says that something worked or failed, when it belongs to no field. It looks like the undo bar: `raised` fill, a border, 6 px corners and at least 56 px tall, with a 20 px icon (a check in `success`, a warning in `danger`) and 14 / 600 text.
+- **Place:** 12 px above what is at the bottom of the screen: the tab bar or the bottom action box. It moves above the keyboard when that is open.
+- **Behavior:** it rises in, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
+- **Sheets:** it can't show above a sheet, so a sheet that fails closes first.
+- **Examples:** "Bench press saved.", "Bench press created.", "Bench press deleted.", "Link sent again.", "Password changed. Sign in with the new one."
 
 **Search fields.** Every search has a search icon at the start. Once it has text, a clear button (44 × 44 px) sits at the end, and tapping it shows the whole list again right away.
 
@@ -335,7 +343,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 |---|---|---|
 | **A0 Launch** | A00 Splash, A02 Couldn't connect | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens, or A30 if setup isn't finished. Without a connection, A02 shows "Couldn't connect." and a Try again text link below the logo, which stays in place. |
 | **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
-| **A2 Reset password** | A10 Reset password, A11 Link sent, A13 Reset email, A14 Opening the app, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → the link in A13 opens A14, which opens the app → New password twice → Save password → A01, which says "Password changed. Sign in with the new one." If saving fails, A12 stays open with the error line. A14 is the page a browser shows for a moment; its button is there in case the app doesn't open by itself. An expired or used link opens A10 with the error line "This link has expired. Send a new one." If the link expires while the user types, the same line shows at the top of A12. |
+| **A2 Reset password** | A10 Reset password, A11 Link sent, A13 Reset email, A14 Opening the app, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → the link in A13 opens A14, which opens the app → New password twice → Save password → A01, which says "Password changed. Sign in with the new one." If saving fails, A12 stays open and a notification says so. A14 is the page a browser shows for a moment; its button is there in case the app doesn't open by itself. An expired or used link opens A10 with the notification "This link has expired. Send a new one." If the link expires while the user types, the same notification shows on A12. |
 | **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. |
 
 ### H · Home
@@ -361,7 +369,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 | Row | Screens | What happens |
 |---|---|---|
 | **L1 Log sets** | L03 Loading, L01 Logging, L10 Edit weight, L11 Edit reps, L12 Set removed, L14 Exercise history, L15 History empty, L04 Reorder | The header shows the date and elapsed time, the routine name, Finish and "x of 19 sets". The current exercise is open, with rows for set, last time, kg and reps plus a check box. The other exercises are collapsed with their progress (0/3). Add set, Add exercise and Reorder are available. After each checked set, a rest timer appears with −15, +15 and Skip. Tapping a value opens a sheet with steppers (±2.5 kg or ±1 rep), Save set, Cancel and Remove set. The clock icon or the exercise name opens its recent history, with Full history → E10. |
-| **L2 Exercises** | L13 Remove exercise, L20 Add exercise, L24 Loading, L21 No matches, L22 Create exercise, L23 New one selected | The trash asks first (L13). Add exercise has search, group chips and a multi-select list. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises the top of the form says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". |
+| **L2 Exercises** | L13 Remove exercise, L20 Add exercise, L24 Loading, L21 No matches, L22 Create exercise, L23 New one selected | The trash asks first (L13). Add exercise has search, group chips and a multi-select list. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises a notification says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". |
 | **L3 Finish** | L30 Finish workout, L02 No exercises left, L31 Nothing logged | L30 shows a warning for unchecked sets, then Duration, Sets, Volume and Records, plus New records, with Save workout, Keep logging and Discard workout. With nothing checked (L31), there's no Save. L02 is the logging screen after every exercise has been removed. |
 
 ### R · Routines
@@ -377,9 +385,9 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 | Row | Screens | What happens |
 |---|---|---|
-| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a success line above the list says "Cable lateral raise created." It clears when the search or a group changes. A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
+| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
-| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The trash icon on E10 and E11 opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then E01 shows a green line, for example "Bench press deleted." |
+| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The trash icon on E10 and E11 opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
 | **E4 Groups** | E31 Loading, E30 Groups, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). New group, Rename and Delete; only an empty group can be deleted. |
 
 ---

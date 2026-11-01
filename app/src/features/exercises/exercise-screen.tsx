@@ -6,11 +6,11 @@ import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { HistoryIcon, PencilIcon, TrashIcon } from '@/components/icons';
+import { notifySuccess } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
 import { ExerciseLoadFailure } from './exercise-load-failure';
-import { noteExerciseDeleted } from './exercise-notice';
 import { ExerciseSkeleton } from './exercises-skeleton';
 import { useExercise } from './use-exercise';
 
@@ -150,7 +150,7 @@ function Details({ exercise }: { exercise: Exercise }) {
           setConfirmingDelete(false);
         }}
         onDeleted={() => {
-          noteExerciseDeleted(exercise.name);
+          notifySuccess(`${exercise.name} deleted.`);
           router.back();
         }}
       />

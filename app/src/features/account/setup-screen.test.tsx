@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
 import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { enterApp, useSessionStatus } from './session';
@@ -51,6 +52,7 @@ function Layout() {
             <Stack.Screen name="index" />
           </Stack.Protected>
         </Stack>
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -184,10 +186,12 @@ test('a name the API rejects shows its message under Name', async () => {
   expect(
     await screen.findByText("'Name' must have 1 to 50 characters."),
   ).toBeOnTheScreen();
-  expect(screen.queryByRole('alert')).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });
 
-test('no connection shows the general error', async () => {
+test('no connection shows a notification', async () => {
   mockFetch.mockRejectedValue(new TypeError('Network request failed'));
   await renderSetup();
 
@@ -209,7 +213,7 @@ test('while waiting, the button says so', async () => {
   expect(await screen.findByText('Finishing setup')).toBeOnTheScreen();
 });
 
-test('a failed rest time save shows the general error, so both are sent again', async () => {
+test('a failed rest time save shows a notification, so both are sent again', async () => {
   mockFetch.mockImplementation((request) =>
     request.url.endsWith('/users/me')
       ? answerEach(request)

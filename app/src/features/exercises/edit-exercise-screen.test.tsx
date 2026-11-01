@@ -7,6 +7,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import EditExerciseRoute from '@/app/edit-exercise/[id]';
 import ExerciseRoute from '@/app/(tabs)/exercises/[id]';
 import { TabBar } from '@/components/tab-bar';
+import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ExercisesScreen } from './exercises-screen';
@@ -135,6 +136,7 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -219,6 +221,7 @@ test('saving sends the new values and E11 shows them', async () => {
     await screen.findByRole('header', { name: 'Incline press' }),
   ).toBeOnTheScreen();
   expect(screen.getByText('Chest · back · biceps')).toBeOnTheScreen();
+  expect(screen.getByRole('alert')).toHaveTextContent('Incline press saved.');
 });
 
 test('a name another exercise has shows under Name, and nothing leaves E20', async () => {
@@ -321,11 +324,15 @@ test('confirming deletes it and E01 says so', async () => {
   await pressLast('Delete exercise');
 
   expect(await screen.findByText('Bench press deleted.')).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: /Bench press/ })).toBeNull();
-  expect(screen.queryByRole('header', { name: 'Bench press' })).toBeNull();
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'Bench press' })).toBeNull();
+  });
+  await waitFor(() => {
+    expect(screen.queryByRole('button', { name: /Bench press/ })).toBeNull();
+  });
 });
 
-test('a failed delete says so on the sheet', async () => {
+test('a failed delete closes the sheet and says so', async () => {
   answer({ remove: () => problem(500, 'server_error', 'Something failed.') });
   await openDetails();
 
@@ -333,10 +340,13 @@ test('a failed delete says so on the sheet', async () => {
   await screen.findByRole('header', { name: 'Delete Bench press?' });
   await pressLast('Delete exercise');
 
-  expect(
-    await screen.findByText("Couldn't delete the exercise. Try again."),
-  ).toBeOnTheScreen();
-  expect(
-    screen.getByRole('header', { name: 'Delete Bench press?' }),
-  ).toBeOnTheScreen();
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't delete the exercise. Try again.",
+  );
+  await waitFor(() => {
+    expect(
+      screen.queryByRole('header', { name: 'Delete Bench press?' }),
+    ).toBeNull();
+  });
+  expect(screen.getByRole('header', { name: 'Bench press' })).toBeOnTheScreen();
 });

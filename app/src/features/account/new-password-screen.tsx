@@ -1,11 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
   ScrollView,
-  type ScrollViewInstance,
   StyleSheet,
   View,
 } from 'react-native';
@@ -13,16 +11,19 @@ import {
 import { ApiProblemError, toFormErrors } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
+import {
+  dismissNotification,
+  notifyFailure,
+  notifySuccess,
+} from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
   newPasswordSchema,
   type NewPasswordValues,
 } from './new-password-schema';
-import { notePasswordChanged } from './sign-in-notice';
 import { useSaveNewPassword } from './use-save-new-password';
 
 const emptyValues: NewPasswordValues = { password: '', repeatPassword: '' };
@@ -44,33 +45,24 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
   const { colors, size, space } = useTheme();
   const router = useRouter();
   const saveNewPassword = useSaveNewPassword();
-  const scrollView = useRef<ScrollViewInstance>(null);
-  const [generalError, setGeneralError] = useState<string>();
   const { control, handleSubmit, setError, setFocus, formState } = useForm({
     resolver: zodResolver(newPasswordSchema),
     defaultValues: emptyValues,
   });
   const { errors } = formState;
 
-  // The general error sits above the first field, so the form scrolls up to show it.
-  useEffect(() => {
-    if (generalError !== undefined) {
-      scrollView.current?.scrollTo({ y: 0 });
-    }
-  }, [generalError]);
-
   const submit = handleSubmit(async ({ password }) => {
-    setGeneralError(undefined);
+    dismissNotification();
     try {
       await saveNewPassword.mutateAsync({ token, password });
-      notePasswordChanged();
+      notifySuccess('Password changed. Sign in with the new one.');
       goToSignIn();
     } catch (error) {
       if (
         error instanceof ApiProblemError &&
         error.problem.code === 'user.invalid_password_reset_token'
       ) {
-        setGeneralError(error.problem.detail);
+        notifyFailure(error.problem.detail);
         return;
       }
 
@@ -79,7 +71,7 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
         setError('password', { message: formErrors.fields.password });
       }
       if (formErrors.general) {
-        setGeneralError("Couldn't save the password. Try again.");
+        notifyFailure("Couldn't save the password. Try again.");
       }
     }
   });
@@ -92,7 +84,7 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
   // Typing again clears the general error.
   function changeText(onChange: (value: string) => void) {
     return (value: string) => {
-      setGeneralError(undefined);
+      dismissNotification();
       onChange(value);
     };
   }
@@ -104,7 +96,6 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
       {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
       <KeyboardAvoidingView behavior="padding" style={styles.screen}>
         <ScrollView
-          ref={scrollView}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
@@ -120,7 +111,6 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
           />
 
           <View style={{ gap: space.lg }}>
-            {generalError !== undefined && <FormError message={generalError} />}
             <Controller
               control={control}
               name="password"

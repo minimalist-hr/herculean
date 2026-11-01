@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -8,22 +8,19 @@ import {
   StyleSheet,
   Text,
   View,
-  type ScrollViewInstance,
 } from 'react-native';
 
 import { ApiProblemError } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
-import { FormSuccess } from '@/components/form-success';
 import { Glow } from '@/components/glow';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
 import { Wordmark } from '@/components/wordmark';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
-import { takePasswordChanged } from './sign-in-notice';
 import { signInSchema, type SignInValues } from './sign-in-schema';
 import { useSignIn } from './use-sign-in';
 
@@ -33,54 +30,37 @@ export function SignInScreen() {
   const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const signIn = useSignIn();
-  const scrollView = useRef<ScrollViewInstance>(null);
-  const [generalError, setGeneralError] = useState<string>();
-  const [passwordChanged, setPasswordChanged] = useState(false);
   const [heroHeight, setHeroHeight] = useState<number>();
+  // It can be either field that's wrong, so both turn red and the message sits under the last.
+  const [wrongCredentials, setWrongCredentials] = useState<string>();
   const { control, handleSubmit, setFocus, formState } = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: emptyValues,
   });
   const { errors } = formState;
 
-  // This page can already be open behind the reset pages, so it checks each time it comes back.
-  useFocusEffect(
-    useCallback(() => {
-      if (takePasswordChanged()) {
-        setGeneralError(undefined);
-        setPasswordChanged(true);
-      }
-    }, []),
-  );
-
-  // The general error sits above the first field, so the form scrolls up to show it.
-  useEffect(() => {
-    if (generalError !== undefined) {
-      scrollView.current?.scrollTo({ y: 0 });
-    }
-  }, [generalError]);
-
   const submit = handleSubmit(async (values) => {
-    setGeneralError(undefined);
-    setPasswordChanged(false);
+    dismissNotification();
     try {
       // Signed in, so the app moves on to Home, or to setup if it is not done.
       await signIn.mutateAsync(values);
     } catch (error) {
-      setGeneralError(
+      if (
         error instanceof ApiProblemError &&
-          error.problem.code === 'user.invalid_credentials'
-          ? error.problem.detail
-          : "Couldn't sign in. Try again.",
-      );
+        error.problem.code === 'user.invalid_credentials'
+      ) {
+        setWrongCredentials(error.problem.detail);
+      } else {
+        notifyFailure("Couldn't sign in. Try again.");
+      }
     }
   });
 
-  // Typing again clears the line above the form.
+  // Typing again clears the notification.
   function changeText(onChange: (value: string) => void) {
     return (value: string) => {
-      setGeneralError(undefined);
-      setPasswordChanged(false);
+      setWrongCredentials(undefined);
+      dismissNotification();
       onChange(value);
     };
   }
@@ -101,7 +81,6 @@ export function SignInScreen() {
       {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
       <KeyboardAvoidingView behavior="padding" style={styles.screen}>
         <ScrollView
-          ref={scrollView}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.content}
         >
@@ -134,12 +113,6 @@ export function SignInScreen() {
             <ScreenHeading title="Sign in" />
 
             <View style={{ gap: space.lg }}>
-              {generalError !== undefined && (
-                <FormError message={generalError} />
-              )}
-              {passwordChanged && (
-                <FormSuccess message="Password changed. Sign in with the new one." />
-              )}
               <Controller
                 control={control}
                 name="email"
@@ -159,7 +132,10 @@ export function SignInScreen() {
                     value={field.value}
                     onChangeText={changeText(field.onChange)}
                     onBlur={field.onBlur}
-                    error={errors.email?.message}
+                    error={
+                      errors.email?.message ??
+                      (wrongCredentials === undefined ? undefined : '')
+                    }
                   />
                 )}
               />
@@ -179,7 +155,7 @@ export function SignInScreen() {
                       value={field.value}
                       onChangeText={changeText(field.onChange)}
                       onBlur={field.onBlur}
-                      error={errors.password?.message}
+                      error={errors.password?.message ?? wrongCredentials}
                     />
                   )}
                 />

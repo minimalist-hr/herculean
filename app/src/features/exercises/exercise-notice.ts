@@ -1,24 +1,14 @@
-interface ExerciseNotice {
-  kind: 'created' | 'deleted';
-  name: string;
+let created = false;
+
+/** Tells the exercise list an exercise was just created, so it clears its filters. */
+export function noteExerciseCreated() {
+  created = true;
 }
 
-let notice: ExerciseNotice | undefined;
-
-/** Tells the exercise list what was just created. */
-export function noteExerciseCreated(name: string) {
-  notice = { kind: 'created', name };
-}
-
-/** Tells the exercise list what was just deleted. */
-export function noteExerciseDeleted(name: string) {
-  notice = { kind: 'deleted', name };
-}
-
-/** What just happened to an exercise. It only answers once. */
-export function takeExerciseNotice() {
-  const taken = notice;
-  notice = undefined;
+/** Whether an exercise was just created. It only answers once. */
+export function takeExerciseCreated() {
+  const taken = created;
+  created = false;
 
   return taken;
 }

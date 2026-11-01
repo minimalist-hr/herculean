@@ -1,11 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
   ScrollView,
-  type ScrollViewInstance,
   StyleSheet,
   View,
 } from 'react-native';
@@ -13,9 +12,9 @@ import {
 import { toFormErrors } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -31,28 +30,20 @@ export function ResetPasswordScreen() {
   const router = useRouter();
   const { linkExpired } = useLocalSearchParams<{ linkExpired?: string }>();
   const sendResetLink = useSendResetLink();
-  const scrollView = useRef<ScrollViewInstance>(null);
-  // An expired link in an email opens this screen with this line, so the user can send a new one.
-  const [generalError, setGeneralError] = useState(
-    linkExpired === 'true'
-      ? 'This link has expired. Send a new one.'
-      : undefined,
-  );
+  useEffect(() => {
+    if (linkExpired === 'true') {
+      notifyFailure('This link has expired. Send a new one.');
+    }
+  }, [linkExpired]);
+
   const { control, handleSubmit, setError, formState } = useForm({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: emptyValues,
   });
   const { errors } = formState;
 
-  // The general error sits above the first field, so the form scrolls up to show it.
-  useEffect(() => {
-    if (generalError !== undefined) {
-      scrollView.current?.scrollTo({ y: 0 });
-    }
-  }, [generalError]);
-
   const submit = handleSubmit(async ({ email }) => {
-    setGeneralError(undefined);
+    dismissNotification();
     try {
       await sendResetLink.mutateAsync(email);
       router.push({ pathname: '/reset-link-sent', params: { email } });
@@ -62,7 +53,7 @@ export function ResetPasswordScreen() {
         setError('email', { message: formErrors.fields.email });
       }
       if (formErrors.general) {
-        setGeneralError("Couldn't send the link. Try again.");
+        notifyFailure("Couldn't send the link. Try again.");
       }
     }
   });
@@ -74,7 +65,6 @@ export function ResetPasswordScreen() {
       {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
       <KeyboardAvoidingView behavior="padding" style={styles.screen}>
         <ScrollView
-          ref={scrollView}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
@@ -90,7 +80,6 @@ export function ResetPasswordScreen() {
           />
 
           <View style={{ gap: space.lg }}>
-            {generalError !== undefined && <FormError message={generalError} />}
             <Controller
               control={control}
               name="email"
@@ -106,7 +95,7 @@ export function ResetPasswordScreen() {
                   onSubmitEditing={() => void submit()}
                   value={field.value}
                   onChangeText={(value) => {
-                    setGeneralError(undefined);
+                    dismissNotification();
                     field.onChange(value);
                   }}
                   onBlur={field.onBlur}

@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { notifySuccess } from '@/components/notifications';
 import { CreateExerciseScreen } from '@/features/exercises/create-exercise-screen';
 import { noteExerciseCreated } from '@/features/exercises/exercise-notice';
 
@@ -15,7 +16,8 @@ export default function CreateExerciseRoute() {
       initialName={name ?? ''}
       initialGroupId={groupId ?? ''}
       onCreated={(exercise) => {
-        noteExerciseCreated(exercise.name);
+        noteExerciseCreated();
+        notifySuccess(`${exercise.name} created.`);
         router.back();
       }}
       onCancel={() => {

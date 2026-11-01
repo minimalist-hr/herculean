@@ -15,7 +15,7 @@ type Exercise = components['schemas']['ExerciseDetailsResponse'];
 
 interface EditExerciseScreenProps {
   id: string;
-  onSaved: () => void;
+  onSaved: (exercise: components['schemas']['ExerciseResponse']) => void;
   onCancel: () => void;
 }
 
@@ -80,8 +80,7 @@ function Form({
       }}
       saving={updateExercise.isPending}
       onSave={async (values) => {
-        await updateExercise.mutateAsync(values);
-        onSaved();
+        onSaved(await updateExercise.mutateAsync(values));
       }}
       onCancel={onCancel}
     />

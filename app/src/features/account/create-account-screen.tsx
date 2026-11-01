@@ -1,11 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
   ScrollView,
-  type ScrollViewInstance,
   StyleSheet,
   Text,
   View,
@@ -14,10 +12,10 @@ import {
 import { toFormErrors } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { FormError } from '@/components/form-error';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -36,23 +34,14 @@ export function CreateAccountScreen() {
   const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const createAccount = useCreateAccount();
-  const scrollView = useRef<ScrollViewInstance>(null);
-  const [generalError, setGeneralError] = useState(false);
   const { control, handleSubmit, setError, setFocus, formState } = useForm({
     resolver: zodResolver(createAccountSchema),
     defaultValues: emptyValues,
   });
   const { errors } = formState;
 
-  // The general error sits above the first field, so the form scrolls up to show it.
-  useEffect(() => {
-    if (generalError) {
-      scrollView.current?.scrollTo({ y: 0 });
-    }
-  }, [generalError]);
-
   const submit = handleSubmit(async ({ email, password }) => {
-    setGeneralError(false);
+    dismissNotification();
     try {
       // Signed in now, so the app moves on to setup.
       await createAccount.mutateAsync({ email, password });
@@ -63,14 +52,16 @@ export function CreateAccountScreen() {
       for (const [field, message] of Object.entries(formErrors.fields)) {
         setError(field as 'email' | 'password', { message });
       }
-      setGeneralError(formErrors.general);
+      if (formErrors.general) {
+        notifyFailure("Couldn't create the account. Try again.");
+      }
     }
   });
 
   // Typing again clears the general error.
   function changeText(onChange: (value: string) => void) {
     return (value: string) => {
-      setGeneralError(false);
+      dismissNotification();
       onChange(value);
     };
   }
@@ -82,7 +73,6 @@ export function CreateAccountScreen() {
       {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
       <KeyboardAvoidingView behavior="padding" style={styles.screen}>
         <ScrollView
-          ref={scrollView}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
@@ -98,9 +88,6 @@ export function CreateAccountScreen() {
           />
 
           <View style={{ gap: space.lg }}>
-            {generalError && (
-              <FormError message="Couldn't create the account. Try again." />
-            )}
             <Controller
               control={control}
               name="email"
