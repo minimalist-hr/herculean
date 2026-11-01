@@ -1,6 +1,20 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
-// Built in feature 2, Exercises: edit and delete exercise.
+import { EditExerciseScreen } from '@/features/exercises/edit-exercise-screen';
+
 export default function EditExerciseRoute() {
-  return <PlaceholderScreen title="Edit exercise" back="Exercise" />;
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  return (
+    <EditExerciseScreen
+      id={id}
+      onSaved={() => {
+        router.back();
+      }}
+      onCancel={() => {
+        router.back();
+      }}
+    />
+  );
 }

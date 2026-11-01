@@ -1,6 +1,10 @@
 # Herculean: design document
 
-Version 0.13 · 1 November 2026 · Minimalist
+Version 0.15 · 1 November 2026 · Minimalist
+
+> Changes since 0.14: Delete exercise moves from E20 to a red trash icon to the right of the edit button on E10 and E11, and E21 opens over those screens (sections 5, 8 and 9). E20 keeps Save exercise and Cancel only. Sheets rise over 220 ms, in the tokens. A confirmation's question is left-aligned, as drawn (section 5). The area panel `areas/E-Exercises.png` doesn't show this.
+
+> Changes since 0.13: after deleting an exercise, E01 shows a green line such as "Bench press deleted." (section 9).
 
 > Changes since 0.12: on E10 and E11, the edit button sits on the title's line, not the back link's.
 
@@ -167,9 +171,9 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 | **Primary** | 48 px, filled `primary`, 15 px uppercase bold | The main action: Save …, Start workout, Load routine, Sign in |
 | **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout, View workout |
 | **Danger** | 48 px, filled `danger` | The confirm action in delete and remove confirms |
-| **Danger text** | 44 px, `danger` text | Delete … inside edit screens (R20, E20) and Remove set |
+| **Danger text** | 44 px, `danger` text | Delete … inside edit screens (R20) and Remove set |
 | **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Create exercise, Add set, Groups on E01, and the way between A01 and A20 |
-| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, E10 edit |
+| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, E10 and E11 edit and delete |
 
 **Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
 
@@ -212,7 +216,7 @@ An email uses the same tokens as the app, in a column of at most 480 px. It is a
 - **Behavior:** a sheet closes back to the screen that opened it.
 
 ### Confirmations
-A centered question ("Delete Chest and arms 1?"), one sentence on what happens and what stays, a danger button that repeats the verb ("Delete routine"), and Cancel below.
+A question ("Delete Chest and arms 1?"), one sentence on what happens and what stays, a danger button that repeats the verb ("Delete routine"), and Cancel below.
 
 ### Undo bar
 - **Look:** 56 px, with the `raised` fill and a border. It sits above the tab bar and dims the screen behind it.
@@ -276,7 +280,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 **Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it is dimmed and counts down: "Send link again in 0:42".
 
-**Delete inside edit screens.** "Delete routine" (R20) and "Delete exercise" (E20) sit below Cancel, styled as danger text.
+**Delete inside edit screens.** "Delete routine" (R20) sits below Cancel, styled as danger text. An exercise is deleted from its details: a red trash icon to the right of the edit button on E10 and E11.
 
 **Groups.** A group can only be deleted when it has no exercises. E30 explains this, and only an empty group's trash is active.
 
@@ -375,7 +379,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 |---|---|---|
 | **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a success line above the list says "Cable lateral raise created." It clears when the search or a group changes. A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
-| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise, Cancel and Delete exercise. Changes show everywhere, past workouts included. Deleting removes the exercise from routines; logged workouts keep it. |
+| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The trash icon on E10 and E11 opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then E01 shows a green line, for example "Bench press deleted." |
 | **E4 Groups** | E31 Loading, E30 Groups, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). New group, Rename and Delete; only an empty group can be deleted. |
 
 ---

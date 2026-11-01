@@ -22,7 +22,7 @@ import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useTheme } from '@/theme/theme-provider';
 
-import { takeExerciseCreated } from './exercise-notice';
+import { takeExerciseNotice } from './exercise-notice';
 import { ExerciseRow } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -44,7 +44,7 @@ export function ExercisesScreen() {
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState<string>();
-  const [createdName, setCreatedName] = useState<string>();
+  const [notice, setNotice] = useState<string>();
   const typedSearch = searchText.trim();
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   // Clearing the search shows the whole list right away.
@@ -65,27 +65,30 @@ export function ExercisesScreen() {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [search, groupId]);
 
-  // The list stays open behind create exercise, so it checks each time it comes back.
-  // Clearing the filters makes sure the new exercise is in the list.
+  // The list stays open behind other screens, so it checks each time it comes back.
+  // Clearing the filters makes sure a new exercise is in the list.
   useFocusEffect(
     useCallback(() => {
-      const created = takeExerciseCreated();
-      if (created !== undefined) {
+      const taken = takeExerciseNotice();
+      if (taken?.kind === 'created') {
         setSearchText('');
         setGroupId(undefined);
-        setCreatedName(created);
+        setNotice(`${taken.name} created.`);
         listRef.current?.scrollToOffset({ offset: 0, animated: false });
+      }
+      if (taken?.kind === 'deleted') {
+        setNotice(`${taken.name} deleted.`);
       }
     }, []),
   );
 
   function changeSearch(text: string) {
-    setCreatedName(undefined);
+    setNotice(undefined);
     setSearchText(text);
   }
 
   function pickGroup(id: string | undefined) {
-    setCreatedName(undefined);
+    setNotice(undefined);
     setGroupId(id);
   }
 
@@ -185,12 +188,18 @@ export function ExercisesScreen() {
           )}
         </ScrollView>
 
-        {createdName !== undefined && (
-          <View style={{ paddingHorizontal: size.sidePadding }}>
-            <FormSuccess message={`${createdName} created.`} />
-          </View>
-        )}
+        {renderNotice()}
       </View>
+    );
+  }
+
+  function renderNotice() {
+    return (
+      notice !== undefined && (
+        <View style={{ paddingHorizontal: size.sidePadding }}>
+          <FormSuccess message={notice} />
+        </View>
+      )
     );
   }
 
@@ -344,7 +353,7 @@ export function ExercisesScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
       {renderTitle()}
-      {!noExercises && renderControls()}
+      {noExercises ? renderNotice() : renderControls()}
       <FlatList
         ref={listRef}
         data={toItems(list)}

@@ -69,7 +69,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 - **Browse:** E02 → E01. A search with no results shows E03. No exercises at all shows E04.
 - **Create:** Create exercise on E01, E03 or E04 → L22 → Save exercise → E01, with the new exercise in its group.
 - **Details:** an E01 row → E10, or E11 if never done. The chart switches between 3M, 6M, 1Y and All. Until [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54), every row → E11.
-- **Edit and delete:** the edit icon on E10 → E20 → Save exercise → E10. Delete exercise → E21 → E01.
+- **Edit and delete:** the edit icon on E10 → E20 → Save exercise → E10. The trash icon on E10 → E21 → E01, with a green line such as "Bench press deleted.".
 - **Groups:** the groups icon on E01 → E31 → E30. New group → E32. A group → E33 (rename). The trash on an empty group → E34 → E30, with an undo bar. Dragging a group sets the chip order.
 
 **Entities:** Exercise, Exercise also works, Group. Reads workouts and sets for best set, times done and history.
@@ -91,7 +91,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | POST | `/api/v1/groups/{id}/restore` | Undo on E30 |
 | PUT | `/api/v1/group-order` | E30, drag to reorder |
 
-**Left to other features:** "Used in" on E10 shows routines from [3. Routines](#3-routines). E10's tiles, chart, sessions and `/sessions` endpoint need [5. Logging](#5-logging), so they moved to [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54).
+**Left to other features:** "Used in" on E10 shows routines from [3. Routines](#3-routines), and E21 names them from then on. E10's tiles, chart, sessions and `/sessions` endpoint need [5. Logging](#5-logging), so they moved to [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54).
 
 **Done when**
 - A group's trash is only active when no exercise uses it.

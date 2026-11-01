@@ -7,8 +7,8 @@ import { Spinner } from './spinner';
 interface ButtonProps {
   label: string;
   onPress: () => void;
-  /** Primary is the screen's main action. Secondary is outlined, for example Cancel. */
-  variant?: 'primary' | 'secondary';
+  /** Primary is the screen's main action. Secondary is outlined, for example Cancel. Danger confirms a delete. */
+  variant?: 'primary' | 'secondary' | 'danger';
   /** While true, the button shows a spinner and its -ing label, for example "Creating account". */
   waitingLabel?: string;
   waiting?: boolean;
@@ -25,8 +25,12 @@ export function Button({
   dimmed = false,
 }: ButtonProps) {
   const { colors, opacity, radius, size, space, text } = useTheme();
-  const primary = variant === 'primary';
-  const textColor = primary ? colors.onPrimary : colors.text;
+  const filled = variant === 'primary' || variant === 'danger';
+  const textColor = {
+    primary: colors.onPrimary,
+    secondary: colors.text,
+    danger: colors.onDanger,
+  }[variant];
 
   return (
     <Pressable
@@ -42,8 +46,12 @@ export function Button({
           borderRadius: radius.control,
           opacity: dimmed ? opacity.dimmed : 1,
         },
-        primary
-          ? { height: size.primaryButton, backgroundColor: colors.primary }
+        filled
+          ? {
+              height: size.primaryButton,
+              backgroundColor:
+                variant === 'danger' ? colors.danger : colors.primary,
+            }
           : [
               styles.outlined,
               {
@@ -57,7 +65,7 @@ export function Button({
       {waiting && <Spinner color={textColor} />}
       <Text
         style={[
-          primary ? text.primaryButton : text.secondaryButton,
+          filled ? text.primaryButton : text.secondaryButton,
           { color: textColor },
         ]}
       >

@@ -1,13 +1,16 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { HistoryIcon, PencilIcon } from '@/components/icons';
-import { TextLink } from '@/components/text-link';
+import { HistoryIcon, PencilIcon, TrashIcon } from '@/components/icons';
 import { useTheme } from '@/theme/theme-provider';
 
+import { DeleteExerciseSheet } from './delete-exercise-sheet';
+import { ExerciseLoadFailure } from './exercise-load-failure';
+import { noteExerciseDeleted } from './exercise-notice';
 import { ExerciseSkeleton } from './exercises-skeleton';
 import { useExercise } from './use-exercise';
 
@@ -25,7 +28,7 @@ export function ExerciseScreen({ id }: { id: string }) {
 
     if (exercise.isError) {
       return (
-        <Failure
+        <ExerciseLoadFailure
           onRetry={() => {
             void exercise.refetch();
           }}
@@ -59,11 +62,12 @@ export function ExerciseScreen({ id }: { id: string }) {
 function Details({ exercise }: { exercise: Exercise }) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   return (
     <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
       <View style={styles.heading}>
-        <View style={[styles.titleRow, { gap: space.md }]}>
+        <View style={[styles.titleRow, { gap: space.sm }]}>
           <Text
             accessibilityRole="header"
             style={[text.pageTitle, styles.title, { color: colors.text }]}
@@ -80,6 +84,14 @@ function Details({ exercise }: { exercise: Exercise }) {
             }}
           >
             <PencilIcon color={colors.text} size={20} />
+          </HeaderIconButton>
+          <HeaderIconButton
+            label="Delete exercise"
+            onPress={() => {
+              setConfirmingDelete(true);
+            }}
+          >
+            <TrashIcon color={colors.danger} size={20} />
           </HeaderIconButton>
         </View>
         <Text style={[text.body, { color: colors.muted }]}>
@@ -130,22 +142,18 @@ function Details({ exercise }: { exercise: Exercise }) {
           </Text>
         </View>
       </View>
-    </View>
-  );
-}
 
-function Failure({ onRetry }: { onRetry: () => void }) {
-  const { colors, space, text } = useTheme();
-
-  return (
-    <View style={[styles.failure, { paddingTop: space.xl }]}>
-      <Text
-        accessibilityRole="alert"
-        style={[text.body, { color: colors.muted }]}
-      >
-        Couldn&apos;t load this exercise.
-      </Text>
-      <TextLink label="Try again" onPress={onRetry} />
+      <DeleteExerciseSheet
+        exercise={exercise}
+        visible={confirmingDelete}
+        onClose={() => {
+          setConfirmingDelete(false);
+        }}
+        onDeleted={() => {
+          noteExerciseDeleted(exercise.name);
+          router.back();
+        }}
+      />
     </View>
   );
 }
@@ -181,8 +189,5 @@ const styles = StyleSheet.create({
   },
   usedIn: {
     borderWidth: 1,
-  },
-  failure: {
-    alignItems: 'center',
   },
 });

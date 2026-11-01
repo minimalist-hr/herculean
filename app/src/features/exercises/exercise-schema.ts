@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-/** The create exercise form. The API also checks the name against the user's other exercises. */
-export const createExerciseSchema = z.object({
+/** The exercise form. The API also checks the name against the user's other exercises. */
+export const exerciseSchema = z.object({
   name: z
     .string()
     .trim()
@@ -11,4 +11,4 @@ export const createExerciseSchema = z.object({
   alsoWorksGroupIds: z.array(z.string()),
 });
 
-export type CreateExerciseValues = z.input<typeof createExerciseSchema>;
+export type ExerciseValues = z.input<typeof exerciseSchema>;
