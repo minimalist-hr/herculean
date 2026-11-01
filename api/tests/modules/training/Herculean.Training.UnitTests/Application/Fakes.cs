@@ -4,6 +4,7 @@ using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Domain;
+using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
 
@@ -37,6 +38,9 @@ internal sealed class FakeGroupRepository : IGroupRepository
     public Task<bool> AnyForUserAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Groups.Any(group => group.UserId == userId));
 
+    public Task<List<GroupId>> ListIdsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Groups.Select(group => group.Id).ToList());
+
     public void AddRange(IEnumerable<Group> groups)
     {
         Groups.AddRange(groups);
@@ -64,6 +68,24 @@ internal sealed class FakeExerciseReadRepository : IExerciseReadRepository
         GroupId = groupId;
 
         return Task.FromResult(Exercises);
+    }
+}
+
+internal sealed class FakeExerciseRepository : IExerciseRepository
+{
+    public List<Exercise> Exercises { get; } = [];
+
+    /// <summary>The count to report, so a test needs no 500 exercises.</summary>
+    public int? Count { get; set; }
+
+    public Task<int> CountAsync(CancellationToken cancellationToken) => Task.FromResult(Count ?? Exercises.Count);
+
+    public Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken) =>
+        Task.FromResult(Exercises.Any(exercise => exercise.NormalizedName == Exercise.NormalizeName(name)));
+
+    public void Add(Exercise exercise)
+    {
+        Exercises.Add(exercise);
     }
 }
 

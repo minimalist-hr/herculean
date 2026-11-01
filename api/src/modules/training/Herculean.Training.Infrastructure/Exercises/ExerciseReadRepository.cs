@@ -15,8 +15,8 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
 
         if (search is not null)
         {
-            string lowerSearch = search.ToLowerInvariant();
-            exercises = exercises.Where(exercise => exercise.Name.ToLower().Contains(lowerSearch));
+            string normalizedSearch = Exercise.NormalizeName(search);
+            exercises = exercises.Where(exercise => exercise.NormalizedName.Contains(normalizedSearch));
         }
 
         if (groupId is GroupId id)

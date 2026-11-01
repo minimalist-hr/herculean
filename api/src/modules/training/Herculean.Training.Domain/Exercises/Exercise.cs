@@ -5,10 +5,18 @@ namespace Herculean.Training.Domain.Exercises;
 
 internal sealed class Exercise : Entity<ExerciseId>
 {
-    private Exercise(ExerciseId id, UserId userId, string name, GroupId groupId) : base(id)
+    internal const int NameMaxLength = 100;
+
+    /// <summary>Keeps the exercise list small enough to load whole.</summary>
+    internal const int MaxPerUser = 500;
+
+    private readonly List<ExerciseAlsoWorks> _alsoWorks = [];
+
+    private Exercise(ExerciseId id, UserId userId, string name, string normalizedName, GroupId groupId) : base(id)
     {
         UserId = userId;
         Name = name;
+        NormalizedName = normalizedName;
         GroupId = groupId;
     }
 
@@ -16,12 +24,24 @@ internal sealed class Exercise : Entity<ExerciseId>
 
     public string Name { get; private set; }
 
+    /// <summary>For finding the name regardless of case. See <see cref="NormalizeName"/>.</summary>
+    public string NormalizedName { get; private set; }
+
     public GroupId GroupId { get; private set; }
 
     public Group Group { get; private set; } = null!;
 
+    public IReadOnlyList<ExerciseAlsoWorks> AlsoWorks => _alsoWorks;
+
     public DateTimeOffset? DeletedAtUtc { get; private set; }
 
-    public static Exercise Create(UserId userId, string name, GroupId groupId) =>
-        new(ExerciseId.New(), userId, name.Trim(), groupId);
+    public static Exercise Create(UserId userId, string name, GroupId groupId, IEnumerable<GroupId> alsoWorksGroupIds)
+    {
+        Exercise exercise = new(ExerciseId.New(), userId, name.Trim(), NormalizeName(name), groupId);
+        exercise._alsoWorks.AddRange(alsoWorksGroupIds.Select(alsoWorksGroupId => ExerciseAlsoWorks.Create(userId, exercise.Id, alsoWorksGroupId)));
+
+        return exercise;
+    }
+
+    public static string NormalizeName(string name) => name.Trim().ToLowerInvariant();
 }

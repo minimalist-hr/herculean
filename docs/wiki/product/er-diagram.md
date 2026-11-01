@@ -112,7 +112,8 @@ erDiagram
 | Property | Type | Notes |
 |---|---|---|
 | UserId | UserId | |
-| Name | string | |
+| Name | string | Up to 100 characters |
+| NormalizedName | string | Trimmed and lowercase. Unique per user among exercises that are not deleted |
 | GroupId | GroupId | → Group |
 | Group | Group | |
 | AlsoWorks | list of ExerciseAlsoWorks | |
@@ -122,6 +123,7 @@ erDiagram
 
 | Property | Type | Notes |
 |---|---|---|
+| UserId | UserId | |
 | ExerciseId | ExerciseId | → Exercise |
 | GroupId | GroupId | → Group. Unique together with ExerciseId |
 | Group | Group | |

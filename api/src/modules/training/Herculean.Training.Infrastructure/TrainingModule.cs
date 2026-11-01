@@ -7,11 +7,13 @@ using Herculean.SharedKernel.Persistence;
 using Herculean.Training.Application.AccountCreated;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Exercises;
+using Herculean.Training.Application.Exercises.CreateExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
 using Herculean.Training.Domain;
+using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
 using Herculean.Training.Infrastructure.Exercises;
@@ -39,6 +41,7 @@ public static class TrainingModule
 
         builder.Services.AddScoped<IWorkoutSettingsRepository, WorkoutSettingsRepository>();
         builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+        builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
         builder.Services.AddScoped<IGroupReadRepository, GroupReadRepository>();
         builder.Services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
 
@@ -49,6 +52,8 @@ public static class TrainingModule
         builder.Services.AddScoped<IValidator<ListExercisesRequest>, ListExercisesValidator>();
         builder.Services.AddScoped<ListExercisesHandler>();
         builder.Services.AddScoped<ListGroupsHandler>();
+        builder.Services.AddScoped<IValidator<CreateExerciseRequest>, CreateExerciseValidator>();
+        builder.Services.AddScoped<CreateExerciseHandler>();
     }
 
     /// <summary>Maps every Training endpoint.</summary>
@@ -58,6 +63,7 @@ public static class TrainingModule
         UpdateWorkoutSettingsEndpoint.Map(endpoints);
         ListExercisesEndpoint.Map(endpoints);
         ListGroupsEndpoint.Map(endpoints);
+        CreateExerciseEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

@@ -94,6 +94,9 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 ### Exercises, routines and groups
 
+- An exercise's name has 1 to 100 characters, trimmed. It differs from the user's other exercises, regardless of case. A deleted exercise's name can be used again.
+- A user can have at most 500 exercises, so the exercise list can load whole.
+- An exercise's "also works" groups can't repeat a group, or include the group it belongs to.
 - Edits to an exercise show everywhere, past workouts included.
 - Deleting an exercise removes it from routines. Past workouts keep it.
 - Deleting a routine turns its weekdays into rest days from today on. Past workouts keep their name.

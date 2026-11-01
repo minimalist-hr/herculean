@@ -12,6 +12,9 @@ internal sealed class GroupRepository(TrainingDbContext dbContext) : IGroupRepos
             .IgnoreQueryFilters([TrainingDbContext.UserFilter, TrainingDbContext.SoftDeleteFilter])
             .AnyAsync(group => group.UserId == userId, cancellationToken);
 
+    public Task<List<GroupId>> ListIdsAsync(CancellationToken cancellationToken) =>
+        dbContext.Groups.Select(group => group.Id).ToListAsync(cancellationToken);
+
     public void AddRange(IEnumerable<Group> groups)
     {
         dbContext.Groups.AddRange(groups);

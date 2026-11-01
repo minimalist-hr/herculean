@@ -181,7 +181,11 @@ export interface paths {
          */
         get: operations["ListExercises"];
         put?: never;
-        post?: never;
+        /**
+         * Create an exercise
+         * @description Adds an exercise to the signed-in user's list, in a group and with any other groups it also works.
+         */
+        post: operations["CreateExercise"];
         delete?: never;
         options?: never;
         head?: never;
@@ -237,6 +241,18 @@ export interface components {
             /** @description The new password, at least 8 characters. */
             password: string;
         };
+        /** @description A new exercise. */
+        CreateExerciseRequest: {
+            /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other exercises, regardless of case. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The group it belongs to, which orders the exercise list.
+             */
+            groupId: string;
+            /** @description Other groups it also works. Optional. It can't repeat a group, or include the group it belongs to. */
+            alsoWorksGroupIds: null | string[];
+        };
         /** @description Where to send the password reset link. */
         CreatePasswordResetRequest: {
             /** @description The account's email. Not case-sensitive. */
@@ -275,6 +291,23 @@ export interface components {
             /** @description The name of the group it belongs to. */
             groupName: string;
             bestSet: null | components["schemas"]["BestSetResponse"];
+        };
+        /** @description An exercise. */
+        ExerciseResponse: {
+            /**
+             * Format: uuid
+             * @description The exercise's ID.
+             */
+            id: string;
+            /** @description The exercise's name. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The group it belongs to.
+             */
+            groupId: string;
+            /** @description The other groups it also works. */
+            alsoWorksGroupIds: string[];
         };
         /** @description A muscle group. It orders the exercise list and the chips. */
         GroupResponse: {
@@ -803,6 +836,66 @@ export interface operations {
             };
             /** @description Not signed in, or the access token expired. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description The new exercise. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description One of the groups does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user already has an exercise with this name, or has reached the limit of 500 exercises. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

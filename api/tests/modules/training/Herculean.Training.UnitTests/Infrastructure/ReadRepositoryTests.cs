@@ -97,7 +97,7 @@ public sealed class ReadRepositoryTests : IDisposable
         Exercise deleted = await SaveExerciseAsync("Bench press", groups[0]);
         await MarkDeletedAsync(deleted);
         IReadOnlyList<Group> otherGroups = await SaveGroupsAsync(UserId.From(Guid.CreateVersion7()));
-        _dbContext.Exercises.Add(Exercise.Create(otherGroups[0].UserId, "Pec deck", otherGroups[0].Id));
+        _dbContext.Exercises.Add(Exercise.Create(otherGroups[0].UserId, "Pec deck", otherGroups[0].Id, []));
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         (await ListAsync()).ShouldBeEmpty();
@@ -122,7 +122,7 @@ public sealed class ReadRepositoryTests : IDisposable
 
     private async Task<Exercise> SaveExerciseAsync(string name, Group group)
     {
-        Exercise exercise = Exercise.Create(_userId, name, group.Id);
+        Exercise exercise = Exercise.Create(_userId, name, group.Id, []);
         _dbContext.Exercises.Add(exercise);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

@@ -396,12 +396,6 @@ dotnet_naming_style.s_camelcase.capitalization = camel_case
 [*.cs]
 dotnet_code_quality.CA1711.allowed_suffixes = EventHandler
 
-# EF Core turns these queries into SQL, and only ToLower() without a culture can be translated.
-[**/*ReadRepository.cs]
-dotnet_diagnostic.CA1304.severity = none
-dotnet_diagnostic.CA1311.severity = none
-dotnet_diagnostic.CA1862.severity = none
-
 # EF Core migrations are generated, so format and analyzers skip them.
 [**/Migrations/*.cs]
 generated_code = true

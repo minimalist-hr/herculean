@@ -550,6 +550,81 @@
             "Bearer": [ ]
           }
         ]
+      },
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Create an exercise",
+        "description": "Adds an exercise to the signed-in user's list, in a group and with any other groups it also works.",
+        "operationId": "CreateExercise",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExerciseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new exercise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "One of the groups does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user already has an exercise with this name, or has reached the limit of 500 exercises.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/api/v1/groups": {
@@ -638,6 +713,37 @@
           }
         },
         "description": "The token from the reset link, and the new password."
+      },
+      "CreateExerciseRequest": {
+        "required": [
+          "name",
+          "groupId",
+          "alsoWorksGroupIds"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other exercises, regardless of case."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The group it belongs to, which orders the exercise list.",
+            "format": "uuid"
+          },
+          "alsoWorksGroupIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Other groups it also works. Optional. It can't repeat a group, or include the group it belongs to."
+          }
+        },
+        "description": "A new exercise."
       },
       "CreatePasswordResetRequest": {
         "required": [
@@ -734,6 +840,40 @@
           }
         },
         "description": "An exercise in the list."
+      },
+      "ExerciseResponse": {
+        "required": [
+          "id",
+          "name",
+          "groupId",
+          "alsoWorksGroupIds"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The group it belongs to.",
+            "format": "uuid"
+          },
+          "alsoWorksGroupIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The other groups it also works."
+          }
+        },
+        "description": "An exercise."
       },
       "GroupResponse": {
         "required": [

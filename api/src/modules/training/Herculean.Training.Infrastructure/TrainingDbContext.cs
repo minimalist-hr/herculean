@@ -37,6 +37,7 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
         modelBuilder.ApplyConfiguration(new WorkoutSettingsConfiguration());
         modelBuilder.ApplyConfiguration(new GroupConfiguration());
         modelBuilder.ApplyConfiguration(new ExerciseConfiguration());
+        modelBuilder.ApplyConfiguration(new ExerciseAlsoWorksConfiguration());
 
         modelBuilder.Entity<WorkoutSettings>()
             .HasQueryFilter(UserFilter, workoutSettings => workoutSettings.UserId == CurrentUserId);
@@ -46,5 +47,7 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
         modelBuilder.Entity<Exercise>()
             .HasQueryFilter(UserFilter, exercise => exercise.UserId == CurrentUserId)
             .HasQueryFilter(SoftDeleteFilter, exercise => exercise.DeletedAtUtc == null);
+        modelBuilder.Entity<ExerciseAlsoWorks>()
+            .HasQueryFilter(UserFilter, alsoWorks => alsoWorks.UserId == CurrentUserId);
     }
 }
