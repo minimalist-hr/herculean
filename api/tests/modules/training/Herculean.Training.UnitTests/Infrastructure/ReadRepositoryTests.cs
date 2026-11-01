@@ -1,4 +1,5 @@
 using Herculean.Training.Application.Auth;
+using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Domain;
@@ -103,6 +104,46 @@ public sealed class ReadRepositoryTests : IDisposable
         (await ListAsync()).ShouldBeEmpty();
     }
 
+    [Fact]
+    public async Task AnExerciseComesWithItsGroupAndAlsoWorksGroupsInOrder()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        Exercise saved = await SaveExerciseAsync("Bench press", groups[0], groups[2].Id, groups[1].Id);
+
+        ExerciseDetailsResponse? exercise = await GetAsync(saved.Id);
+
+        exercise.ShouldNotBeNull().Name.ShouldBe("Bench press");
+        exercise.Group.ShouldBe(new GroupResponse(groups[0].Id.Value, groups[0].Name));
+        exercise.AlsoWorksGroups.Select(group => group.Id).ShouldBe([groups[1].Id.Value, groups[2].Id.Value]);
+    }
+
+    [Fact]
+    public async Task AnUnknownExerciseReadsAsNull()
+    {
+        (await GetAsync(ExerciseId.New())).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ADeletedExerciseReadsAsNull()
+    {
+        IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
+        Exercise deleted = await SaveExerciseAsync("Bench press", groups[0]);
+        await MarkDeletedAsync(deleted);
+
+        (await GetAsync(deleted.Id)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task AnotherUsersExerciseReadsAsNull()
+    {
+        IReadOnlyList<Group> otherGroups = await SaveGroupsAsync(UserId.From(Guid.CreateVersion7()));
+        Exercise other = Exercise.Create(otherGroups[0].UserId, "Pec deck", otherGroups[0].Id, []);
+        _dbContext.Exercises.Add(other);
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await GetAsync(other.Id)).ShouldBeNull();
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();
@@ -110,6 +151,9 @@ public sealed class ReadRepositoryTests : IDisposable
 
     private Task<List<ExerciseListItemResponse>> ListAsync(string? search = null, GroupId? groupId = null) =>
         new ExerciseReadRepository(_dbContext).ListAsync(search, groupId, TestContext.Current.CancellationToken);
+
+    private Task<ExerciseDetailsResponse?> GetAsync(ExerciseId id) =>
+        new ExerciseReadRepository(_dbContext).GetAsync(id, TestContext.Current.CancellationToken);
 
     private async Task<IReadOnlyList<Group>> SaveGroupsAsync(UserId userId)
     {
@@ -120,9 +164,9 @@ public sealed class ReadRepositoryTests : IDisposable
         return groups;
     }
 
-    private async Task<Exercise> SaveExerciseAsync(string name, Group group)
+    private async Task<Exercise> SaveExerciseAsync(string name, Group group, params GroupId[] alsoWorksGroupIds)
     {
-        Exercise exercise = Exercise.Create(_userId, name, group.Id, []);
+        Exercise exercise = Exercise.Create(_userId, name, group.Id, alsoWorksGroupIds);
         _dbContext.Exercises.Add(exercise);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

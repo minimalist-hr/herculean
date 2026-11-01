@@ -627,6 +627,65 @@
         ]
       }
     },
+    "/api/v1/exercises/{id}": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get an exercise",
+        "description": "Returns one of the signed-in user's exercises, with its group and the other groups it also works.",
+        "operationId": "GetExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The exercise's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The exercise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseDetailsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The exercise does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/groups": {
       "get": {
         "tags": [
@@ -798,6 +857,38 @@
           }
         },
         "description": "A new account."
+      },
+      "ExerciseDetailsResponse": {
+        "required": [
+          "id",
+          "name",
+          "group",
+          "alsoWorksGroups"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "group": {
+            "description": "The group it belongs to.",
+            "$ref": "#/components/schemas/GroupResponse"
+          },
+          "alsoWorksGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupResponse"
+            },
+            "description": "The other groups it also works, in their order."
+          }
+        },
+        "description": "An exercise and its groups."
       },
       "ExerciseListItemResponse": {
         "required": [

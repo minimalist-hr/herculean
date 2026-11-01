@@ -1,5 +1,7 @@
 using Herculean.Training.Application.Exercises;
+using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
+using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 
@@ -31,4 +33,18 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
             .Select(exercise => new ExerciseListItemResponse(exercise.Id.Value, exercise.Name, exercise.GroupId.Value, exercise.Group.Name, null))
             .ToListAsync(cancellationToken);
     }
+
+    public Task<ExerciseDetailsResponse?> GetAsync(ExerciseId id, CancellationToken cancellationToken) =>
+        dbContext.Exercises
+            .AsNoTracking()
+            .Where(exercise => exercise.Id == id)
+            .Select(exercise => new ExerciseDetailsResponse(
+                exercise.Id.Value,
+                exercise.Name,
+                new GroupResponse(exercise.GroupId.Value, exercise.Group.Name),
+                exercise.AlsoWorks
+                    .OrderBy(alsoWorks => alsoWorks.Group.Order)
+                    .Select(alsoWorks => new GroupResponse(alsoWorks.GroupId.Value, alsoWorks.Group.Name))
+                    .ToList()))
+            .SingleOrDefaultAsync(cancellationToken);
 }

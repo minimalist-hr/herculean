@@ -192,6 +192,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an exercise
+         * @description Returns one of the signed-in user's exercises, with its group and the other groups it also works.
+         */
+        get: operations["GetExercise"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups": {
         parameters: {
             query?: never;
@@ -273,6 +293,20 @@ export interface components {
             password: string;
             /** @description The phone's IANA time zone, for example Europe/Zagreb. */
             timeZone: string;
+        };
+        /** @description An exercise and its groups. */
+        ExerciseDetailsResponse: {
+            /**
+             * Format: uuid
+             * @description The exercise's ID.
+             */
+            id: string;
+            /** @description The exercise's name. */
+            name: string;
+            /** @description The group it belongs to. */
+            group: components["schemas"]["GroupResponse"];
+            /** @description The other groups it also works, in their order. */
+            alsoWorksGroups: components["schemas"]["GroupResponse"][];
         };
         /** @description An exercise in the list. */
         ExerciseListItemResponse: {
@@ -896,6 +930,47 @@ export interface operations {
             };
             /** @description The user already has an exercise with this name, or has reached the limit of 500 exercises. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The exercise. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDetailsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise does not exist, is deleted, or belongs to another user. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
