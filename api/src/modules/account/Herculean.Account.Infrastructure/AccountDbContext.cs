@@ -16,10 +16,15 @@ internal sealed class AccountDbContext(DbContextOptions<AccountDbContext> option
 
     async Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken)
     {
+        bool savesEvents = ChangeTracker.Entries<OutboxMessage>().Any(entry => entry.State == EntityState.Added);
+
         await SaveChangesAsync(cancellationToken);
 
-        // Saved events go out now, not at the next check.
-        outboxSignal.Wake();
+        // Saved events go out now, not at the next check. Other saves leave it asleep, because each check also uses up a try of a failed event.
+        if (savesEvents)
+        {
+            outboxSignal.Wake();
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

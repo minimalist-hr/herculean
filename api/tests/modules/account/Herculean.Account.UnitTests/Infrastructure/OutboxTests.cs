@@ -1,5 +1,6 @@
 using Herculean.Account.Contracts;
 using Herculean.Account.Domain;
+using Herculean.Account.Domain.Users;
 using Herculean.Account.Infrastructure;
 using Herculean.SharedKernel.Events;
 
@@ -34,6 +35,26 @@ public sealed class OutboxTests : IDisposable
         message.Type.ShouldBe(typeof(AccountCreatedIntegrationEvent).FullName);
         message.Content.ShouldContain(userId.ToString());
         message.OccurredAtUtc.ShouldBe(Now);
+    }
+
+    [Fact]
+    public async Task ASaveWithAnEventWakesTheJob()
+    {
+        new Outbox(_dbContext, new FakeTimeProvider(Now)).Add(new AccountCreatedIntegrationEvent(Guid.CreateVersion7()));
+
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _outboxSignal.WaitAsync(TimeSpan.Zero, TestContext.Current.CancellationToken)).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ASaveWithoutAnEventLeavesTheJobAsleep()
+    {
+        _dbContext.Users.Add(User.Create("filip@example.com", "hash", "Europe/Zagreb"));
+
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _outboxSignal.WaitAsync(TimeSpan.Zero, TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
     public void Dispose()

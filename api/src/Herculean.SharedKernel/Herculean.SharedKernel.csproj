@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Herculean.SharedKernel.UnitTests" />
+    <InternalsVisibleTo Include="Herculean.Account.UnitTests" />
   </ItemGroup>
 
   <ItemGroup>

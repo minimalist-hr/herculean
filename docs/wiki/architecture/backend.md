@@ -111,7 +111,7 @@ Herculean.Training.Application/
 - Events use an outbox. A module that sends events has an `outbox_messages` table in its schema.
 - An event is a record in the sending module's Contracts, for example `AccountCreatedIntegrationEvent`. The handler adds it with `IOutbox`, and the unit of work saves it in the same transaction as the change.
 - A receiving module handles it with an `IIntegrationEventHandler<T>`, named after the event, for example `AccountCreatedIntegrationEventHandler`, and registered with `AddIntegrationEventHandler`.
-- After the save, the outbox job wakes and sends the event to every registered handler, each in its own scope. It also checks every 5 seconds.
+- After the save, the outbox job wakes and sends the event to every registered handler, each in its own scope. It also checks every 30 seconds. A save without events leaves it asleep.
 - A failed event is tried again on each check, up to 5 times. Its last error stays in the table and in the logs.
 - Event handlers are idempotent, because the outbox can send an event twice.
 
@@ -155,6 +155,7 @@ Herculean.Training.Application/
 - Code logs through `ILogger<T>` with `[LoggerMessage]` methods. The build writes their bodies, checks each template against its parameters, and skips the work when the level is off.
 - Background jobs log their errors, and so does code that catches a failure. ASP.NET Core logs unhandled errors.
 - Passwords, tokens and emails are never logged.
+- EF Core logs each SQL command at Information. The API shows only its warnings and errors from that category, so the outbox's regular checks fill no logs.
 - Logs, traces and metrics go through OpenTelemetry to the Aspire dashboard.
 
 ## Tests

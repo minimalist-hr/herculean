@@ -15,7 +15,7 @@ internal sealed partial class OutboxProcessor<TContext>(
 {
     internal const int BatchSize = 20;
     internal const int MaxAttempts = 5;
-    internal static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(5);
+    internal static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(30);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
