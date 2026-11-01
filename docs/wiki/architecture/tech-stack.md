@@ -39,7 +39,7 @@ Every app library must work in Expo Go.
 | Validation | FluentValidation |
 | API docs | Built-in OpenAPI, Scalar |
 | Auth | Our own, no ASP.NET Core Identity ([details](/architecture/backend#auth)) |
-| Email | Resend |
+| Email | Resend, over SMTP with MailKit |
 | Logs, traces | OpenTelemetry |
 | Tests | xUnit v3, ArchUnitNET, Shouldly, Testcontainers |
 | Format | .editorconfig, dotnet format |

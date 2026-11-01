@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.5 · 1 November 2026 · Minimalist
+Version 0.6 · 1 November 2026 · Minimalist
+
+> Changes since 0.5: A13, the reset email, and A14, the page its link opens (sections 5 and 9). An expired link on A14 goes to A10 with an error line. The area panel `areas/A-Account.png` doesn't show any of this. Screens are rendered in dark only, directly in `screens/`; light stays in the tokens and the app.
 
 > Changes since 0.4: A02, the splash without a connection (section 9). The area panel `areas/A-Account.png` doesn't show it. The logo's type role, its glow and the sign in logo area in the tokens. The glow is half as strong on A00 to A03, and ERCULEAN sits in the vertical middle of the pillars instead of on their baseline (section 3). The logo area shrinks on shorter phones and keeps room for field errors, so sign in never scrolls; at 844 px it is 344 px (sections 3 and 4.2). Pages cross-fade instead of sliding, because on Android a slide showed the page you leave empty while it moved (section 6).
 
@@ -10,7 +12,7 @@ Version 0.5 · 1 November 2026 · Minimalist
 
 > Changes since 0.1: R03 week plan rows read "Rest day" instead of "Not planned". Discard workout now shows an undo bar on W01. Delete routine and delete exercise no longer have undo bars (section 7).
 
-> In this package: the canvas boards are rendered under `screens/` (dark and light), the area panels with their flows under `areas/`, and the original Claude Design source under `source/`. See `README.md` and `screen-index.md`.
+> In this package: the canvas boards are rendered under `screens/`, the area panels with their flows under `areas/`, and the original Claude Design source under `source/`. See `README.md` and `screen-index.md`.
 
 Herculean is a workout log for people who train on a fixed weekly split. You plan routines, put them on the days of the week, log your sets at the gym, and see your history and progress per exercise.
 
@@ -21,7 +23,7 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 ## 1. Scope
 
 - **Platform:** phone app, designed at 390 × 844 px (iPhone 14/15 size). Long screens are drawn at full scroll height and marked "full scroll".
-- **Screens:** 88 app screens in six areas, plus one brand board.
+- **Screens:** 90 app screens in six areas, plus one brand board.
 - **Themes:** dark (default) and light, two accent colors, four fonts and two corner styles. Each one can be switched on every board through Tweaks.
 - **Not in scope yet:** see section 11, Parked.
 
@@ -182,6 +184,9 @@ A choice of two or three side by side, like Units on A30: each card is at least 
 ### Steppers and quick picks
 A value between − and + buttons (`size.stepper`), like the default rest time on A30 and H15. The value is shown in `stepperValue`, not typed; the buttons and the quick picks reach every allowed value. At a limit, its button is dimmed. Screen readers get one adjustable control that says the value in words. Quick picks are a row of common values in `quickPick` type; the one that matches the value is filled with `primary`.
 
+### Email
+An email uses the same tokens as the app, in a column of at most 480 px. It is always dark, because email apps can't follow the app's theme. Its layout is built from tables with inline styles, so it holds in every email app. The logo is `brand/wordmark-on-dark.png`, because email apps drop SVG. Chakra Petch shows where the email app allows web fonts, and the phone's system font elsewhere. A plain text copy goes with it. A13 is the reference.
+
 ### Sheets
 - **Look:** a dimmed backdrop (62% black), a sheet rising from the bottom with rounded top corners and a 36 × 4 px grabber, and a 22 px title with a one-line explanation.
 - **Actions:** a 44 px close X at the top right, and Save … and Cancel at the bottom.
@@ -276,7 +281,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 - "Good afternoon, Filip" until 18:00;
 - "Good evening, Filip" after that.
 
-**Account labels.** A10–A12 show "Forgot password?" above the title. A20 and A30 show "Welcome to Herculean".
+**Account labels.** A10–A14 show "Forgot password?" above the title. A20 and A30 show "Welcome to Herculean".
 
 **Formats**
 
@@ -303,7 +308,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 |---|---|---|
 | **A0 Launch** | A00 Splash, A02 Couldn't connect | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens, or A30 if setup isn't finished. Without a connection, A02 shows "Couldn't connect." and a Try again text link below the logo, which stays in place. |
 | **A1 Sign in** | A01 Sign in, A03 Signing in | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
-| **A2 Reset password** | A10 Reset password, A11 Link sent, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → New password twice → Save password → A01. |
+| **A2 Reset password** | A10 Reset password, A11 Link sent, A13 Reset email, A14 Opening the app, A12 New password | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → the link in A13 opens A14, which opens the app → New password twice → Save password → A01. A14 is the page a browser shows for a moment; its button is there in case the app doesn't open by itself. An expired or used link opens A10 with the error line "This link has expired. Send a new one." If the link expires while the user types, the same line shows at the top of A12. |
 | **A3 Create account** | A20 Create account, A30 Setup | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. |
 
 ### H · Home

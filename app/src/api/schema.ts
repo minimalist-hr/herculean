@@ -88,6 +88,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/password-resets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a password reset link
+         * @description Emails a link to set a new password. The answer is the same whether or not the email has an account, so it never tells which emails do. A new link cancels older ones.
+         */
+        post: operations["CreatePasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/links/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Open a password reset link
+         * @description The page the email links to. It opens the app's new password screen, or its reset password screen when the link is unknown, used or expired.
+         */
+        get: operations["OpenResetLink"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/password-resets/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set a new password
+         * @description Sets the new password with the token from the reset link. The link stops working and every device is signed out.
+         */
+        post: operations["CompletePasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workout-settings": {
         parameters: {
             query?: never;
@@ -112,6 +172,18 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description The token from the reset link, and the new password. */
+        CompletePasswordResetRequest: {
+            /** @description The token from the reset link. It works once. */
+            token: string;
+            /** @description The new password, at least 8 characters. */
+            password: string;
+        };
+        /** @description Where to send the password reset link. */
+        CreatePasswordResetRequest: {
+            /** @description The account's email. Not case-sensitive. */
+            email: string;
+        };
         /** @description Email and password to sign in with. */
         CreateSessionRequest: {
             /** @description The account's email, in any case. */
@@ -439,6 +511,118 @@ export interface operations {
             };
             /** @description The refresh token is unknown, already used or expired. Sign in again. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreatePasswordReset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePasswordResetRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted. If the email has an account, the link is on its way. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The email is missing or not valid. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    OpenResetLink: {
+        parameters: {
+            query?: {
+                /** @description The token from the email. */
+                token?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page that opens the app. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
+    CompletePasswordReset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompletePasswordResetRequest"];
+            };
+        };
+        responses: {
+            /** @description The password is changed. Sign in with the new one. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The token is missing, or the password is too short. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The token is unknown, already used or expired. Send a new link. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

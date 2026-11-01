@@ -18,11 +18,15 @@ title: Configuration
 | Jwt | SigningKey | Yes | At least 32 characters. Locally, Aspire generates a new one on each run. |
 | Jwt | AccessTokenLifetime | | 15 minutes |
 | Jwt | RefreshTokenLifetime | | 30 days, renewed on each refresh |
-| Tokens | PasswordResetLifetime | | 1 hour. Must match the A11 copy. |
+| Tokens | ResetLinkLifetime | | 1 hour. Must match the A11 copy. |
 | Tokens | EmailChangeLifetime | | 24 hours |
-| Email | ResendApiKey | Yes | |
+| Email | Host | | `smtp.resend.com`. Set by Aspire locally, for Mailpit. |
+| Email | Port | | `465`, which is TLS from the start. Set by Aspire locally. |
+| Email | Username | | `resend` |
+| Email | Password | Yes | The Resend API key. Empty locally: Mailpit needs no sign in. |
 | Email | From | | `Herculean <no-reply@minimalist.hr>` |
-| Links | BaseUrl | | Public URL of the API, used in email links |
+| Links | BaseUrl | | Public URL of the API, used in email links. Set by Aspire locally. |
+| Links | AppUrl | | What a link into the app starts with: `herculean://`. Set by Aspire locally to the Expo Go address, for example `exp://192.168.1.10:8081/--/`. |
 | BrowserPreview | Origin | | Development only. The browser preview's address, the only origin CORS allows. Set by Aspire. |
 
 ## App

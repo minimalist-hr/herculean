@@ -1,4 +1,8 @@
+using System.Threading.Channels;
+
 using Herculean.Account.Application.Auth;
+using Herculean.Account.Application.Email;
+using Herculean.Account.Application.PasswordResets;
 using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Auth;
@@ -22,6 +26,12 @@ internal sealed class FakeUserRepository : IUserRepository
 
     public Task<User?> GetByRefreshTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.RefreshTokens.Any(token => token.TokenHash == tokenHash)));
+
+    public Task<User?> GetByEmailWithPasswordResetTokensAsync(string email, CancellationToken cancellationToken) =>
+        GetByEmailAsync(email, cancellationToken);
+
+    public Task<User?> GetByPasswordResetTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.PasswordResetTokens.Any(token => token.TokenHash == tokenHash)));
 
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken) =>
         Task.FromResult(Users.Any(user => user.Email == User.NormalizeEmail(email)));
@@ -78,4 +88,63 @@ internal sealed class FakeTokenIssuer : ITokenIssuer
     }
 
     public string HashRefreshToken(string refreshToken) => $"hash:{refreshToken}";
+}
+
+internal sealed class FakePasswordResetTokenIssuer : IPasswordResetTokenIssuer
+{
+    public const string Token = "reset-token";
+
+    public string Issue(User user)
+    {
+        user.AddPasswordResetToken(Hash(Token), DateTimeOffset.UnixEpoch);
+
+        return Token;
+    }
+
+    public string Hash(string token) => $"hash:{token}";
+}
+
+internal sealed class FakePasswordResetQueue : IPasswordResetQueue
+{
+    public List<string> Emails { get; } = [];
+
+    public void Enqueue(string email)
+    {
+        Emails.Add(email);
+    }
+}
+
+internal sealed class FakeResetLinks : IResetLinks
+{
+    public const string ExpiredLink = "expired";
+
+    public string Page(string token) => $"page:{token}";
+
+    public string NewPassword(string token, string email) => $"new-password:{token}:{email}";
+
+    public string Expired() => ExpiredLink;
+}
+
+internal sealed record SentEmail(string Email, string Token);
+
+internal sealed class FakeEmailSender : IEmailSender
+{
+    private readonly Channel<SentEmail> _sent = Channel.CreateUnbounded<SentEmail>();
+
+    public ChannelReader<SentEmail> Sent => _sent.Reader;
+
+    public bool FailNext { get; set; }
+
+    public Task SendPasswordResetAsync(string email, string token, CancellationToken cancellationToken)
+    {
+        if (FailNext)
+        {
+            FailNext = false;
+            throw new InvalidOperationException("The email could not be sent.");
+        }
+
+        _sent.Writer.TryWrite(new SentEmail(email, token));
+
+        return Task.CompletedTask;
+    }
 }

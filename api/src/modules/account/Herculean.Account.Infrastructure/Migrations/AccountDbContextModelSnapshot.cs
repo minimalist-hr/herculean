@@ -23,6 +23,46 @@ namespace Herculean.Account.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Herculean.Account.Domain.Users.PasswordResetToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at_utc");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_password_reset_tokens");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_password_reset_tokens_token_hash");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_password_reset_tokens_user_id");
+
+                    b.ToTable("password_reset_tokens", "account");
+                });
+
             modelBuilder.Entity("Herculean.Account.Domain.Users.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -155,6 +195,16 @@ namespace Herculean.Account.Infrastructure.Migrations
                     b.ToTable("outbox_messages", "account");
                 });
 
+            modelBuilder.Entity("Herculean.Account.Domain.Users.PasswordResetToken", b =>
+                {
+                    b.HasOne("Herculean.Account.Domain.Users.User", null)
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_password_reset_tokens_users_user_id");
+                });
+
             modelBuilder.Entity("Herculean.Account.Domain.Users.RefreshToken", b =>
                 {
                     b.HasOne("Herculean.Account.Domain.Users.User", null)
@@ -167,6 +217,8 @@ namespace Herculean.Account.Infrastructure.Migrations
 
             modelBuilder.Entity("Herculean.Account.Domain.Users.User", b =>
                 {
+                    b.Navigation("PasswordResetTokens");
+
                     b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618

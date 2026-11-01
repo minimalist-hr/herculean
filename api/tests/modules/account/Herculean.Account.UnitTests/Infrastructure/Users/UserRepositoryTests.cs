@@ -109,6 +109,56 @@ public sealed class UserRepositoryTests : IDisposable
         (await _userRepository.GetByRefreshTokenHashAsync("token-hash", TestContext.Current.CancellationToken)).ShouldBeNull();
     }
 
+    [Fact]
+    public async Task FindsTheUserByEmailWithTheirPasswordResetTokens()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddPasswordResetToken("token-hash", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        User? user = await _userRepository.GetByEmailWithPasswordResetTokensAsync(" Filip@Example.COM ", TestContext.Current.CancellationToken);
+
+        user.ShouldNotBeNull().PasswordResetTokens.ShouldHaveSingleItem().TokenHash.ShouldBe("token-hash");
+    }
+
+    [Fact]
+    public async Task FindsTheUserByPasswordResetTokenWithAllTheirTokens()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddPasswordResetToken("token-hash", DateTimeOffset.UnixEpoch);
+        newUser.AddRefreshToken("phone", DateTimeOffset.UnixEpoch);
+        newUser.AddRefreshToken("tablet", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        User? user = await _userRepository.GetByPasswordResetTokenHashAsync("token-hash", TestContext.Current.CancellationToken);
+
+        user.ShouldNotBeNull().PasswordResetTokens.ShouldHaveSingleItem();
+        user.RefreshTokens.Count.ShouldBe(2);
+        (await _userRepository.GetByPasswordResetTokenHashAsync("unknown", TestContext.Current.CancellationToken)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ResetPasswordDeletesEveryTokenOnSave()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddPasswordResetToken("token-hash", DateTimeOffset.UnixEpoch);
+        newUser.AddRefreshToken("phone", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        User user = (await _userRepository.GetByPasswordResetTokenHashAsync("token-hash", TestContext.Current.CancellationToken)).ShouldNotBeNull();
+        user.ResetPassword("new-hash");
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _dbContext.Set<PasswordResetToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+        (await _dbContext.Set<RefreshToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

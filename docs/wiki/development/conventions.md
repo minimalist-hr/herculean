@@ -62,10 +62,12 @@ We follow REST as closely as possible.
   | Method | Meaning | Success |
   |---|---|---|
   | GET | Read | 200 |
-  | POST | Create | 201, with a `Location` header. Sign in and refresh return 200, like an OAuth 2.0 token endpoint. |
+  | POST | Create | 201, with a `Location` header. Sign in and refresh return 200, like an OAuth 2.0 token endpoint. Work that happens after the answer returns 202, for example sending a reset link. |
   | PUT | Replace a whole resource | 200 |
   | PATCH | Change some fields, as in JSON Merge Patch (RFC 7396). A field left out stays the same. No field can be cleared yet, so null also keeps it. | 200, with the whole resource |
   | DELETE | Delete | 204 |
+
+  An action with nothing to return gives 204, for example `/complete`.
 
 - **Actions:** when no resource fits, a short verb is added after the resource and called with POST, for example `/restore`, `/refresh`, `/complete`, `/confirm`. This is the exception, not the rule.
 - **Errors** are Problem Details: 400 validation, 401 not signed in, 404 not found, 409 conflict. Every error has the same fields, as set out in [Errors](/architecture/backend#errors).

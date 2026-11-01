@@ -13,4 +13,6 @@ internal static class UserErrors
     public static readonly Error InvalidCredentials = Error.Unauthorized("user.invalid_credentials", "Email or password is wrong.");
 
     public static readonly Error InvalidRefreshToken = Error.Unauthorized("user.invalid_refresh_token", "The refresh token is unknown, used or expired. Sign in again.");
+
+    public static readonly Error InvalidPasswordResetToken = Error.NotFound("user.invalid_password_reset_token", "This link has expired. Send a new one.");
 }

@@ -7,6 +7,7 @@ internal sealed class User : Entity<UserId>
     internal const int NameMaxLength = 50;
 
     private readonly List<RefreshToken> _refreshTokens = [];
+    private readonly List<PasswordResetToken> _passwordResetTokens = [];
 
     private User(UserId id, string email, string passwordHash, string timeZone) : base(id)
     {
@@ -28,6 +29,8 @@ internal sealed class User : Entity<UserId>
     public string TimeZone { get; private set; }
 
     public IReadOnlyList<RefreshToken> RefreshTokens => _refreshTokens;
+
+    public IReadOnlyList<PasswordResetToken> PasswordResetTokens => _passwordResetTokens;
 
     public static User Create(string email, string passwordHash, string timeZone) =>
         new(UserId.New(), NormalizeEmail(email), passwordHash, timeZone);
@@ -65,5 +68,25 @@ internal sealed class User : Entity<UserId>
     public void RemoveRefreshToken(RefreshToken refreshToken)
     {
         _refreshTokens.Remove(refreshToken);
+    }
+
+    /// <summary>Only the newest reset link works: a new token cancels the older ones.</summary>
+    public void AddPasswordResetToken(string tokenHash, DateTimeOffset expiresAtUtc)
+    {
+        _passwordResetTokens.Clear();
+        _passwordResetTokens.Add(PasswordResetToken.Create(Id, tokenHash, expiresAtUtc));
+    }
+
+    public void RemovePasswordResetToken(PasswordResetToken passwordResetToken)
+    {
+        _passwordResetTokens.Remove(passwordResetToken);
+    }
+
+    /// <summary>Whoever had the old password loses access: the reset link stops working and every device is signed out.</summary>
+    public void ResetPassword(string passwordHash)
+    {
+        PasswordHash = passwordHash;
+        _passwordResetTokens.Clear();
+        _refreshTokens.Clear();
     }
 }

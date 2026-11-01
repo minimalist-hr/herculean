@@ -73,7 +73,7 @@ public sealed class AccountModuleTests
     }
 
     [Fact]
-    public void SignInAndRefreshEachHaveTheirOwnRateLimit()
+    public void RateLimitedEndpointsEachHaveTheirOwnRateLimit()
     {
         WebApplicationBuilder builder = WebApplication.CreateSlimBuilder();
         builder.Configuration["ConnectionStrings:database"] = "Host=localhost";
@@ -93,6 +93,8 @@ public sealed class AccountModuleTests
         {
             ["/api/v1/sessions"] = "sign-in",
             ["/api/v1/sessions/refresh"] = "refresh",
+            ["/api/v1/password-resets"] = "password-reset",
+            ["/api/v1/password-resets/complete"] = "password-reset-complete",
         });
     }
 }

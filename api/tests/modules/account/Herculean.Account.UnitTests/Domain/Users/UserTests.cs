@@ -59,4 +59,30 @@ public sealed class UserTests
         user.Units.ShouldBe(Units.Imperial);
         user.TimeZone.ShouldBe("Europe/London");
     }
+
+    [Fact]
+    public void NewPasswordResetTokenCancelsTheOlderOne()
+    {
+        User user = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+
+        user.AddPasswordResetToken("old", DateTimeOffset.UnixEpoch);
+        user.AddPasswordResetToken("new", DateTimeOffset.UnixEpoch);
+
+        user.PasswordResetTokens.ShouldHaveSingleItem().TokenHash.ShouldBe("new");
+    }
+
+    [Fact]
+    public void ResetPasswordChangesTheHashAndRemovesEveryToken()
+    {
+        User user = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        user.AddPasswordResetToken("reset", DateTimeOffset.UnixEpoch);
+        user.AddRefreshToken("phone", DateTimeOffset.UnixEpoch);
+        user.AddRefreshToken("tablet", DateTimeOffset.UnixEpoch);
+
+        user.ResetPassword("new-hash");
+
+        user.PasswordHash.ShouldBe("new-hash");
+        user.PasswordResetTokens.ShouldBeEmpty();
+        user.RefreshTokens.ShouldBeEmpty();
+    }
 }

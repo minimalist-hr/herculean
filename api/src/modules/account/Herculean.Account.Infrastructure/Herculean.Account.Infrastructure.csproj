@@ -5,7 +5,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Email\PasswordResetEmail.html" />
+    <EmbeddedResource Include="Email\wordmark-on-dark.png" />
   </ItemGroup>
 
   <!-- Internals stay inside the module. -->

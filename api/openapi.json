@@ -294,6 +294,138 @@
         }
       }
     },
+    "/api/v1/password-resets": {
+      "post": {
+        "tags": [
+          "Password resets"
+        ],
+        "summary": "Send a password reset link",
+        "description": "Emails a link to set a new password. The answer is the same whether or not the email has an account, so it never tells which emails do. A new link cancels older ones.",
+        "operationId": "CreatePasswordReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePasswordResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted. If the email has an account, the link is on its way."
+          },
+          "400": {
+            "description": "The email is missing or not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/links/reset-password": {
+      "get": {
+        "tags": [
+          "Password resets"
+        ],
+        "summary": "Open a password reset link",
+        "description": "The page the email links to. It opens the app's new password screen, or its reset password screen when the link is unknown, used or expired.",
+        "operationId": "OpenResetLink",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "The token from the email.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page that opens the app.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/password-resets/complete": {
+      "post": {
+        "tags": [
+          "Password resets"
+        ],
+        "summary": "Set a new password",
+        "description": "Sets the new password with the token from the reset link. The link stops working and every device is signed out.",
+        "operationId": "CompletePasswordReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompletePasswordResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The password is changed. Sign in with the new one."
+          },
+          "400": {
+            "description": "The token is missing, or the password is too short.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The token is unknown, already used or expired. Send a new link.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/workout-settings": {
       "patch": {
         "tags": [
@@ -354,6 +486,37 @@
   },
   "components": {
     "schemas": {
+      "CompletePasswordResetRequest": {
+        "required": [
+          "token",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token from the reset link. It works once."
+          },
+          "password": {
+            "type": "string",
+            "description": "The new password, at least 8 characters."
+          }
+        },
+        "description": "The token from the reset link, and the new password."
+      },
+      "CreatePasswordResetRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The account's email. Not case-sensitive."
+          }
+        },
+        "description": "Where to send the password reset link."
+      },
       "CreateSessionRequest": {
         "required": [
           "email",
@@ -618,6 +781,9 @@
     },
     {
       "name": "Sessions"
+    },
+    {
+      "name": "Password resets"
     },
     {
       "name": "Workout settings"

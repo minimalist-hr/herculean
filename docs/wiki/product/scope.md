@@ -14,7 +14,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 
 | # | Feature | Screens |
 |---|---|---|
-| 1 | [Account](#1-account) | A00, A01, A03, A10–A12, A20, A30, H20, H21 |
+| 1 | [Account](#1-account) | A00, A01, A03, A10–A14, A20, A30, H20, H21 |
 | 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E34, L22 |
 | 3 | [Routines](#3-routines) | R01–R03, R10, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
@@ -28,12 +28,12 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 
 **What it does:** you open the app and stay signed in. You can sign in with email and password, reset a forgotten password by email, create an account and set up your name, units and default rest time, and read the terms of service and privacy policy.
 
-**Screens:** A00 Splash, A02 Couldn't connect, A01 Sign in, A03 Signing in, A10 Reset password, A11 Link sent, A12 New password, A20 Create account, A30 Setup, H20 Terms of service, H21 Privacy policy.
+**Screens:** A00 Splash, A02 Couldn't connect, A01 Sign in, A03 Signing in, A10 Reset password, A11 Link sent, A12 New password, A13 Reset email, A14 Opening the app, A20 Create account, A30 Setup, H20 Terms of service, H21 Privacy policy.
 
 **Flows**
 - **Launch:** A00 checks for a stored refresh token. With one, H07 opens, or A30 if setup isn't finished. Without one, or when it is refused, A01 opens. With no connection, A02 offers to try again.
 - **Sign in:** A01 → A03 → H07, or A30 if setup isn't finished.
-- **Reset password:** A01 → A10 → A11 → link in the email → A12 → A01.
+- **Reset password:** A01 → A10 → A11 → A13, the email → A14, the page its link opens → A12 → A01. An expired or used link opens A10 with an error line.
 - **Create account:** A01 → A20 → A30 → H05. A20 links to H20 and H21, whose back link reads "Create account".
 
 **Entities:** User, Refresh token, Password reset token. Creating an account also gives Training its settings and the 6 groups, through the "Account created" event.

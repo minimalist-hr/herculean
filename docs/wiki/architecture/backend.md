@@ -127,9 +127,10 @@ Herculean.Training.Application/
 - Refresh tokens, password reset tokens and email change tokens are stored hashed.
 - Each refresh replaces the refresh token with a new one. An expired refresh token is removed when it is used, and the user signs in again.
 - A wrong email and a wrong password get the same 401 and take as long, so sign in never tells which emails have an account.
-- Sign in and refresh each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
+- Sign in, refresh, sending a reset link and completing a reset each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
+- Sending a reset link answers 202 for every valid email, and the work happens after the answer, so the request never tells which emails have an account. The queue holds only the email: the token is created when the email goes out, so the plain token is never stored.
 - The API checks every access token's signature, issuer, audience and lifetime.
-- Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, the health check and the API docs are anonymous.
+- Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, sign in, refresh, password resets, the health check and the API docs are anonymous.
 - The OpenAPI document has the Bearer scheme, so Scalar can send an access token.
 - Tokens are returned as the OAuth 2.0 token response (RFC 6749), in camelCase: `accessToken`, `expiresIn` (seconds) and `refreshToken`.
 
@@ -142,7 +143,12 @@ Herculean.Training.Application/
 
 - Jobs are `BackgroundService`s. There is no job library.
 - **Outbox:** sends saved events.
-- **Token cleanup:** deletes expired tokens, as set out in [Domain and entities](/product/domain#account).
+- **Password reset email:** sends the reset links waiting in the queue, one at a time. The queue is in memory: a restart loses what is waiting, and a failed email is only logged. In both cases the user can send the link again.
+
+## Email
+
+- Email goes out over SMTP with MailKit: to Resend in production and to Mailpit locally, so both run the same code.
+- Each email has HTML and plain text. The HTML follows section 5 of the [design document](https://gitlab.com/minimalist-sds/herculean/-/blob/main/docs/design/design-document.md), and is an embedded resource next to its code.
 
 ## Logging
 

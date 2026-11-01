@@ -44,10 +44,12 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A password has at least 8 characters.
 - A name has 1 to 50 characters, trimmed.
 - Password reset and email change links expire. Their lifetimes are in [Configuration](/development/configuration#api-settings).
+- A password reset link works once, and a new one cancels older ones.
+- Resetting the password deletes every refresh token, so every device is signed out.
 - An email change takes effect only when the link in the email is opened.
 - Sign out deletes that device's refresh token.
 - Changing the password deletes every refresh token except the current one.
-- A token is deleted once it is used or revoked. Expired tokens are deleted daily.
+- A token is deleted once it is used or revoked.
 - Deleting an account deletes all its data. There is no undo.
 - A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and no exercises.
 - The greeting uses the first word of the name.

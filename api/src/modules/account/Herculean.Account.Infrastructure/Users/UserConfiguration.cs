@@ -23,5 +23,10 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(token => token.UserId)
             .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder.HasMany(user => user.PasswordResetTokens)
+            .WithOne()
+            .HasForeignKey(token => token.UserId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

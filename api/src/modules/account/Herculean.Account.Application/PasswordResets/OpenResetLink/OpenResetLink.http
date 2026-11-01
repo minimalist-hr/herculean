@@ -1,0 +1,8 @@
+# Open a password reset link. Start the API with Aspire first. A real token is in the email in Mailpit.
+@host = http://localhost:5279
+
+### Unknown token → 200, with a page that opens the reset password screen.
+GET {{host}}/links/reset-password?token=not-a-real-token
+
+### No token → 200, with the same page.
+GET {{host}}/links/reset-password

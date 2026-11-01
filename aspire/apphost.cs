@@ -12,6 +12,9 @@ const int MetroPort = 8081;
 // A fixed port keeps an open pgweb tab working after Aspire restarts.
 const int PgWebPort = 8082;
 
+// A fixed port keeps the link to Mailpit on the phone working after Aspire restarts.
+const int MailPitPort = 8083;
+
 // The phone reaches the API and Metro over the local network, not localhost.
 // Like Expo, use the IPv4 address of the network interface that has a gateway.
 var lanAddress = NetworkInterface.GetAllNetworkInterfaces()
@@ -31,7 +34,16 @@ var database = builder.AddPostgres("postgres")
     .WithPgWeb(pgWeb => pgWeb.WithHostPort(PgWebPort))
     .AddDatabase("database", "herculean");
 
-builder.AddMailPit("mailpit");
+// The phone opens Mailpit over the local network, so the link in an email can be tapped there.
+var mailPitPhoneUrl = $"http://{lanAddress}:{MailPitPort}";
+var mailPit = builder.AddMailPit("mailpit", httpPort: MailPitPort)
+    .WithEndpoint("http", endpoint =>
+    {
+        endpoint.IsProxied = false;
+        endpoint.TargetHost = "0.0.0.0";
+    })
+    .WithUrl(mailPitPhoneUrl);
+var mailPitSmtp = mailPit.GetEndpoint("smtp");
 
 // A new key on each run is fine locally: the app gets new tokens with its refresh token.
 var jwtSigningKey = builder.AddParameter("jwt-signing-key", new GenerateParameterDefault { MinLength = 32, Special = false }, secret: true);
@@ -61,7 +73,10 @@ var api = builder.AddProject("api", "../api/src/Herculean.Api/Herculean.Api.cspr
     .WithHttpHealthCheck("/health")
     .WithReference(database)
     .WithEnvironment("Jwt__SigningKey", jwtSigningKey)
-    .WaitFor(database);
+    .WithEnvironment("Email__Host", mailPitSmtp.Property(EndpointProperty.Host))
+    .WithEnvironment("Email__Port", mailPitSmtp.Property(EndpointProperty.Port))
+    .WaitFor(database)
+    .WaitFor(mailPit);
 
 var apiPort = api.GetEndpoint("http").Property(EndpointProperty.Port);
 var expoGoUrl = $"exp://{lanAddress}:{MetroPort}";
@@ -69,9 +84,13 @@ var expoGoUrl = $"exp://{lanAddress}:{MetroPort}";
 var app = builder.AddJavaScriptApp("app", "../app", "start")
     .WithHttpEndpoint(port: MetroPort, targetPort: MetroPort, env: "RCT_METRO_PORT", isProxied: false)
     .WithUrlForEndpoint("http", url => url.DisplayText = "Browser")
-    .WithUrl(expoGoUrl, "Expo Go")
+    .WithUrl(expoGoUrl)
     .WithEnvironment("EXPO_PUBLIC_API_URL", ReferenceExpression.Create($"http://{lanAddress}:{apiPort}"))
     .WaitFor(api);
+
+// Links in email open on the phone: the API's page first, then the app in Expo Go.
+api.WithEnvironment("Links__BaseUrl", ReferenceExpression.Create($"http://{lanAddress}:{apiPort}"));
+api.WithEnvironment("Links__AppUrl", $"{expoGoUrl}/--/");
 
 // The API allows the browser preview's origin, and only that one.
 api.WithEnvironment("BrowserPreview__Origin", app.GetEndpoint("http"));
