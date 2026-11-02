@@ -212,7 +212,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an exercise
-         * @description Removes an exercise from the signed-in user's list. Logged workouts keep it, and its name can be used again.
+         * @description Removes an exercise from the signed-in user's list and routines. Logged workouts keep it, and its name can be used again.
          */
         delete: operations["DeleteExercise"];
         options?: never;
@@ -257,7 +257,11 @@ export interface paths {
          */
         get: operations["ListRoutines"];
         put?: never;
-        post?: never;
+        /**
+         * Create a routine
+         * @description Adds a routine with its exercises and targets to the signed-in user's list. It isn't planned on any weekday yet.
+         */
+        post: operations["CreateRoutine"];
         delete?: never;
         options?: never;
         head?: never;
@@ -403,6 +407,13 @@ export interface components {
             /** @description The account's email. Not case-sensitive. */
             email: string;
         };
+        /** @description A new routine. */
+        CreateRoutineRequest: {
+            /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case. */
+            name: string;
+            /** @description Its exercises in order, 1 to 30, each once. */
+            exercises: components["schemas"]["RoutineExerciseItem"][];
+        };
         /** @description Email and password to sign in with. */
         CreateSessionRequest: {
             /** @description The account's email, in any case. */
@@ -539,6 +550,29 @@ export interface components {
             /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case. */
             name: string;
         };
+        /** @description An exercise in a routine and its targets. */
+        RoutineExerciseItem: {
+            /**
+             * Format: uuid
+             * @description The exercise.
+             */
+            exerciseId: string;
+            /**
+             * Format: int32
+             * @description The sets to do, 1 to 20.
+             */
+            targetSets: number;
+            /**
+             * Format: int32
+             * @description The low end of the rep range, 1 to 100.
+             */
+            targetRepsFrom: number;
+            /**
+             * Format: int32
+             * @description The high end of the rep range, 1 to 100. It can't be below the low end.
+             */
+            targetRepsTo: number;
+        };
         /** @description A routine in the list. */
         RoutineListItemResponse: {
             /**
@@ -560,6 +594,16 @@ export interface components {
             setCount: number;
             /** @description The weekdays it is planned on now, from Monday. */
             weekdays: components["schemas"]["Weekday"][];
+        };
+        /** @description A routine. */
+        RoutineResponse: {
+            /**
+             * Format: uuid
+             * @description The routine's ID.
+             */
+            id: string;
+            /** @description The routine's name. */
+            name: string;
         };
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
@@ -1397,6 +1441,66 @@ export interface operations {
             };
             /** @description Not signed in, or the access token expired. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoutineRequest"];
+            };
+        };
+        responses: {
+            /** @description The new routine. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoutineResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description One of the exercises does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user already has a routine with this name, or has reached the limit of 50 routines. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

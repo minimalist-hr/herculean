@@ -12,6 +12,7 @@ using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
+using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
 
 namespace Herculean.Training.UnitTests.Application;
@@ -136,9 +137,39 @@ internal sealed class FakeExerciseRepository : IExerciseRepository
         Task.FromResult(Exercises.Any(exercise =>
             exercise.DeletedAtUtc is null && exercise.Id != exceptId && exercise.NormalizedName == Exercise.NormalizeName(name)));
 
+    public Task<bool> AllExistAsync(IReadOnlyCollection<ExerciseId> ids, CancellationToken cancellationToken) =>
+        Task.FromResult(ids.All(id => Exercises.Any(exercise => exercise.Id == id && exercise.DeletedAtUtc is null)));
+
     public void Add(Exercise exercise)
     {
         Exercises.Add(exercise);
+    }
+}
+
+internal sealed class FakeRoutineRepository : IRoutineRepository
+{
+    public List<Routine> Routines { get; } = [];
+
+    public List<ExerciseId> RemovedExercises { get; } = [];
+
+    /// <summary>The count to report, so a test needs no 50 routines.</summary>
+    public int? Count { get; set; }
+
+    public Task<int> CountAsync(CancellationToken cancellationToken) => Task.FromResult(Count ?? Routines.Count);
+
+    public Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken) =>
+        Task.FromResult(Routines.Any(routine => routine.NormalizedName == Routine.NormalizeName(name)));
+
+    public Task RemoveExerciseAsync(ExerciseId exerciseId, CancellationToken cancellationToken)
+    {
+        RemovedExercises.Add(exerciseId);
+
+        return Task.CompletedTask;
+    }
+
+    public void Add(Routine routine)
+    {
+        Routines.Add(routine);
     }
 }
 

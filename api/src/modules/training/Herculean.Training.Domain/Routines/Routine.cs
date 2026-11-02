@@ -6,6 +6,15 @@ internal sealed class Routine : Entity<RoutineId>
 {
     internal const int NameMaxLength = 100;
 
+    /// <summary>Keeps the routine list small enough to load whole.</summary>
+    internal const int MaxPerUser = 50;
+
+    internal const int MaxExercises = 30;
+
+    internal const int MaxTargetSets = 20;
+
+    internal const int MaxTargetReps = 100;
+
     private readonly List<RoutineExercise> _exercises = [];
 
     private Routine(RoutineId id, UserId userId, string name, string normalizedName) : base(id)

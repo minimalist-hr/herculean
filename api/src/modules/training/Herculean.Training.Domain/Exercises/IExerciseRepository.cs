@@ -14,5 +14,8 @@ internal interface IExerciseRepository
     /// <param name="cancellationToken">Stops the check.</param>
     Task<bool> NameExistsAsync(string name, ExerciseId? exceptId, CancellationToken cancellationToken);
 
+    /// <summary>Checks that all of these are the current user's exercises.</summary>
+    Task<bool> AllExistAsync(IReadOnlyCollection<ExerciseId> ids, CancellationToken cancellationToken);
+
     void Add(Exercise exercise);
 }

@@ -2,10 +2,12 @@ using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
+using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
 using Herculean.Training.Infrastructure;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
+using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.Settings;
 using Herculean.Training.UnitTests.Application;
 
@@ -174,6 +176,56 @@ public sealed class RepositoryTests : IDisposable
         (await groupRepository.IsInUseAsync(groups[0].Id, TestContext.Current.CancellationToken)).ShouldBeTrue();
         (await groupRepository.IsInUseAsync(groups[1].Id, TestContext.Current.CancellationToken)).ShouldBeTrue();
         (await groupRepository.IsInUseAsync(groups[2].Id, TestContext.Current.CancellationToken)).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task AnExerciseIsTakenOutOfRoutinesAndOnlyThatOne()
+    {
+        RoutineRepository routineRepository = new(_dbContext);
+        Exercise squat = Exercise.Create(_userId, "Squat", GroupId.New(), []);
+        Exercise lunge = Exercise.Create(_userId, "Lunge", GroupId.New(), []);
+        _dbContext.Exercises.AddRange(squat, lunge);
+        Routine legs = Routine.Create(_userId, "Legs", [new RoutineExerciseValues(squat.Id, 3, 8, 10), new RoutineExerciseValues(lunge.Id, 3, 8, 10)]);
+        routineRepository.Add(legs);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await routineRepository.RemoveExerciseAsync(squat.Id, TestContext.Current.CancellationToken);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        Routine read = await _dbContext.Routines.Include(routine => routine.Exercises).SingleAsync(TestContext.Current.CancellationToken);
+        read.Exercises.ShouldHaveSingleItem().ExerciseId.ShouldBe(lunge.Id);
+    }
+
+    [Fact]
+    public async Task TheRoutineNameCheckIgnoresCaseAndCountSkipsDeleted()
+    {
+        RoutineRepository routineRepository = new(_dbContext);
+        Routine deleted = Routine.Create(_userId, "Arms", []);
+        routineRepository.Add(deleted);
+        routineRepository.Add(Routine.Create(_userId, "Legs", []));
+        _dbContext.Entry(deleted).Property(routine => routine.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await routineRepository.NameExistsAsync(" LEGS ", TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await routineRepository.NameExistsAsync("Arms", TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await routineRepository.CountAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task AllExistIsFalseIfAnyExerciseIsMissingOrDeleted()
+    {
+        ExerciseRepository exerciseRepository = new(_dbContext);
+        Exercise squat = Exercise.Create(_userId, "Squat", GroupId.New(), []);
+        Exercise lunge = Exercise.Create(_userId, "Lunge", GroupId.New(), []);
+        lunge.Delete(DateTimeOffset.UnixEpoch);
+        exerciseRepository.Add(squat);
+        exerciseRepository.Add(lunge);
+        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await exerciseRepository.AllExistAsync([squat.Id], TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await exerciseRepository.AllExistAsync([squat.Id, lunge.Id], TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await exerciseRepository.AllExistAsync([squat.Id, ExerciseId.New()], TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
     private async Task<IReadOnlyList<Group>> SaveGroupsAsync(UserId userId)

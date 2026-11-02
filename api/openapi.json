@@ -777,7 +777,7 @@
           "Exercises"
         ],
         "summary": "Delete an exercise",
-        "description": "Removes an exercise from the signed-in user's list. Logged workouts keep it, and its name can be used again.",
+        "description": "Removes an exercise from the signed-in user's list and routines. Logged workouts keep it, and its name can be used again.",
         "operationId": "DeleteExercise",
         "parameters": [
           {
@@ -952,6 +952,81 @@
           },
           "401": {
             "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Routines"
+        ],
+        "summary": "Create a routine",
+        "description": "Adds a routine with its exercises and targets to the signed-in user's list. It isn't planned on any weekday yet.",
+        "operationId": "CreateRoutine",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoutineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new routine.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutineResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "One of the exercises does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user already has a routine with this name, or has reached the limit of 50 routines.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1447,6 +1522,27 @@
         },
         "description": "Where to send the password reset link."
       },
+      "CreateRoutineRequest": {
+        "required": [
+          "name",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineExerciseItem"
+            },
+            "description": "Its exercises in order, 1 to 30, each once."
+          }
+        },
+        "description": "A new routine."
+      },
       "CreateSessionRequest": {
         "required": [
           "email",
@@ -1750,6 +1846,38 @@
         },
         "description": "A group's new name."
       },
+      "RoutineExerciseItem": {
+        "required": [
+          "exerciseId",
+          "targetSets",
+          "targetRepsFrom",
+          "targetRepsTo"
+        ],
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise.",
+            "format": "uuid"
+          },
+          "targetSets": {
+            "type": "integer",
+            "description": "The sets to do, 1 to 20.",
+            "format": "int32"
+          },
+          "targetRepsFrom": {
+            "type": "integer",
+            "description": "The low end of the rep range, 1 to 100.",
+            "format": "int32"
+          },
+          "targetRepsTo": {
+            "type": "integer",
+            "description": "The high end of the rep range, 1 to 100. It can't be below the low end.",
+            "format": "int32"
+          }
+        },
+        "description": "An exercise in a routine and its targets."
+      },
       "RoutineListItemResponse": {
         "required": [
           "id",
@@ -1788,6 +1916,25 @@
           }
         },
         "description": "A routine in the list."
+      },
+      "RoutineResponse": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The routine's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The routine's name."
+          }
+        },
+        "description": "A routine."
       },
       "TokenResponse": {
         "required": [

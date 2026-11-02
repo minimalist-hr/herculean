@@ -23,6 +23,13 @@ internal sealed class ExerciseRepository(TrainingDbContext dbContext) : IExercis
             cancellationToken);
     }
 
+    public async Task<bool> AllExistAsync(IReadOnlyCollection<ExerciseId> ids, CancellationToken cancellationToken)
+    {
+        int found = await dbContext.Exercises.CountAsync(exercise => ids.Contains(exercise.Id), cancellationToken);
+
+        return found == ids.Count;
+    }
+
     public void Add(Exercise exercise)
     {
         dbContext.Exercises.Add(exercise);

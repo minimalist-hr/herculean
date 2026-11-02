@@ -1,0 +1,56 @@
+# Create a routine. Start the API with Aspire first, then send the first three requests once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### The groups → 200. A new account's groups can take a moment to appear.
+# @name groups
+GET {{host}}/api/v1/groups
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### An exercise → 201. The requests below use it.
+# @name createExercise
+POST {{host}}/api/v1/exercises
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Squat",
+  "groupId": "{{groups.response.body.$[5].id}}"
+}
+
+### A new routine → 201. Send it twice: the second time is 409 routine.name_taken.
+POST {{host}}/api/v1/routines
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Legs",
+  "exercises": [
+    {
+      "exerciseId": "{{createExercise.response.body.$.id}}",
+      "targetSets": 3,
+      "targetRepsFrom": 8,
+      "targetRepsTo": 10
+    }
+  ]
+}
+
+### No exercises → 400 validation, with an error for exercises.
+POST {{host}}/api/v1/routines
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Arms",
+  "exercises": []
+}

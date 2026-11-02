@@ -99,6 +99,10 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - An exercise's "also works" groups can't repeat a group, or include the group it belongs to.
 - Edits to an exercise show everywhere, past workouts included.
 - Deleting an exercise removes it from routines. Past workouts keep it.
+- A routine's name has 1 to 100 characters, trimmed. It differs from the user's other routines, regardless of case. A deleted routine's name can be used again.
+- A user can have at most 50 routines.
+- A routine has 1 to 30 exercises when saved, each once. Deleting an exercise can leave it with none.
+- A target has 1 to 20 sets, and a rep range from 1 to 100 whose low end isn't above its high end.
 - Deleting a routine turns its weekdays into rest days from today on. Past workouts keep their name.
 - A group's name has 1 to 30 characters, trimmed. It differs from the user's other groups, regardless of case. A deleted group's name can be used again.
 - A user can have at most 50 groups.

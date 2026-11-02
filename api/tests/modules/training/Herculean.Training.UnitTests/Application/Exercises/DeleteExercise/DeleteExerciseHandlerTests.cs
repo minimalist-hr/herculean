@@ -9,6 +9,7 @@ namespace Herculean.Training.UnitTests.Application.Exercises.DeleteExercise;
 public sealed class DeleteExerciseHandlerTests
 {
     private readonly FakeExerciseRepository _exerciseRepository = new();
+    private readonly FakeRoutineRepository _routineRepository = new();
     private readonly FakeUnitOfWork _unitOfWork = new();
     private readonly DeleteExerciseHandler _handler;
     private readonly Exercise _exercise = Exercise.Create(UserId.From(Guid.CreateVersion7()), "Bench press", GroupId.New(), []);
@@ -16,7 +17,7 @@ public sealed class DeleteExerciseHandlerTests
     public DeleteExerciseHandlerTests()
     {
         _exerciseRepository.Add(_exercise);
-        _handler = new DeleteExerciseHandler(_exerciseRepository, _unitOfWork, TimeProvider.System);
+        _handler = new DeleteExerciseHandler(_exerciseRepository, _routineRepository, _unitOfWork, TimeProvider.System);
     }
 
     [Fact]
@@ -26,6 +27,7 @@ public sealed class DeleteExerciseHandlerTests
 
         result.IsSuccess.ShouldBeTrue();
         _exercise.DeletedAtUtc.ShouldNotBeNull();
+        _routineRepository.RemovedExercises.ShouldHaveSingleItem().ShouldBe(_exercise.Id);
         _unitOfWork.Saved.ShouldBeTrue();
     }
 
