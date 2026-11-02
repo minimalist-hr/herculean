@@ -244,6 +244,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/routines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the routines
+         * @description Returns the signed-in user's routines by their first planned weekday, then name, with the unplanned ones last. Deleted routines are left out.
+         */
+        get: operations["ListRoutines"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/week-plan-days": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the week plan
+         * @description Returns what each weekday holds now for the signed-in user, always seven days from Monday. A day with no routine is a rest day.
+         */
+        get: operations["ListWeekPlanDays"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups/{id}": {
         parameters: {
             query?: never;
@@ -499,6 +539,28 @@ export interface components {
             /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case. */
             name: string;
         };
+        /** @description A routine in the list. */
+        RoutineListItemResponse: {
+            /**
+             * Format: uuid
+             * @description The routine's ID.
+             */
+            id: string;
+            /** @description The routine's name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description How many exercises it has.
+             */
+            exerciseCount: number;
+            /**
+             * Format: int32
+             * @description How many sets its exercises add up to.
+             */
+            setCount: number;
+            /** @description The weekdays it is planned on now, from Monday. */
+            weekdays: components["schemas"]["Weekday"][];
+        };
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
             /** @description A JWT. Send it as `Authorization: Bearer <accessToken>`. */
@@ -563,6 +625,23 @@ export interface components {
             units: components["schemas"]["Units"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it. */
             timeZone: string;
+        };
+        /**
+         * @description A day of the week. The week plan starts on Monday.
+         * @enum {unknown}
+         */
+        Weekday: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+        /** @description What a weekday holds in the week plan. */
+        WeekPlanDayResponse: {
+            /** @description The weekday. */
+            weekday: components["schemas"]["Weekday"];
+            /**
+             * Format: uuid
+             * @description The routine's ID. Null on a rest day.
+             */
+            routineId: null | string;
+            /** @description The routine's name. Null on a rest day. */
+            routineName: null | string;
         };
         /** @description The signed-in user's workout settings. */
         WorkoutSettingsResponse: {
@@ -1289,6 +1368,64 @@ export interface operations {
             };
             /** @description The user already has a group with this name, or has reached the limit of 50 groups. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListRoutines: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The routines. Empty when there are none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoutineListItemResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListWeekPlanDays: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The seven days. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeekPlanDayResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

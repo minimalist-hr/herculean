@@ -5,6 +5,10 @@ using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
+using Herculean.Training.Application.Routines;
+using Herculean.Training.Application.Routines.ListRoutines;
+using Herculean.Training.Application.WeekPlan;
+using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
@@ -136,6 +140,20 @@ internal sealed class FakeExerciseRepository : IExerciseRepository
     {
         Exercises.Add(exercise);
     }
+}
+
+internal sealed class FakeRoutineReadRepository : IRoutineReadRepository
+{
+    public List<RoutineListItemResponse> Items { get; } = [];
+
+    public Task<List<RoutineListItemResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
+}
+
+internal sealed class FakeWeekPlanReadRepository : IWeekPlanReadRepository
+{
+    public List<WeekPlanDayResponse> Items { get; } = [];
+
+    public Task<List<WeekPlanDayResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
 }
 
 internal sealed class FakeUnitOfWork : IUnitOfWork

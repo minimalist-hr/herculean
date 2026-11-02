@@ -102,7 +102,8 @@ erDiagram
 | Property | Type | Notes |
 |---|---|---|
 | UserId | UserId | |
-| Name | string | Unique per user among groups that are not deleted |
+| Name | string | |
+| NormalizedName | string | Unique per user among groups that are not deleted |
 | Order | int | |
 | DeletedAtUtc | DateTimeOffset? | |
 | Exercises | list of Exercise | |
@@ -134,6 +135,7 @@ erDiagram
 |---|---|---|
 | UserId | UserId | |
 | Name | string | |
+| NormalizedName | string | Unique per user among routines that are not deleted |
 | DeletedAtUtc | DateTimeOffset? | |
 | Exercises | list of RoutineExercise | |
 
@@ -141,8 +143,9 @@ erDiagram
 
 | Property | Type | Notes |
 |---|---|---|
+| UserId | UserId | |
 | RoutineId | RoutineId | → Routine |
-| ExerciseId | ExerciseId | → Exercise |
+| ExerciseId | ExerciseId | → Exercise. Unique together with RoutineId |
 | Exercise | Exercise | |
 | Order | int | |
 | TargetSets | int | Starts at 3 |

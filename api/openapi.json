@@ -928,6 +928,86 @@
         ]
       }
     },
+    "/api/v1/routines": {
+      "get": {
+        "tags": [
+          "Routines"
+        ],
+        "summary": "List the routines",
+        "description": "Returns the signed-in user's routines by their first planned weekday, then name, with the unplanned ones last. Deleted routines are left out.",
+        "operationId": "ListRoutines",
+        "responses": {
+          "200": {
+            "description": "The routines. Empty when there are none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoutineListItemResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/week-plan-days": {
+      "get": {
+        "tags": [
+          "Week plan"
+        ],
+        "summary": "List the week plan",
+        "description": "Returns what each weekday holds now for the signed-in user, always seven days from Monday. A day with no routine is a rest day.",
+        "operationId": "ListWeekPlanDays",
+        "responses": {
+          "200": {
+            "description": "The seven days.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeekPlanDayResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/groups/{id}": {
       "get": {
         "tags": [
@@ -1670,6 +1750,45 @@
         },
         "description": "A group's new name."
       },
+      "RoutineListItemResponse": {
+        "required": [
+          "id",
+          "name",
+          "exerciseCount",
+          "setCount",
+          "weekdays"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The routine's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The routine's name."
+          },
+          "exerciseCount": {
+            "type": "integer",
+            "description": "How many exercises it has.",
+            "format": "int32"
+          },
+          "setCount": {
+            "type": "integer",
+            "description": "How many sets its exercises add up to.",
+            "format": "int32"
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Weekday"
+            },
+            "description": "The weekdays it is planned on now, from Monday."
+          }
+        },
+        "description": "A routine in the list."
+      },
       "TokenResponse": {
         "required": [
           "accessToken",
@@ -1839,6 +1958,48 @@
         },
         "description": "The signed-in user."
       },
+      "Weekday": {
+        "enum": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "description": "A day of the week. The week plan starts on Monday."
+      },
+      "WeekPlanDayResponse": {
+        "required": [
+          "weekday",
+          "routineId",
+          "routineName"
+        ],
+        "type": "object",
+        "properties": {
+          "weekday": {
+            "description": "The weekday.",
+            "$ref": "#/components/schemas/Weekday"
+          },
+          "routineId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The routine's ID. Null on a rest day.",
+            "format": "uuid"
+          },
+          "routineName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The routine's name. Null on a rest day."
+          }
+        },
+        "description": "What a weekday holds in the week plan."
+      },
       "WorkoutSettingsResponse": {
         "required": [
           "defaultRestSeconds",
@@ -1891,6 +2052,12 @@
     },
     {
       "name": "Groups"
+    },
+    {
+      "name": "Routines"
+    },
+    {
+      "name": "Week plan"
     }
   ]
 }

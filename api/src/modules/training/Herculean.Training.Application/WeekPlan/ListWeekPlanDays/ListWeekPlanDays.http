@@ -1,0 +1,20 @@
+# List the week plan. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The request below uses its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### The seven days → 200. A new account has only rest days.
+GET {{host}}/api/v1/week-plan-days
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/week-plan-days

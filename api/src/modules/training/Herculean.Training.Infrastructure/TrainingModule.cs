@@ -20,14 +20,20 @@ using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Groups.RenameGroup;
 using Herculean.Training.Application.Groups.RestoreGroup;
 using Herculean.Training.Application.Groups.UpdateGroupOrder;
+using Herculean.Training.Application.Routines;
+using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
+using Herculean.Training.Application.WeekPlan;
+using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
+using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.Settings;
+using Herculean.Training.Infrastructure.WeekPlan;
 
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +59,8 @@ public static class TrainingModule
         builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
         builder.Services.AddScoped<IGroupReadRepository, GroupReadRepository>();
         builder.Services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
+        builder.Services.AddScoped<IRoutineReadRepository, RoutineReadRepository>();
+        builder.Services.AddScoped<IWeekPlanReadRepository, WeekPlanReadRepository>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
 
@@ -62,6 +70,8 @@ public static class TrainingModule
         builder.Services.AddScoped<ListExercisesHandler>();
         builder.Services.AddScoped<GetExerciseHandler>();
         builder.Services.AddScoped<ListGroupsHandler>();
+        builder.Services.AddScoped<ListRoutinesHandler>();
+        builder.Services.AddScoped<ListWeekPlanDaysHandler>();
         builder.Services.AddScoped<GetGroupHandler>();
         builder.Services.AddScoped<IValidator<CreateExerciseRequest>, CreateExerciseValidator>();
         builder.Services.AddScoped<CreateExerciseHandler>();
@@ -86,6 +96,8 @@ public static class TrainingModule
         ListExercisesEndpoint.Map(endpoints);
         GetExerciseEndpoint.Map(endpoints);
         ListGroupsEndpoint.Map(endpoints);
+        ListRoutinesEndpoint.Map(endpoints);
+        ListWeekPlanDaysEndpoint.Map(endpoints);
         GetGroupEndpoint.Map(endpoints);
         CreateExerciseEndpoint.Map(endpoints);
         UpdateExerciseEndpoint.Map(endpoints);
