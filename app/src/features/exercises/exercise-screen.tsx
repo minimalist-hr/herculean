@@ -11,6 +11,7 @@ import { notifySuccess } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
+import { EditExerciseSheet } from './edit-exercise-sheet';
 import { DetailsSkeleton } from './exercises-skeleton';
 import { NoSessionsCard } from './no-sessions-card';
 import { useExercise } from './use-exercise';
@@ -52,6 +53,8 @@ export function ExerciseScreen({
 
   return (
     <ScrollView
+      // The edit sheet opens inside this list, so a tap on its buttons must not just close the keyboard.
+      keyboardShouldPersistTaps="handled"
       style={{ backgroundColor: colors.bg }}
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
@@ -74,6 +77,9 @@ function Details({ exercise }: { exercise: Exercise }) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [editing, setEditing] = useState(false);
+  // Each edit starts from the exercise's values at that moment.
+  const [editKey, setEditKey] = useState(0);
 
   return (
     <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
@@ -88,10 +94,8 @@ function Details({ exercise }: { exercise: Exercise }) {
           <HeaderIconButton
             label="Edit exercise"
             onPress={() => {
-              router.push({
-                pathname: '/edit-exercise/[id]',
-                params: { id: exercise.id },
-              });
+              setEditKey((key) => key + 1);
+              setEditing(true);
             }}
           >
             <PencilIcon color={colors.text} size={20} />
@@ -132,6 +136,21 @@ function Details({ exercise }: { exercise: Exercise }) {
           </Text>
         </View>
       </View>
+
+      {editKey > 0 && (
+        <EditExerciseSheet
+          key={editKey}
+          visible={editing}
+          exercise={exercise}
+          onSaved={(saved) => {
+            setEditing(false);
+            notifySuccess(`${saved.name} saved.`);
+          }}
+          onClose={() => {
+            setEditing(false);
+          }}
+        />
+      )}
 
       <DeleteExerciseSheet
         exercise={exercise}

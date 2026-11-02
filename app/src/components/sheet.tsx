@@ -1,11 +1,21 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   Animated,
   Easing,
   KeyboardAvoidingView,
   Modal,
+  PanResponder,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -16,23 +26,37 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/theme-provider';
 
 import { CloseIcon } from './icons';
+import { NotificationBar } from './notification-bar';
+import { dismissFailure, sheetClosed, sheetOpened } from './notifications';
+import { snapAfterDrag } from './sheet-drag';
 import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
 
 const paddingBottomMin = 34;
+// A sheet opens no taller than this. Longer content scrolls, or the grabber pulls it up.
+const restFraction = 0.9;
+
+function settle(value: Animated.Value, toValue: number) {
+  Animated.timing(value, {
+    toValue,
+    duration: 180,
+    easing: Easing.bezier(0.33, 1, 0.68, 1),
+    useNativeDriver: false,
+  }).start();
+}
 
 interface SheetProps {
   visible: boolean;
   title: string;
   message: string;
   onClose: () => void;
-  /** What sits between the heading and the actions, for example a field. */
+  /** What sits between the heading and the actions, for example a field. It scrolls if it doesn't fit. */
   body?: ReactNode;
   /** The actions below the line: the main one first. */
   children: ReactNode;
 }
 
-/** A sheet rising over a dimmed screen. It closes back to the screen that opened it. */
+/** A sheet rising over a dimmed screen. It closes back to the screen that opened it, and the grabber pulls it up or down. */
 export function Sheet({
   visible,
   title,
@@ -47,17 +71,71 @@ export function Sheet({
   const keyboardHeight = useKeyboardHeight();
   const window = useWindowDimensions();
   const [progress] = useState(() => new Animated.Value(0));
-  // Until it is measured, the whole window is sure to start it out of sight.
-  const [sheetHeight, setSheetHeight] = useState(window.height);
+  const [height] = useState(() => new Animated.Value(0));
+  const [pulledDown] = useState(() => new Animated.Value(0));
+  const [headingHeight, setHeadingHeight] = useState(0);
+  const [bodyHeight, setBodyHeight] = useState(0);
+  const [actionsHeight, setActionsHeight] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   // It stays open after visible turns false, until it has gone down.
   const [open, setOpen] = useState(visible);
   if (visible && !open) {
     setOpen(true);
   }
 
+  const paddingTop = space.sm;
+  const paddingBottom =
+    // The keyboard covers the phone's bottom edge, so the sheet needs no room for it then.
+    keyboardHeight > 0
+      ? space.lg
+      : Math.max(insets.bottom + space.md, paddingBottomMin);
+  // The actions wait behind the keyboard, so the fields keep the room.
+  const actionsShown = keyboardHeight === 0;
+  const parts = 1 + (body === undefined ? 0 : 1) + (actionsShown ? 1 : 0);
+  const natural =
+    paddingTop +
+    headingHeight +
+    bodyHeight +
+    (actionsShown ? actionsHeight : 0) +
+    paddingBottom +
+    space.lg * (parts - 1);
+  const measured = headingHeight > 0 && actionsHeight > 0;
+  const full = window.height - insets.top - keyboardHeight;
+  const rest = Math.min(natural, full * restFraction);
+  const canExpand = natural > rest;
+  const shownHeight = expanded && canExpand ? full : rest;
+  const startingOffset = measured ? shownHeight : window.height;
+
+  // The notification bar shows above the sheet while it is open.
   useEffect(() => {
     if (!open) {
       return;
+    }
+
+    sheetOpened();
+
+    return sheetClosed;
+  }, [open]);
+
+  useEffect(() => {
+    if (!visible) {
+      dismissFailure();
+    }
+  }, [visible]);
+
+  useLayoutEffect(() => {
+    if (measured) {
+      height.setValue(shownHeight);
+    }
+  }, [height, measured, shownHeight]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (visible) {
+      pulledDown.setValue(0);
     }
 
     const animation = Animated.timing(progress, {
@@ -76,7 +154,54 @@ export function Sheet({
     return () => {
       animation.stop();
     };
-  }, [motion.sheetMs, open, progress, reduceMotion, visible]);
+  }, [motion.sheetMs, open, progress, pulledDown, reduceMotion, visible]);
+
+  // A gesture keeps the handlers it started with, so they read the latest values from here.
+  const latest = useRef({ rest, full, shownHeight, canExpand, onClose });
+  useEffect(() => {
+    latest.current = { rest, full, shownHeight, canExpand, onClose };
+  });
+
+  const pull = useRef({ start: 0, current: 0, below: 0 });
+
+  const startPull = useCallback(() => {
+    const start = latest.current.shownHeight;
+    pull.current = { start, current: start, below: 0 };
+  }, []);
+
+  const movePull = useCallback(
+    (distance: number) => {
+      const { rest: resting, full: tallest, canExpand: up } = latest.current;
+      const wanted = pull.current.start - distance;
+      pull.current.current = Math.min(wanted, up ? tallest : resting);
+      pull.current.below = Math.max(0, resting - wanted);
+      height.setValue(Math.max(pull.current.current, resting));
+      pulledDown.setValue(pull.current.below);
+    },
+    [height, pulledDown],
+  );
+
+  const endPull = useCallback(
+    (velocity: number) => {
+      const { rest: resting, full: tallest, canExpand: up } = latest.current;
+      const snap = snapAfterDrag({
+        rest: resting,
+        full: up ? tallest : resting,
+        height: Math.max(pull.current.current, resting),
+        pulledDown: pull.current.below,
+        velocity,
+      });
+      if (snap === 'close') {
+        latest.current.onClose();
+        return;
+      }
+
+      settle(pulledDown, 0);
+      settle(height, snap === 'full' ? tallest : resting);
+      setExpanded(snap === 'full');
+    },
+    [height, pulledDown],
+  );
 
   if (!open) {
     return null;
@@ -102,94 +227,173 @@ export function Sheet({
           onPress={onClose}
         />
         <Animated.View
-          accessibilityViewIsModal
-          onLayout={(event) => {
-            setSheetHeight(event.nativeEvent.layout.height);
-          }}
-          style={[
-            styles.sheet,
-            {
-              gap: space.lg,
-              paddingTop: space.sm,
-              // The keyboard covers the phone's bottom edge, so the sheet needs no room for it then.
-              paddingBottom:
-                keyboardHeight > 0
-                  ? space.lg
-                  : Math.max(insets.bottom + space.md, paddingBottomMin),
-              borderTopLeftRadius: radius.sheetTop,
-              borderTopRightRadius: radius.sheetTop,
-              borderTopColor: colors.border,
-              backgroundColor: colors.card,
-              transform: [
-                {
-                  translateY: progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [sheetHeight, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.grabber,
+          style={{
+            transform: [
               {
-                width: size.sheetGrabber.width,
-                height: size.sheetGrabber.height,
-                backgroundColor: colors.border,
+                translateY: progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [startingOffset, 0],
+                }),
               },
-            ]}
-          />
-          <View
+            ],
+          }}
+        >
+          <Animated.View
+            accessibilityViewIsModal
             style={[
-              styles.heading,
-              { gap: space.md, paddingHorizontal: size.sidePadding },
+              styles.sheet,
+              {
+                gap: space.lg,
+                maxHeight: full,
+                paddingTop,
+                paddingBottom,
+                borderTopLeftRadius: radius.sheetTop,
+                borderTopRightRadius: radius.sheetTop,
+                borderTopColor: colors.border,
+                backgroundColor: colors.card,
+                transform: [{ translateY: pulledDown }],
+              },
+              measured && { height },
             ]}
           >
-            <View style={styles.headingText}>
-              <Text
-                accessibilityRole="header"
-                style={[text.cardTitle, { color: colors.text }]}
+            <DragArea
+              onStart={startPull}
+              onMove={movePull}
+              onEnd={endPull}
+              onHeight={setHeadingHeight}
+            >
+              <View
+                style={[
+                  styles.grabber,
+                  {
+                    width: size.sheetGrabber.width,
+                    height: size.sheetGrabber.height,
+                    backgroundColor: colors.border,
+                  },
+                ]}
+              />
+              <View
+                style={[
+                  styles.heading,
+                  { gap: space.md, paddingHorizontal: size.sidePadding },
+                ]}
               >
-                {title}
-              </Text>
-              <Text style={text.meta}>{message}</Text>
-            </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close"
-              onPress={onClose}
+                <View style={styles.headingText}>
+                  <Text
+                    accessibilityRole="header"
+                    style={[text.cardTitle, { color: colors.text }]}
+                  >
+                    {title}
+                  </Text>
+                  <Text style={text.meta}>{message}</Text>
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Close"
+                  onPress={onClose}
+                  style={[
+                    styles.close,
+                    {
+                      width: size.touchTargetMin,
+                      height: size.touchTargetMin,
+                    },
+                  ]}
+                >
+                  <CloseIcon color={colors.muted} size={20} />
+                </Pressable>
+              </View>
+            </DragArea>
+            {body !== undefined && (
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                style={styles.body}
+                onContentSizeChange={(_width, contentHeight) => {
+                  setBodyHeight(contentHeight);
+                }}
+                contentContainerStyle={{ paddingHorizontal: size.sidePadding }}
+              >
+                {body}
+              </ScrollView>
+            )}
+            <View
+              testID="sheet-actions"
+              onLayout={(event) => {
+                // Hidden, it measures nothing, and the last height still holds for when it comes back.
+                if (event.nativeEvent.layout.height > 0) {
+                  setActionsHeight(event.nativeEvent.layout.height);
+                }
+              }}
               style={[
-                styles.close,
+                styles.actions,
+                !actionsShown && styles.hidden,
                 {
-                  width: size.touchTargetMin,
-                  height: size.touchTargetMin,
+                  gap: size.gap.stackedButtons,
+                  paddingTop: space.lg,
+                  paddingHorizontal: size.sidePadding,
+                  borderTopColor: colors.border,
                 },
               ]}
             >
-              <CloseIcon color={colors.muted} size={20} />
-            </Pressable>
-          </View>
-          {body !== undefined && (
-            <View style={{ paddingHorizontal: size.sidePadding }}>{body}</View>
-          )}
-          <View
-            style={[
-              styles.actions,
-              {
-                gap: size.gap.stackedButtons,
-                paddingTop: space.lg,
-                paddingHorizontal: size.sidePadding,
-                borderTopColor: colors.border,
-              },
-            ]}
-          >
-            {children}
-          </View>
+              {children}
+            </View>
+          </Animated.View>
         </Animated.View>
       </KeyboardAvoidingView>
+      <NotificationBar above={shownHeight} />
     </Modal>
+  );
+}
+
+interface DragAreaProps {
+  onStart: () => void;
+  onMove: (distance: number) => void;
+  onEnd: (velocity: number) => void;
+  onHeight: (height: number) => void;
+  children: ReactNode;
+}
+
+/** The top of a sheet, which pulls it up or down. A tap still reaches what is inside. */
+function DragArea({
+  onStart,
+  onMove,
+  onEnd,
+  onHeight,
+  children,
+}: DragAreaProps) {
+  const { space } = useTheme();
+  const drag = useMemo(
+    () =>
+      PanResponder.create({
+        // A touch on the close button goes to that button, which sits deeper.
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponderCapture: (_event, gesture) =>
+          Math.abs(gesture.dy) > 4,
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderGrant: () => {
+          onStart();
+        },
+        onPanResponderMove: (_event, gesture) => {
+          onMove(gesture.dy);
+        },
+        onPanResponderRelease: (_event, gesture) => {
+          onEnd(gesture.vy);
+        },
+      }),
+    [onEnd, onMove, onStart],
+  );
+
+  return (
+    <View
+      {...drag.panHandlers}
+      testID="sheet-drag"
+      onLayout={(event) => {
+        onHeight(event.nativeEvent.layout.height);
+      }}
+      style={{ gap: space.lg }}
+    >
+      {children}
+    </View>
   );
 }
 
@@ -219,7 +423,13 @@ const styles = StyleSheet.create({
     marginTop: -6,
     marginRight: -8,
   },
+  body: {
+    flexShrink: 1,
+  },
   actions: {
     borderTopWidth: 1,
+  },
+  hidden: {
+    display: 'none',
   },
 });

@@ -15,6 +15,7 @@ export interface Notification {
 let notification: Notification | null = null;
 let nextId = 1;
 let bottomInset: number | null = null;
+let openSheets = 0;
 
 const listeners = new Set<() => void>();
 
@@ -59,10 +60,32 @@ export function dismissNotification() {
   }
 }
 
+/** Dismisses a failure, which says nothing once the sheet it belongs to has closed. */
+export function dismissFailure() {
+  if (notification?.kind === 'failure') {
+    dismissNotification();
+  }
+}
+
 /** Sets the height of what the bar must clear at the bottom of the screen. Null means the tab bar. */
 export function setNotificationInset(height: number | null) {
   bottomInset = height;
   changed();
+}
+
+export function sheetOpened() {
+  openSheets += 1;
+  changed();
+}
+
+export function sheetClosed() {
+  openSheets -= 1;
+  changed();
+}
+
+/** Whether a sheet is open, which then shows failures itself. */
+export function useSheetOpen() {
+  return useSyncExternalStore(subscribe, () => openSheets > 0);
 }
 
 export function useNotification() {

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BackLink } from '@/components/back-link';
+import { HeaderIconButton } from '@/components/header-icon-button';
 import { PlusIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
-import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -44,28 +44,6 @@ export function GroupsScreen() {
           <Text style={text.meta}>
             Tap a group to see its exercises, rename it or delete it.
           </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="New group"
-            onPress={() => {
-              setCreateKey((key) => key + 1);
-              setCreating(true);
-            }}
-            style={[
-              styles.dashedAction,
-              {
-                gap: space.sm,
-                height: size.dashedAction,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <PlusIcon color={colors.text} size={16} />
-            <Text style={[text.secondaryButton, { color: colors.text }]}>
-              New group
-            </Text>
-          </Pressable>
         </>
       );
     }
@@ -113,30 +91,55 @@ export function GroupsScreen() {
 
   return (
     <>
-      <ScrollView
-        scrollEnabled={!dragging}
-        style={{ backgroundColor: colors.bg }}
-        contentContainerStyle={{
-          gap: size.gap.sectionMax,
-          paddingTop: size.topPaddingSubPage,
-          paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl,
-        }}
-      >
-        <View>
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <View
+          style={{
+            gap: 4,
+            paddingTop: size.topPaddingSubPage,
+            paddingHorizontal: size.sidePadding,
+            paddingBottom: space.lg,
+          }}
+        >
           <BackLink
             label="Exercises"
             onPress={() => {
               router.back();
             }}
           />
-          <ScreenHeading
-            title="Groups"
-            subtitle="Sort your exercise list. Drag to change the order of the chips."
-          />
+          <View style={[styles.titleRow, { gap: space.md }]}>
+            <View style={styles.title}>
+              <Text
+                accessibilityRole="header"
+                style={[text.pageTitle, { color: colors.text }]}
+              >
+                Groups
+              </Text>
+              <Text style={[text.body, { color: colors.muted }]}>
+                Sort your exercise list. Drag to change the order of the chips.
+              </Text>
+            </View>
+            <HeaderIconButton
+              label="New group"
+              onPress={() => {
+                setCreateKey((key) => key + 1);
+                setCreating(true);
+              }}
+            >
+              <PlusIcon color={colors.text} size={20} />
+            </HeaderIconButton>
+          </View>
         </View>
-        {renderList()}
-      </ScrollView>
+        <ScrollView
+          scrollEnabled={!dragging}
+          contentContainerStyle={{
+            gap: size.gap.sectionMax,
+            paddingHorizontal: size.sidePadding,
+            paddingBottom: space.xl,
+          }}
+        >
+          {renderList()}
+        </ScrollView>
+      </View>
       {createKey > 0 && (
         <GroupNameSheet
           key={createKey}
@@ -157,12 +160,16 @@ export function GroupsScreen() {
 }
 
 const styles = StyleSheet.create({
-  dashedAction: {
+  screen: {
+    flex: 1,
+  },
+  titleRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
+    alignItems: 'flex-start',
+  },
+  title: {
+    flex: 1,
+    gap: 4,
   },
   skeletonRow: {
     justifyContent: 'center',

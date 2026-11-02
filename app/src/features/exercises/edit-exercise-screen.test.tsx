@@ -4,7 +4,6 @@ import { Stack } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
 import { renderRouter } from 'expo-router/testing-library';
 
-import EditExerciseRoute from '@/app/edit-exercise/[id]';
 import ExerciseRoute from '@/app/(tabs)/exercises/[id]';
 import { TabBar } from '@/components/tab-bar';
 import { NotificationBar } from '@/components/notification-bar';
@@ -167,7 +166,6 @@ async function openDetails() {
       ),
       '(tabs)/exercises/index': ExercisesScreen,
       '(tabs)/exercises/[id]': ExerciseRoute,
-      'edit-exercise/[id]': EditExerciseRoute,
     },
     { initialUrl: '/exercises' },
   );
@@ -202,6 +200,19 @@ test('E20 starts with the current values', async () => {
   expect(
     screen.getByRole('button', { name: 'Biceps, also works', selected: false }),
   ).toBeOnTheScreen();
+});
+
+test('a failed save keeps the sheet and what was typed', async () => {
+  answer({ save: () => problem(500, 'server_error', 'Something failed.') });
+  await openEdit();
+
+  await fireEvent.changeText(screen.getByDisplayValue('Bench press'), 'Squat');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save exercise' }));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't save the exercise. Try again.",
+  );
+  expect(screen.getByDisplayValue('Squat')).toBeOnTheScreen();
 });
 
 test('saving sends the new values and E11 shows them', async () => {
@@ -258,23 +269,17 @@ test('a blank name is stopped before anything is sent', async () => {
   ).toBe(false);
 });
 
-test('E20 has no delete button', async () => {
-  answer();
-  await openEdit();
-
-  expect(screen.queryByRole('button', { name: 'Delete exercise' })).toBeNull();
-});
-
-test('Cancel returns to E11 without saving', async () => {
+test('Cancel closes the sheet without saving', async () => {
   answer();
   await openEdit();
 
   await fireEvent.changeText(screen.getByDisplayValue('Bench press'), 'Squat');
   await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
 
-  expect(
-    await screen.findByRole('header', { name: 'Bench press' }),
-  ).toBeOnTheScreen();
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'Edit exercise' })).toBeNull();
+  });
+  expect(screen.getByRole('header', { name: 'Bench press' })).toBeOnTheScreen();
   expect(
     mockFetch.mock.calls.some(([request]) => request.method === 'PUT'),
   ).toBe(false);
@@ -332,7 +337,7 @@ test('confirming deletes it and E01 says so', async () => {
   });
 });
 
-test('a failed delete closes the sheet and says so', async () => {
+test('a failed delete stays on the sheet and says so', async () => {
   answer({ remove: () => problem(500, 'server_error', 'Something failed.') });
   await openDetails();
 
@@ -343,10 +348,7 @@ test('a failed delete closes the sheet and says so', async () => {
   expect(await screen.findByRole('alert')).toHaveTextContent(
     "Couldn't delete the exercise. Try again.",
   );
-  await waitFor(() => {
-    expect(
-      screen.queryByRole('header', { name: 'Delete Bench press?' }),
-    ).toBeNull();
-  });
-  expect(screen.getByRole('header', { name: 'Bench press' })).toBeOnTheScreen();
+  expect(
+    screen.getByRole('header', { name: 'Delete Bench press?' }),
+  ).toBeOnTheScreen();
 });

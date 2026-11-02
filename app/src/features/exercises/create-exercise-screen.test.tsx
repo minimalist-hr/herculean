@@ -3,7 +3,6 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
-import CreateExerciseRoute from '@/app/create-exercise';
 import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -118,12 +117,18 @@ function Layout() {
   );
 }
 
+/** The sheet opens over the list's chips, so its button comes after any with the same name. */
+function pressLast(name: string) {
+  const buttons = screen.getAllByRole('button', { name });
+
+  return fireEvent.press(buttons[buttons.length - 1]);
+}
+
 async function renderList() {
   await renderRouter(
     {
       _layout: Layout,
       index: ExercisesScreen,
-      'create-exercise': CreateExerciseRoute,
     },
     { initialUrl: '/' },
   );
@@ -136,7 +141,7 @@ async function openForm() {
   );
   expect(await screen.findByText('Save exercise')).toBeOnTheScreen();
   expect(
-    await screen.findByRole('button', { name: 'Chest' }),
+    (await screen.findAllByRole('button', { name: 'Chest' }))[0],
   ).toBeOnTheScreen();
 }
 
@@ -165,10 +170,8 @@ test('saving creates the exercise, returns to the list and says so', async () =>
   await openForm();
 
   await fireEvent.changeText(screen.getByLabelText('Name'), '  Pull-up ');
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
-  await fireEvent.press(
-    screen.getByRole('button', { name: 'Biceps, also works' }),
-  );
+  await pressLast('Back');
+  await pressLast('Biceps, also works');
   await save();
 
   expect(await screen.findByText('Pull-up created.')).toBeOnTheScreen();
@@ -183,11 +186,11 @@ test('the green line clears when the search or a group changes', async () => {
   await renderList();
   await openForm();
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pull-up');
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  await pressLast('Back');
   await save();
   expect(await screen.findByText('Pull-up created.')).toBeOnTheScreen();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  await pressLast('Back');
 
   await waitFor(() => {
     expect(screen.queryByText('Pull-up created.')).toBeNull();
@@ -197,14 +200,14 @@ test('the green line clears when the search or a group changes', async () => {
 test('after saving, a filter that would hide the new exercise is cleared', async () => {
   answer(created);
   await renderList();
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  await pressLast('Back');
   await waitFor(() => {
     expect(screen.queryByText('Bench press')).toBeNull();
   });
   await openForm();
 
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pec deck');
-  await fireEvent.press(screen.getByRole('button', { name: 'Chest' }));
+  await pressLast('Chest');
   await save();
 
   expect(await screen.findByText('Pec deck')).toBeOnTheScreen();
@@ -217,7 +220,7 @@ test('after saving, a filter that would hide the new exercise is cleared', async
 test('the form brings over the search and the group from the list', async () => {
   answer(created);
   await renderList();
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  await pressLast('Back');
   await fireEvent.changeText(
     screen.getByLabelText('Search exercises'),
     ' Hack squat ',
@@ -229,9 +232,10 @@ test('the form brings over the search and the group from the list', async () => 
   await openForm();
 
   expect(screen.getByLabelText('Name')).toHaveDisplayValue('Hack squat');
+  // The list's chip and the sheet's.
   expect(
-    screen.getByRole('button', { name: 'Back', selected: true }),
-  ).toBeOnTheScreen();
+    screen.getAllByRole('button', { name: 'Back', selected: true }),
+  ).toHaveLength(2);
 });
 
 test('without a group the form asks for one and sends nothing', async () => {
@@ -250,20 +254,18 @@ test('the group an exercise belongs to is not offered as also works', async () =
   answer(created);
   await renderList();
   await openForm();
-  await fireEvent.press(
-    screen.getByRole('button', { name: 'Biceps, also works' }),
-  );
+  await pressLast('Biceps, also works');
   expect(
     screen.getByRole('button', { name: 'Biceps, also works', selected: true }),
   ).toBeOnTheScreen();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Biceps' }));
+  await pressLast('Biceps');
 
   expect(
     screen.queryByRole('button', { name: 'Biceps, also works' }),
   ).toBeNull();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Chest' }));
+  await pressLast('Chest');
 
   expect(
     screen.getByRole('button', { name: 'Biceps, also works', selected: false }),
@@ -281,7 +283,7 @@ test('a name the user already has shows under the name', async () => {
   await renderList();
   await openForm();
   await fireEvent.changeText(screen.getByLabelText('Name'), 'bench press');
-  await fireEvent.press(screen.getByRole('button', { name: 'Chest' }));
+  await pressLast('Chest');
 
   await save();
 
@@ -304,7 +306,7 @@ test('reaching the limit shows the API message', async () => {
   await renderList();
   await openForm();
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pull-up');
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  await pressLast('Back');
 
   await save();
 
@@ -320,7 +322,7 @@ test('no connection shows a notification until a field changes', async () => {
   await renderList();
   await openForm();
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pull-up');
-  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  await pressLast('Back');
 
   await save();
 

@@ -1,5 +1,5 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -15,14 +15,14 @@ import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PlusIcon } from '@/components/icons';
-import { dismissNotification } from '@/components/notifications';
+import { dismissNotification, notifySuccess } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useTheme } from '@/theme/theme-provider';
 
-import { takeExerciseCreated } from './exercise-notice';
+import { CreateExerciseSheet } from './create-exercise-sheet';
 import { ExerciseRow } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -44,6 +44,13 @@ export function ExercisesScreen() {
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState<string>();
+  const [creating, setCreating] = useState(false);
+  // Each create exercise starts from what the list shows at that moment.
+  const [createForm, setCreateForm] = useState<{
+    key: number;
+    name: string;
+    groupId: string;
+  }>();
   const typedSearch = searchText.trim();
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   // Clearing the search shows the whole list right away.
@@ -64,18 +71,6 @@ export function ExercisesScreen() {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [search, groupId]);
 
-  // The list stays open behind create exercise, so it checks each time it comes back.
-  // Clearing the filters makes sure the new exercise is in the list.
-  useFocusEffect(
-    useCallback(() => {
-      if (takeExerciseCreated()) {
-        setSearchText('');
-        setGroupId(undefined);
-        listRef.current?.scrollToOffset({ offset: 0, animated: false });
-      }
-    }, []),
-  );
-
   function changeSearch(text: string) {
     dismissNotification();
     setSearchText(text);
@@ -87,10 +82,21 @@ export function ExercisesScreen() {
   }
 
   function openCreateExercise() {
-    router.push({
-      pathname: '/create-exercise',
-      params: { name: typedSearch, groupId: groupId ?? '' },
-    });
+    setCreateForm((form) => ({
+      key: (form?.key ?? 0) + 1,
+      name: typedSearch,
+      groupId: groupId ?? '',
+    }));
+    setCreating(true);
+  }
+
+  // Clearing the filters makes sure the new exercise is in the list.
+  function exerciseCreated(name: string) {
+    setCreating(false);
+    setSearchText('');
+    setGroupId(undefined);
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+    notifySuccess(`${name} created.`);
   }
 
   function renderTitle() {
@@ -346,6 +352,20 @@ export function ExercisesScreen() {
         keyboardDismissMode="on-drag"
         contentContainerStyle={{ paddingBottom: space.xl }}
       />
+      {createForm !== undefined && (
+        <CreateExerciseSheet
+          key={createForm.key}
+          visible={creating}
+          initialName={createForm.name}
+          initialGroupId={createForm.groupId}
+          onCreated={(exercise) => {
+            exerciseCreated(exercise.name);
+          }}
+          onClose={() => {
+            setCreating(false);
+          }}
+        />
+      )}
     </View>
   );
 }

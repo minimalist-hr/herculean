@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Herculean · Create exercise</title>
+<title>Herculean · Delete exercise</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -16,12 +16,26 @@ button{font-family:inherit}
 </style>
 </helmet>
 <div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
-<main style="flex: 1; display: flex; flex-direction: column; gap: 24px; padding: 48px 16px 16px; min-height: 0">
-<div style="display: flex; flex-direction: column; gap: 4px">
-<h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Create exercise</h1>
-<p style="margin: 0; font-size: 14px; color: {{c.muted}}">It’s added to your exercise list and can be used in any workout.</p>
+<div aria-hidden="true" style="display: flex; flex-direction: column; gap: 16px; padding: 40px 16px 16px">
+<p style="margin: 8px 0 -12px; font-size: 32px; line-height: 1.05; font-weight: 700">Exercises</p>
+<p style="margin: 0; font-size: 14px; color: {{c.muted}}"></p>
+<div style="height: 70px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}"></div>
+<div style="height: 90px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"></div>
+<div style="height: 90px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}"></div>
 </div>
-<div style="display: flex; flex-direction: column; gap: 8px">
+<div aria-hidden="true" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0, 0, 0, 0.62)"></div>
+<section role="dialog" aria-modal="true" aria-labelledby="sheet-title" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 8px 16px 34px; border-radius: {{r.sheet}} {{r.sheet}} 0 0; border-top: 1px solid {{c.border}}; background: {{c.card}}">
+<span aria-hidden="true" style="align-self: center; width: 36px; height: 4px; border-radius: 999px; background: {{c.border}}"></span>
+<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 id="sheet-title" style="margin: 0; font-size: 22px; font-weight: 700">Create exercise</h2>
+<p style="margin: 0; font-size: 13px; color: {{c.muted}}">It’s added to your exercise list and can be used in any workout.</p>
+</div>
+<a href="E10-Exercises-Detail.dc.html" aria-label="Close" style="width: 44px; height: 44px; flex: none; margin: -6px -8px 0 0; display: flex; align-items: center; justify-content: center; color: {{c.muted}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px"><div style="display: flex; flex-direction: column; gap: 8px">
 <label for="ex-name" style="font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Name</label>
 <input id="ex-name" type="text" value="{{name}}" onChange="{{setName}}" placeholder="Cable lateral raise" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-family: inherit; font-size: 16px">
 </div>
@@ -41,12 +55,8 @@ button{font-family:inherit}
 <button aria-pressed="{{g.on}}" onClick="{{g.pick}}" style="height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{g.edge}}; background: {{g.bg}}; color: {{g.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{g.label}}</button>
 </sc-for>
 </div>
-</div>
-</main>
-<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 28px; border-top: 1px solid {{c.border}}; background: {{c.card}}">
-<a href="L23-Logging-Add-Exercise-New-Selected.dc.html" style="height: 48px; box-sizing: border-box; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.primary}}; color: {{c.onPrimary}}">Save exercise</a>
-<a href="L20-Logging-Add-Exercise.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a>
-</div>
+</div></div><div style="display: flex; flex-direction: column; gap: 8px; margin: 4px -16px 0; padding: 16px 16px 0; border-top: 1px solid {{c.border}}"><a href="L23-Logging-Add-Exercise-New-Selected.dc.html" style="height: 48px; box-sizing: border-box; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.primary}}; color: {{c.onPrimary}}">Save exercise</a><a href="L20-Logging-Add-Exercise.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a></div>
+</section>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":844}}'>
@@ -92,18 +102,7 @@ class Component extends DCLogic {
         });
       });
     };
-    const name = st.name ?? 'Cable lateral raise';
-    const setName = (e) => this.setState({ name: e.target.value });
-    const all = ['Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Legs'];
-    const main = st.main || 'Shoulders';
-    const also = st.also || [];
-    const look = (on) => ({ bg: on ? c.primary : 'transparent', fg: on ? c.onPrimary : c.text, edge: on ? c.primary : c.border });
-    const mainChips = all.map((g) => Object.assign({ label: g, on: g === main, pick: () => this.setState({ main: g, also: also.filter((x) => x !== g) }) }, look(g === main)));
-    const alsoChips = all.filter((g) => g !== main).map((g) => {
-      const on = also.indexOf(g) >= 0;
-      return Object.assign({ label: g, on: on, pick: () => this.setState({ also: on ? also.filter((x) => x !== g) : also.concat([g]) }) }, look(on));
-    });
-    return { c, r, font, name, setName, mainChips, alsoChips };
+    return { c, r, font };
   }
 }
 </script>

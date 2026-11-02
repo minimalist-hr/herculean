@@ -1,27 +1,30 @@
 import type { components } from '@/api/schema';
 
-import { ExerciseForm } from './exercise-form';
+import { ExerciseFormSheet } from './exercise-form';
 import { useCreateExercise } from './use-create-exercise';
 
-interface CreateExerciseScreenProps {
+interface CreateExerciseSheetProps {
+  visible: boolean;
   /** What the user was searching for, if anything. */
   initialName: string;
   /** The group the user had picked, if any. */
   initialGroupId: string;
   onCreated: (exercise: components['schemas']['ExerciseResponse']) => void;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-export function CreateExerciseScreen({
+export function CreateExerciseSheet({
+  visible,
   initialName,
   initialGroupId,
   onCreated,
-  onCancel,
-}: CreateExerciseScreenProps) {
+  onClose,
+}: CreateExerciseSheetProps) {
   const createExercise = useCreateExercise();
 
   return (
-    <ExerciseForm
+    <ExerciseFormSheet
+      visible={visible}
       title="Create exercise"
       subtitle="It’s added to your exercise list and can be used in any workout."
       initialValues={{
@@ -33,7 +36,7 @@ export function CreateExerciseScreen({
       onSave={async (values) => {
         onCreated(await createExercise.mutateAsync(values));
       }}
-      onCancel={onCancel}
+      onClose={onClose}
     />
   );
 }

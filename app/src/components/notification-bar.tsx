@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,17 +17,20 @@ import {
   dismissNotification,
   useNotification,
   useNotificationInset,
+  useSheetOpen,
 } from './notifications';
 import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
 
-/** Shows the latest notification above whatever is at the bottom of the screen. */
-export function NotificationBar() {
+/** Shows the latest notification above whatever is at the bottom of the screen. A sheet passes its height to show failures above itself. */
+export function NotificationBar({ above }: { above?: number }) {
   const { colors, motion, radius, size, space, text } = useTheme();
   const insets = useSafeAreaInsets();
+  const window = useWindowDimensions();
   const reduceMotion = useReduceMotion();
   const notification = useNotification();
   const actionBoxHeight = useNotificationInset();
+  const sheetOpen = useSheetOpen();
   const keyboardHeight = useKeyboardHeight();
   const [progress] = useState(() => new Animated.Value(0));
   // It stays on the screen after it is dismissed, until it has gone down.
@@ -77,7 +81,13 @@ export function NotificationBar() {
     };
   }, [motion, notification]);
 
-  if (shown === null) {
+  // A failure keeps its sheet open, so it shows above the sheet, which nothing outside can do.
+  // A success comes as the sheet closes, so it starts in its usual place and doesn't move.
+  const belongsHere =
+    above === undefined
+      ? !sheetOpen || shown?.kind === 'success'
+      : shown?.kind === 'failure';
+  if (shown === null || !belongsHere) {
     return null;
   }
 
@@ -87,7 +97,11 @@ export function NotificationBar() {
     size.tabItem +
     Math.max(insets.bottom, tabBar.paddingBottomMin);
   const cleared =
-    keyboardHeight > 0 ? keyboardHeight : (actionBoxHeight ?? tabBarHeight);
+    above !== undefined
+      ? keyboardHeight + above
+      : keyboardHeight > 0
+        ? keyboardHeight
+        : (actionBoxHeight ?? tabBarHeight);
 
   return (
     <Animated.View
@@ -97,7 +111,11 @@ export function NotificationBar() {
         {
           left: size.sidePadding,
           right: size.sidePadding,
-          bottom: cleared + space.md,
+          // A sheet at full height leaves no room above it, so the bar stays on the screen.
+          bottom: Math.min(
+            cleared + space.md,
+            window.height - insets.top - size.notificationMin - space.md,
+          ),
           opacity: progress,
           transform: [
             {

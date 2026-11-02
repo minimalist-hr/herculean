@@ -63,8 +63,6 @@ export function GroupNameSheet({
         setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
-        // The bar can't show above a sheet, so the sheet makes way for it.
-        onClose();
         notifyFailure("Couldn't save the group. Try again.");
       }
     }

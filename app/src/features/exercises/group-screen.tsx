@@ -215,9 +215,6 @@ function Details({ group }: { group: Group }) {
               onSuccess: () => {
                 router.back();
               },
-              onError: () => {
-                setConfirmingDelete(false);
-              },
             });
           }}
         />

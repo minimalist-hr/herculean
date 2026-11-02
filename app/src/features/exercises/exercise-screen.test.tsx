@@ -33,7 +33,13 @@ function exercise(group: string, alsoWorks: string[] = []) {
 }
 
 function answer(body: unknown) {
-  mockFetch.mockResolvedValue(Response.json(body));
+  mockFetch.mockImplementation((request) =>
+    Promise.resolve(
+      Response.json(
+        new URL(request.url).pathname === '/api/v1/groups' ? [] : body,
+      ),
+    ),
+  );
 }
 
 function Layout() {
@@ -58,7 +64,6 @@ async function renderExercise() {
       _layout: Layout,
       index: () => <PlaceholderScreen title="List screen" />,
       '[id]': () => <ExerciseScreen id={id} />,
-      'edit-exercise/[id]': () => <PlaceholderScreen title="Edit screen" />,
     },
     { initialUrl: `/${id}` },
   );
@@ -134,7 +139,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   expect(screen.queryByRole('alert')).toBeNull();
 });
 
-test('the edit button opens edit exercise', async () => {
+test('the edit button opens the edit sheet', async () => {
   answer(exercise('Shoulders'));
   await renderExercise();
 
@@ -142,7 +147,9 @@ test('the edit button opens edit exercise', async () => {
     await screen.findByRole('button', { name: 'Edit exercise' }),
   );
 
-  expect(await screen.findByText('Edit screen')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('header', { name: 'Edit exercise' }),
+  ).toBeOnTheScreen();
 });
 
 test('the edit button waits for the exercise', async () => {

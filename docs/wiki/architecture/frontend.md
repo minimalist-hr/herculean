@@ -40,7 +40,7 @@ app/
 - Terms and privacy are open in every status.
 - A10–A12 are also open while restoring, so a reset link can open the app from closed. A signed-in user who opens a link with the app already running goes to Home.
 - Four tabs: Home, Workout, Routines, Exercises. Sub-pages open on top of the tabs, or in a tab's own stack when the design keeps the tab bar, as Exercises does. Pressing the open tab returns to its first page.
-- Sheets are components inside the screen that opens them, not routes. A sheet closes back to that screen.
+- Forms, deletes and similar actions are sheets, except the account and password reset forms. Sheets are components inside the screen that opens them, not routes. A sheet closes back to that screen.
 
 ## Data
 

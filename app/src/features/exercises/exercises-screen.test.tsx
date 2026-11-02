@@ -83,9 +83,6 @@ async function renderExercises() {
     {
       _layout: Layout,
       index: ExercisesScreen,
-      'create-exercise': () => (
-        <PlaceholderScreen title="Create exercise screen" />
-      ),
       'exercises/groups': () => <PlaceholderScreen title="Groups screen" />,
       'exercises/[id]': () => <PlaceholderScreen title="Exercise screen" />,
     },
@@ -225,7 +222,9 @@ test('a search without results says so and offers to create the exercise', async
   await fireEvent.press(
     screen.getAllByRole('button', { name: 'Create exercise' })[0],
   );
-  expect(await screen.findByText('Create exercise screen')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('header', { name: 'Create exercise' }),
+  ).toBeOnTheScreen();
 });
 
 test('picking a group and searching both return the list to the top', async () => {
@@ -280,7 +279,9 @@ test('no exercises at all shows the empty state, without search or chips', async
   await fireEvent.press(
     screen.getAllByRole('button', { name: 'Create exercise' })[0],
   );
-  expect(await screen.findByText('Create exercise screen')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('header', { name: 'Create exercise' }),
+  ).toBeOnTheScreen();
 });
 
 test('a failed load says so, and Try again loads the list', async () => {

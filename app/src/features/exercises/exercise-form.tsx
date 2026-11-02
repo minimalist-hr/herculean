@@ -1,20 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { ApiProblemError, toFormErrors } from '@/api/problem';
 import type { components } from '@/api/schema';
-import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { FormError } from '@/components/form-error';
-import { ScreenHeading } from '@/components/screen-heading';
+import { Sheet } from '@/components/sheet';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
@@ -24,25 +17,27 @@ import { exerciseSchema, type ExerciseValues } from './exercise-schema';
 import { ChipsSkeleton } from './exercises-skeleton';
 import { useGroups } from './use-groups';
 
-interface ExerciseFormProps {
+interface ExerciseFormSheetProps {
+  visible: boolean;
   title: string;
   subtitle: string;
   initialValues: ExerciseValues;
   saving: boolean;
   /** Saves the values. A failure it throws shows on the form. */
   onSave: (values: ExerciseValues) => Promise<unknown>;
-  onCancel: () => void;
+  onClose: () => void;
 }
 
-/** The fields of an exercise, with Save exercise and Cancel. */
-export function ExerciseForm({
+/** A sheet with the fields of an exercise, Save exercise and Cancel. */
+export function ExerciseFormSheet({
+  visible,
   title,
   subtitle,
   initialValues,
   saving,
   onSave,
-  onCancel,
-}: ExerciseFormProps) {
+  onClose,
+}: ExerciseFormSheetProps) {
   const { colors, size, space, text } = useTheme();
   const groups = useGroups();
   const { control, handleSubmit, setError, setValue, formState } = useForm({
@@ -115,20 +110,13 @@ export function ExerciseForm({
   }
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-      {/* Only the form makes room for the keyboard. The actions stay behind it until it closes. */}
-      <KeyboardAvoidingView behavior="padding" style={styles.screen}>
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            gap: space.xl,
-            paddingTop: size.topPaddingTab,
-            paddingHorizontal: size.sidePadding,
-            paddingBottom: space.lg,
-          }}
-        >
-          <ScreenHeading title={title} subtitle={subtitle} />
-
+    <Sheet
+      visible={visible}
+      title={title}
+      message={subtitle}
+      onClose={onClose}
+      body={
+        <View style={{ gap: space.xl }}>
           <Controller
             control={control}
             name="name"
@@ -206,31 +194,26 @@ export function ExerciseForm({
               </View>
             </>
           )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-
-      <BottomActionBox>
-        <Button
-          label="Save exercise"
-          waitingLabel="Saving exercise"
-          waiting={saving}
-          onPress={() => void submit()}
-        />
-        <Button
-          label="Cancel"
-          variant="secondary"
-          dimmed={saving}
-          onPress={onCancel}
-        />
-      </BottomActionBox>
-    </View>
+        </View>
+      }
+    >
+      <Button
+        label="Save exercise"
+        waitingLabel="Saving exercise"
+        waiting={saving}
+        onPress={() => void submit()}
+      />
+      <Button
+        label="Cancel"
+        variant="secondary"
+        dimmed={saving}
+        onPress={onClose}
+      />
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',

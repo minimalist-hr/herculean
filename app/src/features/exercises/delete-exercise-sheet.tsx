@@ -34,9 +34,7 @@ export function DeleteExerciseSheet({
         onPress={() => {
           deleteExercise.mutate(undefined, {
             onSuccess: onDeleted,
-            // The bar can't show above a sheet, so the sheet makes way for it.
             onError: () => {
-              onClose();
               notifyFailure("Couldn't delete the exercise. Try again.");
             },
           });

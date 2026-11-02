@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.18 · 1 November 2026 · Minimalist
+Version 0.19 · 2 November 2026 · Minimalist
+
+> Changes since 0.18: forms, deletes and similar actions open as sheets, so L22 and E20 are sheets now. A sheet opens at its content's height, up to 90% of the screen, and its content scrolls. The grabber pulls a sheet that doesn't fit up to full screen, and any sheet down to close. A failure shows above the open sheet, so it keeps what was typed, and a success shows in the usual place as the sheet closes (section 5). The account and password reset forms stay full pages for now. On E30 and E31, the title and description stay pinned and only the list scrolls, and New group is a + button on the title's line.
 
 > Changes since 0.17: E35, a group's details: its exercises, what also works it, and edit and trash icons. E30 rows open it, and E33 and E34 now open from it, though their drawings still show E30 behind them. The area panel `areas/E-Exercises.png` doesn't show this. An action that isn't available stays tappable and says why (section 8).
 
@@ -199,7 +201,7 @@ The canvas shows no error states, so every form follows these:
 Says that something worked or failed, when it belongs to no field. It looks like the undo bar: `raised` fill, a border, 6 px corners and at least 56 px tall, with a 20 px icon (a check in `success`, a warning in `danger`) and 14 / 600 text.
 - **Place:** 12 px above what is at the bottom of the screen: the tab bar or the bottom action box. It moves above the keyboard when that is open.
 - **Behavior:** it rises in, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
-- **Sheets:** it can't show above a sheet, so a sheet that fails closes first.
+- **Sheets:** a failure shows above the open sheet, which stays with what was typed, and goes when the sheet closes. A success shows in the usual place as the sheet closes.
 - **Action:** it can carry one action at its right, such as Undo on E30. It then stays 6 seconds.
 - **Examples:** "Bench press saved.", "Bench press created.", "Bench press deleted.", "Link sent again.", "Password changed. Sign in with the new one."
 
@@ -226,7 +228,10 @@ An email uses the same tokens as the app, in a column of at most 480 px. It is a
 ### Sheets
 - **Look:** a dimmed backdrop (62% black), a sheet rising from the bottom with rounded top corners and a 36 × 4 px grabber, and a 22 px title with a one-line explanation.
 - **Actions:** a 44 px close X at the top right, and Save … and Cancel at the bottom.
-- **Behavior:** a sheet closes back to the screen that opened it.
+- **Height:** it opens at its content's height, up to 90% of the screen, and its content scrolls. If the content doesn't fit, the grabber pulls it up to full screen.
+- **Behavior:** a sheet closes back to the screen that opened it. Pulling the grabber down closes it.
+- **Keyboard:** while it is open, the actions wait behind it so the fields keep the room. Done on a single field saves. Dragging the fields closes the keyboard and brings the actions back.
+- **Use:** forms, deletes and similar actions open as sheets. The account and password reset forms stay full pages for now.
 
 ### Confirmations
 A question ("Delete Chest and arms 1?"), one sentence on what happens and what stays, a danger button that repeats the verb ("Delete routine"), and Cancel below.
@@ -394,8 +399,8 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 |---|---|---|
 | **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
-| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The trash icon on E10 and E11 opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
-| **E4 Groups** | E31 Loading, E30 Groups, E35 Group, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order), and New group. A row opens E35: the exercises in the group and those that also work it, each opening its exercise, with Rename and Delete in the header; only an empty group can be deleted. |
+| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20 as a sheet, and the trash icon opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
+| **E4 Groups** | E31 Loading, E30 Groups, E35 Group, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title and description stay pinned, with New group as a + button beside the title. A row opens E35: the exercises in the group and those that also work it, each opening its exercise, with Rename and Delete in the header; only an empty group can be deleted. |
 
 ---
 

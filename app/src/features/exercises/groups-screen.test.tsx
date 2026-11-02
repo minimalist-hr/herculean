@@ -213,7 +213,7 @@ test('a name another group has shows under Name and the sheet stays', async () =
   expect(screen.getByRole('header', { name: 'New group' })).toBeOnTheScreen();
 });
 
-test('another failure closes the sheet and says so', async () => {
+test('another failure keeps the sheet and says so', async () => {
   answer({ POST: () => problem(500, 'server_error', 'Something failed.') });
   await renderGroups();
 
@@ -224,9 +224,8 @@ test('another failure closes the sheet and says so', async () => {
   expect(await screen.findByRole('alert')).toHaveTextContent(
     "Couldn't save the group. Try again.",
   );
-  await waitFor(() => {
-    expect(screen.queryByRole('header', { name: 'New group' })).toBeNull();
-  });
+  expect(screen.getByRole('header', { name: 'New group' })).toBeOnTheScreen();
+  expect(screen.getByDisplayValue('Glutes')).toBeOnTheScreen();
 });
 
 test('dragging a handle down a place saves the new order', async () => {
