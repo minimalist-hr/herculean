@@ -118,7 +118,7 @@ test('a short slow pull down springs back', async () => {
   expect(onClose).not.toHaveBeenCalled();
 });
 
-test('a pull up on content that fits does nothing', async () => {
+test('a pull up does nothing', async () => {
   await renderSheet();
   await measure();
 

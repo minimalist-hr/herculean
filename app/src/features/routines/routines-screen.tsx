@@ -1,14 +1,18 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { ChevronRightIcon, PlusIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { notifySuccess } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
+import { counted } from './formats';
+import { NewRoutineSheet } from './new-routine-sheet';
 import { useRoutines } from './use-routines';
 import { useWeekPlan } from './use-week-plan';
 
@@ -25,15 +29,14 @@ const dayNames: Record<Weekday, { full: string; short: string }> = {
   sunday: { full: 'Sunday', short: 'Sun' },
 };
 
-function counted(count: number, one: string, many: string) {
-  return `${String(count)} ${count === 1 ? one : many}`;
-}
-
 export function RoutinesScreen() {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const routines = useRoutines();
   const weekPlan = useWeekPlan();
+  const [creating, setCreating] = useState(false);
+  // Each new routine starts with an empty form.
+  const [createKey, setCreateKey] = useState(0);
 
   function renderRoutine(routine: Routine) {
     const summary = `${counted(routine.exerciseCount, 'exercise', 'exercises')} · ${counted(routine.setCount, 'set', 'sets')}`;
@@ -232,7 +235,8 @@ export function RoutinesScreen() {
         <HeaderIconButton
           label="New routine"
           onPress={() => {
-            router.push('/new-routine');
+            setCreateKey((key) => key + 1);
+            setCreating(true);
           }}
         >
           <PlusIcon color={colors.text} size={20} />
@@ -247,6 +251,19 @@ export function RoutinesScreen() {
       >
         {renderContent()}
       </ScrollView>
+      {createKey > 0 && (
+        <NewRoutineSheet
+          key={createKey}
+          visible={creating}
+          onCreated={(name) => {
+            setCreating(false);
+            notifySuccess(`${name} created.`);
+          }}
+          onClose={() => {
+            setCreating(false);
+          }}
+        />
+      )}
     </View>
   );
 }

@@ -70,7 +70,6 @@ async function renderRoutines() {
     {
       _layout: Layout,
       index: RoutinesScreen,
-      'new-routine': () => <PlaceholderScreen title="New routine screen" />,
       'routine/[id]': () => <PlaceholderScreen title="Routine screen" />,
     },
     { initialUrl: '/' },
@@ -149,7 +148,9 @@ test('the + button opens a new routine', async () => {
 
   await fireEvent.press(screen.getByRole('button', { name: 'New routine' }));
 
-  expect(await screen.findByText('New routine screen')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('header', { name: 'New routine' }),
+  ).toBeOnTheScreen();
 });
 
 test('a routine opens it', async () => {

@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.20 · 2 November 2026 · Minimalist
+Version 0.21 · 2 November 2026 · Minimalist
+
+> Changes since 0.20: a sheet is as small as its content allows, and content that doesn't fit makes it as tall as possible and scrolls, so nothing pulls a sheet up. Every form is a sheet, and a sheet can open another. R30 and R20 are sheets, with R21 and R23 rising over them. L20 is a sheet at full height, and L22 rises over it. A routine needs at least one exercise to save, and Add exercise is a + on the Exercises title's line. On L20, Create exercise is a + in the search row, Add exercise stays muted until something is picked and says why when pressed, and rows show the group, not also works. R23 asks first, then a notification offers Undo. The drawings of R20, R21, R23, R30, L20, L21, L23 and L24 still show the older layout.
 
 > Changes since 0.19: on R01 to R03, the title stays pinned and New routine is a + button beside it.
 
@@ -203,7 +205,7 @@ The canvas shows no error states, so every form follows these:
 Says that something worked or failed, when it belongs to no field. It looks like the undo bar: `raised` fill, a border, 6 px corners and at least 56 px tall, with a 20 px icon (a check in `success`, a warning in `danger`) and 14 / 600 text.
 - **Place:** 12 px above what is at the bottom of the screen: the tab bar or the bottom action box. It moves above the keyboard when that is open.
 - **Behavior:** it rises in, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
-- **Sheets:** a failure shows above the open sheet, which stays with what was typed, and goes when the sheet closes. A success shows in the usual place as the sheet closes.
+- **Sheets:** a failure or an Undo shows above the top sheet, which stays with what was typed. A failure goes when the sheet closes. Any other success shows in the usual place as the sheet closes.
 - **Action:** it can carry one action at its right, such as Undo on E30. It then stays 6 seconds.
 - **Examples:** "Bench press saved.", "Bench press created.", "Bench press deleted.", "Link sent again.", "Password changed. Sign in with the new one."
 
@@ -230,10 +232,11 @@ An email uses the same tokens as the app, in a column of at most 480 px. It is a
 ### Sheets
 - **Look:** a dimmed backdrop (62% black), a sheet rising from the bottom with rounded top corners and a 36 × 4 px grabber, and a 22 px title with a one-line explanation.
 - **Actions:** a 44 px close X at the top right, and Save … and Cancel at the bottom.
-- **Height:** it opens at its content's height, up to 90% of the screen, and its content scrolls. If the content doesn't fit, the grabber pulls it up to full screen.
+- **Height:** it opens at its content's height. If the content doesn't fit, it takes all the room there is and its content scrolls.
 - **Behavior:** a sheet closes back to the screen that opened it. Pulling the grabber down closes it.
 - **Keyboard:** while it is open, the actions wait behind it so the fields keep the room. Done on a single field saves. Dragging the fields closes the keyboard and brings the actions back.
 - **Use:** forms, deletes and similar actions open as sheets. The account and password reset forms stay full pages for now.
+- **Stacking:** a sheet can open another, which rises over it. Only the top one takes touches, and closing it returns to the one below. 
 
 ### Confirmations
 A question ("Delete Chest and arms 1?"), one sentence on what happens and what stays, a danger button that repeats the verb ("Delete routine"), and Cancel below.

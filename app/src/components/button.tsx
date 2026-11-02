@@ -14,6 +14,8 @@ interface ButtonProps {
   waiting?: boolean;
   /** Another action on the screen is waiting, so this one can't be pressed. */
   dimmed?: boolean;
+  /** It isn't available yet, but a press can say why. */
+  muted?: boolean;
 }
 
 export function Button({
@@ -23,6 +25,7 @@ export function Button({
   waitingLabel,
   waiting = false,
   dimmed = false,
+  muted = false,
 }: ButtonProps) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const filled = variant === 'primary' || variant === 'danger';
@@ -44,7 +47,7 @@ export function Button({
         {
           gap: space.sm,
           borderRadius: radius.control,
-          opacity: dimmed ? opacity.dimmed : 1,
+          opacity: dimmed || muted ? opacity.dimmed : 1,
         },
         filled
           ? {

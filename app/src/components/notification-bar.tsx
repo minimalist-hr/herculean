@@ -22,7 +22,7 @@ import {
 import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
 
-/** Shows the latest notification above whatever is at the bottom of the screen. A sheet passes its height to show failures above itself. */
+/** Shows the latest notification above whatever is at the bottom of the screen. A sheet passes its height to show those that stay with it above itself. */
 export function NotificationBar({ above }: { above?: number }) {
   const { colors, motion, radius, size, space, text } = useTheme();
   const insets = useSafeAreaInsets();
@@ -81,12 +81,12 @@ export function NotificationBar({ above }: { above?: number }) {
     };
   }, [motion, notification]);
 
-  // A failure keeps its sheet open, so it shows above the sheet, which nothing outside can do.
-  // A success comes as the sheet closes, so it starts in its usual place and doesn't move.
+  // A failure or an Undo keeps its sheet open, so it shows above the sheet, which nothing outside can do.
+  // Any other success comes as the sheet closes, so it starts in its usual place and doesn't move.
+  const staysWithSheet =
+    shown?.kind === 'failure' || shown?.action !== undefined;
   const belongsHere =
-    above === undefined
-      ? !sheetOpen || shown?.kind === 'success'
-      : shown?.kind === 'failure';
+    above === undefined ? !sheetOpen || !staysWithSheet : staysWithSheet;
   if (shown === null || !belongsHere) {
     return null;
   }

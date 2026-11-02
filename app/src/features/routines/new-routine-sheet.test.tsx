@@ -1,0 +1,444 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Stack } from 'expo-router';
+import { renderRouter } from 'expo-router/testing-library';
+
+import { NotificationBar } from '@/components/notification-bar';
+import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { ThemeProvider } from '@/theme/theme-provider';
+
+import { RoutinesScreen } from './routines-screen';
+
+const mockFetch = jest.fn<Promise<Response>, [Request]>();
+
+jest.mock('@/api/client', () => {
+  const createClient =
+    jest.requireActual<typeof import('openapi-fetch')>('openapi-fetch').default;
+  return {
+    api: createClient({
+      baseUrl: 'http://api.test',
+      fetch: (request: Request) => mockFetch(request),
+    }),
+  };
+});
+
+const legs = { id: 'legs', name: 'Legs' };
+const chest = { id: 'chest', name: 'Chest' };
+
+function row(id: string, name: string, group = legs) {
+  return {
+    id,
+    name,
+    groupId: group.id,
+    groupName: group.name,
+    bestSet: null,
+  };
+}
+
+function problem(status: number, code: string, detail: string) {
+  return Response.json(
+    {
+      type: 'about:blank',
+      title: 'Error',
+      status,
+      detail,
+      code,
+      traceId: '00-1',
+    },
+    { status },
+  );
+}
+
+interface Saved {
+  name: string;
+  exercises: { exerciseId: string; targetSets: number }[];
+}
+
+let saved: Saved | undefined;
+
+/** Answers reads, and answers saving a routine with this. */
+function answer(save?: () => Response) {
+  saved = undefined;
+  let exercises = [row('squat', 'Squat'), row('press', 'Bench press', chest)];
+
+  mockFetch.mockImplementation(async (request) => {
+    const url = new URL(request.url);
+    if (url.pathname === '/api/v1/groups') {
+      return Response.json([chest, legs]);
+    }
+    if (url.pathname === '/api/v1/users/me') {
+      return Response.json({
+        email: 'filip@example.com',
+        name: 'Filip',
+        units: 'metric',
+        timeZone: 'Europe/Zagreb',
+      });
+    }
+    if (url.pathname === '/api/v1/routines' && request.method === 'GET') {
+      return Response.json([]);
+    }
+    if (url.pathname === '/api/v1/routines' && request.method === 'POST') {
+      saved = (await request.json()) as Saved;
+      return (
+        save?.() ??
+        Response.json({ id: 'r', name: saved.name.trim() }, { status: 201 })
+      );
+    }
+    if (url.pathname === '/api/v1/exercises' && request.method === 'POST') {
+      const { name } = (await request.json()) as { name: string };
+      exercises = [...exercises, row('new', name)];
+      return Response.json(
+        { id: 'new', name, groupId: legs.id, alsoWorksGroupIds: [] },
+        { status: 201 },
+      );
+    }
+    if (url.pathname === '/api/v1/exercises') {
+      const search = url.searchParams.get('search')?.toLowerCase();
+      return Response.json(
+        exercises.filter(
+          (item) =>
+            search === undefined || item.name.toLowerCase().includes(search),
+        ),
+      );
+    }
+
+    return Response.json([]);
+  });
+}
+
+function Layout() {
+  return (
+    <QueryClientProvider
+      client={
+        new QueryClient({
+          defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+        })
+      }
+    >
+      <ThemeProvider theme="dark">
+        <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
+
+async function openNew() {
+  await renderRouter(
+    {
+      _layout: Layout,
+      index: RoutinesScreen,
+      'routine/[id]': () => <PlaceholderScreen title="Routine screen" />,
+    },
+    { initialUrl: '/' },
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'New routine' }));
+  await screen.findByRole('header', { name: 'New routine' });
+}
+
+/** A sheet opens over the screen, so its button comes after any with the same name behind it. */
+function pressLast(name: string) {
+  const buttons = screen.getAllByRole('button', { name });
+
+  return fireEvent.press(buttons[buttons.length - 1]);
+}
+
+/** The + comes before any Add exercise button on a picker that hasn't finished closing. */
+async function openPicker() {
+  await fireEvent.press(
+    screen.getAllByRole('button', { name: 'Add exercise' })[0],
+  );
+  await screen.findByRole('header', { name: 'Add exercise' });
+}
+
+async function pickerClosed() {
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'Add exercise' })).toBeNull();
+  });
+}
+
+async function editorClosed() {
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'New routine' })).toBeNull();
+  });
+}
+
+async function addSquat() {
+  await openPicker();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
+  await pressLast('Add exercise');
+  await pickerClosed();
+  await screen.findByText('Squat');
+}
+
+async function save(name = 'Legs') {
+  await fireEvent.changeText(screen.getByLabelText('Name'), name);
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+}
+
+beforeEach(() => {
+  mockFetch.mockReset();
+});
+
+test('starts empty and says what to do', async () => {
+  answer();
+  await openNew();
+
+  expect(
+    screen.getByText(
+      'Not planned yet. Add it to days in the week plan after saving.',
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('No exercises yet')).toBeOnTheScreen();
+});
+
+test('a routine with no name or exercises is stopped before anything is sent', async () => {
+  answer();
+  await openNew();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+
+  expect(await screen.findByText('Enter a name.')).toBeOnTheScreen();
+  expect(screen.getByText('Add at least one exercise.')).toBeOnTheScreen();
+  expect(saved).toBeUndefined();
+});
+
+test('picked exercises come back at 3 × 8–10, and saving sends them', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+
+  expect(screen.getByText('3 × 8–10')).toBeOnTheScreen();
+  expect(screen.getByText('1 exercise · 3 sets')).toBeOnTheScreen();
+
+  await save('  Legs ');
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Legs created.');
+  await editorClosed();
+  expect(saved).toEqual({
+    name: 'Legs',
+    exercises: [
+      {
+        exerciseId: 'squat',
+        targetSets: 3,
+        targetRepsFrom: 8,
+        targetRepsTo: 10,
+      },
+    ],
+  });
+});
+
+test('the button names how many are picked, and says when none are', async () => {
+  answer();
+  await openNew();
+  await openPicker();
+
+  await pressLast('Add exercise');
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Pick an exercise first.',
+  );
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Bench press' }));
+  expect(
+    screen.getByRole('button', { name: 'Add exercises' }),
+  ).toBeOnTheScreen();
+});
+
+test('an exercise already in the routine is not offered again', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+
+  await openPicker();
+
+  expect(
+    await screen.findByRole('button', { name: 'Bench press' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: 'Squat' })).toBeNull();
+});
+
+test('a search with no results offers to create it, and it comes back selected and new', async () => {
+  answer();
+  await openNew();
+  await openPicker();
+  await screen.findByRole('button', { name: 'Squat' });
+
+  await fireEvent.changeText(
+    screen.getByLabelText('Search exercises'),
+    'Hack squat',
+  );
+  expect(
+    await screen.findByText('No matches for “Hack squat”'),
+  ).toBeOnTheScreen();
+
+  await pressLast('Create exercise');
+  await screen.findByRole('header', { name: 'Create exercise' });
+  await pressLast('Legs');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save exercise' }));
+
+  expect(await screen.findByText('New')).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Hack squat', selected: true }),
+  ).toBeOnTheScreen();
+});
+
+test('a failed read in the picker says so', async () => {
+  answer();
+  await openNew();
+  mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+
+  await openPicker();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't load your exercises.",
+  );
+});
+
+test('Cancel in the picker adds nothing', async () => {
+  answer();
+  await openNew();
+  await openPicker();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
+
+  await pressLast('Cancel');
+
+  await pickerClosed();
+  expect(screen.getByText('No exercises yet')).toBeOnTheScreen();
+});
+
+test('targets change on a sheet, and the low end never passes the high end', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+
+  await fireEvent.press(screen.getByRole('button', { name: /^Squat, 3/ }));
+  await screen.findByRole('header', { name: 'Squat' });
+  expect(
+    screen.getByText(
+      'Logging shows this as 3 × 8–10. Use the same number twice for a fixed rep count.',
+    ),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'One set more' }));
+  for (let press = 0; press < 3; press += 1) {
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'One rep more from' }),
+    );
+  }
+
+  expect(
+    screen.getByText(
+      'Logging shows this as 4 × 11. Use the same number twice for a fixed rep count.',
+    ),
+  ).toBeOnTheScreen();
+
+  await pressLast('Save targets');
+
+  expect(await screen.findByText('4 × 11')).toBeOnTheScreen();
+});
+
+test('removing asks first, and Undo puts it back', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Remove Squat' }));
+  expect(
+    await screen.findByRole('header', { name: 'Remove Squat?' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      'It’s removed from this routine, with its 3 × 8–10 target. Workouts you already logged stay.',
+    ),
+  ).toBeOnTheScreen();
+
+  await pressLast('Remove exercise');
+
+  expect(await screen.findByText('No exercises yet')).toBeOnTheScreen();
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    /^Squat removed\./,
+  );
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+
+  expect(await screen.findByText('Squat')).toBeOnTheScreen();
+});
+
+test('moving an exercise changes the order it saves in', async () => {
+  answer();
+  await openNew();
+  await openPicker();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Bench press' }));
+  await pressLast('Add exercises');
+  await pickerClosed();
+
+  await fireEvent(
+    await screen.findByRole('button', { name: 'Move Bench press' }),
+    'accessibilityAction',
+    { nativeEvent: { actionName: 'moveUp' } },
+  );
+  await save();
+
+  await waitFor(() => {
+    expect(saved?.exercises.map((item) => item.exerciseId)).toEqual([
+      'press',
+      'squat',
+    ]);
+  });
+});
+
+test('a name the user already has shows under Name', async () => {
+  answer(() =>
+    problem(
+      409,
+      'routine.name_taken',
+      'You already have a routine with this name.',
+    ),
+  );
+  await openNew();
+  await addSquat();
+
+  await save();
+
+  expect(
+    await screen.findByText('You already have a routine with this name.'),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('header', { name: 'New routine' })).toBeOnTheScreen();
+});
+
+test('the limit shows the API message, and other failures a general one', async () => {
+  answer(() =>
+    problem(
+      409,
+      'routine.limit_reached',
+      'You’ve reached the limit of 50 routines.',
+    ),
+  );
+  await openNew();
+  await addSquat();
+
+  await save();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'You’ve reached the limit of 50 routines.',
+  );
+
+  mockFetch.mockRejectedValueOnce(new TypeError('Network request failed'));
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't save the routine. Try again.",
+  );
+});
+
+test('Cancel leaves without saving', async () => {
+  answer();
+  await openNew();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+
+  await editorClosed();
+  expect(saved).toBeUndefined();
+});

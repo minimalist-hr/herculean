@@ -1,7 +1,7 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -27,14 +27,17 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { CloseIcon } from './icons';
 import { NotificationBar } from './notification-bar';
-import { dismissFailure, sheetClosed, sheetOpened } from './notifications';
-import { snapAfterDrag } from './sheet-drag';
+import {
+  dismissFailure,
+  sheetClosed,
+  sheetOpened,
+  useTopSheet,
+} from './notifications';
+import { closesAfterDrag } from './sheet-drag';
 import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
 
 const paddingBottomMin = 34;
-// A sheet opens no taller than this. Longer content scrolls, or the grabber pulls it up.
-const restFraction = 0.9;
 
 function settle(value: Animated.Value, toValue: number) {
   Animated.timing(value, {
@@ -48,20 +51,26 @@ function settle(value: Animated.Value, toValue: number) {
 interface SheetProps {
   visible: boolean;
   title: string;
-  message: string;
+  message?: string;
   onClose: () => void;
+  /** It always takes all the room, and the body fills it and scrolls by itself, for a long list. */
+  fill?: boolean;
+  /** Turn off while something in the body is being dragged. */
+  scrollEnabled?: boolean;
   /** What sits between the heading and the actions, for example a field. It scrolls if it doesn't fit. */
   body?: ReactNode;
   /** The actions below the line: the main one first. */
   children: ReactNode;
 }
 
-/** A sheet rising over a dimmed screen. It closes back to the screen that opened it, and the grabber pulls it up or down. */
+/** A sheet rising over a dimmed screen. It closes back to the screen that opened it, and pulling the grabber down closes it. */
 export function Sheet({
   visible,
   title,
   message,
   onClose,
+  fill = false,
+  scrollEnabled = true,
   body,
   children,
 }: SheetProps) {
@@ -71,12 +80,10 @@ export function Sheet({
   const keyboardHeight = useKeyboardHeight();
   const window = useWindowDimensions();
   const [progress] = useState(() => new Animated.Value(0));
-  const [height] = useState(() => new Animated.Value(0));
   const [pulledDown] = useState(() => new Animated.Value(0));
   const [headingHeight, setHeadingHeight] = useState(0);
   const [bodyHeight, setBodyHeight] = useState(0);
   const [actionsHeight, setActionsHeight] = useState(0);
-  const [expanded, setExpanded] = useState(false);
   // It stays open after visible turns false, until it has gone down.
   const [open, setOpen] = useState(visible);
   if (visible && !open) {
@@ -101,33 +108,30 @@ export function Sheet({
     space.lg * (parts - 1);
   const measured = headingHeight > 0 && actionsHeight > 0;
   const full = window.height - insets.top - keyboardHeight;
-  const rest = Math.min(natural, full * restFraction);
-  const canExpand = natural > rest;
-  const shownHeight = expanded && canExpand ? full : rest;
+  // It is as small as its content allows. Content that doesn't fit gets all the room there is, and scrolls.
+  const shownHeight = fill ? full : Math.min(natural, full);
   const startingOffset = measured ? shownHeight : window.height;
 
-  // The notification bar shows above the sheet while it is open.
+  // Some notifications show above the sheet while it is open. One going down has made way already.
+  const id = useId();
+  const isTop = useTopSheet(id);
   useEffect(() => {
-    if (!open) {
+    if (!visible) {
       return;
     }
 
-    sheetOpened();
+    sheetOpened(id);
 
-    return sheetClosed;
-  }, [open]);
+    return () => {
+      sheetClosed(id);
+    };
+  }, [id, visible]);
 
   useEffect(() => {
     if (!visible) {
       dismissFailure();
     }
   }, [visible]);
-
-  useLayoutEffect(() => {
-    if (measured) {
-      height.setValue(shownHeight);
-    }
-  }, [height, measured, shownHeight]);
 
   useEffect(() => {
     if (!open) {
@@ -157,50 +161,35 @@ export function Sheet({
   }, [motion.sheetMs, open, progress, pulledDown, reduceMotion, visible]);
 
   // A gesture keeps the handlers it started with, so they read the latest values from here.
-  const latest = useRef({ rest, full, shownHeight, canExpand, onClose });
+  const latest = useRef({ shownHeight, onClose });
   useEffect(() => {
-    latest.current = { rest, full, shownHeight, canExpand, onClose };
+    latest.current = { shownHeight, onClose };
   });
 
-  const pull = useRef({ start: 0, current: 0, below: 0 });
-
-  const startPull = useCallback(() => {
-    const start = latest.current.shownHeight;
-    pull.current = { start, current: start, below: 0 };
-  }, []);
+  const pull = useRef(0);
 
   const movePull = useCallback(
     (distance: number) => {
-      const { rest: resting, full: tallest, canExpand: up } = latest.current;
-      const wanted = pull.current.start - distance;
-      pull.current.current = Math.min(wanted, up ? tallest : resting);
-      pull.current.below = Math.max(0, resting - wanted);
-      height.setValue(Math.max(pull.current.current, resting));
-      pulledDown.setValue(pull.current.below);
+      pull.current = Math.max(0, distance);
+      pulledDown.setValue(pull.current);
     },
-    [height, pulledDown],
+    [pulledDown],
   );
 
   const endPull = useCallback(
     (velocity: number) => {
-      const { rest: resting, full: tallest, canExpand: up } = latest.current;
-      const snap = snapAfterDrag({
-        rest: resting,
-        full: up ? tallest : resting,
-        height: Math.max(pull.current.current, resting),
-        pulledDown: pull.current.below,
+      const closes = closesAfterDrag({
+        height: latest.current.shownHeight,
+        pulledDown: pull.current,
         velocity,
       });
-      if (snap === 'close') {
+      if (closes) {
         latest.current.onClose();
-        return;
+      } else {
+        settle(pulledDown, 0);
       }
-
-      settle(pulledDown, 0);
-      settle(height, snap === 'full' ? tallest : resting);
-      setExpanded(snap === 'full');
     },
-    [height, pulledDown],
+    [pulledDown],
   );
 
   if (!open) {
@@ -253,11 +242,10 @@ export function Sheet({
                 backgroundColor: colors.card,
                 transform: [{ translateY: pulledDown }],
               },
-              measured && { height },
+              measured && { height: shownHeight },
             ]}
           >
             <DragArea
-              onStart={startPull}
               onMove={movePull}
               onEnd={endPull}
               onHeight={setHeadingHeight}
@@ -285,7 +273,9 @@ export function Sheet({
                   >
                     {title}
                   </Text>
-                  <Text style={text.meta}>{message}</Text>
+                  {message !== undefined && (
+                    <Text style={text.meta}>{message}</Text>
+                  )}
                 </View>
                 <Pressable
                   accessibilityRole="button"
@@ -303,8 +293,10 @@ export function Sheet({
                 </Pressable>
               </View>
             </DragArea>
-            {body !== undefined && (
+            {fill && <View style={styles.fillBody}>{body}</View>}
+            {!fill && body !== undefined && (
               <ScrollView
+                scrollEnabled={scrollEnabled}
                 keyboardShouldPersistTaps="handled"
                 keyboardDismissMode="on-drag"
                 style={styles.body}
@@ -340,27 +332,20 @@ export function Sheet({
           </Animated.View>
         </Animated.View>
       </KeyboardAvoidingView>
-      <NotificationBar above={shownHeight} />
+      {isTop && <NotificationBar above={shownHeight} />}
     </Modal>
   );
 }
 
 interface DragAreaProps {
-  onStart: () => void;
   onMove: (distance: number) => void;
   onEnd: (velocity: number) => void;
   onHeight: (height: number) => void;
   children: ReactNode;
 }
 
-/** The top of a sheet, which pulls it up or down. A tap still reaches what is inside. */
-function DragArea({
-  onStart,
-  onMove,
-  onEnd,
-  onHeight,
-  children,
-}: DragAreaProps) {
+/** The top of a sheet, which pulls it down. A tap still reaches what is inside. */
+function DragArea({ onMove, onEnd, onHeight, children }: DragAreaProps) {
   const { space } = useTheme();
   const drag = useMemo(
     () =>
@@ -370,9 +355,6 @@ function DragArea({
         onMoveShouldSetPanResponderCapture: (_event, gesture) =>
           Math.abs(gesture.dy) > 4,
         onPanResponderTerminationRequest: () => false,
-        onPanResponderGrant: () => {
-          onStart();
-        },
         onPanResponderMove: (_event, gesture) => {
           onMove(gesture.dy);
         },
@@ -380,7 +362,7 @@ function DragArea({
           onEnd(gesture.vy);
         },
       }),
-    [onEnd, onMove, onStart],
+    [onEnd, onMove],
   );
 
   return (
@@ -425,6 +407,9 @@ const styles = StyleSheet.create({
   },
   body: {
     flexShrink: 1,
+  },
+  fillBody: {
+    flex: 1,
   },
   actions: {
     borderTopWidth: 1,

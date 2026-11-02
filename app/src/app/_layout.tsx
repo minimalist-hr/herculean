@@ -111,7 +111,6 @@ function AppStack() {
         </Stack.Protected>
         <Stack.Protected guard={status === 'ready'} redirectTo={home}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="new-routine" />
           <Stack.Screen name="routine/[id]" />
         </Stack.Protected>
         <Stack.Screen name="terms" />

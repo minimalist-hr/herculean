@@ -109,7 +109,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 **Flows**
 - **Routines tab:** R02 → R01, or R03 when there are no routines.
 - **Week plan:** a weekday on R01 → R10 → Save day → R01.
-- **Edit routine:** a routine on R01 → R20. Tap targets → R21 → Save targets. The trash → R23 → R20, with an undo bar. Drag handles reorder. Save routine → R01.
+- **Edit routine:** a routine on R01 → R20. Tap targets → R21 → Save targets. The trash → R23 → R20, with a notification that has Undo. Drag handles reorder. Save routine → R01.
 - **Add exercise:** on R20 or R30 → L24 → L20, or L21 when nothing matches → L22 → L23 → back with the picked exercises at 3 × 8–10.
 - **Delete routine:** Delete routine on R20 → R22 → R01.
 - **New routine:** the + button on R01 or R03 → R30 → Save routine → R01.

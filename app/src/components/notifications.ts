@@ -15,7 +15,7 @@ export interface Notification {
 let notification: Notification | null = null;
 let nextId = 1;
 let bottomInset: number | null = null;
-let openSheets = 0;
+const openSheets: string[] = [];
 
 const listeners = new Set<() => void>();
 
@@ -73,19 +73,24 @@ export function setNotificationInset(height: number | null) {
   changed();
 }
 
-export function sheetOpened() {
-  openSheets += 1;
+export function sheetOpened(id: string) {
+  openSheets.push(id);
   changed();
 }
 
-export function sheetClosed() {
-  openSheets -= 1;
+export function sheetClosed(id: string) {
+  openSheets.splice(openSheets.indexOf(id), 1);
   changed();
 }
 
-/** Whether a sheet is open, which then shows failures itself. */
+/** Whether a sheet is open, which then shows some notifications itself. */
 export function useSheetOpen() {
-  return useSyncExternalStore(subscribe, () => openSheets > 0);
+  return useSyncExternalStore(subscribe, () => openSheets.length > 0);
+}
+
+/** Whether this is the sheet on top, the only one a notification can show above. */
+export function useTopSheet(id: string) {
+  return useSyncExternalStore(subscribe, () => openSheets.at(-1) === id);
 }
 
 export function useNotification() {
