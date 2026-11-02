@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.19 · 2 November 2026 · Minimalist
+Version 0.20 · 2 November 2026 · Minimalist
+
+> Changes since 0.19: on R01 to R03, the title stays pinned and New routine is a + button beside it.
 
 > Changes since 0.18: forms, deletes and similar actions open as sheets, so L22 and E20 are sheets now. A sheet opens at its content's height, up to 90% of the screen, and its content scrolls. The grabber pulls a sheet that doesn't fit up to full screen, and any sheet down to close. A failure shows above the open sheet, so it keeps what was typed, and a success shows in the usual place as the sheet closes (section 5). The account and password reset forms stay full pages for now. On E30 and E31, the title and description stay pinned and only the list scrolls, and New group is a + button on the title's line.
 
@@ -388,7 +390,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 | Row | Screens | What happens |
 |---|---|---|
-| **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines | The week plan ("Repeats every week") with one row per day, then your routines with their day tags, then New routine. |
+| **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines | The week plan ("Repeats every week") with one row per day, then your routines with their day tags. The title stays pinned, with New routine as a + button beside it. |
 | **R2 Week plan** | R10 Week plan day | A sheet to pick the routine or Rest day for a weekday → Save day. Today, the week strip and the month follow the plan. |
 | **R3 Edit a routine** | R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine | Name, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine, Cancel and Delete routine. Deleting a routine makes its days rest days. |
 | **R4 New routine** | R30 New routine | Name and exercises, then Save routine. Opens from New routine on R01/R03 and from Create routine on H05/W05. |

@@ -1,6 +1,5 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { RoutinesScreen } from '@/features/routines/routines-screen';
 
-// Built in feature 3, Routines.
 export default function RoutinesRoute() {
-  return <PlaceholderScreen title="Routines" />;
+  return <RoutinesScreen />;
 }
