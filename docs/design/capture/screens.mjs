@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { problem, sample } from './fixtures.mjs';
+import { problem, sample, sampleDay, sampleWeek } from './fixtures.mjs';
 
 const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails } = sample;
 
@@ -10,6 +10,10 @@ const editPath = `/routine/${chestAndArms.id}/edit`;
 const groupPath = `/exercises/groups/${chest.id}`;
 const lists = (answer) => ({ 'GET /api/v1/exercises': answer });
 const noGroups = { status: 200, body: [] };
+const friday = '2026-10-23T18:00:00';
+const sunday = '2026-10-25T18:00:00';
+const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
+const restDay = (routineName) => ({ status: 200, body: { ...sampleDay, date: '2026-10-25', status: 'rest', routine: null, upNext: { date: '2026-10-26', routineName } } });
 
 export const screens = [
   // A · Account
@@ -69,6 +73,28 @@ export const screens = [
   { id: 'H20', file: 'H20-Settings-Terms', title: 'Settings › Terms of service', row: 'H3 About and legal', signedIn: false, steps: (on) => on.go('/terms') },
   { id: 'H21', file: 'H21-Settings-Privacy', title: 'Settings › Privacy policy', row: 'H3 About and legal', signedIn: false, steps: (on) => on.go('/privacy') },
 
+  // W · Workout
+  { id: 'W07', file: 'W07-Workout-Today-Loading', title: 'Workout › Today · loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold' }, steps: (on) => on.go('/workout') },
+  { id: 'W08', file: 'W08-Workout-Today-Load-Failure', title: 'Workout › Today · load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Try again');
+  } },
+  { id: 'W01', file: 'W01-Workout-Today', title: 'Workout › Today', row: 'W1 Today states', today: friday, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Start workout');
+  } },
+  { id: 'W04', file: 'W04-Workout-Today-Rest-Day', title: 'Workout › Today · rest day', row: 'W1 Today states', today: sunday, answers: { 'GET /api/v1/days': sundayWeek, 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1') }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Rest day');
+  } },
+  { id: 'W09', file: 'W09-Workout-Today-Rest-Tomorrow', title: 'Workout › Today · rest tomorrow', row: 'W1 Today states', today: sunday, answers: { 'GET /api/v1/days': sundayWeek, 'GET /api/v1/days/2026-10-25': restDay(null) }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Rest day');
+  } },
+  { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } } }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('No routines yet');
+  } },
   // E · Exercises
   { id: 'E02', file: 'E02-Exercises-Loading', title: 'Exercises · loading', row: 'E1 Exercises tab', answers: { ...lists('hold'), 'GET /api/v1/groups': 'hold' }, steps: (on) => on.go('/exercises') },
   { id: 'E01', file: 'E01-Exercises', title: 'Exercises', row: 'E1 Exercises tab', steps: async (on) => {

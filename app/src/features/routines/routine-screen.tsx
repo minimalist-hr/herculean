@@ -7,14 +7,14 @@ import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PencilIcon, TrashIcon } from '@/components/icons';
-import { joinedCardStyle } from '@/components/joined-cards';
 import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DayChips } from './day-chips';
-import { counted, dayNames, joined, sameGroup, targetText } from './formats';
+import { ExerciseTargets } from './exercise-targets';
+import { counted, dayNames, joined } from './formats';
 import { useDeleteRoutine } from './use-delete-routine';
 import { useRoutine } from './use-routine';
 
@@ -65,7 +65,7 @@ export function RoutineScreen({ id }: { id: string }) {
 }
 
 function Details({ routine }: { routine: Routine }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const deleteRoutine = useDeleteRoutine();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -109,45 +109,7 @@ function Details({ routine }: { routine: Routine }) {
 
       <View style={{ gap: space.sm }}>
         <Text style={text.eyebrow}>Exercises</Text>
-        <View style={{ gap: space.sm }}>
-          {routine.exercises.map((exercise, index) => {
-            return (
-              <View
-                key={exercise.exerciseId}
-                style={[
-                  styles.exercise,
-                  {
-                    minHeight: size.listRowMin,
-                    paddingVertical: space.sm,
-                    paddingHorizontal: space.lg,
-                    borderColor: colors.border,
-                    backgroundColor: colors.card,
-                  },
-                  joinedCardStyle({
-                    withPrevious:
-                      index > 0 &&
-                      sameGroup(routine.exercises[index - 1], exercise),
-                    withNext:
-                      index < routine.exercises.length - 1 &&
-                      sameGroup(exercise, routine.exercises[index + 1]),
-                    gap: space.sm,
-                    radius: radius.card,
-                  }),
-                ]}
-              >
-                <Text style={[text.listItemName, { color: colors.text }]}>
-                  {exercise.name}
-                </Text>
-                <Text style={text.meta}>
-                  <Text style={{ color: colors.primaryText }}>
-                    {targetText(exercise)}
-                  </Text>
-                  {` · ${exercise.groupName}`}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
+        <ExerciseTargets exercises={routine.exercises} />
       </View>
 
       <Sheet

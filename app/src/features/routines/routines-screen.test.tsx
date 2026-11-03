@@ -156,7 +156,7 @@ test('without routines it says what to do', async () => {
 
   expect(await screen.findByText('No routines yet')).toBeOnTheScreen();
   expect(
-    screen.getByText('Create a routine, then plan it on the days you train.'),
+    screen.getByText('Create a routine and pick the days you train.'),
   ).toBeOnTheScreen();
   expect(screen.queryByLabelText('Search routines')).toBeNull();
   expect(screen.queryByText('Repeats every week')).toBeNull();

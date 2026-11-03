@@ -1,0 +1,24 @@
+# Get a day. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### The day → 200. A new account has no routines, so it is a rest day.
+GET {{host}}/api/v1/days/2026-11-03
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Not a date → 400 bad_request.
+GET {{host}}/api/v1/days/tomorrow
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/days/2026-11-03

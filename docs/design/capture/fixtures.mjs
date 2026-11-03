@@ -68,6 +68,8 @@ const routineList = [
   { id: 'routine-back-and-shoulders-2', name: 'Back and shoulders 2', exerciseCount: 6, setCount: 14, weekdays: ['saturday'] },
 ];
 
+const sampleToday = '2026-10-23';
+
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 function weekPlan(routines) {
@@ -86,6 +88,30 @@ function exerciseDetails(item, routines) {
     alsoWorksGroups: item.name === 'Flat barbell bench press' ? [triceps] : [],
     routines,
   };
+}
+
+/** A day on the design's sample week, as the API answers it. */
+export const sampleDay = {
+  date: '2026-10-23',
+  status: 'planned',
+  hasRoutines: true,
+  routine: {
+    id: 'routine-chest-and-arms-2',
+    name: 'Chest and arms 2',
+    exercises: [...chestAndArms.exercises].sort((first, second) => first.groupName.localeCompare(second.groupName)),
+  },
+  upNext: { date: '2026-10-24', routineName: 'Back and shoulders 2' },
+};
+
+/** The design's sample week, with past days missed. */
+export function sampleWeek(today) {
+  return weekdays.map((weekday, index) => {
+    const date = `2026-10-${String(19 + index)}`;
+    const routine = routineList.find((item) => item.weekdays.includes(weekday));
+    const status = routine === undefined ? 'rest' : date < today ? 'missed' : 'planned';
+
+    return { date, status, routineName: routine?.name ?? null };
+  });
 }
 
 export const problem = (status, code, detail) => ({
@@ -147,6 +173,12 @@ export function createApi() {
           alsoWorksExercises: group === triceps ? [list[0]] : [],
         },
       };
+    }
+    if (key === 'GET /api/v1/days') {
+      return { status: 200, body: sampleWeek(sampleToday) };
+    }
+    if (method === 'GET' && path.startsWith('/api/v1/days/')) {
+      return { status: 200, body: { ...sampleDay, date: path.split('/')[4] } };
     }
     if (key === 'GET /api/v1/routines') {
       return { status: 200, body: routineList };

@@ -73,6 +73,14 @@ export function GroupsIcon({ color, size }: IconProps) {
   );
 }
 
+export function CalendarIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M4 6h16v14H4zM4 10.5h16M8 3.5v4M16 3.5v4" />
+    </Icon>
+  );
+}
+
 export function SearchIcon({ color, size }: IconProps) {
   return (
     <Icon color={color} size={size} strokeWidth={2}>

@@ -143,16 +143,15 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 ## 4. Today and other days
 
-**What it does:** Home and Workout show today at a glance. A week strip shows the status of each day. You can open any day of the week to see it as done, missed, skipped, rest or upcoming, and you can skip a workout and undo the skip.
+**What it does:** Workout shows today at a glance. A week strip shows the status of each day. You can open any day of the week to see it as done, missed, skipped, rest or upcoming, and you can skip a workout and undo the skip.
 
-**Screens:** H01 Home, H03 Completed, H04 Rest day, H05 No routines, H06 Skipped, H07 Loading, W01 Today, W03 Completed, W04 Rest day, W05 No routines, W06 Skipped, W07 Loading, W20 Past day, W21 Missed day, W22 Skipped day, W23 Yesterday rest day, W24 Tomorrow, W25 Rest day.
+**Screens:** W01 Today, W04 Rest day, W05 No routines, W06 Skipped, W07 Loading, W08 Load failure, W09 Rest tomorrow, W21 Missed day, W22 Skipped day, W23 Yesterday rest day, W24 Tomorrow, W25 Rest day.
 
 **Flows**
-- **Home:** H07 → H01, H03, H04, H05 or H06, depending on today. The greeting follows the time of day.
-- **Workout tab:** W07 → W01, W03, W04, W05 or W06.
-- **Other days:** a day in the week strip → W20 to W25, with "Back to today".
+- **Workout tab:** W07 → W01, W04, W05, W06 or W09, or W08 if it fails to load.
+- **Other days:** a day in the week strip → W21 to W25, with "Back to today".
 - **Skip:** Skip workout on W01 or W21 → W06 or W22. Undo skip → W01 or W21.
-- **No routines:** Create routine on H05 or W05 → R30.
+- **No routines:** Create routine on W05 → R30.
 
 **Entities:** Workout (skipped). Reads the week plan and routines.
 
@@ -160,12 +159,12 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 | Method | Route | Used by |
 |---|---|---|
-| GET | `/api/v1/days/{date}` | H01–H07, W01–W07, W20–W25: status, routine or workout, and up next |
+| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after |
 | GET | `/api/v1/days` | Week strip, with `from` and `to` filters |
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
 | DELETE | `/api/v1/workouts/{id}` | Undo skip |
 
-**Left to other features:** Start workout, Load routine, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit, Delete and the calendar icon are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
+**Left to other features:** Home is planned again later. H03, W03 and W20 show a completed workout, and come with logging. Until their features are built, a button that leads to one says it comes in a later update. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit, Delete and the calendar icon are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
 
 **Done when**
 - Each day shows the status from the [day table](/product/domain#how-a-day-is-shown), in the user's time zone.
@@ -176,7 +175,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W10 Choose a routine, W11 Loading, L01 Logging, L02 No exercises left, L03 Loading, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L14 Exercise history, L15 History empty, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, H02 Home in progress. Plus the Resume bar.
+**Screens:** W10 Choose a routine, W11 Loading, L01 Logging, L02 No exercises left, L03 Loading, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L14 Exercise history, L15 History empty, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, H02 Home in progress, H03 Home completed. Plus the Resume bar.
 
 **Flows**
 - **Start:** Start workout (H01), Load routine (W01), Log workout (W21 or W22), or a routine picked on W10 (from Other routine on W01 or H04) → L03 → L01.

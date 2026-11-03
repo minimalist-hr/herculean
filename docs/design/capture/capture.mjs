@@ -308,6 +308,21 @@ async function capture(browser, screen, script) {
   const page = await browser.newPage();
   await page.setViewport({ width, height: minHeight, deviceScaleFactor: 2 });
   try {
+    if (screen.today !== undefined) {
+      await page.evaluateOnNewDocument((today) => {
+        const RealDate = Date;
+        const shift = new RealDate(today).getTime() - RealDate.now();
+        globalThis.Date = class extends RealDate {
+          constructor(...args) {
+            super(...(args.length === 0 ? [RealDate.now() + shift] : args));
+          }
+
+          static now() {
+            return RealDate.now() + shift;
+          }
+        };
+      }, screen.today);
+    }
     await mockApi(page, { answers: { ...screen.answers } });
     await page.goto(screen.before === 'launch' ? appUrl : `${appUrl}/`, { waitUntil: 'domcontentloaded', timeout: 90000 });
     const on = helpers(page);

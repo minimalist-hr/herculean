@@ -1,6 +1,5 @@
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { WorkoutScreen } from '@/features/workout/workout-screen';
 
-// Built in feature 4, Today and other days.
 export default function WorkoutRoute() {
-  return <PlaceholderScreen title="Workout" />;
+  return <WorkoutScreen />;
 }

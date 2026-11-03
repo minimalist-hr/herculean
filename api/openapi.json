@@ -1358,6 +1358,136 @@
         ]
       }
     },
+    "/api/v1/days": {
+      "get": {
+        "tags": [
+          "Days"
+        ],
+        "summary": "List days",
+        "description": "Returns each date's status from the first date to the last, for the signed-in user, in their time zone.",
+        "operationId": "ListDays",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "The first date.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "The last date.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The days, in order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DaySummaryResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A date is missing or not valid, the last date is before the first, or the range is over 42 days.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/days/{date}": {
+      "get": {
+        "tags": [
+          "Days"
+        ],
+        "summary": "Get a day",
+        "description": "Returns a date's status for the signed-in user, in their time zone, with its routine and the day after it.",
+        "operationId": "GetDay",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The day.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DayResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The date is not a valid date.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/groups/{id}": {
       "get": {
         "tags": [
@@ -1935,6 +2065,157 @@
           }
         },
         "description": "A new account."
+      },
+      "DayExerciseResponse": {
+        "required": [
+          "exerciseId",
+          "name",
+          "groupId",
+          "groupName",
+          "targetSets",
+          "targetRepsFrom",
+          "targetRepsTo"
+        ],
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The ID of the group it belongs to.",
+            "format": "uuid"
+          },
+          "groupName": {
+            "type": "string",
+            "description": "The name of the group it belongs to."
+          },
+          "targetSets": {
+            "type": "integer",
+            "description": "The sets to do.",
+            "format": "int32"
+          },
+          "targetRepsFrom": {
+            "type": "integer",
+            "description": "The low end of the rep range.",
+            "format": "int32"
+          },
+          "targetRepsTo": {
+            "type": "integer",
+            "description": "The high end of the rep range.",
+            "format": "int32"
+          }
+        },
+        "description": "An exercise in a day's routine and its targets."
+      },
+      "DayResponse": {
+        "required": [
+          "date",
+          "status",
+          "hasRoutines",
+          "routine",
+          "upNext"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The date.",
+            "format": "date"
+          },
+          "status": {
+            "description": "How the day is shown.",
+            "$ref": "#/components/schemas/DayStatus"
+          },
+          "hasRoutines": {
+            "type": "boolean",
+            "description": "Whether the user has any routine. Without one, the app offers to create it."
+          },
+          "routine": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The routine planned on this day. Null on a rest day.",
+                "$ref": "#/components/schemas/DayRoutineResponse"
+              }
+            ]
+          },
+          "upNext": {
+            "description": "The day after this one.",
+            "$ref": "#/components/schemas/UpNextResponse"
+          }
+        },
+        "description": "One day: its status, its routine and the day after it."
+      },
+      "DayRoutineResponse": {
+        "required": [
+          "id",
+          "name",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The routine's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The routine's name."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DayExerciseResponse"
+            },
+            "description": "Its exercises in order."
+          }
+        },
+        "description": "A routine planned on a day."
+      },
+      "DayStatus": {
+        "enum": [
+          "missed",
+          "planned",
+          "rest"
+        ],
+        "description": "How a day is shown."
+      },
+      "DaySummaryResponse": {
+        "required": [
+          "date",
+          "status",
+          "routineName"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The date.",
+            "format": "date"
+          },
+          "status": {
+            "description": "How the day is shown.",
+            "$ref": "#/components/schemas/DayStatus"
+          },
+          "routineName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name of the routine planned on it. Null on a rest day."
+          }
+        },
+        "description": "A day's status, for the week strip."
       },
       "ExerciseDetailsResponse": {
         "required": [
@@ -2591,6 +2872,28 @@
         },
         "description": "The fields to change. A field left out, or null, stays the same."
       },
+      "UpNextResponse": {
+        "required": [
+          "date",
+          "routineName"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Its date.",
+            "format": "date"
+          },
+          "routineName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name of the routine planned on it. Null on a rest day."
+          }
+        },
+        "description": "The day after a day."
+      },
       "UserResponse": {
         "required": [
           "email",
@@ -2722,6 +3025,9 @@
     },
     {
       "name": "Week plan"
+    },
+    {
+      "name": "Days"
     }
   ]
 }

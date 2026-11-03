@@ -6,6 +6,9 @@ using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
 using Herculean.Training.Application.AccountCreated;
 using Herculean.Training.Application.Auth;
+using Herculean.Training.Application.Days;
+using Herculean.Training.Application.Days.GetDay;
+using Herculean.Training.Application.Days.ListDays;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.CreateExercise;
 using Herculean.Training.Application.Exercises.DeleteExercise;
@@ -37,6 +40,7 @@ using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Infrastructure.Days;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
@@ -73,6 +77,7 @@ public static class TrainingModule
         builder.Services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
         builder.Services.AddScoped<IRoutineReadRepository, RoutineReadRepository>();
         builder.Services.AddScoped<IWeekPlanReadRepository, WeekPlanReadRepository>();
+        builder.Services.AddScoped<IDayReadRepository, DayReadRepository>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
 
@@ -91,6 +96,9 @@ public static class TrainingModule
         builder.Services.AddScoped<DeleteRoutineHandler>();
         builder.Services.AddScoped<RestoreRoutineHandler>();
         builder.Services.AddScoped<ListWeekPlanDaysHandler>();
+        builder.Services.AddScoped<IValidator<ListDaysRequest>, ListDaysValidator>();
+        builder.Services.AddScoped<ListDaysHandler>();
+        builder.Services.AddScoped<GetDayHandler>();
         builder.Services.AddScoped<GetGroupHandler>();
         builder.Services.AddScoped<IValidator<CreateExerciseRequest>, CreateExerciseValidator>();
         builder.Services.AddScoped<CreateExerciseHandler>();
@@ -123,6 +131,8 @@ public static class TrainingModule
         DeleteRoutineEndpoint.Map(endpoints);
         RestoreRoutineEndpoint.Map(endpoints);
         ListWeekPlanDaysEndpoint.Map(endpoints);
+        ListDaysEndpoint.Map(endpoints);
+        GetDayEndpoint.Map(endpoints);
         GetGroupEndpoint.Map(endpoints);
         CreateExerciseEndpoint.Map(endpoints);
         UpdateExerciseEndpoint.Map(endpoints);

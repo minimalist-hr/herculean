@@ -336,6 +336,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/days": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List days
+         * @description Returns each date's status from the first date to the last, for the signed-in user, in their time zone.
+         */
+        get: operations["ListDays"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/days/{date}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a day
+         * @description Returns a date's status for the signed-in user, in their time zone, with its routine and the day after it.
+         */
+        get: operations["GetDay"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups/{id}": {
         parameters: {
             query?: never;
@@ -499,6 +539,82 @@ export interface components {
             password: string;
             /** @description The phone's IANA time zone, for example Europe/Zagreb. */
             timeZone: string;
+        };
+        /** @description An exercise in a day's routine and its targets. */
+        DayExerciseResponse: {
+            /**
+             * Format: uuid
+             * @description The exercise's ID.
+             */
+            exerciseId: string;
+            /** @description The exercise's name. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The ID of the group it belongs to.
+             */
+            groupId: string;
+            /** @description The name of the group it belongs to. */
+            groupName: string;
+            /**
+             * Format: int32
+             * @description The sets to do.
+             */
+            targetSets: number;
+            /**
+             * Format: int32
+             * @description The low end of the rep range.
+             */
+            targetRepsFrom: number;
+            /**
+             * Format: int32
+             * @description The high end of the rep range.
+             */
+            targetRepsTo: number;
+        };
+        /** @description One day: its status, its routine and the day after it. */
+        DayResponse: {
+            /**
+             * Format: date
+             * @description The date.
+             */
+            date: string;
+            /** @description How the day is shown. */
+            status: components["schemas"]["DayStatus"];
+            /** @description Whether the user has any routine. Without one, the app offers to create it. */
+            hasRoutines: boolean;
+            routine: null | components["schemas"]["DayRoutineResponse"];
+            /** @description The day after this one. */
+            upNext: components["schemas"]["UpNextResponse"];
+        };
+        /** @description A routine planned on a day. */
+        DayRoutineResponse: {
+            /**
+             * Format: uuid
+             * @description The routine's ID.
+             */
+            id: string;
+            /** @description The routine's name. */
+            name: string;
+            /** @description Its exercises in order. */
+            exercises: components["schemas"]["DayExerciseResponse"][];
+        };
+        /**
+         * @description How a day is shown.
+         * @enum {unknown}
+         */
+        DayStatus: "missed" | "planned" | "rest";
+        /** @description A day's status, for the week strip. */
+        DaySummaryResponse: {
+            /**
+             * Format: date
+             * @description The date.
+             */
+            date: string;
+            /** @description How the day is shown. */
+            status: components["schemas"]["DayStatus"];
+            /** @description The name of the routine planned on it. Null on a rest day. */
+            routineName: null | string;
         };
         /** @description An exercise and its groups. */
         ExerciseDetailsResponse: {
@@ -804,6 +920,16 @@ export interface components {
             restSound?: null | boolean;
             /** @description Vibrate when the rest ends. */
             restVibrate?: null | boolean;
+        };
+        /** @description The day after a day. */
+        UpNextResponse: {
+            /**
+             * Format: date
+             * @description Its date.
+             */
+            date: string;
+            /** @description The name of the routine planned on it. Null on a rest day. */
+            routineName: null | string;
         };
         /** @description The signed-in user. */
         UserResponse: {
@@ -1874,6 +2000,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WeekPlanDayResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListDays: {
+        parameters: {
+            query: {
+                /** @description The first date. */
+                from: string;
+                /** @description The last date. */
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The days, in order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DaySummaryResponse"][];
+                };
+            };
+            /** @description A date is missing or not valid, the last date is before the first, or the range is over 42 days. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                date: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The day. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DayResponse"];
+                };
+            };
+            /** @description The date is not a valid date. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not signed in, or the access token expired. */

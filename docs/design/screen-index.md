@@ -1,6 +1,6 @@
 # Screen index
 
-128 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+130 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -58,11 +58,13 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | W07 | Workout › Today · loading | W1 Today states | 390×844 | [png](screens/W07-Workout-Today-Loading.png) · [html](html/W07-Workout-Today-Loading.html) · [source](source/W07-Workout-Today-Loading.dc.html) |
-| W01 | Workout › Today | W1 Today states | 390×844 | [png](screens/W01-Workout-Today.png) · [html](html/W01-Workout-Today.html) · [source](source/W01-Workout-Today.dc.html) |
+| W08 | Workout › Today · load failure | W1 Today states | 390×844 | [png](screens/W08-Workout-Today-Load-Failure.png) · [html](html/W08-Workout-Today-Load-Failure.html) · [source](source/W08-Workout-Today-Load-Failure.dc.html) |
+| W01 | Workout › Today · full scroll | W1 Today states | 390×939 | [png](screens/W01-Workout-Today.png) · [html](html/W01-Workout-Today.html) · [source](source/W01-Workout-Today.dc.html) |
 | W02 | Workout › Today · workout in progress | W1 Today states | 390×844 | [png](screens/W02-Workout-Today-In-Progress.png) · [html](html/W02-Workout-Today-In-Progress.html) · [source](source/W02-Workout-Today-In-Progress.dc.html) |
 | W03 | Workout › Today · completed | W1 Today states | 390×844 | [png](screens/W03-Workout-Today-Completed.png) · [html](html/W03-Workout-Today-Completed.html) · [source](source/W03-Workout-Today-Completed.dc.html) |
 | W06 | Workout › Today · skipped | W1 Today states | 390×844 | [png](screens/W06-Workout-Today-Skipped.png) · [html](html/W06-Workout-Today-Skipped.html) · [source](source/W06-Workout-Today-Skipped.dc.html) |
 | W04 | Workout › Today · rest day | W1 Today states | 390×844 | [png](screens/W04-Workout-Today-Rest-Day.png) · [html](html/W04-Workout-Today-Rest-Day.html) · [source](source/W04-Workout-Today-Rest-Day.dc.html) |
+| W09 | Workout › Today · rest tomorrow | W1 Today states | 390×844 | [png](screens/W09-Workout-Today-Rest-Tomorrow.png) · [html](html/W09-Workout-Today-Rest-Tomorrow.html) · [source](source/W09-Workout-Today-Rest-Tomorrow.dc.html) |
 | W05 | Workout › Today · no routines yet | W1 Today states | 390×844 | [png](screens/W05-Workout-Today-No-Routines.png) · [html](html/W05-Workout-Today-No-Routines.html) · [source](source/W05-Workout-Today-No-Routines.dc.html) |
 | W10 | Workout › Choose a routine · sheet | W2 Choose a routine | 390×844 | [png](screens/W10-Workout-Choose-Routine.png) · [html](html/W10-Workout-Choose-Routine.html) · [source](source/W10-Workout-Choose-Routine.dc.html) |
 | W11 | Workout › Choose a routine · loading | W2 Choose a routine | 390×844 | [png](screens/W11-Workout-Choose-Routine-Loading.png) · [html](html/W11-Workout-Choose-Routine-Loading.html) · [source](source/W11-Workout-Choose-Routine-Loading.dc.html) |

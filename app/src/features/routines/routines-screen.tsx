@@ -85,7 +85,7 @@ export function RoutinesScreen() {
         return (
           <EmptyCard
             title="No routines yet"
-            message="Create a routine, then plan it on the days you train."
+            message="Create a routine and pick the days you train."
           />
         );
       }

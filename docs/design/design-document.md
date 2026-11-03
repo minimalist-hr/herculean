@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.26 · 3 November 2026 · Minimalist
+Version 0.27 · 3 November 2026 · Minimalist
+
+> Changes since 0.26: on the Workout tab, W01 says Start workout and shows the routine's plain name, like H01. Rest day cards say Today on W04 and the weekday on W23 and W25, not "Scheduled for". W05 and R03 say days are picked with the routine. The date on W01 has an ordinal, such as 25th October. W01's exercises look like R05's, and same-group neighbours join. In the week strip, a marker means a workout belongs on that day, and its color says how it went: muted when planned, white on today, then green, orange or red. A rest day has none. Up next always shows the day after the one shown, a routine or Rest. New: W08, a load failure, and W09, a rest day with a rest day next. Home is unchanged, because it will be planned again.
 
 > Changes since 0.25: a consistency pass over built screens. Section titles sit flush with the cards. Text in a list card starts 16 px in. An empty section is a dashed, centered card, on E11 and E41 too. L20 joins a group's rows into one card, like E01, and its rows show the best set instead of repeating the group. Forms have no placeholders, because the label says what is needed.
 
@@ -186,7 +188,7 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 ### Buttons
 | Type | Look | Used for |
 |---|---|---|
-| **Primary** | 48 px, filled `primary`, 15 px uppercase bold | The main action: Save …, Start workout, Load routine, Sign in |
+| **Primary** | 48 px, filled `primary`, 15 px uppercase bold | The main action: Save …, Start workout, Sign in |
 | **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout, View workout |
 | **Danger** | 48 px, filled `dangerFill` | The confirm action in delete and remove confirms |
 | **Danger text** | 44 px, `danger` text | Remove set |
@@ -281,7 +283,7 @@ A short title, one sentence saying what to do, and the one action that fixes it.
   - **Routines** is the week plan and your routines.
   - **Exercises** is your exercise library and the groups.
 - **Settings** opens from the FM avatar on Home. The avatar appears only on Home.
-- **Logging** opens from Load routine (W01), Start workout (Home) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
+- **Logging** opens from Start workout (W01, Home) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
 - **Sub-pages** have a back link above the title, named after the page it returns to (for example "‹ Settings"). Sub-pages never have both a back link and a bottom Cancel.
 - **Moving between pages:** pages cross-fade, going forward and back. The screen behind them keeps the theme's background, never white.
 - **Day screens** opened from the week strip have "Back to today". Opened from the month, the same link reads "Back to month".
@@ -401,7 +403,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | Row | Screens | What happens |
 |---|---|---|
-| **W1 Today states** | W07 Loading, W01 Today, W02 In progress, W03 Completed, W06 Skipped, W04 Rest day, W05 No routines | The day header, a calendar icon button (→ W40) and a week strip Mon–Sun with status markers. Today's card shows the routine and its exercises with targets. W01 has Load routine, Other routine and Skip workout. W03 has Edit and Delete. W06 has Undo skip. |
+| **W1 Today states** | W07 Loading, W08 Load failure, W01 Today, W02 In progress, W03 Completed, W06 Skipped, W04 Rest day, W09 Rest tomorrow, W05 No routines | The day header, a calendar icon button (→ W40) and a week strip Mon–Sun. A marker means a workout belongs on that day: muted when planned, white on today, then green for done, orange for skipped and red for missed. A rest day has none. Today's card shows the routine and its exercises with targets. W01 has Start workout, Other routine and Skip workout. W03 has Edit and Delete. Its exercises look like R05's, on the card. W06 has Undo skip. W09 is W04 when the next day is a rest day too. Up next always shows the day after the one shown: a routine or Rest. |
 | **W2 Choose a routine** | W10 Choose a routine, W11 Loading | A sheet listing every routine with its last-done date. Picking one replaces today's plan only, then logging opens. |
 | **W3 Other days** | W20 Past day, W23 Yesterday rest day, W21 Missed day, W22 Skipped day, W24 Tomorrow, W25 Rest day | Opened from a day in the week strip. W20 is a completed workout with Edit and Delete. W21 is missed (red) with Log workout and Skip workout. W22 is skipped (orange) with Log workout and Undo skip. W24 shows the plan, and W25 shows a rest day. |
 | **W4 Edit or delete a workout** | W30 Edit workout, W31 Set removed, W32 Delete confirm | Edit every set's weight and reps, add or remove sets and exercises, then Save workout. Delete asks first, then shows an undo bar. |

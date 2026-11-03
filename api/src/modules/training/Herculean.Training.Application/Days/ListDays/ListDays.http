@@ -1,0 +1,28 @@
+# List days. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### A week → 200. A new account has no routines, so they are rest days.
+GET {{host}}/api/v1/days?from=2026-11-02&to=2026-11-08
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### The last date before the first → 400 validation.
+GET {{host}}/api/v1/days?from=2026-11-08&to=2026-11-02
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Over 42 days → 400 validation.
+GET {{host}}/api/v1/days?from=2026-01-01&to=2026-12-31
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/days?from=2026-11-02&to=2026-11-08

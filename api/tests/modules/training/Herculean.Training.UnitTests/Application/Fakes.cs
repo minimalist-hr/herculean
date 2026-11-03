@@ -1,6 +1,8 @@
 using Herculean.Account.Contracts;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Queries;
+using Herculean.Training.Application.Days;
+using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
@@ -203,6 +205,21 @@ internal sealed class FakeWeekPlanReadRepository : IWeekPlanReadRepository
     public List<WeekPlanDayResponse> Items { get; } = [];
 
     public Task<List<WeekPlanDayResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
+}
+
+internal sealed class FakeDayReadRepository : IDayReadRepository
+{
+    public List<PlanChange> Changes { get; } = [];
+
+    public List<DayExerciseResponse> Exercises { get; } = [];
+
+    public bool HasRoutines { get; set; } = true;
+
+    public Task<List<PlanChange>> ListPlanChangesAsync(CancellationToken cancellationToken) => Task.FromResult(Changes);
+
+    public Task<List<DayExerciseResponse>> ListExercisesAsync(RoutineId routineId, CancellationToken cancellationToken) => Task.FromResult(Exercises);
+
+    public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) => Task.FromResult(HasRoutines);
 }
 
 internal sealed class FakeWeekPlanDayRepository : IWeekPlanDayRepository
