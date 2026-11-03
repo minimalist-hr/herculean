@@ -49,7 +49,6 @@ export function TextField({
           ref={ref}
           accessibilityLabel={label}
           secureTextEntry={password && hidden}
-          placeholderTextColor={colors.muted}
           style={[
             styles.input,
             text.input,

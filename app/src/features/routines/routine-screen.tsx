@@ -103,12 +103,12 @@ function Details({ routine }: { routine: Routine }) {
       </View>
 
       <View style={{ gap: space.sm }}>
-        <Text style={[text.eyebrow, styles.sectionTitle]}>Days</Text>
+        <Text style={text.eyebrow}>Days</Text>
         <DayChips selected={routine.weekdays} />
       </View>
 
       <View style={{ gap: space.sm }}>
-        <Text style={[text.eyebrow, styles.sectionTitle]}>Exercises</Text>
+        <Text style={text.eyebrow}>Exercises</Text>
         <View style={{ gap: space.sm }}>
           {routine.exercises.map((exercise, index) => {
             return (
@@ -119,7 +119,7 @@ function Details({ routine }: { routine: Routine }) {
                   {
                     minHeight: size.listRowMin,
                     paddingVertical: space.sm,
-                    paddingHorizontal: 14,
+                    paddingHorizontal: space.lg,
                     borderColor: colors.border,
                     backgroundColor: colors.card,
                   },
@@ -202,7 +202,7 @@ function RoutineSkeleton() {
               {
                 gap: space.sm,
                 minHeight: size.listRowMin,
-                paddingHorizontal: 14,
+                paddingHorizontal: space.lg,
                 borderRadius: radius.card,
                 borderColor: colors.border,
                 backgroundColor: colors.card,
@@ -256,9 +256,6 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-  },
-  sectionTitle: {
-    paddingHorizontal: 4,
   },
   exercise: {
     justifyContent: 'center',

@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.25 · 3 November 2026 · Minimalist
+Version 0.26 · 3 November 2026 · Minimalist
+
+> Changes since 0.25: a consistency pass over built screens. Section titles sit flush with the cards. Text in a list card starts 16 px in. An empty section is a dashed, centered card, on E11 and E41 too. L20 joins a group's rows into one card, like E01, and its rows show the best set instead of repeating the group. Forms have no placeholders, because the label says what is needed.
 
 > Changes since 0.24: days are picked on the routine, not per day, so R10 is gone. On R01 each weekday has its own muted color, linking its square to the routine's day tag. R20 and R30 have an optional Days row, saved with Save routine, with a small "Picking a day replaces its routine" beside its title. R05 shows the days and can't change them. On R01 the week plan is a compact strip above the routines, and R03 doesn't have it. Targets on R20 and R30 are `primaryText`, like R05, and Forgot password? on A01 lines up with the fields. Exercises on R05, R20 and R30 show their group, and neighbours in the same group join.
 
@@ -318,6 +320,10 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 **Groups.** A group can only be deleted when it has no exercises. Only an empty group's trash on E35 is active, in red.
 
 **Day colors.** Each weekday has its own muted color (`day` tokens), only on R01: its square in the week plan and its day tag on the routine below. It never means a status, and the day name always shows with it. Picked Days chips (R05, R20, R30) use `primary`.
+
+**Forms.** A field has a label and no placeholder. Hints sit below the field.
+
+**Empty sections.** A section with nothing in it is a dashed, centered card with a title and one line on what to do.
 
 **Optional fields.** An optional field says so after its label, as "Days · optional" and "Also works · optional". Required fields say nothing.
 

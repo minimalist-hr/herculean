@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { EmptyCard } from '@/components/empty-card';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { ChevronRightIcon, PlusIcon } from '@/components/icons';
@@ -82,24 +83,10 @@ export function RoutinesScreen() {
     if (routines.data !== undefined && weekPlan.data !== undefined) {
       if (noRoutines) {
         return (
-          <View
-            style={[
-              styles.noRoutines,
-              {
-                gap: space.xs,
-                padding: space.xl,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[text.listItemName, { color: colors.text }]}>
-              No routines yet
-            </Text>
-            <Text style={[text.meta, styles.centered]}>
-              Create a routine, then plan it on the days you train.
-            </Text>
-          </View>
+          <EmptyCard
+            title="No routines yet"
+            message="Create a routine, then plan it on the days you train."
+          />
         );
       }
 
@@ -238,11 +225,6 @@ const styles = StyleSheet.create({
   routineText: {
     flex: 1,
     gap: 2,
-  },
-  noRoutines: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
   },
   message: {
     alignItems: 'center',

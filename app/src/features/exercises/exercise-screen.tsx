@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
+import { EmptyCard } from '@/components/empty-card';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
@@ -119,26 +120,26 @@ function Details({ exercise }: { exercise: Exercise }) {
       <NoSessionsCard message="Finish a workout with this exercise and its sets, best set and progress show up here." />
 
       <View style={{ gap: space.sm }}>
-        <Text style={[text.eyebrow, styles.sectionTitle]}>Used in</Text>
-        <View
-          style={[
-            styles.usedIn,
-            {
-              borderRadius: radius.card,
-              borderColor: colors.border,
-              backgroundColor: colors.card,
-            },
-          ]}
-        >
-          {inUse ? (
-            exercise.routines.map((routine, index) => (
+        <Text style={text.eyebrow}>Used in</Text>
+        {inUse ? (
+          <View
+            style={[
+              styles.usedIn,
+              {
+                borderRadius: radius.card,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              },
+            ]}
+          >
+            {exercise.routines.map((routine, index) => (
               <Text
                 key={routine.id}
                 style={[
                   text.listItemName,
                   {
                     paddingVertical: space.lg,
-                    paddingHorizontal: 14,
+                    paddingHorizontal: space.lg,
                     borderTopWidth: index === 0 ? 0 : 1,
                     borderTopColor: colors.border,
                     color: colors.text,
@@ -147,22 +148,14 @@ function Details({ exercise }: { exercise: Exercise }) {
               >
                 {routine.name}
               </Text>
-            ))
-          ) : (
-            <Text
-              style={[
-                text.body,
-                {
-                  paddingVertical: space.lg,
-                  paddingHorizontal: 14,
-                  color: colors.muted,
-                },
-              ]}
-            >
-              Not in any routine yet. Add it when you create or edit a routine.
-            </Text>
-          )}
-        </View>
+            ))}
+          </View>
+        ) : (
+          <EmptyCard
+            title="Not in any routine yet"
+            message="Add it when you create or edit a routine."
+          />
+        )}
       </View>
 
       <DeleteExerciseSheet
@@ -209,9 +202,6 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-  },
-  sectionTitle: {
-    paddingHorizontal: 4,
   },
   usedIn: {
     borderWidth: 1,

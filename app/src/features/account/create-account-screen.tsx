@@ -99,7 +99,6 @@ export function CreateAccountScreen() {
                 <TextField
                   ref={field.ref}
                   label="Email"
-                  placeholder="Your email"
                   autoComplete="email"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -122,7 +121,6 @@ export function CreateAccountScreen() {
                 <TextField
                   ref={field.ref}
                   label="Password"
-                  placeholder="Choose a password"
                   autoComplete="new-password"
                   password
                   helper="At least 8 characters."
@@ -145,7 +143,6 @@ export function CreateAccountScreen() {
                 <TextField
                   ref={field.ref}
                   label="Confirm password"
-                  placeholder="Confirm password"
                   autoComplete="new-password"
                   password
                   returnKeyType="go"

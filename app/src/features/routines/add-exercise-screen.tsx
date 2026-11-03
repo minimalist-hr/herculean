@@ -11,6 +11,7 @@ import {
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
+import { joinedCardStyle } from '@/components/joined-cards';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
@@ -26,6 +27,8 @@ import {
 } from '@/features/exercises/exercises-skeleton';
 import { useDebouncedValue } from '@/features/exercises/use-debounced-value';
 import { useExercises } from '@/features/exercises/use-exercises';
+import { useCurrentUser } from '@/features/account/use-current-user';
+import { bestSetText } from '@/features/exercises/exercise-row';
 import { noGroupsMessage, useGroups } from '@/features/exercises/use-groups';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -33,8 +36,16 @@ import { startingTargets, useRoutineDraft } from './routine-draft';
 
 type Exercise = components['schemas']['ExerciseListItemResponse'];
 
-type ListItem =
-  { kind: 'section'; title: string } | { kind: 'row'; exercise: Exercise };
+interface Row {
+  kind: 'row';
+  exercise: Exercise;
+  /** The row above in the same group, if any. */
+  previous: Exercise | undefined;
+  first: boolean;
+  last: boolean;
+}
+
+type ListItem = Row | { kind: 'section'; title: string };
 
 const searchWaitMs = 300;
 
@@ -58,6 +69,8 @@ export function AddExerciseScreen({ back }: { back: string }) {
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   const search = typedSearch === '' ? '' : debouncedSearch;
   const groups = useGroups();
+  const user = useCurrentUser();
+  const units = user.data?.units ?? 'metric';
   const found = useExercises(search === '' ? undefined : search, groupId);
   const list = (found.data ?? []).filter(
     (exercise) => !exercises.some((item) => item.exerciseId === exercise.id),
@@ -80,8 +93,10 @@ export function AddExerciseScreen({ back }: { back: string }) {
     );
   }
 
-  function renderRow(exercise: Exercise) {
-    const selected = picked.some((item) => item.id === exercise.id);
+  function renderRow({ exercise, previous, first, last }: Row) {
+    const selected = isPicked(exercise);
+    const lineColor = (highlighted: boolean) =>
+      highlighted ? colors.primaryText : colors.border;
 
     return (
       <View style={{ paddingHorizontal: size.sidePadding }}>
@@ -98,10 +113,19 @@ export function AddExerciseScreen({ back }: { back: string }) {
               gap: space.md,
               minHeight: size.listRowMin,
               paddingVertical: space.sm,
-              paddingHorizontal: space.md,
-              marginBottom: space.xs,
-              borderRadius: radius.card,
-              borderColor: selected ? colors.primaryText : colors.border,
+              paddingHorizontal: space.lg,
+              marginBottom: last ? space.xs : 0,
+              ...joinedCardStyle({
+                withPrevious: !first,
+                withNext: !last,
+                gap: 0,
+                radius: radius.card,
+              }),
+              borderColor: lineColor(selected),
+              // Each row's top line is the one above's bottom line, so it shows a pick above too.
+              borderTopColor: lineColor(
+                selected || (previous !== undefined && isPicked(previous)),
+              ),
               backgroundColor: colors.card,
             },
           ]}
@@ -110,7 +134,7 @@ export function AddExerciseScreen({ back }: { back: string }) {
             <Text style={[text.listItemName, { color: colors.text }]}>
               {exercise.name}
             </Text>
-            <Text style={text.meta}>{exercise.groupName}</Text>
+            <Text style={text.meta}>{bestSetText(exercise, units)}</Text>
           </View>
           {createdIds.includes(exercise.id) && (
             <Text style={[text.eyebrow, { color: colors.primaryText }]}>
@@ -132,6 +156,10 @@ export function AddExerciseScreen({ back }: { back: string }) {
         </Pressable>
       </View>
     );
+  }
+
+  function isPicked(exercise: Exercise) {
+    return picked.some((item) => item.id === exercise.id);
   }
 
   function renderEmpty() {
@@ -286,7 +314,7 @@ export function AddExerciseScreen({ back }: { back: string }) {
         }
         renderItem={({ item }) =>
           item.kind === 'row' ? (
-            renderRow(item.exercise)
+            renderRow(item)
           ) : (
             <Text
               style={[
@@ -342,10 +370,20 @@ export function AddExerciseScreen({ back }: { back: string }) {
 function toItems(exercises: readonly Exercise[]) {
   const items: ListItem[] = [];
   exercises.forEach((exercise, index) => {
-    if (exercises[index - 1]?.groupName !== exercise.groupName) {
+    const previous = index > 0 ? exercises[index - 1] : undefined;
+    const next =
+      index < exercises.length - 1 ? exercises[index + 1] : undefined;
+    const first = previous?.groupName !== exercise.groupName;
+    if (first) {
       items.push({ kind: 'section', title: exercise.groupName });
     }
-    items.push({ kind: 'row', exercise });
+    items.push({
+      kind: 'row',
+      exercise,
+      previous: first ? undefined : previous,
+      first,
+      last: next?.groupName !== exercise.groupName,
+    });
   });
 
   return items;

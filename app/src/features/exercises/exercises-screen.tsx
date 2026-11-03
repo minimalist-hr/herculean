@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { EmptyCard } from '@/components/empty-card';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { Chip, ChipLink } from '@/components/chip';
@@ -37,7 +38,7 @@ type ListItem =
 const searchWaitMs = 300;
 
 export function ExercisesScreen() {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
@@ -193,24 +194,10 @@ export function ExercisesScreen() {
 
     if (noFilter) {
       return (
-        <View
-          style={[
-            styles.noExercises,
-            {
-              gap: space.xs,
-              padding: space.xl,
-              borderRadius: radius.card,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[text.listItemName, { color: colors.text }]}>
-            No exercises yet
-          </Text>
-          <Text style={[text.meta, styles.centered]}>
-            Create an exercise to use it in routines and workouts.
-          </Text>
-        </View>
+        <EmptyCard
+          title="No exercises yet"
+          message="Create an exercise to use it in routines and workouts."
+        />
       );
     }
 
@@ -347,11 +334,6 @@ function keyOf(item: ListItem) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  noExercises: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
   },
   message: {
     alignItems: 'center',

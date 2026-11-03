@@ -90,7 +90,6 @@ export function SetupScreen() {
                 <TextField
                   ref={field.ref}
                   label="Name"
-                  placeholder="Your name"
                   autoComplete="name"
                   autoCapitalize="words"
                   // The other choices are not text fields, so the key closes the keyboard.

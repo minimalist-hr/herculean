@@ -184,9 +184,7 @@ test('an empty group says how to fill it, without Also works', async () => {
   await openGroup(/^Core/);
 
   expect(
-    await screen.findByText(
-      'No exercises yet. Choose this group when you create or edit one.',
-    ),
+    await screen.findByText('Choose this group when you create or edit one.'),
   ).toBeOnTheScreen();
   expect(screen.queryByText('Also works')).toBeNull();
 });

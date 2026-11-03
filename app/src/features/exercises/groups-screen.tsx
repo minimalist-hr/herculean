@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { EmptyCard } from '@/components/empty-card';
 import { BackLink } from '@/components/back-link';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
@@ -32,24 +33,10 @@ export function GroupsScreen() {
     if (groups.data !== undefined) {
       if (noGroups) {
         return (
-          <View
-            style={[
-              styles.noGroups,
-              {
-                gap: space.xs,
-                padding: space.xl,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[text.listItemName, { color: colors.text }]}>
-              No groups yet
-            </Text>
-            <Text style={[text.meta, styles.centered]}>
-              Create a group to sort your exercises into.
-            </Text>
-          </View>
+          <EmptyCard
+            title="No groups yet"
+            message="Create a group to sort your exercises into."
+          />
         );
       }
 
@@ -201,11 +188,6 @@ export function GroupsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  noGroups: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
   },
   message: {
     alignItems: 'center',

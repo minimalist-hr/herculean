@@ -121,7 +121,6 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
                 <TextField
                   ref={field.ref}
                   label="New password"
-                  placeholder="New password"
                   autoComplete="new-password"
                   password
                   helper="At least 8 characters."
@@ -144,7 +143,6 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
                 <TextField
                   ref={field.ref}
                   label="Confirm new password"
-                  placeholder="Confirm password"
                   autoComplete="new-password"
                   password
                   returnKeyType="go"

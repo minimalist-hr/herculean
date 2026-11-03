@@ -121,10 +121,9 @@ test('shows that it has no sessions and is in no routine', async () => {
     ),
   ).toBeOnTheScreen();
   expect(screen.getByText('Used in')).toBeOnTheScreen();
+  expect(screen.getByText('Not in any routine yet')).toBeOnTheScreen();
   expect(
-    screen.getByText(
-      'Not in any routine yet. Add it when you create or edit a routine.',
-    ),
+    screen.getByText('Add it when you create or edit a routine.'),
   ).toBeOnTheScreen();
 });
 

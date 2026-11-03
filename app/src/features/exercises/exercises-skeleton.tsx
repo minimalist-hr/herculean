@@ -54,7 +54,7 @@ export function ExercisesSkeleton() {
                   {
                     gap: space.sm,
                     minHeight: size.listRowMin,
-                    paddingHorizontal: space.md,
+                    paddingHorizontal: space.lg,
                     borderTopWidth: index === 0 ? 0 : 1,
                     borderTopColor: colors.border,
                   },

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { EmptyCard } from '@/components/empty-card';
 import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -68,7 +69,7 @@ export function GroupScreen({ id }: { id: string }) {
 }
 
 function Details({ group }: { group: Group }) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, opacity, size, space, text } = useTheme();
   const router = useRouter();
   const user = useCurrentUser();
   const units = user.data?.units ?? 'metric';
@@ -140,32 +141,20 @@ function Details({ group }: { group: Group }) {
       <NoSessionsCard message="Finish a workout with an exercise in this group and its progress shows up here." />
 
       <View style={{ gap: space.sm }}>
-        <Text style={[text.eyebrow, styles.sectionTitle]}>Exercises</Text>
+        <Text style={text.eyebrow}>Exercises</Text>
         {group.exercises.length > 0 ? (
           <View>{renderRows(group.exercises)}</View>
         ) : (
-          <View
-            style={[
-              styles.empty,
-              {
-                paddingVertical: space.lg,
-                paddingHorizontal: 14,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-              },
-            ]}
-          >
-            <Text style={[text.body, { color: colors.muted }]}>
-              No exercises yet. Choose this group when you create or edit one.
-            </Text>
-          </View>
+          <EmptyCard
+            title="No exercises yet"
+            message="Choose this group when you create or edit one."
+          />
         )}
       </View>
 
       {group.alsoWorksExercises.length > 0 && (
         <View style={{ gap: space.sm }}>
-          <Text style={[text.eyebrow, styles.sectionTitle]}>Also works</Text>
+          <Text style={text.eyebrow}>Also works</Text>
           <View>{renderRows(group.alsoWorksExercises)}</View>
         </View>
       )}
@@ -206,11 +195,5 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-  },
-  sectionTitle: {
-    paddingHorizontal: 4,
-  },
-  empty: {
-    borderWidth: 1,
   },
 });

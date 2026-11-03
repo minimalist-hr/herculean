@@ -249,7 +249,7 @@ function DraggableRow({
         {
           gap: 2,
           height: size.optionRowMin,
-          paddingLeft: locked ? space.md : 4,
+          paddingLeft: locked ? space.lg : 4,
           paddingRight: 4,
           ...joinedCardStyle({
             withPrevious,

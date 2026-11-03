@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { z } from 'zod';
 
 import { ApiProblemError, toFormErrors } from '@/api/problem';
+import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
 import { DraggableList } from '@/components/draggable-list';
 import { FormPage } from '@/components/form-page';
@@ -62,7 +63,7 @@ export function RoutineEditor({
   saving,
   onSave,
 }: RoutineEditorProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const { pages, exercises, changed, setExercises, setPicked, setCreatedIds } =
     useRoutineDraft();
@@ -270,25 +271,10 @@ export function RoutineEditor({
                 )}
               />
             ) : (
-              <View
-                style={[
-                  styles.noExercises,
-                  {
-                    gap: space.xs,
-                    padding: space.xl,
-                    borderRadius: radius.card,
-                    borderColor: colors.border,
-                  },
-                ]}
-              >
-                <Text style={[text.listItemName, { color: colors.text }]}>
-                  No exercises yet
-                </Text>
-                <Text style={[text.meta, styles.centered]}>
-                  Add the exercises you do in this routine. Sets and reps can be
-                  changed for each one.
-                </Text>
-              </View>
+              <EmptyCard
+                title="No exercises yet"
+                message="Add the exercises you do in this routine. Sets and reps can be changed for each one."
+              />
             )}
 
             {noExercisesError && exercises.length === 0 && (
@@ -352,11 +338,6 @@ const styles = StyleSheet.create({
   icon: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  noExercises: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
   },
   centered: {
     textAlign: 'center',

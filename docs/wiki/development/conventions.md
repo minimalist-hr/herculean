@@ -9,6 +9,7 @@ title: Conventions
 - A new wiki page is listed both on [Home](/home) and in `_sidebar.md`.
 - A design change is proposed and approved before it is built.
 - Design issues are GitLab issues with the `design` label.
+- After every big feature, a consistency pass compares all built screens and fixes what differs.
 - An MR that changes a screen also recaptures it, with all its states, using [`docs/design/capture`](https://gitlab.com/minimalist-sds/herculean/-/tree/main/docs/design/capture).
 - Screens are named by ID, for example W10.
 - Each fact is written once, in one place, and linked from elsewhere.

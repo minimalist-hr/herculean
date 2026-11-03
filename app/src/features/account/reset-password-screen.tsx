@@ -101,7 +101,6 @@ export function ResetPasswordScreen() {
                 <TextField
                   ref={field.ref}
                   label="Email"
-                  placeholder="Your email"
                   autoComplete="email"
                   keyboardType="email-address"
                   autoCapitalize="none"

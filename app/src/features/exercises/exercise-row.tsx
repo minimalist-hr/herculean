@@ -14,6 +14,16 @@ interface ExerciseRowProps {
   onPress?: () => void;
 }
 
+/** An exercise's best set, for a list. */
+export function bestSetText(
+  { bestSet }: ExerciseRowProps['exercise'],
+  units: ExerciseRowProps['units'],
+) {
+  return bestSet === null
+    ? 'Not done yet'
+    : `${formatSet(bestSet.weightKg, bestSet.reps, units)} · ${formatShortDate(bestSet.date)}`;
+}
+
 /** A row of a group's card. The first and last rows close the card. */
 export function ExerciseRow({
   exercise,
@@ -23,7 +33,6 @@ export function ExerciseRow({
   onPress,
 }: ExerciseRowProps) {
   const { colors, radius, size, space, text } = useTheme();
-  const { bestSet } = exercise;
 
   return (
     <Pressable
@@ -36,7 +45,7 @@ export function ExerciseRow({
           gap: space.md,
           minHeight: size.listRowMin,
           paddingVertical: space.sm,
-          paddingHorizontal: space.md,
+          paddingHorizontal: space.lg,
           borderColor: colors.border,
           backgroundColor: colors.card,
           borderBottomWidth: last ? 1 : 0,
@@ -51,11 +60,7 @@ export function ExerciseRow({
         <Text style={[text.listItemName, { color: colors.text }]}>
           {exercise.name}
         </Text>
-        <Text style={text.meta}>
-          {bestSet === null
-            ? 'Not done yet'
-            : `${formatSet(bestSet.weightKg, bestSet.reps, units)} · ${formatShortDate(bestSet.date)}`}
-        </Text>
+        <Text style={text.meta}>{bestSetText(exercise, units)}</Text>
       </View>
       {onPress !== undefined && (
         <ChevronRightIcon color={colors.muted} size={16} />
