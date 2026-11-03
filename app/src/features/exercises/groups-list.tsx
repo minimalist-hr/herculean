@@ -5,15 +5,22 @@ import { DraggableList } from '@/components/draggable-list';
 import { ChevronRightIcon } from '@/components/icons';
 import { useTheme } from '@/theme/theme-provider';
 
-import { countOf } from './group-name-sheet';
-
 type Group = components['schemas']['GroupListItemResponse'];
+
+/** How many exercises use a group, in words. */
+export function countOf({ exerciseCount }: { exerciseCount: number }) {
+  return exerciseCount === 1
+    ? '1 exercise'
+    : `${String(exerciseCount)} exercises`;
+}
 
 interface GroupsListProps {
   groups: readonly Group[];
   onDragChange: (dragging: boolean) => void;
   onReorder: (groups: Group[]) => void;
   onOpen: (group: Group) => void;
+  /** Shows the groups without handles, while only some of them show. */
+  locked: boolean;
 }
 
 /** The groups, with a handle on each to drag it to another place. */
@@ -22,6 +29,7 @@ export function GroupsList({
   onDragChange,
   onReorder,
   onOpen,
+  locked,
 }: GroupsListProps) {
   const { colors, space, text } = useTheme();
 
@@ -32,6 +40,7 @@ export function GroupsList({
       moveLabel={(group) => `Move ${group.name}`}
       onDragChange={onDragChange}
       onReorder={onReorder}
+      locked={locked}
       renderRow={(group) => (
         <Pressable
           accessibilityRole="button"

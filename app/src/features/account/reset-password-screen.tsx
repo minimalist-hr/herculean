@@ -10,10 +10,12 @@ import {
 } from 'react-native';
 
 import { toFormErrors } from '@/api/problem';
+import { BackLink } from '@/components/back-link';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
+import { useLeaveGuard } from '@/components/use-leave-guard';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -41,13 +43,17 @@ export function ResetPasswordScreen() {
     defaultValues: emptyValues,
   });
   const { errors } = formState;
+  const guard = useLeaveGuard(formState.isDirty);
 
   const submit = handleSubmit(async ({ email }) => {
     dismissNotification();
+    // Once sent, nothing is left to lose, and later pages can leave past this one.
+    guard.allow();
     try {
       await sendResetLink.mutateAsync(email);
       router.push({ pathname: '/reset-link-sent', params: { email } });
     } catch (error) {
+      guard.block();
       const formErrors = toFormErrors(error, ['email']);
       if (formErrors.fields.email !== undefined) {
         setError('email', { message: formErrors.fields.email });
@@ -68,16 +74,24 @@ export function ResetPasswordScreen() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
-            paddingTop: size.topPaddingTab,
+            paddingTop: size.topPaddingSubPage,
             paddingHorizontal: size.sidePadding,
             paddingBottom: space.lg,
           }}
         >
-          <ScreenHeading
-            label="Forgot password?"
-            title="Reset password"
-            subtitle="We’ll email you a link to set a new password."
-          />
+          <View style={{ gap: 2 }}>
+            <BackLink
+              label="Sign in"
+              onPress={() => {
+                // A link in an email can open this page with nothing behind it, so it doesn't just go back.
+                router.dismissTo('/sign-in');
+              }}
+            />
+            <ScreenHeading
+              title="Reset password"
+              subtitle="We’ll email you a link to set a new password."
+            />
+          </View>
 
           <View style={{ gap: space.lg }}>
             <Controller
@@ -87,7 +101,7 @@ export function ResetPasswordScreen() {
                 <TextField
                   ref={field.ref}
                   label="Email"
-                  placeholder="you@example.com"
+                  placeholder="Your email"
                   autoComplete="email"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -114,16 +128,8 @@ export function ResetPasswordScreen() {
           waiting={waiting}
           onPress={() => void submit()}
         />
-        <Button
-          label="Cancel"
-          variant="secondary"
-          dimmed={waiting}
-          onPress={() => {
-            // A link in an email can open this page with nothing behind it, so it doesn't just go back.
-            router.dismissTo('/sign-in');
-          }}
-        />
       </BottomActionBox>
+      {guard.sheet}
     </View>
   );
 }

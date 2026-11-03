@@ -26,6 +26,8 @@ interface DraggableListProps<Item> {
   moveLabel: (item: Item) => string;
   onDragChange: (dragging: boolean) => void;
   onReorder: (items: Item[]) => void;
+  /** Shows the rows without handles, for a part of the list that has no order of its own. */
+  locked?: boolean;
   /** What sits to the right of the handle. A row is one line high. */
   renderRow: (item: Item) => ReactNode;
 }
@@ -57,6 +59,7 @@ export function DraggableList<Item>({
   moveLabel,
   onDragChange,
   onReorder,
+  locked = false,
   renderRow,
 }: DraggableListProps<Item>) {
   const { size, space } = useTheme();
@@ -136,6 +139,7 @@ export function DraggableList<Item>({
           shift={shiftOf(index, drag)}
           dragging={drag !== null}
           lifted={drag?.from === index}
+          locked={locked}
           pan={pan}
           onStartDrag={startDrag}
           onMoveDrag={moveDrag}
@@ -160,6 +164,7 @@ interface DraggableRowProps {
   shift: number;
   dragging: boolean;
   lifted: boolean;
+  locked: boolean;
   pan: Animated.Value;
   onStartDrag: (index: number) => void;
   onMoveDrag: (distance: number) => void;
@@ -175,6 +180,7 @@ function DraggableRow({
   shift,
   dragging,
   lifted,
+  locked,
   pan,
   onStartDrag,
   onMoveDrag,
@@ -182,7 +188,7 @@ function DraggableRow({
   onMoveTo,
   children,
 }: DraggableRowProps) {
-  const { colors, motion, radius, size } = useTheme();
+  const { colors, motion, radius, size, space } = useTheme();
   const reduceMotion = useReduceMotion();
   const [offset] = useState(() => new Animated.Value(0));
 
@@ -225,7 +231,8 @@ function DraggableRow({
         {
           gap: 2,
           height: size.optionRowMin,
-          paddingHorizontal: 4,
+          paddingLeft: locked ? space.md : 4,
+          paddingRight: 4,
           borderRadius: radius.card,
           borderColor: lifted ? colors.muted : colors.border,
           backgroundColor: colors.card,
@@ -234,27 +241,29 @@ function DraggableRow({
         lifted && styles.lifted,
       ]}
     >
-      <View
-        {...handle.panHandlers}
-        accessible
-        accessibilityRole="button"
-        accessibilityLabel={moveLabel}
-        accessibilityActions={[
-          { name: 'moveUp', label: 'Move up' },
-          { name: 'moveDown', label: 'Move down' },
-        ]}
-        onAccessibilityAction={(event) => {
-          onMoveTo(
-            event.nativeEvent.actionName === 'moveUp' ? index - 1 : index + 1,
-          );
-        }}
-        style={[
-          styles.handle,
-          { width: size.touchTargetMin, height: size.touchTargetMin },
-        ]}
-      >
-        <DragHandleIcon color={colors.muted} size={20} />
-      </View>
+      {!locked && (
+        <View
+          {...handle.panHandlers}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={moveLabel}
+          accessibilityActions={[
+            { name: 'moveUp', label: 'Move up' },
+            { name: 'moveDown', label: 'Move down' },
+          ]}
+          onAccessibilityAction={(event) => {
+            onMoveTo(
+              event.nativeEvent.actionName === 'moveUp' ? index - 1 : index + 1,
+            );
+          }}
+          style={[
+            styles.handle,
+            { width: size.touchTargetMin, height: size.touchTargetMin },
+          ]}
+        >
+          <DragHandleIcon color={colors.muted} size={20} />
+        </View>
+      )}
       {children}
     </Animated.View>
   );

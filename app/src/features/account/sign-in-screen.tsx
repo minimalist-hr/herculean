@@ -120,7 +120,7 @@ export function SignInScreen() {
                   <TextField
                     ref={field.ref}
                     label="Email"
-                    placeholder="you@example.com"
+                    placeholder="Your email"
                     autoComplete="email"
                     keyboardType="email-address"
                     autoCapitalize="none"

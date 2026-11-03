@@ -7,6 +7,8 @@ import { NotificationBar } from '@/components/notification-bar';
 import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import NewGroupRoute from '@/app/group/new';
+
 import { GroupsScreen } from './groups-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -120,11 +122,15 @@ function Layout() {
 }
 
 async function renderGroups() {
-  await renderRouter({ _layout: Layout, index: GroupsScreen });
+  await renderRouter({
+    _layout: Layout,
+    index: GroupsScreen,
+    'group/new': NewGroupRoute,
+  });
   await screen.findByRole('button', { name: /^Chest/ });
 }
 
-/** A sheet opens over the screen, so its button comes after any with the same name behind it. */
+/** A page opens over the screen, so its button comes after any with the same name behind it. */
 function pressLast(name: string) {
   const buttons = screen.getAllByRole('button', { name });
 
@@ -192,7 +198,7 @@ test('a blank name is stopped before anything is sent', async () => {
   expect(sent('POST')).toHaveLength(0);
 });
 
-test('a name another group has shows under Name and the sheet stays', async () => {
+test('a name another group has shows under Name and the page stays', async () => {
   answer({
     POST: () =>
       problem(
@@ -213,7 +219,63 @@ test('a name another group has shows under Name and the sheet stays', async () =
   expect(screen.getByRole('header', { name: 'New group' })).toBeOnTheScreen();
 });
 
-test('another failure keeps the sheet and says so', async () => {
+test('a search narrows the list and hides the handles and the hint', async () => {
+  answer();
+  await renderGroups();
+  expect(screen.getByText(/^Sort your exercise list/)).toBeOnTheScreen();
+
+  await fireEvent.changeText(screen.getByLabelText('Search groups'), ' che ');
+
+  expect(screen.getByRole('button', { name: /^Chest/ })).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: /^Back/ })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Move Chest' })).toBeNull();
+  expect(screen.queryByText(/^Sort your exercise list/)).toBeNull();
+});
+
+test('no matches says so, and New group starts from the search', async () => {
+  answer();
+  await renderGroups();
+
+  await fireEvent.changeText(screen.getByLabelText('Search groups'), 'Glutes');
+  expect(screen.getByText('No matches for “Glutes”')).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'New group' }));
+
+  expect(await screen.findByLabelText('Name')).toHaveDisplayValue('Glutes');
+});
+
+test('Done on the keyboard saves nothing', async () => {
+  answer();
+  await renderGroups();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'New group' }));
+  await fireEvent.changeText(await screen.findByLabelText('Name'), 'Glutes');
+  await fireEvent(screen.getByLabelText('Name'), 'submitEditing');
+
+  expect(sent('POST')).toHaveLength(0);
+  expect(screen.getByRole('header', { name: 'New group' })).toBeOnTheScreen();
+});
+
+test('leaving the page clears its failure', async () => {
+  answer({ POST: () => problem(500, 'server_error', 'Something failed.') });
+  await renderGroups();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'New group' }));
+  await fireEvent.changeText(await screen.findByLabelText('Name'), 'Glutes');
+  await pressLast('Save group');
+  await screen.findByRole('alert');
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Groups' }));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Discard changes' }),
+  );
+
+  await waitFor(() => {
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
+
+test('another failure keeps the page and says so', async () => {
   answer({ POST: () => problem(500, 'server_error', 'Something failed.') });
   await renderGroups();
 
@@ -297,4 +359,15 @@ test('a failed move says so and goes back', async () => {
   await waitFor(() => {
     expect(groupNames()).toEqual(['Move Chest', 'Move Back', 'Move Core']);
   });
+});
+
+test('with no groups, it says so and has no search', async () => {
+  answer();
+  stored = [];
+  await renderRouter({ _layout: Layout, index: GroupsScreen });
+
+  expect(await screen.findByText('No groups yet')).toBeOnTheScreen();
+  expect(screen.queryByLabelText('Search groups')).toBeNull();
+  expect(screen.queryByText(/^No matches/)).toBeNull();
+  expect(screen.queryByText(/^Sort your exercise list/)).toBeNull();
 });

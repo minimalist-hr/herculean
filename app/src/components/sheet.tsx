@@ -8,12 +8,9 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  Animated,
-  Easing,
   KeyboardAvoidingView,
   Modal,
   PanResponder,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,7 +18,16 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { useTheme } from '@/theme/theme-provider';
 
@@ -39,13 +45,10 @@ import { useReduceMotion } from './use-reduce-motion';
 
 const paddingBottomMin = 34;
 
-function settle(value: Animated.Value, toValue: number) {
-  Animated.timing(value, {
-    toValue,
-    duration: 180,
-    easing: Easing.bezier(0.33, 1, 0.68, 1),
-    useNativeDriver: false,
-  }).start();
+const easing = Easing.bezier(0.33, 1, 0.68, 1);
+
+function settle(value: SharedValue<number>, toValue: number) {
+  value.set(withTiming(toValue, { duration: 180, easing }));
 }
 
 interface SheetProps {
@@ -59,7 +62,7 @@ interface SheetProps {
   scrollEnabled?: boolean;
   /** What sits between the heading and the actions, for example a field. It scrolls if it doesn't fit. */
   body?: ReactNode;
-  /** The actions below the line: the main one first. */
+  /** The actions below the line: the main one first. The close button and a tap outside cancel. */
   children: ReactNode;
 }
 
@@ -79,10 +82,10 @@ export function Sheet({
   const reduceMotion = useReduceMotion();
   const keyboardHeight = useKeyboardHeight();
   const window = useWindowDimensions();
-  const [progress] = useState(() => new Animated.Value(0));
-  const [pulledDown] = useState(() => new Animated.Value(0));
+  const progress = useSharedValue(0);
+  const pulledDown = useSharedValue(0);
   const [headingHeight, setHeadingHeight] = useState(0);
-  const [bodyHeight, setBodyHeight] = useState(0);
+  const [bodyHeight, setBodyHeight] = useState<number | null>(null);
   const [actionsHeight, setActionsHeight] = useState(0);
   // It stays open after visible turns false, until it has gone down.
   const [open, setOpen] = useState(visible);
@@ -102,11 +105,14 @@ export function Sheet({
   const natural =
     paddingTop +
     headingHeight +
-    bodyHeight +
+    (bodyHeight ?? 0) +
     (actionsShown ? actionsHeight : 0) +
     paddingBottom +
     space.lg * (parts - 1);
-  const measured = headingHeight > 0 && actionsHeight > 0;
+  const measured =
+    headingHeight > 0 &&
+    (actionsHeight > 0 || !actionsShown) &&
+    (fill || body === undefined || bodyHeight !== null);
   const full = window.height - insets.top - keyboardHeight;
   // It is as small as its content allows. Content that doesn't fit gets all the room there is, and scrolls.
   const shownHeight = fill ? full : Math.min(natural, full);
@@ -134,31 +140,39 @@ export function Sheet({
   }, [visible]);
 
   useEffect(() => {
-    if (!open) {
+    // It rises only once its height is known, or the distance changes on the way up and the motion jumps.
+    if (!open || (visible && !measured)) {
       return;
     }
 
     if (visible) {
-      pulledDown.setValue(0);
+      pulledDown.set(0);
     }
 
-    const animation = Animated.timing(progress, {
-      toValue: visible ? 1 : 0,
-      duration: reduceMotion ? 0 : motion.sheetMs,
-      easing: Easing.bezier(0.33, 1, 0.68, 1),
-      // The web has no native animation driver.
-      useNativeDriver: Platform.OS !== 'web',
-    });
-    animation.start(({ finished }) => {
-      if (finished && !visible) {
-        setOpen(false);
-      }
-    });
+    progress.set(
+      withTiming(
+        visible ? 1 : 0,
+        { duration: reduceMotion ? 0 : motion.sheetMs, easing },
+        (finished) => {
+          if (finished === true && !visible) {
+            scheduleOnRN(setOpen, false);
+          }
+        },
+      ),
+    );
 
     return () => {
-      animation.stop();
+      cancelAnimation(progress);
     };
-  }, [motion.sheetMs, open, progress, pulledDown, reduceMotion, visible]);
+  }, [
+    measured,
+    motion.sheetMs,
+    open,
+    progress,
+    pulledDown,
+    reduceMotion,
+    visible,
+  ]);
 
   // A gesture keeps the handlers it started with, so they read the latest values from here.
   const latest = useRef({ shownHeight, onClose });
@@ -171,7 +185,7 @@ export function Sheet({
   const movePull = useCallback(
     (distance: number) => {
       pull.current = Math.max(0, distance);
-      pulledDown.setValue(pull.current);
+      pulledDown.set(pull.current);
     },
     [pulledDown],
   );
@@ -192,6 +206,14 @@ export function Sheet({
     [pulledDown],
   );
 
+  const scrimStyle = useAnimatedStyle(() => ({ opacity: progress.get() }));
+  const riseStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: (1 - progress.get()) * startingOffset }],
+  }));
+  const pullStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: pulledDown.get() }],
+  }));
+
   if (!open) {
     return null;
   }
@@ -206,7 +228,8 @@ export function Sheet({
       <Animated.View
         style={[
           StyleSheet.absoluteFill,
-          { opacity: progress, backgroundColor: colors.scrim },
+          { backgroundColor: colors.scrim },
+          scrimStyle,
         ]}
       />
       <KeyboardAvoidingView behavior="padding" style={styles.outside}>
@@ -215,18 +238,7 @@ export function Sheet({
           style={styles.outside}
           onPress={onClose}
         />
-        <Animated.View
-          style={{
-            transform: [
-              {
-                translateY: progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [startingOffset, 0],
-                }),
-              },
-            ],
-          }}
-        >
+        <Animated.View style={riseStyle}>
           <Animated.View
             accessibilityViewIsModal
             style={[
@@ -240,9 +252,9 @@ export function Sheet({
                 borderTopRightRadius: radius.sheetTop,
                 borderTopColor: colors.border,
                 backgroundColor: colors.card,
-                transform: [{ translateY: pulledDown }],
               },
               measured && { height: shownHeight },
+              pullStyle,
             ]}
           >
             <DragArea
@@ -332,7 +344,7 @@ export function Sheet({
           </Animated.View>
         </Animated.View>
       </KeyboardAvoidingView>
-      {isTop && <NotificationBar above={shownHeight} />}
+      {isTop && <NotificationBar inSheet />}
     </Modal>
   );
 }

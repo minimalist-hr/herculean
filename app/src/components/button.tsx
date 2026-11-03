@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
@@ -16,6 +17,8 @@ interface ButtonProps {
   dimmed?: boolean;
   /** It isn't available yet, but a press can say why. */
   muted?: boolean;
+  /** Shows before the label, for example a plus. */
+  icon?: (props: { color: string; size: number }) => ReactNode;
 }
 
 export function Button({
@@ -26,6 +29,7 @@ export function Button({
   waiting = false,
   dimmed = false,
   muted = false,
+  icon,
 }: ButtonProps) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const filled = variant === 'primary' || variant === 'danger';
@@ -53,7 +57,7 @@ export function Button({
           ? {
               height: size.primaryButton,
               backgroundColor:
-                variant === 'danger' ? colors.danger : colors.primary,
+                variant === 'danger' ? colors.dangerFill : colors.primary,
             }
           : [
               styles.outlined,
@@ -66,6 +70,7 @@ export function Button({
       ]}
     >
       {waiting && <Spinner color={textColor} />}
+      {icon?.({ color: textColor, size: 16 })}
       <Text
         style={[
           filled ? text.primaryButton : text.secondaryButton,

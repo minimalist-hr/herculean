@@ -17,10 +17,13 @@ button{font-family:inherit}
 </helmet>
 <div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
 <main style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 48px 16px 24px; min-height: 0">
-<header style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px"><div style="display: flex; flex-direction: column; gap: 4px"><p style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">Your training</p><h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Exercises</h1></div><a href="E30-Exercises-Groups.dc.html" style="flex: none; align-self: flex-end; height: 44px; display: flex; align-items: center; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {{c.primaryText}}">Groups</a></header>
+<header style="display: flex; flex-direction: column; gap: 4px"><div style="display: flex; flex-direction: column; gap: 4px"><h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Exercises</h1><p style="margin: 0; font-size: 14px; color: {{c.muted}}">Everything you train, by muscle group.</p></div></header>
+<div style="display: flex; gap: 6px"><a href="E30-Exercises-Groups.dc.html" style="flex: none; height: 36px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; text-decoration: none; border-radius: {{r.pill}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 500">Groups<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{c.muted}}" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a></div>
 <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 24px; text-align: center; border-radius: {{r.card}}; border: 1px dashed {{c.border}}"><p style="margin: 0; font-size: 16px; font-weight: 700">No exercises yet</p><p style="margin: 0; font-size: 13px; color: {{c.muted}}">Create an exercise to use it in routines and workouts.</p></div>
-<a href="L22-Logging-Create-Exercise.dc.html" style="height: 52px; box-sizing: border-box; text-decoration: none; border-radius: {{r.card}}; border: 1px dashed {{c.border}}; background: transparent; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Create exercise</a>
 </main>
+<div style="flex: none; display: flex; flex-direction: column; padding: 12px 16px; border-top: 1px solid {{c.border}}; background: {{c.card}}">
+<a href="L22-Logging-New-Exercise.dc.html" style="height: 44px; flex: none; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>New exercise</a>
+</div>
 <nav aria-label="Main" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 8px 8px 28px; border-top: 1px solid {{c.border}}; background: {{c.bg}}">
 <a href="H01-Home.dc.html" style="height: 52px; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; color: {{c.muted}}">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M4 10.5L12 4l8 6.5v10h-5.5v-6h-5v6H4z"></path></svg>
@@ -67,7 +70,7 @@ class Component extends DCLogic {
     const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
     const primary = c.primary;
     c.danger = dark ? '#F87171' : '#DC2626';
-    c.onDanger = dark ? '#050506' : '#FFFFFF';
+    c.onDanger = '#FFFFFF';
     const st = this.state || {};
     const radio = (items, key, def) => {
       const cur = st[key] || def;

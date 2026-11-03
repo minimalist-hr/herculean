@@ -67,7 +67,7 @@ class Component extends DCLogic {
     c.success = dark ? '#4ADE80' : '#166534';
     const primary = c.primary;
     c.danger = dark ? '#F87171' : '#DC2626';
-    c.onDanger = dark ? '#050506' : '#FFFFFF';
+    c.onDanger = '#FFFFFF';
     const st = this.state || {};
     const radio = (items, key, def) => {
       const cur = st[key] || def;

@@ -19,3 +19,6 @@ export function useGroups() {
     },
   });
 }
+
+/** Why a new exercise can't be created yet. */
+export const noGroupsMessage = 'Create a group first.';

@@ -36,8 +36,8 @@ button{font-family:inherit}
 </a>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px; margin: 4px -16px 0; padding: 16px 16px 0; border-top: 1px solid {{c.border}}">
-<a href="L01-Logging.dc.html" style="height: 48px; box-sizing: border-box; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.danger}}; color: {{c.onDanger}}">Remove exercise</a>
-<a href="L01-Logging.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a>
+<a href="L01-Logging.dc.html" style="height: 48px; box-sizing: border-box; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.dangerFill}}; color: {{c.onDanger}}">Remove exercise</a>
+
 </div>
 </section>
 </div>
@@ -68,7 +68,8 @@ class Component extends DCLogic {
     const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
     const primary = c.primary;
     c.danger = dark ? '#F87171' : '#DC2626';
-    c.onDanger = dark ? '#050506' : '#FFFFFF';
+    c.dangerFill = '#DC2626';
+    c.onDanger = '#FFFFFF';
     const st = this.state || {};
     const radio = (items, key, def) => {
       const cur = st[key] || def;

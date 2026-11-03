@@ -15,11 +15,10 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseRow } from './exercise-row';
 import { DetailsSkeleton } from './exercises-skeleton';
-import { countOf, GroupNameSheet } from './group-name-sheet';
+import { countOf } from './groups-list';
 import { NoSessionsCard } from './no-sessions-card';
 import { useDeleteGroup } from './use-delete-group';
 import { useGroup } from './use-group';
-import { useRenameGroup } from './use-rename-group';
 
 type Group = components['schemas']['GroupDetailsResponse'];
 type Exercise = components['schemas']['ExerciseListItemResponse'];
@@ -50,8 +49,6 @@ export function GroupScreen({ id }: { id: string }) {
 
   return (
     <ScrollView
-      // The rename sheet opens inside this list, so a tap on its buttons must not just close the keyboard.
-      keyboardShouldPersistTaps="handled"
       style={{ backgroundColor: colors.bg }}
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
@@ -75,11 +72,7 @@ function Details({ group }: { group: Group }) {
   const router = useRouter();
   const user = useCurrentUser();
   const units = user.data?.units ?? 'metric';
-  const renameGroup = useRenameGroup();
   const deleteGroup = useDeleteGroup();
-  const [renaming, setRenaming] = useState(false);
-  // Each rename starts from the group's name at that moment.
-  const [renameKey, setRenameKey] = useState(0);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const exerciseCount =
     group.exercises.length + group.alsoWorksExercises.length;
@@ -94,12 +87,6 @@ function Details({ group }: { group: Group }) {
         units={units}
         first={index === 0}
         last={index === exercises.length - 1}
-        onPress={() => {
-          router.push({
-            pathname: '/exercises/[id]',
-            params: { id: exercise.id, back: group.name },
-          });
-        }}
       />
     ));
   }
@@ -117,8 +104,10 @@ function Details({ group }: { group: Group }) {
           <HeaderIconButton
             label="Edit group"
             onPress={() => {
-              setRenameKey((key) => key + 1);
-              setRenaming(true);
+              router.push({
+                pathname: '/group/[id]/edit',
+                params: { id: group.id },
+              });
             }}
           >
             <PencilIcon color={colors.text} size={20} />
@@ -139,7 +128,7 @@ function Details({ group }: { group: Group }) {
           >
             <View style={{ opacity: inUse ? opacity.disabled : 1 }}>
               <TrashIcon
-                color={inUse ? colors.muted : colors.danger}
+                color={inUse ? colors.muted : colors.dangerFill}
                 size={20}
               />
             </View>
@@ -181,22 +170,6 @@ function Details({ group }: { group: Group }) {
         </View>
       )}
 
-      {renameKey > 0 && (
-        <GroupNameSheet
-          key={renameKey}
-          visible={renaming}
-          title="Rename group"
-          message={`${group.name} · ${count}. The new name shows on every chip and section.`}
-          initialName={group.name}
-          saving={renameGroup.isPending}
-          onSave={(name) => renameGroup.mutateAsync({ id: group.id, name })}
-          onClose={() => {
-            setRenaming(false);
-          }}
-          savedMessage={(name) => `${name} saved.`}
-        />
-      )}
-
       <Sheet
         visible={confirmingDelete}
         title={`Delete ${group.name}?`}
@@ -216,14 +189,6 @@ function Details({ group }: { group: Group }) {
                 router.back();
               },
             });
-          }}
-        />
-        <Button
-          label="Cancel"
-          variant="secondary"
-          dimmed={deleteGroup.isPending}
-          onPress={() => {
-            setConfirmingDelete(false);
           }}
         />
       </Sheet>

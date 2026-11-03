@@ -3,8 +3,8 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
-import ExerciseRoute from '@/app/(tabs)/exercises/[id]';
 import GroupRoute from '@/app/(tabs)/exercises/groups/[id]';
+import EditGroupRoute from '@/app/group/[id]/edit';
 import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -145,7 +145,7 @@ async function openGroup(name: RegExp) {
       _layout: Layout,
       'exercises/groups/index': GroupsScreen,
       'exercises/groups/[id]': GroupRoute,
-      'exercises/[id]': ExerciseRoute,
+      'group/[id]/edit': EditGroupRoute,
     },
     { initialUrl: '/exercises/groups' },
   );
@@ -212,25 +212,15 @@ test('a failed read says so, and Try again reads it again', async () => {
   expect(await screen.findByRole('header', { name: 'Core' })).toBeOnTheScreen();
 });
 
-test('an exercise row opens the exercise, whose back link names the group', async () => {
+test('an exercise row shows the exercise and opens nothing', async () => {
   answer();
   await openGroup(/^Chest/);
 
-  await fireEvent.press(
-    await screen.findByRole('button', { name: /Shoulder press/ }),
-  );
-
-  expect(await screen.findByRole('link', { name: 'Chest' })).toBeOnTheScreen();
-  expect(screen.queryByRole('link', { name: 'Exercises' })).toBeNull();
-
-  await fireEvent.press(screen.getByRole('link', { name: 'Chest' }));
-
-  expect(
-    await screen.findByRole('header', { name: 'Chest' }),
-  ).toBeOnTheScreen();
+  expect(await screen.findByText('Bench press')).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: /Bench press/ })).toBeNull();
 });
 
-test('the edit button renames it', async () => {
+test('the edit button opens Edit group, which saves the name', async () => {
   answer();
   await openGroup(/^Chest/);
 
@@ -239,14 +229,13 @@ test('the edit button renames it', async () => {
   );
 
   expect(
-    await screen.findByRole('header', { name: 'Rename group' }),
+    await screen.findByRole('header', { name: 'Edit group' }),
   ).toBeOnTheScreen();
   expect(screen.getByDisplayValue('Chest')).toBeOnTheScreen();
   expect(
-    screen.getByText(
-      'Chest · 3 exercises. The new name shows on every chip and section.',
-    ),
+    screen.getByText('The new name shows on every chip and section.'),
   ).toBeOnTheScreen();
+  expect(screen.getByRole('link', { name: 'Chest' })).toBeOnTheScreen();
 
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pecs');
   await pressLast('Save group');

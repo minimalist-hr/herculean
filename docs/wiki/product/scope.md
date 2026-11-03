@@ -15,7 +15,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | # | Feature | Screens |
 |---|---|---|
 | 1 | [Account](#1-account) | A00, A01, A03, A10–A14, A20, A30, H20, H21 |
-| 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E35, L22 |
+| 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E36, L22 |
 | 3 | [Routines](#3-routines) | R01–R03, R10, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
 | 5 | [Logging](#5-logging) | W10, W11, L01–L04, L10–L15, L30, L31, W02, H02 |
@@ -63,14 +63,14 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 
 **What it does:** your exercise library, grouped by muscle group. You can search, filter by group, and see each exercise's best set, how often you did it, a heaviest-set chart, the routines that use it and every session. You can create, edit and delete exercises, and create, rename, reorder and delete groups.
 
-**Screens:** E01 Exercises, E02 Loading, E03 No matches, E04 No exercises, E10 Exercise, E11 Never done, E20 Edit exercise, E21 Delete exercise, E30 Groups, E31 Loading, E32 New group, E33 Rename group, E34 Delete group, E35 Group, L22 Create exercise.
+**Screens:** E01 Exercises, E02 Loading, E03 No matches, E04 No exercises, E10 Exercise, E11 Never done, E20 Edit exercise, E21 Delete exercise, E30 Groups, E31 Loading, E36 No groups, E32 New group, E33 Edit group, E34 Delete group, E35 Group, L22 New exercise.
 
 **Flows**
 - **Browse:** E02 → E01. A search with no results shows E03. No exercises at all shows E04.
-- **Create:** Create exercise on E01, E03 or E04 → L22 → Save exercise → E01, with the new exercise in its group.
+- **Create:** New exercise on E01, E03 or E04 → L22 → Save exercise → E01, with the new exercise in its group.
 - **Details:** an E01 row → E10, or E11 if never done. The chart switches between 3M, 6M, 1Y and All. Until [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54), every row → E11.
 - **Edit and delete:** the edit icon on E10 → E20 → Save exercise → E10. The trash icon on E10 → E21 → E01. Each says so in a notification.
-- **Groups:** the Groups link on E01 → E31 → E30. The + button → E32. A group → E35, which lists its exercises. The edit icon on E35 → E33 (rename). The trash on an empty group → E34 → E30, with a notification that has Undo. On a group in use, the trash says why it can't be deleted. Dragging a group sets the chip order.
+- **Groups:** the Groups chip on E01 → E31 → E30, or E36 with no groups. New group → E32. A group → E35, which lists its exercises. The edit icon on E35 → E33. The trash on an empty group → E34 → E30, with a notification that has Undo. On a group in use, the trash says why it can't be deleted. Dragging a group sets the chip order.
 
 **Entities:** Exercise, Exercise also works, Group. Reads workouts and sets for best set, times done and history.
 
@@ -112,7 +112,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 - **Edit routine:** a routine on R01 → R20. Tap targets → R21 → Save targets. The trash → R23 → R20, with a notification that has Undo. Drag handles reorder. Save routine → R01.
 - **Add exercise:** on R20 or R30 → L24 → L20, or L21 when nothing matches → L22 → L23 → back with the picked exercises at 3 × 8–10.
 - **Delete routine:** Delete routine on R20 → R22 → R01.
-- **New routine:** the + button on R01 or R03 → R30 → Save routine → R01.
+- **New routine:** New routine on R01 or R03 → R30 → Save routine → R01.
 
 Changes on R20 and R30 stay in the app until Save routine.
 

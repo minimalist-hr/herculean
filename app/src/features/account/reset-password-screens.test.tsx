@@ -30,7 +30,10 @@ function Layout() {
   return (
     <QueryClientProvider
       client={
-        new QueryClient({ defaultOptions: { mutations: { retry: false } } })
+        // The default keeps a timer running for five minutes, which holds Jest open.
+        new QueryClient({
+          defaultOptions: { mutations: { retry: false, gcTime: 0 } },
+        })
       }
     >
       <ThemeProvider theme="dark">
@@ -81,7 +84,7 @@ async function press(name: string) {
 async function fillInPasswords(password: string, repeatPassword: string) {
   await fireEvent.changeText(screen.getByLabelText('New password'), password);
   await fireEvent.changeText(
-    screen.getByLabelText('Repeat new password'),
+    screen.getByLabelText('Confirm new password'),
     repeatPassword,
   );
 }
@@ -159,12 +162,41 @@ describe('reset password', () => {
     });
   });
 
-  test('cancel opens sign in', async () => {
+  test('the back link opens sign in', async () => {
     await renderAt('/forgot-password');
 
-    await press('Cancel');
+    await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
 
     expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
+  });
+
+  test('with an email typed, the back link asks first', async () => {
+    await renderAt('/forgot-password');
+    await fireEvent.changeText(
+      screen.getByLabelText('Email'),
+      'filip@example.com',
+    );
+
+    await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
+    await press('Discard changes');
+
+    expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
+  });
+
+  test('after sending, leaving from the next page does not ask', async () => {
+    answerNoContent(204);
+    await renderAt('/forgot-password');
+    await fireEvent.changeText(
+      screen.getByLabelText('Email'),
+      'filip@example.com',
+    );
+
+    await press('Send reset link');
+    await screen.findByText('Check your email');
+    await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
+
+    expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
+    expect(screen.queryByText('Discard changes?')).toBeNull();
   });
 });
 
@@ -234,10 +266,10 @@ describe('link sent', () => {
     ).toBeEnabled();
   });
 
-  test('back to sign in opens sign in', async () => {
+  test('the back link opens sign in', async () => {
     await renderAt(url);
 
-    await press('Back to sign in');
+    await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
 
     expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
   });
@@ -316,10 +348,10 @@ describe('new password', () => {
     });
   });
 
-  test('cancel opens sign in', async () => {
+  test('the back link opens sign in', async () => {
     await renderAt(url);
 
-    await press('Cancel');
+    await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
 
     expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
     expect(

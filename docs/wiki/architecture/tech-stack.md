@@ -20,7 +20,8 @@ Every app library must work in Expo Go.
 | Fonts | expo-font, expo-splash-screen, @expo-google-fonts/chakra-petch |
 | Icons, chart | react-native-svg |
 | Gestures, animation | react-native-gesture-handler, react-native-reanimated |
-| Sheets | @gorhom/bottom-sheet |
+| Sheets | Own component, `components/sheet.tsx` |
+| Animation | react-native-reanimated |
 | Drag lists | react-native-draggable-flatlist |
 | Token storage | expo-secure-store |
 | Profile photo | expo-image-picker |

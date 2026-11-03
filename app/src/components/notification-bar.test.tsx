@@ -5,11 +5,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { NotificationBar } from './notification-bar';
-import {
-  notifyFailure,
-  notifySuccess,
-  setNotificationInset,
-} from './notifications';
+import { notifyFailure, notifySuccess } from './notifications';
 import { PlaceholderScreen } from './placeholder-screen';
 
 function Layout() {
@@ -91,19 +87,11 @@ test.each([
   expect(screen.queryByRole('alert')).toBeNull();
 });
 
-test('it sits above the tab bar, or above an action box', async () => {
+test('it sits at the top of the screen', async () => {
   await renderBar();
   await act(() => {
     notifySuccess('Bench press saved.');
   });
-  expect(screen.getByTestId('notification-bar')).toHaveStyle({ bottom: 80 });
 
-  await act(() => {
-    setNotificationInset(140);
-  });
-  expect(screen.getByTestId('notification-bar')).toHaveStyle({ bottom: 152 });
-
-  await act(() => {
-    setNotificationInset(null);
-  });
+  expect(screen.getByTestId('notification-bar')).toHaveStyle({ top: 8 });
 });

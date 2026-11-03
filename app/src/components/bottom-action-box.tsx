@@ -1,39 +1,26 @@
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme/theme-provider';
 
-import { setNotificationInset } from './notifications';
+interface BottomActionBoxProps {
+  /** It sits on the tab bar, which keeps the room for the phone's bottom edge. */
+  aboveTabBar?: boolean;
+  children: ReactNode;
+}
 
 /** The screen's actions, pinned to the bottom: the primary button first, the secondary one below it. */
-export function BottomActionBox({ children }: { children: ReactNode }) {
+export function BottomActionBox({
+  aboveTabBar = false,
+  children,
+}: BottomActionBoxProps) {
   const { colors, size } = useTheme();
   const insets = useSafeAreaInsets();
   const { actionBoxPadding } = size;
-  const [height, setHeight] = useState<number>();
-
-  // A notification sits above the box while its screen is the one showing.
-  useFocusEffect(
-    useCallback(() => {
-      if (height === undefined) {
-        return;
-      }
-
-      setNotificationInset(height);
-
-      return () => {
-        setNotificationInset(null);
-      };
-    }, [height]),
-  );
 
   return (
     <View
-      onLayout={(event) => {
-        setHeight(event.nativeEvent.layout.height);
-      }}
       style={[
         styles.box,
         {
@@ -41,10 +28,12 @@ export function BottomActionBox({ children }: { children: ReactNode }) {
           paddingTop: actionBoxPadding.top,
           paddingHorizontal: actionBoxPadding.x,
           // Above a navigation bar or home indicator, the same space as at the top, so buttons never touch it.
-          paddingBottom: Math.max(
-            insets.bottom + actionBoxPadding.top,
-            actionBoxPadding.bottom,
-          ),
+          paddingBottom: aboveTabBar
+            ? actionBoxPadding.top
+            : Math.max(
+                insets.bottom + actionBoxPadding.top,
+                actionBoxPadding.bottom,
+              ),
           borderTopColor: colors.border,
           backgroundColor: colors.card,
         },

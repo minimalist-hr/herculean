@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.21 · 2 November 2026 · Minimalist
+Version 0.22 · 3 November 2026 · Minimalist
+
+> Changes since 0.21: creating and editing are pages now, so E20, L22, E32 and E33 are pages, and E33 is Edit group, not Rename. A page has a back link named after the screen it came from, a title, one short description, the fields and Save in the bottom box. The back link cancels. Deletes and other confirmations stay sheets, and no sheet has a Cancel button: the X or a tap outside closes it. A delete button is `dangerFill` with a white label in both themes, so the label stays readable. Trash icons match it. Error text keeps `danger`. The name field on create and edit forms has no placeholder. The notification bar and the undo bar come down from the top of the screen. R20 becomes a page when it is built. Done on the keyboard only closes it. "Your training" is gone from E01 to E04, R01 to R03 and R10. E01 to E04 have a short description under the title, then full-width search and the chips, and New exercise in a box pinned above the tab bar. Groups is a link chip at the start of the chips, and alone on E04. On E04, New exercise replaces the dashed action. E03 has no button of its own. E35's rows only show an exercise and no longer open it. On E30, a short description and a search are added under the title, New group sits in a box pinned above the tab bar, and the sorting hint moves below the list. While a search has text, the rows lose their handles and the hint goes, because only part of the list shows. New is the word for every create action: New exercise, New group, New routine. R01 to R03 have a short description, search by name and New routine pinned above the tab bar, and the week plan sits below the routines. R20, R30, Add exercise (L20, L21, L23, L24) and Sets and reps (R21) are pages. R30's Exercises heading always shows its counts. On Add exercise, New exercise closes the list, after a line and a gap, the chips are one sideways line, and rows are separate and show only the group. R21's steppers are stacked. Leaving a form with changes asks first (Form pages). With no groups, New exercise on E01 to E04 and L20 is muted and says "Create a group first.", and E36 shows "No groups yet" with no search. With one group, L22 and E20 hide Also works. The "No sessions yet" card on E11 and E35 has no icon. A10 to A12 have a back link to Sign in in place of the "Forgot password?" label, A10 and A12 lose Cancel, and A11 loses Back to sign in. Email fields say "Your email", and the second password field is Confirm password. The glows on A00 to A03 use `opacity.glow`, though the drawings keep a straight fade and the app a smooth one. The undo bar no longer dims the screen. The area panels `areas/` and the Flow boards don't show this.
 
 > Changes since 0.20: a sheet is as small as its content allows, and content that doesn't fit makes it as tall as possible and scrolls, so nothing pulls a sheet up. Every form is a sheet, and a sheet can open another. R30 and R20 are sheets, with R21 and R23 rising over them. L20 is a sheet at full height, and L22 rises over it. A routine needs at least one exercise to save, and Add exercise is a + on the Exercises title's line. On L20, Create exercise is a + in the search row, Add exercise stays muted until something is picked and says why when pressed, and rows show the group, not also works. R23 asks first, then a notification offers Undo. The drawings of R20, R21, R23, R30, L20, L21, L23 and L24 still show the older layout.
 
@@ -120,8 +122,9 @@ The accent is used for primary buttons, the active tab, today in the week strip 
 |---|---|---|---|
 | `success` | #4ADE80 | #166534 | Completed / Done |
 | `skipped` | #FB923C | #9A3412 | Skipped |
-| `danger` | #F87171 | #DC2626 | Missed, delete and remove actions |
-| `onDanger` | #050506 | #FFFFFF | Text on danger buttons |
+| `danger` | #F87171 | #DC2626 | Missed, errors |
+| `dangerFill` | #DC2626 | #DC2626 | Danger buttons and trash icons |
+| `onDanger` | #FFFFFF | #FFFFFF | Text on danger buttons |
 | `warn` | #F5B83D | #B45309 | Warning icon only (L30, L31) |
 | `primaryText` | (accent) | (accent) | In progress |
 
@@ -182,9 +185,9 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 |---|---|---|
 | **Primary** | 48 px, filled `primary`, 15 px uppercase bold | The main action: Save …, Start workout, Load routine, Sign in |
 | **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout, View workout |
-| **Danger** | 48 px, filled `danger` | The confirm action in delete and remove confirms |
+| **Danger** | 48 px, filled `dangerFill` | The confirm action in delete and remove confirms |
 | **Danger text** | 44 px, `danger` text | Delete … inside edit screens (R20) and Remove set |
-| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Create exercise, Add set, Groups on E01, and the way between A01 and A20 |
+| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Add set, and the way between A01 and A20 |
 | **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, E10 and E11 edit and delete |
 
 **Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
@@ -203,9 +206,9 @@ The canvas shows no error states, so every form follows these:
 
 ### Notification bar
 Says that something worked or failed, when it belongs to no field. It looks like the undo bar: `raised` fill, a border, 6 px corners and at least 56 px tall, with a 20 px icon (a check in `success`, a warning in `danger`) and 14 / 600 text.
-- **Place:** 12 px above what is at the bottom of the screen: the tab bar or the bottom action box. It moves above the keyboard when that is open.
-- **Behavior:** it rises in, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
-- **Sheets:** a failure or an Undo shows above the top sheet, which stays with what was typed. A failure goes when the sheet closes. Any other success shows in the usual place as the sheet closes.
+- **Place:** at the top of the screen, 8 px below the status bar, over the title, where the screen is calm.
+- **Behavior:** it comes down, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
+- **Sheets:** a failure or an Undo shows over the top sheet, which stays with what was typed. A failure goes when the sheet closes. Any other success shows as the sheet closes.
 - **Action:** it can carry one action at its right, such as Undo on E30. It then stays 6 seconds.
 - **Examples:** "Bench press saved.", "Bench press created.", "Bench press deleted.", "Link sent again.", "Password changed. Sign in with the new one."
 
@@ -223,6 +226,12 @@ Grouped lists sit inside one card, with rows divided by 1 px borders. Section la
 ### Radio cards
 A choice of two or three side by side, like Units on A30: each card is at least `size.optionRowMin` tall, with 12 px padding, the name in `listItemName`, a `meta` line and a radio circle (`size.radio`). The chosen card has the `primary` border and `raised` fill.
 
+### Form pages
+Creating or editing something with fields is a page, with few exceptions. It has a back link named after the screen it came from, cut short on one line if long, a title and one short description. The fields scroll. Save … sits in the bottom box, and the back link cancels, so there is no Cancel. Done on the keyboard only closes it. Leaving with changes, by the back link, the phone's back button or a swipe, opens a "Discard changes?" sheet with Discard changes. Its X or a tap outside returns to the form with everything kept. Add exercise counts its picks as changes. Create account and Reset password ask too. Sign in and the other account forms don't.
+
+### New buttons
+Every create action is called New: New exercise, New group, New routine. On a list it is a full-width secondary button with a +, in a box pinned above the tab bar, where Save sits on a form page.
+
 ### Steppers and quick picks
 A value between − and + buttons (`size.stepper`), like the default rest time on A30 and H15. The value is shown in `stepperValue`, not typed; the buttons and the quick picks reach every allowed value. At a limit, its button is dimmed. Screen readers get one adjustable control that says the value in words. Quick picks are a row of common values in `quickPick` type; the one that matches the value is filled with `primary`.
 
@@ -231,18 +240,18 @@ An email uses the same tokens as the app, in a column of at most 480 px. It is a
 
 ### Sheets
 - **Look:** a dimmed backdrop (62% black), a sheet rising from the bottom with rounded top corners and a 36 × 4 px grabber, and a 22 px title with a one-line explanation.
-- **Actions:** a 44 px close X at the top right, and Save … and Cancel at the bottom.
+- **Actions:** a 44 px close X at the top right, and the main action at the bottom. There is no Cancel: the X, a tap outside or pulling down closes it.
 - **Height:** it opens at its content's height. If the content doesn't fit, it takes all the room there is and its content scrolls.
 - **Behavior:** a sheet closes back to the screen that opened it. Pulling the grabber down closes it.
-- **Keyboard:** while it is open, the actions wait behind it so the fields keep the room. Done on a single field saves. Dragging the fields closes the keyboard and brings the actions back.
-- **Use:** forms, deletes and similar actions open as sheets. The account and password reset forms stay full pages for now.
+- **Keyboard:** while it is open, the actions wait behind it so the fields keep the room. Done closes the keyboard. Dragging the fields closes the keyboard and brings the actions back.
+- **Use:** deletes, other confirmations and quick picks open as sheets. Everything else that creates or edits is a page, including picking exercises (L20).
 - **Stacking:** a sheet can open another, which rises over it. Only the top one takes touches, and closing it returns to the one below. 
 
 ### Confirmations
-A question ("Delete Chest and arms 1?"), one sentence on what happens and what stays, a danger button that repeats the verb ("Delete routine"), and Cancel below.
+A question ("Delete Chest and arms 1?"), one sentence on what happens and what stays, and a danger button that repeats the verb ("Delete routine").
 
 ### Undo bar
-- **Look:** 56 px, with the `raised` fill and a border. It sits above the tab bar and dims the screen behind it.
+- **Look:** 56 px, with the `raised` fill and a border. It comes down from the top of the screen, in the same place as the notification bar. The screen behind it stays as it is.
 - **Content:** two lines (what happened and what it happened to) and an Undo button. Example: "Set 3 removed · Smith machine incline bench press". L12 is the reference.
 
 ### Tab bar
@@ -257,7 +266,7 @@ A skeleton in the shape of the real content, with a gentle pulse that turns off 
 **If it fails,** one muted line says what couldn't load, with a Try again text link below it, like A02. On E01: "Couldn't load your exercises."
 
 ### Empty states
-A short title, one sentence saying what to do, and the one action that fixes it. Examples: "No routines yet" with Create routine, and "No exercises yet" with Create exercise.
+A short title, one sentence saying what to do, and the one action that fixes it. Examples: "No routines yet" with Create routine, and "No exercises yet" with New exercise.
 
 ---
 
@@ -280,7 +289,7 @@ A short title, one sentence saying what to do, and the one action that fixes it.
 
 **Saving**
 - Save buttons name what they save: Save set, Save routine, Save color, Save workout.
-- Cancel always sits below the Save button.
+- Sheets and form pages have no Cancel. Where one remains, it sits below the Save button.
 - Saves never ask for confirmation.
 
 **Confirmations are only for these actions**
@@ -291,7 +300,7 @@ A short title, one sentence saying what to do, and the one action that fixes it.
 - Delete exercise (E21).
 - Delete group (E34).
 
-Nothing else asks "Are you sure?". Discard workout happens right away.
+Leaving a form with changes also asks (Form pages). Nothing else asks "Are you sure?". Discard workout happens right away.
 
 **Undo bars after every removal**
 - **Logging:** set removed (L12), exercise removed, and workout discarded (shown on W01).
@@ -303,7 +312,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 
 **Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it is dimmed and counts down: "Send link again in 0:42".
 
-**Delete inside edit screens.** "Delete routine" (R20) sits below Cancel, styled as danger text. An exercise is deleted from its details: a red trash icon to the right of the edit button on E10 and E11.
+**Delete inside edit screens.** "Delete routine" (R20) sits below Save routine, styled as danger text. An exercise is deleted from its details: a red trash icon to the right of the edit button on E10 and E11.
 
 **Groups.** A group can only be deleted when it has no exercises. Only an empty group's trash on E35 is active, in red.
 
@@ -333,7 +342,7 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 - "Good afternoon, Filip" until 18:00;
 - "Good evening, Filip" after that.
 
-**Account labels.** A10–A14 show "Forgot password?" above the title. A20 and A30 show "Welcome to Herculean".
+**Account labels.** A13 and A14 show "Forgot password?" above the title. A10, A11 and A12 have a back link to Sign in instead, and A10 and A12 have no Cancel. A20 and A30 show "Welcome to Herculean".
 
 **Formats**
 
@@ -386,26 +395,26 @@ Nothing else asks "Are you sure?". Discard workout happens right away.
 | Row | Screens | What happens |
 |---|---|---|
 | **L1 Log sets** | L03 Loading, L01 Logging, L10 Edit weight, L11 Edit reps, L12 Set removed, L14 Exercise history, L15 History empty, L04 Reorder | The header shows the date and elapsed time, the routine name, Finish and "x of 19 sets". The current exercise is open, with rows for set, last time, kg and reps plus a check box. The other exercises are collapsed with their progress (0/3). Add set, Add exercise and Reorder are available. After each checked set, a rest timer appears with −15, +15 and Skip. Tapping a value opens a sheet with steppers (±2.5 kg or ±1 rep), Save set, Cancel and Remove set. The clock icon or the exercise name opens its recent history, with Full history → E10. |
-| **L2 Exercises** | L13 Remove exercise, L20 Add exercise, L24 Loading, L21 No matches, L22 Create exercise, L23 New one selected | The trash asks first (L13). Add exercise has search, group chips and a multi-select list. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises a notification says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". |
+| **L2 Exercises** | L13 Remove exercise, L20 Add exercise, L24 Loading, L21 No matches, L22 New exercise, L23 New one selected | The trash asks first (L13). Add exercise is a page with a back link, a short description, search, group chips and a multi-select list, with its action in the bottom box. New exercise closes the list, after a line and a gap, so it doesn't read as adding to the group above it. A new exercise comes back picked, marked NEW. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises a notification says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". |
 | **L3 Finish** | L30 Finish workout, L02 No exercises left, L31 Nothing logged | L30 shows a warning for unchecked sets, then Duration, Sets, Volume and Records, plus New records, with Save workout, Keep logging and Discard workout. With nothing checked (L31), there's no Save. L02 is the logging screen after every exercise has been removed. |
 
 ### R · Routines
 
 | Row | Screens | What happens |
 |---|---|---|
-| **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines | The week plan ("Repeats every week") with one row per day, then your routines with their day tags. The title stays pinned, with New routine as a + button beside it. |
-| **R2 Week plan** | R10 Week plan day | A sheet to pick the routine or Rest day for a weekday → Save day. Today, the week strip and the month follow the plan. |
-| **R3 Edit a routine** | R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine | Name, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine, Cancel and Delete routine. Deleting a routine makes its days rest days. |
-| **R4 New routine** | R30 New routine | Name and exercises, then Save routine. Opens from New routine on R01/R03 and from Create routine on H05/W05. |
+| **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines | Your routines with their day tags, then the week plan ("Repeats every week") with one row per day. The title, a short description and search by name stay pinned, and New routine is pinned at the bottom. With no routines, search goes. While searching, the week plan goes. |
+| **R2 Week plan** | R10 Week plan day | A weekday on R01 opens R10, a sheet to pick the routine or Rest day → Save day. Today, the week strip and the month follow the plan. |
+| **R3 Edit a routine** | R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine | Name, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine and Delete routine. R20 is a page, and R21 opens as a page from it. Deleting a routine makes its days rest days. |
+| **R4 New routine** | R30 New routine | A page with name and exercises, then Save routine. Opens from New routine on R01/R03 and from Create routine on H05/W05. |
 
 ### E · Exercises
 
 | Row | Screens | What happens |
 |---|---|---|
-| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title, the Groups link (→ E30), search, Create exercise and the chips stay pinned, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." and Create exercise. |
+| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title and its description, search and the chips stay pinned, with Groups (→ E30) as a link chip before All, and New exercise is pinned at the bottom,, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." |
 | **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
-| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | Name, group and "Also works", then Save exercise and Cancel. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20 as a sheet, and the trash icon opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
-| **E4 Groups** | E31 Loading, E30 Groups, E35 Group, E33 Rename, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title and description stay pinned, with New group as a + button beside the title. A row opens E35: the exercises in the group and those that also work it, each opening its exercise, with Rename and Delete in the header; only an empty group can be deleted. |
+| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | A page with name, group and "Also works", then Save exercise. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20, and the trash icon opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
+| **E4 Groups** | E31 Loading, E30 Groups, E36 No groups, E35 Group, E33 Edit group, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title, its short description and search stay pinned, New group is pinned at the bottom, and the sorting hint sits below the list. While searching, the groups can't be dragged and New group starts from what was typed. New group and Edit group are pages. A row opens E35: the exercises in the group and those that also work it, which only show and open nothing, with Edit and Delete in the header; only an empty group can be deleted. |
 
 ---
 

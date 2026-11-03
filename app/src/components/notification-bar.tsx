@@ -6,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,24 +15,19 @@ import { AlertIcon, CheckIcon } from './icons';
 import {
   dismissNotification,
   useNotification,
-  useNotificationInset,
   useSheetOpen,
 } from './notifications';
-import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
 
-/** Shows the latest notification above whatever is at the bottom of the screen. A sheet passes its height to show those that stay with it above itself. */
-export function NotificationBar({ above }: { above?: number }) {
+/** Shows the latest notification at the top of the screen. A sheet shows those that stay with it itself. */
+export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
   const { colors, motion, radius, size, space, text } = useTheme();
   const insets = useSafeAreaInsets();
-  const window = useWindowDimensions();
   const reduceMotion = useReduceMotion();
   const notification = useNotification();
-  const actionBoxHeight = useNotificationInset();
   const sheetOpen = useSheetOpen();
-  const keyboardHeight = useKeyboardHeight();
   const [progress] = useState(() => new Animated.Value(0));
-  // It stays on the screen after it is dismissed, until it has gone down.
+  // It stays on the screen after it is dismissed, until it has gone up.
   const [shown, setShown] = useState(notification);
   if (notification !== null && notification !== shown) {
     setShown(notification);
@@ -81,27 +75,14 @@ export function NotificationBar({ above }: { above?: number }) {
     };
   }, [motion, notification]);
 
-  // A failure or an Undo keeps its sheet open, so it shows above the sheet, which nothing outside can do.
-  // Any other success comes as the sheet closes, so it starts in its usual place and doesn't move.
+  // A failure or an Undo keeps its sheet open, so it shows inside the sheet's window, over what nothing outside can cover.
+  // Any other success comes as the sheet closes, so it stays outside and doesn't start over.
   const staysWithSheet =
     shown?.kind === 'failure' || shown?.action !== undefined;
-  const belongsHere =
-    above === undefined ? !sheetOpen || !staysWithSheet : staysWithSheet;
+  const belongsHere = inSheet ? staysWithSheet : !sheetOpen || !staysWithSheet;
   if (shown === null || !belongsHere) {
     return null;
   }
-
-  const { tabBar } = size;
-  const tabBarHeight =
-    tabBar.paddingTop +
-    size.tabItem +
-    Math.max(insets.bottom, tabBar.paddingBottomMin);
-  const cleared =
-    above !== undefined
-      ? keyboardHeight + above
-      : keyboardHeight > 0
-        ? keyboardHeight
-        : (actionBoxHeight ?? tabBarHeight);
 
   return (
     <Animated.View
@@ -111,17 +92,13 @@ export function NotificationBar({ above }: { above?: number }) {
         {
           left: size.sidePadding,
           right: size.sidePadding,
-          // A sheet at full height leaves no room above it, so the bar stays on the screen.
-          bottom: Math.min(
-            cleared + space.md,
-            window.height - insets.top - size.notificationMin - space.md,
-          ),
+          top: insets.top + space.sm,
           opacity: progress,
           transform: [
             {
               translateY: progress.interpolate({
                 inputRange: [0, 1],
-                outputRange: [size.notificationMin, 0],
+                outputRange: [-size.notificationMin, 0],
               }),
             },
           ],

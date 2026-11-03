@@ -146,15 +146,7 @@ test('the actions wait behind the keyboard', async () => {
   });
 });
 
-/** The bar a sheet shows has moved above the sheet's height. The app's own hasn't. */
-function barBottom() {
-  const bar = screen.getByTestId('notification-bar');
-  const style = bar.props.style as { bottom?: number };
-
-  return style.bottom;
-}
-
-test('a failure shows once, above the sheet', async () => {
+test('a failure shows once, over the sheet', async () => {
   await renderSheet();
   await measure();
 
@@ -165,10 +157,9 @@ test('a failure shows once, above the sheet', async () => {
   expect(screen.getByRole('alert')).toHaveTextContent(
     "Couldn't save the group. Try again.",
   );
-  expect(barBottom()).toBeGreaterThan(200);
 });
 
-test('a success shows once, in its usual place', async () => {
+test('a success shows once', async () => {
   await renderSheet();
   await measure();
 
@@ -177,7 +168,6 @@ test('a success shows once, in its usual place', async () => {
   });
 
   expect(screen.getByRole('alert')).toHaveTextContent('Pecs saved.');
-  expect(barBottom()).toBe(80);
 });
 
 test('a failure goes when its sheet closes', async () => {

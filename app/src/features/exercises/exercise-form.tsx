@@ -7,9 +7,10 @@ import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { FormError } from '@/components/form-error';
-import { Sheet } from '@/components/sheet';
+import { FormPage } from '@/components/form-page';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
+import { useLeaveGuard } from '@/components/use-leave-guard';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -17,42 +18,34 @@ import { exerciseSchema, type ExerciseValues } from './exercise-schema';
 import { ChipsSkeleton } from './exercises-skeleton';
 import { useGroups } from './use-groups';
 
-interface ExerciseFormSheetProps {
-  visible: boolean;
+interface ExerciseFormPageProps {
+  /** The screen its back link returns to. */
+  back: string;
   title: string;
   subtitle: string;
   initialValues: ExerciseValues;
   saving: boolean;
   /** Saves the values. A failure it throws shows on the form. */
   onSave: (values: ExerciseValues) => Promise<unknown>;
-  onClose: () => void;
 }
 
-/** A sheet with the fields of an exercise, Save exercise and Cancel. */
-export function ExerciseFormSheet({
-  visible,
-  title,
-  subtitle,
-  initialValues,
-  saving,
-  onSave,
-  onClose,
-}: ExerciseFormSheetProps) {
-  const { colors, size, space, text } = useTheme();
-  const groups = useGroups();
-  const { control, handleSubmit, setError, setValue, formState } = useForm({
+function useExerciseForm(
+  initialValues: ExerciseValues,
+  onSave: (values: ExerciseValues) => Promise<unknown>,
+) {
+  const form = useForm({
     resolver: zodResolver(exerciseSchema),
     defaultValues: initialValues,
   });
-  const { errors } = formState;
-  const groupId = useWatch({ control, name: 'groupId' });
-  const alsoWorksGroupIds = useWatch({ control, name: 'alsoWorksGroupIds' });
+  const guard = useLeaveGuard(form.formState.isDirty);
 
-  const submit = handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async (values) => {
     dismissNotification();
+    guard.allow();
     try {
       await onSave(values);
     } catch (error) {
+      guard.block();
       if (
         error instanceof ApiProblemError &&
         error.problem.code === 'exercise.limit_reached'
@@ -65,7 +58,7 @@ export function ExerciseFormSheet({
         'exercise.name_taken': 'name',
       });
       if (formErrors.fields.name !== undefined) {
-        setError('name', { message: formErrors.fields.name });
+        form.setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
         notifyFailure("Couldn't save the exercise. Try again.");
@@ -73,13 +66,30 @@ export function ExerciseFormSheet({
     }
   });
 
+  return { form, submit, guard };
+}
+
+type ExerciseForm = ReturnType<typeof useExerciseForm>['form'];
+
+function ExerciseFields({ form }: { form: ExerciseForm }) {
+  const { colors, size, space, text } = useTheme();
+  const groups = useGroups();
+  const { control, setValue, formState } = form;
+  const { errors } = formState;
+  const groupId = useWatch({ control, name: 'groupId' });
+  const alsoWorksGroupIds = useWatch({ control, name: 'alsoWorksGroupIds' });
+
   function pickGroup(id: string) {
     dismissNotification();
-    setValue('groupId', id, { shouldValidate: errors.groupId !== undefined });
+    setValue('groupId', id, {
+      shouldDirty: true,
+      shouldValidate: errors.groupId !== undefined,
+    });
     // An exercise can't also work the group it belongs to.
     setValue(
       'alsoWorksGroupIds',
       alsoWorksGroupIds.filter((alsoWorksId) => alsoWorksId !== id),
+      { shouldDirty: true },
     );
   }
 
@@ -90,6 +100,7 @@ export function ExerciseFormSheet({
       alsoWorksGroupIds.includes(id)
         ? alsoWorksGroupIds.filter((alsoWorksId) => alsoWorksId !== id)
         : [...alsoWorksGroupIds, id],
+      { shouldDirty: true },
     );
   }
 
@@ -110,106 +121,116 @@ export function ExerciseFormSheet({
   }
 
   return (
-    <Sheet
-      visible={visible}
-      title={title}
-      message={subtitle}
-      onClose={onClose}
-      body={
-        <View style={{ gap: space.xl }}>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field }) => (
-              <TextField
-                ref={field.ref}
-                label="Name"
-                placeholder="Cable lateral raise"
-                autoCapitalize="sentences"
-                returnKeyType="done"
-                value={field.value}
-                onChangeText={(value) => {
-                  dismissNotification();
-                  field.onChange(value);
-                }}
-                onBlur={field.onBlur}
-                error={errors.name?.message}
-              />
-            )}
+    <View style={{ gap: space.xl }}>
+      <Controller
+        control={control}
+        name="name"
+        render={({ field }) => (
+          <TextField
+            ref={field.ref}
+            label="Name"
+            autoCapitalize="sentences"
+            returnKeyType="done"
+            value={field.value}
+            onChangeText={(value) => {
+              dismissNotification();
+              field.onChange(value);
+            }}
+            onBlur={field.onBlur}
+            error={errors.name?.message}
           />
+        )}
+      />
 
-          {groups.isError ? (
-            <View style={styles.groupsFailed}>
-              <FormError message="Couldn't load your groups." />
-              <TextLink
-                label="Try again"
+      {groups.isError ? (
+        <View style={styles.groupsFailed}>
+          <FormError message="Couldn't load your groups." />
+          <TextLink
+            label="Try again"
+            onPress={() => {
+              void groups.refetch();
+            }}
+          />
+        </View>
+      ) : (
+        <>
+          <View style={{ gap: space.sm }}>
+            <Text style={text.eyebrow}>Group</Text>
+            {renderGroups((group) => (
+              <Chip
+                key={group.id}
+                label={group.name}
+                selected={groupId === group.id}
                 onPress={() => {
-                  void groups.refetch();
+                  pickGroup(group.id);
                 }}
               />
-            </View>
-          ) : (
-            <>
-              <View style={{ gap: space.sm }}>
-                <Text style={text.eyebrow}>Group</Text>
-                {renderGroups((group) => (
+            ))}
+            {errors.groupId !== undefined && (
+              <Text style={[text.meta, { color: colors.danger }]}>
+                {errors.groupId.message}
+              </Text>
+            )}
+          </View>
+
+          {/* With one group, there is nothing else it can also work. */}
+          {groups.data?.length !== 1 && (
+            <View style={{ gap: space.sm }}>
+              <Text style={text.eyebrow}>
+                Also works
+                <Text style={[text.meta, styles.optional]}> · optional</Text>
+              </Text>
+              {renderGroups((group) =>
+                group.id === groupId ? null : (
                   <Chip
                     key={group.id}
-                    label={group.name}
-                    selected={groupId === group.id}
+                    label={`${group.name}, also works`}
+                    text={group.name}
+                    selected={alsoWorksGroupIds.includes(group.id)}
                     onPress={() => {
-                      pickGroup(group.id);
+                      toggleAlsoWorks(group.id);
                     }}
                   />
-                ))}
-                <Text
-                  style={[
-                    text.meta,
-                    errors.groupId !== undefined && { color: colors.danger },
-                  ]}
-                >
-                  {errors.groupId?.message ??
-                    'Where it shows in your exercise list.'}
-                </Text>
-              </View>
-
-              <View style={{ gap: space.sm }}>
-                <Text style={text.eyebrow}>
-                  Also works
-                  <Text style={[text.meta, styles.optional]}> · optional</Text>
-                </Text>
-                {renderGroups((group) =>
-                  group.id === groupId ? null : (
-                    <Chip
-                      key={group.id}
-                      label={`${group.name}, also works`}
-                      text={group.name}
-                      selected={alsoWorksGroupIds.includes(group.id)}
-                      onPress={() => {
-                        toggleAlsoWorks(group.id);
-                      }}
-                    />
-                  ),
-                )}
-              </View>
-            </>
+                ),
+              )}
+            </View>
           )}
-        </View>
-      }
-    >
-      <Button
-        label="Save exercise"
-        waitingLabel="Saving exercise"
-        waiting={saving}
-        onPress={() => void submit()}
-      />
-      <Button
-        label="Cancel"
-        variant="secondary"
-        dimmed={saving}
-        onPress={onClose}
-      />
-    </Sheet>
+        </>
+      )}
+    </View>
+  );
+}
+
+/** A page with the fields of an exercise and Save exercise. */
+export function ExerciseFormPage({
+  back,
+  title,
+  subtitle,
+  initialValues,
+  saving,
+  onSave,
+}: ExerciseFormPageProps) {
+  const { form, submit, guard } = useExerciseForm(initialValues, onSave);
+
+  return (
+    <>
+      <FormPage
+        back={back}
+        title={title}
+        subtitle={subtitle}
+        action={
+          <Button
+            label="Save exercise"
+            waitingLabel="Saving exercise"
+            waiting={saving}
+            onPress={() => void submit()}
+          />
+        }
+      >
+        <ExerciseFields form={form} />
+      </FormPage>
+      {guard.sheet}
+    </>
   );
 }
 

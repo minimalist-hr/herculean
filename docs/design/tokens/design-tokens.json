@@ -17,13 +17,14 @@
       }
     },
     "status": {
-      "dark":  { "success": "#4ADE80", "skipped": "#FB923C", "danger": "#F87171", "onDanger": "#050506", "warn": "#F5B83D" },
-      "light": { "success": "#166534", "skipped": "#9A3412", "danger": "#DC2626", "onDanger": "#FFFFFF", "warn": "#B45309" }
+      "dark":  { "success": "#4ADE80", "skipped": "#FB923C", "danger": "#F87171", "dangerFill": "#DC2626", "onDanger": "#FFFFFF", "warn": "#F5B83D" },
+      "light": { "success": "#166534", "skipped": "#9A3412", "danger": "#DC2626", "dangerFill": "#DC2626", "onDanger": "#FFFFFF", "warn": "#B45309" }
     },
     "meaning": {
       "success": "Completed / Done",
       "skipped": "Skipped",
-      "danger": "Missed, delete and remove actions",
+      "danger": "Missed, errors",
+      "dangerFill": "Danger buttons and trash icons",
       "primaryText": "In progress, links, accent text",
       "warn": "Warning icon only (L30, L31)"
     },

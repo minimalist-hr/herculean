@@ -30,7 +30,10 @@ export function BackLink({
       ]}
     >
       <ChevronLeftIcon color={colors.muted} size={16} />
-      <Text style={[text.secondaryButton, { color: colors.muted }]}>
+      <Text
+        numberOfLines={1}
+        style={[text.secondaryButton, styles.label, { color: colors.muted }]}
+      >
         {label}
       </Text>
     </Pressable>
@@ -42,5 +45,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
+  label: {
+    flexShrink: 1,
   },
 });

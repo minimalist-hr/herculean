@@ -3,6 +3,12 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
+import AddExerciseRoute from '@/app/routine/new/add-exercise';
+import NewRoutineLayout from '@/app/routine/new/_layout';
+import NewRoutineRoute from '@/app/routine/new/index';
+import NewExerciseForRoutineRoute from '@/app/routine/new/new-exercise';
+import TargetsRoute from '@/app/routine/new/targets';
+
 import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
@@ -57,14 +63,14 @@ interface Saved {
 let saved: Saved | undefined;
 
 /** Answers reads, and answers saving a routine with this. */
-function answer(save?: () => Response) {
+function answer(save?: () => Response, groups: unknown[] = [chest, legs]) {
   saved = undefined;
   let exercises = [row('squat', 'Squat'), row('press', 'Bench press', chest)];
 
   mockFetch.mockImplementation(async (request) => {
     const url = new URL(request.url);
     if (url.pathname === '/api/v1/groups') {
-      return Response.json([chest, legs]);
+      return Response.json(groups);
     }
     if (url.pathname === '/api/v1/users/me') {
       return Response.json({
@@ -129,6 +135,11 @@ async function openNew() {
       _layout: Layout,
       index: RoutinesScreen,
       'routine/[id]': () => <PlaceholderScreen title="Routine screen" />,
+      'routine/new/_layout': NewRoutineLayout,
+      'routine/new/index': NewRoutineRoute,
+      'routine/new/add-exercise': AddExerciseRoute,
+      'routine/new/new-exercise': NewExerciseForRoutineRoute,
+      'routine/new/targets': TargetsRoute,
     },
     { initialUrl: '/' },
   );
@@ -136,22 +147,21 @@ async function openNew() {
   await screen.findByRole('header', { name: 'New routine' });
 }
 
-/** A sheet opens over the screen, so its button comes after any with the same name behind it. */
+/** A page or sheet opens over the screen, so its button comes after any with the same name behind it. */
 function pressLast(name: string) {
   const buttons = screen.getAllByRole('button', { name });
 
   return fireEvent.press(buttons[buttons.length - 1]);
 }
 
-/** The + comes before any Add exercise button on a picker that hasn't finished closing. */
-async function openPicker() {
+async function openAddExercise() {
   await fireEvent.press(
     screen.getAllByRole('button', { name: 'Add exercise' })[0],
   );
   await screen.findByRole('header', { name: 'Add exercise' });
 }
 
-async function pickerClosed() {
+async function addExerciseClosed() {
   await waitFor(() => {
     expect(screen.queryByRole('header', { name: 'Add exercise' })).toBeNull();
   });
@@ -164,10 +174,10 @@ async function editorClosed() {
 }
 
 async function addSquat() {
-  await openPicker();
+  await openAddExercise();
   await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
   await pressLast('Add exercise');
-  await pickerClosed();
+  await addExerciseClosed();
   await screen.findByText('Squat');
 }
 
@@ -190,6 +200,13 @@ test('starts empty and says what to do', async () => {
     ),
   ).toBeOnTheScreen();
   expect(screen.getByText('No exercises yet')).toBeOnTheScreen();
+});
+
+test('the exercises label always says how many', async () => {
+  answer();
+  await openNew();
+
+  expect(screen.getByText('0 exercises · 0 sets')).toBeOnTheScreen();
 });
 
 test('a routine with no name or exercises is stopped before anything is sent', async () => {
@@ -231,7 +248,7 @@ test('picked exercises come back at 3 × 8–10, and saving sends them', async (
 test('the button names how many are picked, and says when none are', async () => {
   answer();
   await openNew();
-  await openPicker();
+  await openAddExercise();
 
   await pressLast('Add exercise');
   expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -250,7 +267,7 @@ test('an exercise already in the routine is not offered again', async () => {
   await openNew();
   await addSquat();
 
-  await openPicker();
+  await openAddExercise();
 
   expect(
     await screen.findByRole('button', { name: 'Bench press' }),
@@ -258,10 +275,10 @@ test('an exercise already in the routine is not offered again', async () => {
   expect(screen.queryByRole('button', { name: 'Squat' })).toBeNull();
 });
 
-test('a search with no results offers to create it, and it comes back selected and new', async () => {
+test('a new exercise from a search comes back selected and new, and its description shows', async () => {
   answer();
   await openNew();
-  await openPicker();
+  await openAddExercise();
   await screen.findByRole('button', { name: 'Squat' });
 
   await fireEvent.changeText(
@@ -272,8 +289,14 @@ test('a search with no results offers to create it, and it comes back selected a
     await screen.findByText('No matches for “Hack squat”'),
   ).toBeOnTheScreen();
 
-  await pressLast('Create exercise');
-  await screen.findByRole('header', { name: 'Create exercise' });
+  await pressLast('New exercise');
+  await screen.findByRole('header', { name: 'New exercise' });
+  expect(
+    screen.getByText(
+      'It’s added to your exercise list and can be used in any workout.',
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.getByLabelText('Name')).toHaveDisplayValue('Hack squat');
   await pressLast('Legs');
   await fireEvent.press(screen.getByRole('button', { name: 'Save exercise' }));
 
@@ -283,31 +306,34 @@ test('a search with no results offers to create it, and it comes back selected a
   ).toBeOnTheScreen();
 });
 
-test('a failed read in the picker says so', async () => {
+test('a failed read on Add exercise says so', async () => {
   answer();
   await openNew();
   mockFetch.mockRejectedValue(new TypeError('Network request failed'));
 
-  await openPicker();
+  await openAddExercise();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
     "Couldn't load your exercises.",
   );
 });
 
-test('Cancel in the picker adds nothing', async () => {
+test('leaving Add exercise with picks asks first, and adds nothing', async () => {
   answer();
   await openNew();
-  await openPicker();
+  await openAddExercise();
   await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
 
-  await pressLast('Cancel');
+  await fireEvent.press(screen.getByRole('link', { name: 'New routine' }));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Discard changes' }),
+  );
 
-  await pickerClosed();
+  await addExerciseClosed();
   expect(screen.getByText('No exercises yet')).toBeOnTheScreen();
 });
 
-test('targets change on a sheet, and the low end never passes the high end', async () => {
+test('targets change on a page, and the low end never passes the high end', async () => {
   answer();
   await openNew();
   await addSquat();
@@ -368,11 +394,11 @@ test('removing asks first, and Undo puts it back', async () => {
 test('moving an exercise changes the order it saves in', async () => {
   answer();
   await openNew();
-  await openPicker();
+  await openAddExercise();
   await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Bench press' }));
   await pressLast('Add exercises');
-  await pickerClosed();
+  await addExerciseClosed();
 
   await fireEvent(
     await screen.findByRole('button', { name: 'Move Bench press' }),
@@ -433,12 +459,69 @@ test('the limit shows the API message, and other failures a general one', async 
   );
 });
 
-test('Cancel leaves without saving', async () => {
+test('a typed name or an added exercise asks before leaving', async () => {
   answer();
   await openNew();
+  await addSquat();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+  await fireEvent.press(screen.getByRole('link', { name: 'Routines' }));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Discard changes' }),
+  );
 
   await editorClosed();
   expect(saved).toBeUndefined();
+});
+
+test('changed targets ask before leaving, and unchanged ones do not', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+  await fireEvent.press(screen.getByRole('button', { name: /^Squat, 3/ }));
+  await screen.findByRole('header', { name: 'Squat' });
+  await fireEvent.press(screen.getByRole('button', { name: 'One set more' }));
+
+  await fireEvent.press(screen.getByRole('link', { name: 'New routine' }));
+
+  expect(
+    await screen.findByRole('header', { name: 'Discard changes?' }),
+  ).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Discard changes' }),
+  );
+  await screen.findByText('3 × 8–10');
+
+  await fireEvent.press(screen.getByRole('button', { name: /^Squat, 3/ }));
+  await screen.findByRole('header', { name: 'Squat' });
+  await fireEvent.press(screen.getByRole('link', { name: 'New routine' }));
+
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'Squat' })).toBeNull();
+  });
+});
+
+test('the back link with nothing entered leaves without asking', async () => {
+  answer();
+  await openNew();
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Routines' }));
+
+  await editorClosed();
+  expect(saved).toBeUndefined();
+});
+
+test('with no groups, New exercise on Add exercise is muted and says why', async () => {
+  answer(undefined, []);
+  await openNew();
+  await openAddExercise();
+  await screen.findByRole('button', { name: 'Squat' });
+
+  await pressLast('New exercise');
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Create a group first.',
+  );
+  expect(
+    screen.getByRole('header', { name: 'Add exercise' }),
+  ).toBeOnTheScreen();
 });

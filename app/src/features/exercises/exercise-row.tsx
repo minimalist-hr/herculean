@@ -10,7 +10,8 @@ interface ExerciseRowProps {
   units: components['schemas']['Units'];
   first: boolean;
   last: boolean;
-  onPress: () => void;
+  /** Opens the exercise. Without it, the row only shows it. */
+  onPress?: () => void;
 }
 
 /** A row of a group's card. The first and last rows close the card. */
@@ -26,7 +27,8 @@ export function ExerciseRow({
 
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={onPress === undefined ? undefined : 'button'}
+      disabled={onPress === undefined}
       onPress={onPress}
       style={[
         styles.row,
@@ -55,7 +57,9 @@ export function ExerciseRow({
             : `${formatSet(bestSet.weightKg, bestSet.reps, units)} · ${formatShortDate(bestSet.date)}`}
         </Text>
       </View>
-      <ChevronRightIcon color={colors.muted} size={16} />
+      {onPress !== undefined && (
+        <ChevronRightIcon color={colors.muted} size={16} />
+      )}
     </Pressable>
   );
 }

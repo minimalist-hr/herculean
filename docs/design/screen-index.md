@@ -94,7 +94,7 @@ Flow map: [open](areas/L-Logging.png)
 | L20 | Logging › Add exercise | L2 Exercises | 390×844 | [png](screens/L20-Logging-Add-Exercise.png) · [html](html/L20-Logging-Add-Exercise.html) · [source](source/L20-Logging-Add-Exercise.dc.html) |
 | L24 | Logging › Add exercise · loading | L2 Exercises | 390×844 | [png](screens/L24-Logging-Add-Exercise-Loading.png) · [html](html/L24-Logging-Add-Exercise-Loading.html) · [source](source/L24-Logging-Add-Exercise-Loading.dc.html) |
 | L21 | Logging › Add exercise · no matches | L2 Exercises | 390×844 | [png](screens/L21-Logging-Add-Exercise-No-Matches.png) · [html](html/L21-Logging-Add-Exercise-No-Matches.html) · [source](source/L21-Logging-Add-Exercise-No-Matches.dc.html) |
-| L22 | Logging › Create exercise | L2 Exercises | 390×844 | [png](screens/L22-Logging-Create-Exercise.png) · [html](html/L22-Logging-Create-Exercise.html) · [source](source/L22-Logging-Create-Exercise.dc.html) |
+| L22 | Logging › New exercise | L2 Exercises | 390×844 | [png](screens/L22-Logging-New-Exercise.png) · [html](html/L22-Logging-New-Exercise.html) · [source](source/L22-Logging-New-Exercise.dc.html) |
 | L23 | Logging › Add exercise · new one selected | L2 Exercises | 390×844 | [png](screens/L23-Logging-Add-Exercise-New-Selected.png) · [html](html/L23-Logging-Add-Exercise-New-Selected.html) · [source](source/L23-Logging-Add-Exercise-New-Selected.dc.html) |
 | L30 | Logging › Finish workout | L3 Finish | 390×844 | [png](screens/L30-Logging-Finish.png) · [html](html/L30-Logging-Finish.html) · [source](source/L30-Logging-Finish.dc.html) |
 | L02 | Logging · no exercises left | L3 Finish | 390×844 | [png](screens/L02-Logging-No-Exercises.png) · [html](html/L02-Logging-No-Exercises.html) · [source](source/L02-Logging-No-Exercises.dc.html) |
@@ -106,12 +106,12 @@ Flow map: [open](areas/R-Routines.png)
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
-| R02 | Routines · loading, full scroll | R1 Routines tab | 390×1110 | [png](screens/R02-Routines-Loading.png) · [html](html/R02-Routines-Loading.html) · [source](source/R02-Routines-Loading.dc.html) |
-| R01 | Routines · full scroll | R1 Routines tab | 390×1110 | [png](screens/R01-Routines.png) · [html](html/R01-Routines.html) · [source](source/R01-Routines.dc.html) |
-| R03 | Routines · no routines yet, full scroll | R1 Routines tab | 390×1110 | [png](screens/R03-Routines-Empty.png) · [html](html/R03-Routines-Empty.html) · [source](source/R03-Routines-Empty.dc.html) |
+| R02 | Routines · loading, full scroll | R1 Routines tab | 390×1210 | [png](screens/R02-Routines-Loading.png) · [html](html/R02-Routines-Loading.html) · [source](source/R02-Routines-Loading.dc.html) |
+| R01 | Routines · full scroll | R1 Routines tab | 390×1210 | [png](screens/R01-Routines.png) · [html](html/R01-Routines.html) · [source](source/R01-Routines.dc.html) |
+| R03 | Routines · no routines yet, full scroll | R1 Routines tab | 390×900 | [png](screens/R03-Routines-Empty.png) · [html](html/R03-Routines-Empty.html) · [source](source/R03-Routines-Empty.dc.html) |
 | R10 | Routines › Week plan day · sheet | R2 Week plan | 390×844 | [png](screens/R10-Routines-Pick-Day.png) · [html](html/R10-Routines-Pick-Day.html) · [source](source/R10-Routines-Pick-Day.dc.html) |
 | R20 | Routines › Edit routine · full scroll | R3 Edit a routine | 390×1000 | [png](screens/R20-Routines-Edit.png) · [html](html/R20-Routines-Edit.html) · [source](source/R20-Routines-Edit.dc.html) |
-| R21 | Routines › Edit routine › Sets and reps · sheet | R3 Edit a routine | 390×844 | [png](screens/R21-Routines-Edit-Targets.png) · [html](html/R21-Routines-Edit-Targets.html) · [source](source/R21-Routines-Edit-Targets.dc.html) |
+| R21 | Routines › Edit routine › Sets and reps | R3 Edit a routine | 390×844 | [png](screens/R21-Routines-Edit-Targets.png) · [html](html/R21-Routines-Edit-Targets.html) · [source](source/R21-Routines-Edit-Targets.dc.html) |
 | R23 | Routines › Edit routine › Remove exercise · confirm | R3 Edit a routine | 390×844 | [png](screens/R23-Routines-Remove-Exercise-Confirm.png) · [html](html/R23-Routines-Remove-Exercise-Confirm.html) · [source](source/R23-Routines-Remove-Exercise-Confirm.dc.html) |
 | R22 | Routines › Delete routine · confirm | R3 Edit a routine | 390×844 | [png](screens/R22-Routines-Delete-Confirm.png) · [html](html/R22-Routines-Delete-Confirm.html) · [source](source/R22-Routines-Delete-Confirm.dc.html) |
 | R30 | Routines › New routine | R4 New routine | 390×844 | [png](screens/R30-Routines-New.png) · [html](html/R30-Routines-New.html) · [source](source/R30-Routines-New.dc.html) |
@@ -123,7 +123,7 @@ Flow map: [open](areas/E-Exercises.png)
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | E02 | Exercises · loading | E1 Exercises tab | 390×844 | [png](screens/E02-Exercises-Loading.png) · [html](html/E02-Exercises-Loading.html) · [source](source/E02-Exercises-Loading.dc.html) |
-| E01 | Exercises · full scroll | E1 Exercises tab | 390×2538 | [png](screens/E01-Exercises.png) · [html](html/E01-Exercises.html) · [source](source/E01-Exercises.dc.html) |
+| E01 | Exercises · full scroll | E1 Exercises tab | 390×2588 | [png](screens/E01-Exercises.png) · [html](html/E01-Exercises.html) · [source](source/E01-Exercises.dc.html) |
 | E03 | Exercises · no search matches | E1 Exercises tab | 390×844 | [png](screens/E03-Exercises-No-Matches.png) · [html](html/E03-Exercises-No-Matches.html) · [source](source/E03-Exercises-No-Matches.dc.html) |
 | E04 | Exercises · no exercises yet | E1 Exercises tab | 390×844 | [png](screens/E04-Exercises-Empty.png) · [html](html/E04-Exercises-Empty.html) · [source](source/E04-Exercises-Empty.dc.html) |
 | E10 | Exercises › Exercise · full scroll | E2 Exercise details | 390×1600 | [png](screens/E10-Exercises-Detail.png) · [html](html/E10-Exercises-Detail.html) · [source](source/E10-Exercises-Detail.dc.html) |
@@ -132,7 +132,8 @@ Flow map: [open](areas/E-Exercises.png)
 | E21 | Exercises › Delete exercise · confirm | E3 Edit or delete | 390×844 | [png](screens/E21-Exercises-Delete-Confirm.png) · [html](html/E21-Exercises-Delete-Confirm.html) · [source](source/E21-Exercises-Delete-Confirm.dc.html) |
 | E31 | Exercises › Groups · loading | E4 Groups | 390×844 | [png](screens/E31-Exercises-Groups-Loading.png) · [html](html/E31-Exercises-Groups-Loading.html) · [source](source/E31-Exercises-Groups-Loading.dc.html) |
 | E30 | Exercises › Groups | E4 Groups | 390×844 | [png](screens/E30-Exercises-Groups.png) · [html](html/E30-Exercises-Groups.html) · [source](source/E30-Exercises-Groups.dc.html) |
-| E33 | Exercises › Groups › Rename group · sheet | E4 Groups | 390×844 | [png](screens/E33-Exercises-Groups-Rename.png) · [html](html/E33-Exercises-Groups-Rename.html) · [source](source/E33-Exercises-Groups-Rename.dc.html) |
-| E32 | Exercises › Groups › New group · sheet | E4 Groups | 390×844 | [png](screens/E32-Exercises-Groups-New.png) · [html](html/E32-Exercises-Groups-New.html) · [source](source/E32-Exercises-Groups-New.dc.html) |
+| E36 | Exercises › Groups · no groups yet | E4 Groups | 390×844 | [png](screens/E36-Exercises-Groups-Empty.png) · [html](html/E36-Exercises-Groups-Empty.html) · [source](source/E36-Exercises-Groups-Empty.dc.html) |
+| E33 | Exercises › Groups › Edit group | E4 Groups | 390×844 | [png](screens/E33-Exercises-Groups-Edit.png) · [html](html/E33-Exercises-Groups-Edit.html) · [source](source/E33-Exercises-Groups-Edit.dc.html) |
+| E32 | Exercises › Groups › New group | E4 Groups | 390×844 | [png](screens/E32-Exercises-Groups-New.png) · [html](html/E32-Exercises-Groups-New.html) · [source](source/E32-Exercises-Groups-New.dc.html) |
 | E34 | Exercises › Groups › Delete group · confirm | E4 Groups | 390×844 | [png](screens/E34-Exercises-Groups-Delete-Confirm.png) · [html](html/E34-Exercises-Groups-Delete-Confirm.html) · [source](source/E34-Exercises-Groups-Delete-Confirm.dc.html) |
 | E35 | Exercises › Groups › Group | E4 Groups | 390×844 | [png](screens/E35-Exercises-Groups-Group.png) · [html](html/E35-Exercises-Groups-Group.html) · [source](source/E35-Exercises-Groups-Group.dc.html) |

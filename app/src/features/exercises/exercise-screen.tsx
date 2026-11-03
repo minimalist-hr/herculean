@@ -11,23 +11,13 @@ import { notifySuccess } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
-import { EditExerciseSheet } from './edit-exercise-sheet';
 import { DetailsSkeleton } from './exercises-skeleton';
 import { NoSessionsCard } from './no-sessions-card';
 import { useExercise } from './use-exercise';
 
 type Exercise = components['schemas']['ExerciseDetailsResponse'];
 
-interface ExerciseScreenProps {
-  id: string;
-  /** The screen its back link returns to, when that isn't the exercise list. */
-  back?: string;
-}
-
-export function ExerciseScreen({
-  id,
-  back = 'Exercises',
-}: ExerciseScreenProps) {
+export function ExerciseScreen({ id }: { id: string }) {
   const { colors, size } = useTheme();
   const router = useRouter();
   const exercise = useExercise(id);
@@ -53,8 +43,6 @@ export function ExerciseScreen({
 
   return (
     <ScrollView
-      // The edit sheet opens inside this list, so a tap on its buttons must not just close the keyboard.
-      keyboardShouldPersistTaps="handled"
       style={{ backgroundColor: colors.bg }}
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
@@ -63,7 +51,7 @@ export function ExerciseScreen({
       }}
     >
       <BackLink
-        label={back}
+        label="Exercises"
         onPress={() => {
           router.back();
         }}
@@ -77,9 +65,6 @@ function Details({ exercise }: { exercise: Exercise }) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [editing, setEditing] = useState(false);
-  // Each edit starts from the exercise's values at that moment.
-  const [editKey, setEditKey] = useState(0);
 
   return (
     <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
@@ -94,8 +79,10 @@ function Details({ exercise }: { exercise: Exercise }) {
           <HeaderIconButton
             label="Edit exercise"
             onPress={() => {
-              setEditKey((key) => key + 1);
-              setEditing(true);
+              router.push({
+                pathname: '/exercise/[id]/edit',
+                params: { id: exercise.id },
+              });
             }}
           >
             <PencilIcon color={colors.text} size={20} />
@@ -106,7 +93,7 @@ function Details({ exercise }: { exercise: Exercise }) {
               setConfirmingDelete(true);
             }}
           >
-            <TrashIcon color={colors.danger} size={20} />
+            <TrashIcon color={colors.dangerFill} size={20} />
           </HeaderIconButton>
         </View>
         <Text style={[text.body, { color: colors.muted }]}>
@@ -136,21 +123,6 @@ function Details({ exercise }: { exercise: Exercise }) {
           </Text>
         </View>
       </View>
-
-      {editKey > 0 && (
-        <EditExerciseSheet
-          key={editKey}
-          visible={editing}
-          exercise={exercise}
-          onSaved={(saved) => {
-            setEditing(false);
-            notifySuccess(`${saved.name} saved.`);
-          }}
-          onClose={() => {
-            setEditing(false);
-          }}
-        />
-      )}
 
       <DeleteExerciseSheet
         exercise={exercise}

@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { BackLink } from '@/components/back-link';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import {
@@ -46,12 +47,20 @@ export function ResetLinkSentScreen() {
         style={styles.screen}
         contentContainerStyle={{
           gap: space.xl,
-          paddingTop: size.topPaddingTab,
+          paddingTop: size.topPaddingSubPage,
           paddingHorizontal: size.sidePadding,
           paddingBottom: space.lg,
         }}
       >
-        <ScreenHeading label="Forgot password?" title="Check your email" />
+        <View style={{ gap: 2 }}>
+          <BackLink
+            label="Sign in"
+            onPress={() => {
+              router.dismissTo('/sign-in');
+            }}
+          />
+          <ScreenHeading title="Check your email" />
+        </View>
 
         <View style={{ gap: space.lg }}>
           <View
@@ -78,13 +87,6 @@ export function ResetLinkSentScreen() {
       </ScrollView>
 
       <BottomActionBox>
-        <Button
-          label="Back to sign in"
-          dimmed={waiting}
-          onPress={() => {
-            router.dismissTo('/sign-in');
-          }}
-        />
         <Button
           label={
             secondsLeft > 0

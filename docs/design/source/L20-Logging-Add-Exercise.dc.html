@@ -16,18 +16,23 @@ button{font-family:inherit}
 </style>
 </helmet>
 <div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
-<div style="display: flex; flex-direction: column; gap: 14px; padding: 48px 16px 12px">
+<div style="display: flex; flex-direction: column; gap: 14px; padding: 40px 16px 12px">
 <div style="display: flex; flex-direction: column; gap: 2px">
+<a href="R30-Routines-New.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; height: 44px; margin-left: -8px; padding: 0 8px; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {{c.muted}}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+New routine
+</a>
 <h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Add exercise</h1>
+<p style="margin: 2px 0 0; font-size: 14px; color: {{c.muted}}">Pick the exercises to add to this routine.</p>
 </div>
 <div style="position: relative">
 <label for="ex-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search exercises</label>
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true" style="position: absolute; left: 12px; top: 13px; color: {{c.muted}}"><path d="M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5L20 20"></path></svg>
 <input id="ex-search" type="search" placeholder="Search exercises" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 12px 0 40px; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; font-family: inherit; font-size: 15px">
 </div>
-<div role="group" aria-label="Group" style="display: flex; flex-wrap: wrap; gap: 6px">
+<div role="group" aria-label="Group" style="display: flex; gap: 6px; overflow: hidden; margin-right: -16px">
 <sc-for list="{{chips}}" as="ch" hint-placeholder-count="7">
-<button aria-pressed="{{ch.on}}" onClick="{{ch.pick}}" style="height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{ch.edge}}; background: {{ch.bg}}; color: {{ch.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{ch.label}}</button>
+<button aria-pressed="{{ch.on}}" onClick="{{ch.pick}}" style="flex: none; height: 36px; padding: 0 12px; border-radius: {{r.pill}}; border: 1px solid {{ch.edge}}; background: {{ch.bg}}; color: {{ch.fg}}; font-size: 13px; font-weight: 600; cursor: pointer">{{ch.label}}</button>
 </sc-for>
 </div>
 </div>
@@ -35,10 +40,10 @@ button{font-family:inherit}
 <sc-for list="{{visible}}" as="g" hint-placeholder-count="2">
 <section style="display: flex; flex-direction: column; gap: 6px">
 <h2 style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: {{c.muted}}">{{g.name}}</h2>
-<div style="display: flex; flex-direction: column; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; overflow: hidden">
+<div style="display: flex; flex-direction: column; gap: 4px">
 <sc-for list="{{g.items}}" as="it" hint-placeholder-count="3">
 <sc-if value="{{it.isPick}}" hint-placeholder-val="{{ true }}">
-<button aria-pressed="{{it.on}}" onClick="{{it.toggle}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 14px; border: none; border-top: 1px solid {{it.sep}}; background: {{it.bg}}; color: {{c.text}}; text-align: left; cursor: pointer">
+<button aria-pressed="{{it.on}}" onClick="{{it.toggle}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 14px; border-radius: {{r.card}}; border: 1px solid {{c.border}}; background: {{c.card}}; color: {{c.text}}; text-align: left; cursor: pointer">
 <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">{{it.name}}</span><span style="font-size: 12px; color: {{c.muted}}">{{it.sub}}</span></span>
 <span aria-hidden="true" style="width: 30px; height: 30px; flex: none; box-sizing: border-box; border-radius: {{r.check}}; border: 1.5px solid {{it.checkEdge}}; background: {{it.checkBg}}; color: {{it.checkIcon}}; display: flex; align-items: center; justify-content: center">
 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="square" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
@@ -52,14 +57,10 @@ button{font-family:inherit}
 <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
 <p style="margin: 24px 0 0; text-align: center; font-size: 14px; color: {{c.muted}}">No exercises in this group yet.</p>
 </sc-if>
-<a href="L22-Logging-Create-Exercise.dc.html" style="align-self: flex-start; height: 44px; padding: 0 4px; border: none; background: transparent; color: {{c.primaryText}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; text-decoration: none">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
-Create exercise
-</a>
+<div style="flex: none; margin-top: 4px; padding-top: 20px; border-top: 1px solid {{c.border}}"><a href="L22-Logging-New-Exercise.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>New exercise</a></div>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 28px; border-top: 1px solid {{c.border}}; background: {{c.card}}">
 <a href="L01-Logging.dc.html" style="height: 48px; border-radius: {{r.ctrl}}; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: {{c.primary}}; color: {{c.onPrimary}}">{{addLabel}}</a>
-<a href="L01-Logging.dc.html" style="height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: {{r.ctrl}}; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.text}}; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase">Cancel</a>
 </div>
 </div>
 </x-dc>
@@ -87,42 +88,42 @@ class Component extends DCLogic {
     const groups = [
       { name: 'Chest', items: [
         { id: 'crossover', name: 'Cable crossover', sub: 'Chest' },
-        { id: 'flatbench', name: 'Flat barbell bench press', sub: 'Chest · triceps' },
-        { id: 'flatdb', name: 'Flat dumbbell bench press', sub: 'Chest · triceps' },
-        { id: 'inclinebench', name: 'Incline dumbbell bench press', sub: 'Chest · triceps' },
-        { id: 'chestpress', name: 'Machine chest press', sub: 'Chest · triceps' },
+        { id: 'flatbench', name: 'Flat barbell bench press', sub: 'Chest' },
+        { id: 'flatdb', name: 'Flat dumbbell bench press', sub: 'Chest' },
+        { id: 'inclinebench', name: 'Incline dumbbell bench press', sub: 'Chest' },
+        { id: 'chestpress', name: 'Machine chest press', sub: 'Chest' },
         { id: 'pecdeck', name: 'Pec deck machine', sub: 'Chest' },
-        { id: 'smithincline', name: 'Smith machine incline bench press', sub: 'Chest · triceps' }
+        { id: 'smithincline', name: 'Smith machine incline bench press', sub: 'Chest' }
       ] },
       { name: 'Back', items: [
-        { id: 'bbrow', name: 'Barbell row', sub: 'Back · biceps' },
-        { id: 'latpulldown', name: 'Lat pulldown', sub: 'Back · biceps' },
+        { id: 'bbrow', name: 'Barbell row', sub: 'Back' },
+        { id: 'latpulldown', name: 'Lat pulldown', sub: 'Back' },
         { id: 'machinerow', name: 'Machine row', sub: 'Back' },
-        { id: 'pullup', name: 'Pull-up', sub: 'Back · biceps' },
+        { id: 'pullup', name: 'Pull-up', sub: 'Back' },
         { id: 'cablerow', name: 'Seated cable row', sub: 'Back' },
         { id: 'tbar', name: 'T-bar row', sub: 'Back' }
       ] },
       { name: 'Shoulders', items: [
-        { id: 'facepull', name: 'Face pull', sub: 'Shoulders · back' },
-        { id: 'machinepress', name: 'Machine shoulder press', sub: 'Shoulders · triceps' },
+        { id: 'facepull', name: 'Face pull', sub: 'Shoulders' },
+        { id: 'machinepress', name: 'Machine shoulder press', sub: 'Shoulders' },
         { id: 'machinelateral', name: 'Machine side lateral raise', sub: 'Shoulders' },
-        { id: 'dbpress', name: 'Seated dumbbell shoulder press', sub: 'Shoulders · triceps' },
+        { id: 'dbpress', name: 'Seated dumbbell shoulder press', sub: 'Shoulders' },
         { id: 'lateral', name: 'Seated side lateral raise', sub: 'Shoulders' },
-        { id: 'smithpress', name: 'Smith machine shoulder press', sub: 'Shoulders · triceps' }
+        { id: 'smithpress', name: 'Smith machine shoulder press', sub: 'Shoulders' }
       ] },
       { name: 'Biceps', items: [
         { id: 'bbcurl', name: 'Barbell curl', sub: 'Biceps' },
         { id: 'ezcurl', name: 'EZ bar bicep curl', sub: 'Biceps' },
         { id: 'preacher', name: 'Preacher curl', sub: 'Biceps' },
         { id: 'inclinecurl', name: 'Seated incline dumbbell curl', sub: 'Biceps' },
-        { id: 'hammer', name: 'Seated incline hammer curl', sub: 'Biceps · forearms' }
+        { id: 'hammer', name: 'Seated incline hammer curl', sub: 'Biceps' }
       ] },
       { name: 'Triceps', items: [
         { id: 'skull', name: 'EZ bar skullcrusher', sub: 'Triceps' },
         { id: 'overhead', name: 'Overhead cable extension', sub: 'Triceps' },
         { id: 'pushdown', name: 'Rope pushdown', sub: 'Triceps' },
         { id: 'straightpush', name: 'Straight bar pushdown', sub: 'Triceps' },
-        { id: 'dip', name: 'Triceps dip', sub: 'Triceps · chest' }
+        { id: 'dip', name: 'Triceps dip', sub: 'Triceps' }
       ] },
       { name: 'Legs', items: [
         { id: 'squat', name: 'Barbell back squat', sub: 'Quads · glutes' },

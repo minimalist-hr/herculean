@@ -4,7 +4,7 @@ import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 
 import { routineKeys } from './query-keys';
-import type { RoutineExerciseDraft } from './routine-editor';
+import type { RoutineExerciseDraft } from './routine-draft';
 
 interface CreateRoutine {
   name: string;

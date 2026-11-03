@@ -40,12 +40,6 @@ export function DeleteExerciseSheet({
           });
         }}
       />
-      <Button
-        label="Cancel"
-        variant="secondary"
-        dimmed={deleteExercise.isPending}
-        onPress={onClose}
-      />
     </Sheet>
   );
 }

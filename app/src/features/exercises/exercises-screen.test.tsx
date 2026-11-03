@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { FlatList } from 'react-native';
 
+import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -42,11 +43,12 @@ function user(units: string) {
 function answer(
   exercises: (query: URLSearchParams) => unknown[],
   units = 'metric',
+  groups: unknown[] = [chest, back],
 ) {
   mockFetch.mockImplementation((request) => {
     const url = new URL(request.url);
     if (url.pathname === '/api/v1/groups') {
-      return Promise.resolve(Response.json([chest, back]));
+      return Promise.resolve(Response.json(groups));
     }
     if (url.pathname === '/api/v1/users/me') {
       return Promise.resolve(Response.json(user(units)));
@@ -73,6 +75,7 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -85,6 +88,7 @@ async function renderExercises() {
       index: ExercisesScreen,
       'exercises/groups': () => <PlaceholderScreen title="Groups screen" />,
       'exercises/[id]': () => <PlaceholderScreen title="Exercise screen" />,
+      'exercise/new': () => <PlaceholderScreen title="New exercise page" />,
     },
     { initialUrl: '/' },
   );
@@ -109,9 +113,9 @@ test('shows the skeleton, then the exercises under their groups', async () => {
   expect(screen.getByText('Pec deck')).toBeOnTheScreen();
   expect(screen.getByText('Pull-up')).toBeOnTheScreen();
   expect(screen.getAllByText('Not done yet')).toHaveLength(3);
-  expect(
-    screen.getAllByRole('button', { name: 'Create exercise' }),
-  ).toHaveLength(1);
+  expect(screen.getAllByRole('button', { name: 'New exercise' })).toHaveLength(
+    1,
+  );
 });
 
 test('a row shows the best set in the user’s units', async () => {
@@ -220,11 +224,9 @@ test('a search without results says so and offers to create the exercise', async
   expect(screen.getByLabelText('Search exercises')).toBeOnTheScreen();
 
   await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Create exercise' })[0],
+    screen.getAllByRole('button', { name: 'New exercise' })[0],
   );
-  expect(
-    await screen.findByRole('header', { name: 'Create exercise' }),
-  ).toBeOnTheScreen();
+  expect(await screen.findByText('New exercise page')).toBeOnTheScreen();
 });
 
 test('picking a group and searching both return the list to the top', async () => {
@@ -272,16 +274,14 @@ test('no exercises at all shows the empty state, without search or chips', async
   expect(await screen.findByText('No exercises yet')).toBeOnTheScreen();
   expect(screen.queryByLabelText('Search exercises')).toBeNull();
   expect(screen.queryByRole('button', { name: 'All' })).toBeNull();
-  expect(
-    screen.getAllByRole('button', { name: 'Create exercise' }),
-  ).toHaveLength(1);
+  expect(screen.getAllByRole('button', { name: 'New exercise' })).toHaveLength(
+    1,
+  );
 
   await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Create exercise' })[0],
+    screen.getAllByRole('button', { name: 'New exercise' })[0],
   );
-  expect(
-    await screen.findByRole('header', { name: 'Create exercise' }),
-  ).toBeOnTheScreen();
+  expect(await screen.findByText('New exercise page')).toBeOnTheScreen();
 });
 
 test('a failed load says so, and Try again loads the list', async () => {
@@ -315,4 +315,17 @@ test('the Groups link opens the groups', async () => {
 
   await fireEvent.press(await screen.findByRole('link', { name: 'Groups' }));
   expect(await screen.findByText('Groups screen')).toBeOnTheScreen();
+});
+
+test('with no groups, New exercise is muted and says why', async () => {
+  answer(() => [], 'metric', []);
+  await renderExercises();
+  expect(await screen.findByText('No exercises yet')).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'New exercise' }));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Create a group first.',
+  );
+  expect(screen.queryByText('New exercise page')).toBeNull();
 });

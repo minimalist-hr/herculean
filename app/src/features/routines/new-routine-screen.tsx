@@ -1,32 +1,31 @@
+import { useRouter } from 'expo-router';
+
+import { notifySuccess } from '@/components/notifications';
+
 import { RoutineEditor } from './routine-editor';
 import { useCreateRoutine } from './use-create-routine';
 
-interface NewRoutineSheetProps {
-  visible: boolean;
-  onCreated: (name: string) => void;
-  onClose: () => void;
-}
-
-export function NewRoutineSheet({
-  visible,
-  onCreated,
-  onClose,
-}: NewRoutineSheetProps) {
+/** Starts from what the user was searching for, if anything. */
+export function NewRoutineScreen({
+  initialName = '',
+}: {
+  initialName?: string;
+}) {
+  const router = useRouter();
   const createRoutine = useCreateRoutine();
 
   return (
     <RoutineEditor
-      visible={visible}
+      back="Routines"
       title="New routine"
       subtitle="Not planned yet. Add it to days in the week plan after saving."
-      initialName=""
-      initialExercises={[]}
+      initialName={initialName}
       saving={createRoutine.isPending}
       onSave={async (name, exercises) => {
         const routine = await createRoutine.mutateAsync({ name, exercises });
-        onCreated(routine.name);
+        notifySuccess(`${routine.name} created.`);
+        router.back();
       }}
-      onClose={onClose}
     />
   );
 }

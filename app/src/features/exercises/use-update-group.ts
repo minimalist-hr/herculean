@@ -5,8 +5,8 @@ import { toApiError } from '@/api/problem';
 
 import { useRefreshGroups } from './use-refresh-groups';
 
-/** Renames a group, then refreshes what shows it. */
-export function useRenameGroup() {
+/** Saves a group, then refreshes what shows it. */
+export function useUpdateGroup() {
   const refresh = useRefreshGroups();
 
   return useMutation({

@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
+import { Tabs } from 'expo-router/tabs';
 import { renderRouter } from 'expo-router/testing-library';
+
+import NewExerciseRoute from '@/app/exercise/new';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
@@ -49,6 +52,8 @@ function problem(status: number, code: string, detail: string) {
   );
 }
 
+let groupList = [chest, back, biceps];
+
 /** Answers reads, and answers saving with this. The list holds what was saved. */
 function answer(save: (body: { name: string; groupId: string }) => Response) {
   const exercises = [row('Bench press', chest)];
@@ -63,7 +68,7 @@ function answer(save: (body: { name: string; groupId: string }) => Response) {
       return response;
     }
     if (url.pathname === '/api/v1/groups') {
-      return Response.json([chest, back, biceps]);
+      return Response.json(groupList);
     }
     if (url.pathname === '/api/v1/users/me') {
       return Response.json({
@@ -117,7 +122,7 @@ function Layout() {
   );
 }
 
-/** The sheet opens over the list's chips, so its button comes after any with the same name. */
+/** The page opens over the list's chips, so its button comes after any with the same name. */
 function pressLast(name: string) {
   const buttons = screen.getAllByRole('button', { name });
 
@@ -128,17 +133,24 @@ async function renderList() {
   await renderRouter(
     {
       _layout: Layout,
-      index: ExercisesScreen,
+      '(tabs)/_layout': () => (
+        <Tabs tabBar={() => null} screenOptions={{ headerShown: false }}>
+          <Tabs.Screen name="exercises" />
+        </Tabs>
+      ),
+      '(tabs)/exercises/_layout': () => (
+        <Stack screenOptions={{ headerShown: false }} />
+      ),
+      '(tabs)/exercises/index': ExercisesScreen,
+      'exercise/new': NewExerciseRoute,
     },
-    { initialUrl: '/' },
+    { initialUrl: '/exercises' },
   );
   expect(await screen.findByText('Bench press')).toBeOnTheScreen();
 }
 
 async function openForm() {
-  await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Create exercise' })[0],
-  );
+  await fireEvent.press(screen.getByRole('button', { name: 'New exercise' }));
   expect(await screen.findByText('Save exercise')).toBeOnTheScreen();
   expect(
     (await screen.findAllByRole('button', { name: 'Chest' }))[0],
@@ -158,6 +170,7 @@ function savedBody() {
 
 beforeEach(() => {
   mockFetch.mockReset();
+  groupList = [chest, back, biceps];
 });
 
 test('saving creates the exercise, returns to the list and says so', async () => {
@@ -232,10 +245,9 @@ test('the form brings over the search and the group from the list', async () => 
   await openForm();
 
   expect(screen.getByLabelText('Name')).toHaveDisplayValue('Hack squat');
-  // The list's chip and the sheet's.
   expect(
-    screen.getAllByRole('button', { name: 'Back', selected: true }),
-  ).toHaveLength(2);
+    screen.getByRole('button', { name: 'Back', selected: true }),
+  ).toBeOnTheScreen();
 });
 
 test('without a group the form asks for one and sends nothing', async () => {
@@ -337,16 +349,45 @@ test('no connection shows a notification until a field changes', async () => {
   });
 });
 
-test('cancel returns to the list without saving or a message', async () => {
+test('Done on the keyboard saves nothing', async () => {
+  answer(created);
+  await renderList();
+  await openForm();
+  await fireEvent.changeText(screen.getByLabelText('Name'), 'Pull-up');
+  await pressLast('Back');
+
+  await fireEvent(screen.getByLabelText('Name'), 'submitEditing');
+
+  expect(savedBody()).toBeUndefined();
+  expect(
+    screen.getByRole('header', { name: 'New exercise' }),
+  ).toBeOnTheScreen();
+});
+
+test('the back link returns to the list without saving or a message', async () => {
   answer(created);
   await renderList();
   await openForm();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+  await fireEvent.press(screen.getByRole('link', { name: 'Exercises' }));
 
-  expect(await screen.findByText('Bench press')).toBeOnTheScreen();
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'New exercise' })).toBeNull();
+  });
+  expect(screen.getByText('Bench press')).toBeOnTheScreen();
   await waitFor(() => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
   expect(savedBody()).toBeUndefined();
+});
+
+test('with one group, there is no Also works', async () => {
+  groupList = [chest];
+  answer(created);
+  await renderList();
+  await fireEvent.press(screen.getByRole('button', { name: 'New exercise' }));
+  await screen.findByRole('header', { name: 'New exercise' });
+  await screen.findAllByRole('button', { name: 'Chest' });
+
+  expect(screen.queryByText(/Also works/)).toBeNull();
 });

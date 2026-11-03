@@ -15,6 +15,7 @@ import { Button } from '@/components/button';
 import { ScreenHeading } from '@/components/screen-heading';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
+import { useLeaveGuard } from '@/components/use-leave-guard';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -39,13 +40,16 @@ export function CreateAccountScreen() {
     defaultValues: emptyValues,
   });
   const { errors } = formState;
+  const guard = useLeaveGuard(formState.isDirty);
 
   const submit = handleSubmit(async ({ email, password }) => {
     dismissNotification();
+    guard.allow();
     try {
       // Signed in now, so the app moves on to setup.
       await createAccount.mutateAsync({ email, password });
     } catch (error) {
+      guard.block();
       const formErrors = toFormErrors(error, ['email', 'password'], {
         'user.email_taken': 'email',
       });
@@ -95,7 +99,7 @@ export function CreateAccountScreen() {
                 <TextField
                   ref={field.ref}
                   label="Email"
-                  placeholder="you@example.com"
+                  placeholder="Your email"
                   autoComplete="email"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -140,8 +144,8 @@ export function CreateAccountScreen() {
               render={({ field }) => (
                 <TextField
                   ref={field.ref}
-                  label="Repeat password"
-                  placeholder="Type it again"
+                  label="Confirm password"
+                  placeholder="Confirm password"
                   autoComplete="new-password"
                   password
                   returnKeyType="go"
@@ -202,6 +206,7 @@ export function CreateAccountScreen() {
           />
         </View>
       </BottomActionBox>
+      {guard.sheet}
     </View>
   );
 }

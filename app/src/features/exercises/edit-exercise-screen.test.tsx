@@ -5,6 +5,7 @@ import { Tabs } from 'expo-router/tabs';
 import { renderRouter } from 'expo-router/testing-library';
 
 import ExerciseRoute from '@/app/(tabs)/exercises/[id]';
+import EditExerciseRoute from '@/app/exercise/[id]/edit';
 import { TabBar } from '@/components/tab-bar';
 import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
@@ -141,7 +142,7 @@ function Layout() {
   );
 }
 
-/** The sheet opens over E20, so its button comes after the one with the same name behind it. */
+/** The sheet opens over the exercise, so its button comes after the one with the same name behind it. */
 function pressLast(name: string) {
   const buttons = screen.getAllByRole('button', { name });
 
@@ -166,6 +167,7 @@ async function openDetails() {
       ),
       '(tabs)/exercises/index': ExercisesScreen,
       '(tabs)/exercises/[id]': ExerciseRoute,
+      'exercise/[id]/edit': EditExerciseRoute,
     },
     { initialUrl: '/exercises' },
   );
@@ -202,7 +204,7 @@ test('E20 starts with the current values', async () => {
   ).toBeOnTheScreen();
 });
 
-test('a failed save keeps the sheet and what was typed', async () => {
+test('a failed save keeps the page and what was typed', async () => {
   answer({ save: () => problem(500, 'server_error', 'Something failed.') });
   await openEdit();
 
@@ -269,12 +271,11 @@ test('a blank name is stopped before anything is sent', async () => {
   ).toBe(false);
 });
 
-test('Cancel closes the sheet without saving', async () => {
+test('with no changes, the back link names the exercise and just returns', async () => {
   answer();
   await openEdit();
 
-  await fireEvent.changeText(screen.getByDisplayValue('Bench press'), 'Squat');
-  await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+  await fireEvent.press(screen.getByRole('link', { name: 'Bench press' }));
 
   await waitFor(() => {
     expect(screen.queryByRole('header', { name: 'Edit exercise' })).toBeNull();
@@ -304,13 +305,13 @@ test('Delete exercise asks first, and says what stays', async () => {
   ).toBe(false);
 });
 
-test('Cancel on the sheet closes it and keeps the exercise', async () => {
+test('Closing the sheet keeps the exercise', async () => {
   answer();
   await openDetails();
 
   await pressLast('Delete exercise');
   await screen.findByRole('header', { name: 'Delete Bench press?' });
-  await pressLast('Cancel');
+  await pressLast('Close');
 
   await waitFor(() => {
     expect(
@@ -350,5 +351,59 @@ test('a failed delete stays on the sheet and says so', async () => {
   );
   expect(
     screen.getByRole('header', { name: 'Delete Bench press?' }),
+  ).toBeOnTheScreen();
+});
+
+test('with changes, leaving asks first, and closing the sheet keeps them', async () => {
+  answer();
+  await openEdit();
+  await fireEvent.changeText(screen.getByDisplayValue('Bench press'), 'Squat');
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Bench press' }));
+
+  expect(
+    await screen.findByRole('header', { name: 'Discard changes?' }),
+  ).toBeOnTheScreen();
+
+  await pressLast('Close');
+
+  await waitFor(() => {
+    expect(
+      screen.queryByRole('header', { name: 'Discard changes?' }),
+    ).toBeNull();
+  });
+  expect(screen.getByDisplayValue('Squat')).toBeOnTheScreen();
+});
+
+test('picking another group counts as a change, and Discard changes leaves', async () => {
+  answer();
+  await openEdit();
+  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Bench press' }));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Discard changes' }),
+  );
+
+  await waitFor(() => {
+    expect(screen.queryByRole('header', { name: 'Edit exercise' })).toBeNull();
+  });
+  expect(screen.getByRole('header', { name: 'Bench press' })).toBeOnTheScreen();
+  expect(
+    mockFetch.mock.calls.some(([request]) => request.method === 'PUT'),
+  ).toBe(false);
+});
+
+test('a save that failed still asks before leaving', async () => {
+  answer({ save: () => problem(500, 'server_error', 'Something failed.') });
+  await openEdit();
+  await fireEvent.changeText(screen.getByDisplayValue('Bench press'), 'Squat');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save exercise' }));
+  await screen.findByRole('alert');
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Bench press' }));
+
+  expect(
+    await screen.findByRole('header', { name: 'Discard changes?' }),
   ).toBeOnTheScreen();
 });

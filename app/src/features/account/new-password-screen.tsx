@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { ApiProblemError, toFormErrors } from '@/api/problem';
+import { BackLink } from '@/components/back-link';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { ScreenHeading } from '@/components/screen-heading';
@@ -99,16 +100,18 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             gap: space.xl,
-            paddingTop: size.topPaddingTab,
+            paddingTop: size.topPaddingSubPage,
             paddingHorizontal: size.sidePadding,
             paddingBottom: space.lg,
           }}
         >
-          <ScreenHeading
-            label="Forgot password?"
-            title="New password"
-            subtitle={email === undefined ? undefined : `For ${email}.`}
-          />
+          <View style={{ gap: 2 }}>
+            <BackLink label="Sign in" onPress={goToSignIn} />
+            <ScreenHeading
+              title="New password"
+              subtitle={email === undefined ? undefined : `For ${email}.`}
+            />
+          </View>
 
           <View style={{ gap: space.lg }}>
             <Controller
@@ -140,8 +143,8 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
               render={({ field }) => (
                 <TextField
                   ref={field.ref}
-                  label="Repeat new password"
-                  placeholder="Type it again"
+                  label="Confirm new password"
+                  placeholder="Confirm password"
                   autoComplete="new-password"
                   password
                   returnKeyType="go"
@@ -163,12 +166,6 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
           waitingLabel="Saving password"
           waiting={waiting}
           onPress={() => void submit()}
-        />
-        <Button
-          label="Cancel"
-          variant="secondary"
-          dimmed={waiting}
-          onPress={goToSignIn}
         />
       </BottomActionBox>
     </View>

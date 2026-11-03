@@ -1,52 +1,84 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
-import { Sheet } from '@/components/sheet';
+import { FormPage } from '@/components/form-page';
 import { Stepper } from '@/components/stepper';
+import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
 import { targetText } from './formats';
+import {
+  useRoutineDraft,
+  type RoutineExerciseDraft,
+  type Targets,
+} from './routine-draft';
 
 const maxSets = 20;
 const maxReps = 100;
 
-export interface Targets {
-  targetSets: number;
-  targetRepsFrom: number;
-  targetRepsTo: number;
-}
-
-interface TargetsSheetProps {
-  visible: boolean;
-  name: string;
-  initial: Targets;
-  onSave: (targets: Targets) => void;
-  onClose: () => void;
+interface TargetsScreenProps {
+  exerciseId: string;
+  /** The screen its back link returns to. */
+  back: string;
 }
 
 /** Sets and a rep range for an exercise in a routine. */
-export function TargetsSheet({
-  visible,
-  name,
-  initial,
-  onSave,
-  onClose,
-}: TargetsSheetProps) {
+export function TargetsScreen({ exerciseId, back }: TargetsScreenProps) {
+  const { exercises } = useRoutineDraft();
+  const exercise = exercises.find((item) => item.exerciseId === exerciseId);
+
+  return exercise === undefined ? null : (
+    <Form exercise={exercise} back={back} />
+  );
+}
+
+function Form({
+  exercise,
+  back,
+}: {
+  exercise: RoutineExerciseDraft;
+  back: string;
+}) {
   const { space, text } = useTheme();
+  const router = useRouter();
+  const { setExercises } = useRoutineDraft();
   const [targets, setTargets] = useState<Targets>({
-    targetSets: initial.targetSets,
-    targetRepsFrom: initial.targetRepsFrom,
-    targetRepsTo: initial.targetRepsTo,
+    targetSets: exercise.targetSets,
+    targetRepsFrom: exercise.targetRepsFrom,
+    targetRepsTo: exercise.targetRepsTo,
   });
+  const guard = useLeaveGuard(
+    targets.targetSets !== exercise.targetSets ||
+      targets.targetRepsFrom !== exercise.targetRepsFrom ||
+      targets.targetRepsTo !== exercise.targetRepsTo,
+  );
 
   return (
-    <Sheet
-      visible={visible}
-      title={name}
-      message="Sets and reps for this routine"
-      onClose={onClose}
-      body={
+    <>
+      <FormPage
+        back={back}
+        title={exercise.name}
+        subtitle="Sets and reps for this routine."
+        action={
+          <Button
+            label="Save targets"
+            onPress={() => {
+              setExercises((current) =>
+                current.map((item) =>
+                  item.exerciseId === exercise.exerciseId
+                    ? { ...item, ...targets }
+                    : item,
+                ),
+              );
+              guard.leave(() => {
+                router.back();
+              });
+            }}
+          />
+        }
+      >
         <View style={{ gap: space.lg }}>
           <View style={{ gap: space.sm }}>
             <Text style={text.eyebrow}>Sets</Text>
@@ -116,15 +148,8 @@ export function TargetsSheet({
             {`Logging shows this as ${targetText(targets)}. Use the same number twice for a fixed rep count.`}
           </Text>
         </View>
-      }
-    >
-      <Button
-        label="Save targets"
-        onPress={() => {
-          onSave(targets);
-        }}
-      />
-      <Button label="Cancel" variant="secondary" onPress={onClose} />
-    </Sheet>
+      </FormPage>
+      {guard.sheet}
+    </>
   );
 }

@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
+import { FormPage } from '@/components/form-page';
 import { notifyFailure, notifySuccess } from '@/components/notifications';
-import { Sheet } from '@/components/sheet';
 import { TextField } from '@/components/text-field';
+import { useLeaveGuard } from '@/components/use-leave-guard';
 
 const groupNameSchema = z.object({
   name: z
@@ -16,46 +18,42 @@ const groupNameSchema = z.object({
     .max(30, 'At most 30 characters.'),
 });
 
-/** How many exercises use a group, in words. */
-export function countOf({ exerciseCount }: { exerciseCount: number }) {
-  return exerciseCount === 1
-    ? '1 exercise'
-    : `${String(exerciseCount)} exercises`;
-}
-
-interface GroupNameSheetProps {
-  visible: boolean;
+interface GroupFormPageProps {
+  /** The screen its back link returns to. */
+  back: string;
   title: string;
-  message: string;
+  subtitle: string;
   initialName: string;
   saving: boolean;
   /** Saves the name. A failure it throws shows under Name, or in a notification. */
   onSave: (name: string) => Promise<{ name: string }>;
-  onClose: () => void;
   savedMessage: (name: string) => string;
 }
 
-export function GroupNameSheet({
-  visible,
+export function GroupFormPage({
+  back,
   title,
-  message,
+  subtitle,
   initialName,
   saving,
   onSave,
-  onClose,
   savedMessage,
-}: GroupNameSheetProps) {
+}: GroupFormPageProps) {
+  const router = useRouter();
   const { control, handleSubmit, setError, formState } = useForm({
     resolver: zodResolver(groupNameSchema),
     defaultValues: { name: initialName },
   });
+  const guard = useLeaveGuard(formState.isDirty);
 
   const submit = handleSubmit(async ({ name }) => {
+    guard.allow();
     try {
       const group = await onSave(name);
-      onClose();
       notifySuccess(savedMessage(group.name));
+      router.back();
     } catch (error) {
+      guard.block();
       const formErrors = toFormErrors(error, ['name'], {
         'group.name_taken': 'name',
       });
@@ -69,12 +67,20 @@ export function GroupNameSheet({
   });
 
   return (
-    <Sheet
-      visible={visible}
-      title={title}
-      message={message}
-      onClose={onClose}
-      body={
+    <>
+      <FormPage
+        back={back}
+        title={title}
+        subtitle={subtitle}
+        action={
+          <Button
+            label="Save group"
+            waitingLabel="Saving group"
+            waiting={saving}
+            onPress={() => void submit()}
+          />
+        }
+      >
         <Controller
           control={control}
           name="name"
@@ -82,10 +88,8 @@ export function GroupNameSheet({
             <TextField
               ref={field.ref}
               label="Name"
-              placeholder="Core"
               autoCapitalize="sentences"
               returnKeyType="done"
-              onSubmitEditing={() => void submit()}
               value={field.value}
               onChangeText={field.onChange}
               onBlur={field.onBlur}
@@ -93,20 +97,8 @@ export function GroupNameSheet({
             />
           )}
         />
-      }
-    >
-      <Button
-        label="Save group"
-        waitingLabel="Saving group"
-        waiting={saving}
-        onPress={() => void submit()}
-      />
-      <Button
-        label="Cancel"
-        variant="secondary"
-        dimmed={saving}
-        onPress={onClose}
-      />
-    </Sheet>
+      </FormPage>
+      {guard.sheet}
+    </>
   );
 }

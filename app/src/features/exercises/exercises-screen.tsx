@@ -1,8 +1,7 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,23 +10,22 @@ import {
 } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { Chip } from '@/components/chip';
-import { HeaderIconButton } from '@/components/header-icon-button';
+import { Chip, ChipLink } from '@/components/chip';
 import { PlusIcon } from '@/components/icons';
-import { dismissNotification, notifySuccess } from '@/components/notifications';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useTheme } from '@/theme/theme-provider';
 
-import { CreateExerciseSheet } from './create-exercise-sheet';
 import { ExerciseRow } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
 import { useExercises } from './use-exercises';
-import { useGroups } from './use-groups';
+import { noGroupsMessage, useGroups } from './use-groups';
 
 type Exercise = components['schemas']['ExerciseListItemResponse'];
 
@@ -44,13 +42,14 @@ export function ExercisesScreen() {
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState<string>();
-  const [creating, setCreating] = useState(false);
-  // Each create exercise starts from what the list shows at that moment.
-  const [createForm, setCreateForm] = useState<{
-    key: number;
-    name: string;
-    groupId: string;
-  }>();
+  // New exercise returns here with its id. Clearing the filters makes sure it is in the list.
+  const { created } = useLocalSearchParams<{ created?: string }>();
+  const [lastCreated, setLastCreated] = useState(created);
+  if (created !== lastCreated) {
+    setLastCreated(created);
+    setSearchText('');
+    setGroupId(undefined);
+  }
   const typedSearch = searchText.trim();
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   // Clearing the search shows the whole list right away.
@@ -64,12 +63,13 @@ export function ExercisesScreen() {
   const loading = !failed && (groups.isPending || exercises.isPending);
   const list = failed ? [] : (exercises.data ?? []);
   const noFilter = search === '' && groupId === undefined;
+  const noGroups = groups.data?.length === 0;
   const noExercises = !failed && !loading && list.length === 0 && noFilter;
 
   // New results start at the top. The list also never has to clamp its own scroll when it gets shorter.
   useEffect(() => {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
-  }, [search, groupId]);
+  }, [search, groupId, created]);
 
   function changeSearch(text: string) {
     dismissNotification();
@@ -81,78 +81,48 @@ export function ExercisesScreen() {
     setGroupId(id);
   }
 
-  function openCreateExercise() {
-    setCreateForm((form) => ({
-      key: (form?.key ?? 0) + 1,
-      name: typedSearch,
-      groupId: groupId ?? '',
-    }));
-    setCreating(true);
-  }
+  function openNewExercise() {
+    if (noGroups) {
+      notifyFailure(noGroupsMessage);
+      return;
+    }
 
-  // Clearing the filters makes sure the new exercise is in the list.
-  function exerciseCreated(name: string) {
-    setCreating(false);
-    setSearchText('');
-    setGroupId(undefined);
-    listRef.current?.scrollToOffset({ offset: 0, animated: false });
-    notifySuccess(`${name} created.`);
+    // It starts from what the list shows at that moment.
+    router.push({
+      pathname: '/exercise/new',
+      params: { name: typedSearch, groupId: groupId ?? '' },
+    });
   }
 
   function renderTitle() {
     return (
       <View
-        style={[
-          styles.title,
-          {
-            paddingTop: size.topPaddingTab,
-            paddingHorizontal: size.sidePadding,
-            paddingBottom: space.lg,
-          },
-        ]}
+        style={{
+          paddingTop: size.topPaddingTab,
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: space.lg,
+        }}
       >
-        <ScreenHeading label="Your training" title="Exercises" />
-        {/* The link's padding is its touch target, so its text lines up with the edge. */}
-        <View style={{ marginRight: -space.sm }}>
-          <TextLink
-            label="Groups"
-            onPress={() => {
-              router.push('/exercises/groups');
-            }}
-          />
-        </View>
+        <ScreenHeading
+          title="Exercises"
+          subtitle="Everything you train, by muscle group."
+        />
       </View>
     );
   }
 
   function renderControls() {
     return (
-      <View
-        style={{
-          gap: space.sm,
-          paddingBottom: space.md,
-        }}
-      >
-        <View
-          style={[
-            styles.searchRow,
-            { gap: space.sm, paddingHorizontal: size.sidePadding },
-          ]}
-        >
-          <View style={styles.search}>
+      <>
+        {!noExercises && (
+          <View style={{ paddingHorizontal: size.sidePadding }}>
             <SearchField
               label="Search exercises"
               value={searchText}
               onChangeText={changeSearch}
             />
           </View>
-          <HeaderIconButton
-            label="Create exercise"
-            onPress={openCreateExercise}
-          >
-            <PlusIcon color={colors.text} size={20} />
-          </HeaderIconButton>
-        </View>
+        )}
 
         <ScrollView
           horizontal
@@ -163,9 +133,14 @@ export function ExercisesScreen() {
             paddingHorizontal: size.sidePadding,
           }}
         >
-          {groups.data === undefined ? (
-            <ChipsSkeleton />
-          ) : (
+          <ChipLink
+            label="Groups"
+            onPress={() => {
+              router.push('/exercises/groups');
+            }}
+          />
+          {groups.data === undefined && <ChipsSkeleton />}
+          {groups.data !== undefined && !noExercises && (
             <>
               <Chip
                 label="All"
@@ -187,7 +162,7 @@ export function ExercisesScreen() {
             </>
           )}
         </ScrollView>
-      </View>
+      </>
     );
   }
 
@@ -218,44 +193,23 @@ export function ExercisesScreen() {
 
     if (noFilter) {
       return (
-        <View style={{ gap: space.lg }}>
-          <View
-            style={[
-              styles.noExercises,
-              {
-                gap: space.xs,
-                padding: space.xl,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[text.listItemName, { color: colors.text }]}>
-              No exercises yet
-            </Text>
-            <Text style={[text.meta, styles.centered]}>
-              Create an exercise to use it in routines and workouts.
-            </Text>
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Create exercise"
-            onPress={openCreateExercise}
-            style={[
-              styles.dashedAction,
-              {
-                gap: space.sm,
-                height: size.dashedAction,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <PlusIcon color={colors.text} size={16} />
-            <Text style={[text.secondaryButton, { color: colors.text }]}>
-              Create exercise
-            </Text>
-          </Pressable>
+        <View
+          style={[
+            styles.noExercises,
+            {
+              gap: space.xs,
+              padding: space.xl,
+              borderRadius: radius.card,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <Text style={[text.listItemName, { color: colors.text }]}>
+            No exercises yet
+          </Text>
+          <Text style={[text.meta, styles.centered]}>
+            Create an exercise to use it in routines and workouts.
+          </Text>
         </View>
       );
     }
@@ -274,18 +228,11 @@ export function ExercisesScreen() {
             ? `No exercises in ${selectedGroup?.name ?? 'this group'}`
             : `No matches for “${search}”`}
         </Text>
-        <Text style={[text.meta, styles.centered, { marginBottom: space.sm }]}>
+        <Text style={[text.meta, styles.centered]}>
           {search === ''
             ? 'Create one to use it in routines and workouts.'
             : 'Check the spelling, or create it as a new exercise.'}
         </Text>
-        <View style={styles.stretch}>
-          <Button
-            label="Create exercise"
-            variant="secondary"
-            onPress={openCreateExercise}
-          />
-        </View>
       </View>
     );
   }
@@ -341,7 +288,9 @@ export function ExercisesScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
       {renderTitle()}
-      {!noExercises && renderControls()}
+      <View style={{ gap: space.sm, paddingBottom: space.md }}>
+        {renderControls()}
+      </View>
       <FlatList
         ref={listRef}
         data={toItems(list)}
@@ -352,20 +301,15 @@ export function ExercisesScreen() {
         keyboardDismissMode="on-drag"
         contentContainerStyle={{ paddingBottom: space.xl }}
       />
-      {createForm !== undefined && (
-        <CreateExerciseSheet
-          key={createForm.key}
-          visible={creating}
-          initialName={createForm.name}
-          initialGroupId={createForm.groupId}
-          onCreated={(exercise) => {
-            exerciseCreated(exercise.name);
-          }}
-          onClose={() => {
-            setCreating(false);
-          }}
+      <BottomActionBox aboveTabBar>
+        <Button
+          label="New exercise"
+          variant="secondary"
+          icon={PlusIcon}
+          muted={noGroups}
+          onPress={openNewExercise}
         />
-      )}
+      </BottomActionBox>
     </View>
   );
 }
@@ -404,24 +348,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  title: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-  },
-  searchRow: {
-    flexDirection: 'row',
-  },
-  search: {
-    flex: 1,
-  },
-  dashedAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-  },
   noExercises: {
     alignItems: 'center',
     borderWidth: 1,
@@ -432,8 +358,5 @@ const styles = StyleSheet.create({
   },
   centered: {
     textAlign: 'center',
-  },
-  stretch: {
-    alignSelf: 'stretch',
   },
 });

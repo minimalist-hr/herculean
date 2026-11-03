@@ -52,6 +52,7 @@ function Layout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={status === 'signedOut'}>
             <Stack.Screen name="create-account" />
+            <Stack.Screen name="sign-in" />
           </Stack.Protected>
           <Stack.Protected guard={status === 'needsSetup'}>
             <Stack.Screen name="setup" />
@@ -68,6 +69,7 @@ async function renderCreateAccount() {
     {
       _layout: Layout,
       'create-account': CreateAccountScreen,
+      'sign-in': () => <PlaceholderScreen title="Sign in screen" />,
       setup: () => <PlaceholderScreen title="Setup screen" />,
       terms: () => <LegalScreen document={termsOfService} />,
       privacy: () => <LegalScreen document={privacyPolicy} />,
@@ -84,7 +86,7 @@ async function fillIn(
   await fireEvent.changeText(screen.getByLabelText('Email'), email);
   await fireEvent.changeText(screen.getByLabelText('Password'), password);
   await fireEvent.changeText(
-    screen.getByLabelText('Repeat password'),
+    screen.getByLabelText('Confirm password'),
     repeatPassword,
   );
 }
@@ -209,7 +211,28 @@ test('Go on the last field creates the account', async () => {
   await renderCreateAccount();
 
   await fillIn('filip@example.com', 'password');
-  await fireEvent(screen.getByLabelText('Repeat password'), 'submitEditing');
+  await fireEvent(screen.getByLabelText('Confirm password'), 'submitEditing');
 
   expect(await screen.findByText('Setup screen')).toBeOnTheScreen();
+});
+
+test('with something typed, Sign in asks first', async () => {
+  await renderCreateAccount();
+  await fireEvent.changeText(screen.getByLabelText('Email'), 'f@example.com');
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Discard changes' }),
+  );
+
+  expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
+});
+
+test('with nothing typed, Sign in just goes', async () => {
+  await renderCreateAccount();
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Sign in' }));
+
+  expect(await screen.findByText('Sign in screen')).toBeOnTheScreen();
+  expect(screen.queryByText('Discard changes?')).toBeNull();
 });

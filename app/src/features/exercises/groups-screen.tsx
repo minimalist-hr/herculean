@@ -3,15 +3,17 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BackLink } from '@/components/back-link';
-import { HeaderIconButton } from '@/components/header-icon-button';
+import { BottomActionBox } from '@/components/bottom-action-box';
+import { Button } from '@/components/button';
 import { PlusIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { dismissNotification } from '@/components/notifications';
+import { ScreenHeading } from '@/components/screen-heading';
+import { SearchField } from '@/components/search-field';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
-import { GroupNameSheet } from './group-name-sheet';
 import { GroupsList } from './groups-list';
-import { useCreateGroup } from './use-create-group';
 import { useGroupOrder } from './use-group-order';
 import { useGroups } from './use-groups';
 
@@ -19,19 +21,64 @@ export function GroupsScreen() {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const groups = useGroups();
-  const createGroup = useCreateGroup();
   const saveOrder = useGroupOrder();
   const [dragging, setDragging] = useState(false);
-  const [creating, setCreating] = useState(false);
-  // Each new group starts with an empty form.
-  const [createKey, setCreateKey] = useState(0);
+  const [searchText, setSearchText] = useState('');
+  const search = searchText.trim();
+  const searching = search !== '';
+  const noGroups = groups.data?.length === 0;
 
   function renderList() {
     if (groups.data !== undefined) {
+      if (noGroups) {
+        return (
+          <View
+            style={[
+              styles.noGroups,
+              {
+                gap: space.xs,
+                padding: space.xl,
+                borderRadius: radius.card,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[text.listItemName, { color: colors.text }]}>
+              No groups yet
+            </Text>
+            <Text style={[text.meta, styles.centered]}>
+              Create a group to sort your exercises into.
+            </Text>
+          </View>
+        );
+      }
+
+      const shown = searching
+        ? groups.data.filter((group) =>
+            group.name.toLowerCase().includes(search.toLowerCase()),
+          )
+        : groups.data;
+
+      if (shown.length === 0) {
+        return (
+          <View style={[styles.message, { gap: space.xs, padding: space.xl }]}>
+            <Text
+              style={[text.statValue, styles.centered, { color: colors.text }]}
+            >
+              {`No matches for “${search}”`}
+            </Text>
+            <Text style={[text.meta, styles.centered]}>
+              Check the spelling, or create it as a new group.
+            </Text>
+          </View>
+        );
+      }
+
       return (
-        <>
+        <View style={{ gap: space.md }}>
           <GroupsList
-            groups={groups.data}
+            groups={shown}
+            locked={searching}
             onDragChange={setDragging}
             onReorder={saveOrder}
             onOpen={(group) => {
@@ -41,10 +88,12 @@ export function GroupsScreen() {
               });
             }}
           />
-          <Text style={text.meta}>
-            Tap a group to see its exercises, rename it or delete it.
-          </Text>
-        </>
+          {!searching && (
+            <Text style={[text.body, { color: colors.muted }]}>
+              Sort your exercise list. Drag to change the order of the chips.
+            </Text>
+          )}
+        </View>
       );
     }
 
@@ -90,72 +139,62 @@ export function GroupsScreen() {
   }
 
   return (
-    <>
-      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-        <View
-          style={{
-            gap: 4,
-            paddingTop: size.topPaddingSubPage,
-            paddingHorizontal: size.sidePadding,
-            paddingBottom: space.lg,
-          }}
-        >
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+      <View
+        style={{
+          gap: space.lg,
+          paddingTop: size.topPaddingSubPage,
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: space.md,
+        }}
+      >
+        <View style={{ gap: 2 }}>
           <BackLink
             label="Exercises"
             onPress={() => {
               router.back();
             }}
           />
-          <View style={[styles.titleRow, { gap: space.md }]}>
-            <View style={styles.title}>
-              <Text
-                accessibilityRole="header"
-                style={[text.pageTitle, { color: colors.text }]}
-              >
-                Groups
-              </Text>
-              <Text style={[text.body, { color: colors.muted }]}>
-                Sort your exercise list. Drag to change the order of the chips.
-              </Text>
-            </View>
-            <HeaderIconButton
-              label="New group"
-              onPress={() => {
-                setCreateKey((key) => key + 1);
-                setCreating(true);
-              }}
-            >
-              <PlusIcon color={colors.text} size={20} />
-            </HeaderIconButton>
-          </View>
+          <ScreenHeading
+            title="Groups"
+            subtitle="The muscle groups your exercises belong to."
+          />
         </View>
-        <ScrollView
-          scrollEnabled={!dragging}
-          contentContainerStyle={{
-            gap: size.gap.sectionMax,
-            paddingHorizontal: size.sidePadding,
-            paddingBottom: space.xl,
-          }}
-        >
-          {renderList()}
-        </ScrollView>
+        {!noGroups && (
+          <SearchField
+            label="Search groups"
+            value={searchText}
+            onChangeText={(value) => {
+              dismissNotification();
+              setSearchText(value);
+            }}
+          />
+        )}
       </View>
-      {createKey > 0 && (
-        <GroupNameSheet
-          key={createKey}
-          visible={creating}
-          title="New group"
-          message="It’s added at the end of your groups and chips."
-          initialName=""
-          saving={createGroup.isPending}
-          onSave={(name) => createGroup.mutateAsync(name)}
-          onClose={() => {
-            setCreating(false);
+      <ScrollView
+        scrollEnabled={!dragging}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={{
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: space.xl,
+        }}
+      >
+        {renderList()}
+      </ScrollView>
+      <BottomActionBox aboveTabBar>
+        <Button
+          label="New group"
+          variant="secondary"
+          icon={PlusIcon}
+          onPress={() => {
+            // The list shows whole on the way back, so the new group is in it.
+            setSearchText('');
+            router.push({ pathname: '/group/new', params: { name: search } });
           }}
-          savedMessage={(name) => `${name} created.`}
         />
-      )}
-    </>
+      </BottomActionBox>
+    </View>
   );
 }
 
@@ -163,13 +202,16 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+  noGroups: {
+    alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'dashed',
   },
-  title: {
-    flex: 1,
-    gap: 4,
+  message: {
+    alignItems: 'center',
+  },
+  centered: {
+    textAlign: 'center',
   },
   skeletonRow: {
     justifyContent: 'center',

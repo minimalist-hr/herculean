@@ -64,6 +64,9 @@ async function renderExercise() {
       _layout: Layout,
       index: () => <PlaceholderScreen title="List screen" />,
       '[id]': () => <ExerciseScreen id={id} />,
+      'exercise/[id]/edit': () => (
+        <PlaceholderScreen title="Edit exercise page" />
+      ),
     },
     { initialUrl: `/${id}` },
   );
@@ -139,7 +142,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   expect(screen.queryByRole('alert')).toBeNull();
 });
 
-test('the edit button opens the edit sheet', async () => {
+test('the edit button opens the edit page', async () => {
   answer(exercise('Shoulders'));
   await renderExercise();
 
@@ -147,9 +150,7 @@ test('the edit button opens the edit sheet', async () => {
     await screen.findByRole('button', { name: 'Edit exercise' }),
   );
 
-  expect(
-    await screen.findByRole('header', { name: 'Edit exercise' }),
-  ).toBeOnTheScreen();
+  expect(await screen.findByText('Edit exercise page')).toBeOnTheScreen();
 });
 
 test('the edit button waits for the exercise', async () => {

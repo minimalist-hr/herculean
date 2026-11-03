@@ -2,12 +2,47 @@ import { Pressable, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
+import { ChevronRightIcon } from './icons';
+
 interface ChipProps {
   label: string;
   /** What the chip shows, when a screen reader needs more than that. It shows the label otherwise. */
   text?: string;
   selected: boolean;
   onPress: () => void;
+}
+
+/** A chip that opens another screen, among filter chips. */
+export function ChipLink({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress: () => void;
+}) {
+  const { colors, radius, size, space, text } = useTheme();
+
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={{
+        height: size.chip,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space.xs,
+        paddingHorizontal: space.md,
+        borderWidth: 1,
+        borderRadius: radius.pill,
+        borderColor: colors.border,
+        backgroundColor: colors.raised,
+      }}
+    >
+      <Text style={[text.chip, { color: colors.text }]}>{label}</Text>
+      <ChevronRightIcon color={colors.muted} size={14} />
+    </Pressable>
+  );
 }
 
 /** A filter chip. The selected one uses the accent. */
