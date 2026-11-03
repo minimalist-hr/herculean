@@ -2,7 +2,7 @@
 
 import { problem, sample } from './fixtures.mjs';
 
-const { benchPress, lateralRaise, chest, chestAndArms, exerciseDetails } = sample;
+const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails } = sample;
 
 const exercisePath = `/exercises/${lateralRaise.id}`;
 const routinePath = `/routines/${chestAndArms.id}`;
@@ -194,6 +194,20 @@ export const screens = [
     await on.type('Search exercises', 'Pistol squat');
     await on.sleep(600);
   } },
+  { id: 'L23', file: 'L23-Logging-Add-Exercise-New-Selected', title: 'Logging › Add exercise · new one selected', row: 'L2 Exercises', steps: async (on) => {
+    await on.go('/routine/new/add-exercise');
+    await on.waitFor(benchPress.name);
+    await on.type('Search exercises', 'Pistol squat');
+    await on.sleep(600);
+    await on.tap('New exercise');
+    await on.waitFor('Save exercise');
+    await on.tap('Legs');
+    await on.tap('Save exercise');
+    await on.waitFor('Add exercise');
+    await on.sleep(600);
+    await on.tap('Legs');
+    await on.waitFor('Pistol squat');
+  } },
   { id: 'L22', file: 'L22-Logging-New-Exercise', title: 'Logging › New exercise', row: 'L2 Exercises', steps: (on) => on.go('/routine/new/new-exercise') },
   { id: 'L26', file: 'L26-Logging-New-Exercise-Errors', title: 'Logging › New exercise · fields missing', row: 'L2 Exercises', steps: async (on) => {
     await on.go('/routine/new/new-exercise');
@@ -227,6 +241,11 @@ export const screens = [
     await on.tap('Delete routine');
     await on.waitFor('Undo');
   } },
+  { id: 'R11', file: 'R11-Routines-Rest-Day', title: 'Routines · rest day says how to plan it', row: 'R1 Routines tab', full: false, steps: async (on) => {
+    await on.go('/routines');
+    await on.tap('Thursday, rest day');
+    await on.waitFor('Thursday is a rest day. Edit a routine to pick its days.');
+  } },
   { id: 'R05', file: 'R05-Routines-Details', title: 'Routines › Routine details', row: 'R3 Edit a routine', steps: async (on) => {
     await on.go(routinePath);
     await on.waitFor('Flat barbell bench press');
@@ -259,6 +278,23 @@ export const screens = [
     await on.tap(chestAndArms.name);
     await on.waitFor('Discard changes?');
   } },
+  { id: 'R28', file: 'R28-Routines-Edit-Day-Moved', title: 'Routines › Routine details · a day moved from another routine', row: 'R3 Edit a routine', steps: async (on) => {
+    await on.tap('Routines');
+    await on.tap('Chest and arms 1, 7 exercises · 19 sets');
+    await on.tap('Edit routine');
+    await on.waitFor('Save routine');
+    await on.tap('Tuesday');
+    await on.tap('Save routine');
+    await on.waitFor('Chest and arms 1 saved. Tuesday moved from Back and shoulders 1.');
+  } },
+  { id: 'R27', file: 'R27-Routines-Details-Same-Group', title: 'Routines › Routine details · same group joined', row: 'R3 Edit a routine', answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: { status: 200, body: chestAndArmsTogether } }, steps: async (on) => {
+    await on.go(routinePath);
+    await on.waitFor('Flat barbell bench press');
+  } },
+  { id: 'R29', file: 'R29-Routines-Edit-Same-Group', title: 'Routines › Edit routine · same group joined', row: 'R3 Edit a routine', answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: { status: 200, body: chestAndArmsTogether } }, steps: async (on) => {
+    await on.go(editPath);
+    await on.waitFor('Save routine');
+  } },
   { id: 'R21', file: 'R21-Routines-Edit-Targets', title: 'Routines › Edit routine › Sets and reps', row: 'R3 Edit a routine', steps: async (on) => {
     await on.go(editPath);
     await on.tap('Flat barbell bench press, 3 × 8–10');
@@ -275,6 +311,11 @@ export const screens = [
     await on.waitFor('Delete Chest and arms 1?');
   } },
   { id: 'R30', file: 'R30-Routines-New', title: 'Routines › New routine', row: 'R4 New routine', steps: (on) => on.go('/routine/new') },
+  { id: 'R32', file: 'R32-Routines-New-Days-Picked', title: 'Routines › New routine · days picked', row: 'R4 New routine', steps: async (on) => {
+    await on.go('/routine/new');
+    await on.tap('Monday');
+    await on.tap('Thursday');
+  } },
   { id: 'R31', file: 'R31-Routines-New-Errors', title: 'Routines › New routine · fields missing', row: 'R4 New routine', steps: async (on) => {
     await on.go('/routine/new');
     await on.tap('Save routine');

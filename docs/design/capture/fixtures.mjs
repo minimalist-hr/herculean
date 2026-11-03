@@ -32,9 +32,13 @@ const exercises = [
 ];
 
 function target(name, targetSets, targetRepsFrom, targetRepsTo) {
+  const item = exercises.find((candidate) => candidate.name === name);
+
   return {
-    exerciseId: `exercise-${name.toLowerCase().replaceAll(' ', '-')}`,
+    exerciseId: item.id,
     name,
+    groupId: item.groupId,
+    groupName: item.groupName,
     targetSets,
     targetRepsFrom,
     targetRepsTo,
@@ -92,6 +96,7 @@ export const problem = (status, code, detail) => ({
 /** What the API answers, from a fresh copy of the sample data for each capture. */
 export function createApi() {
   const list = [...exercises];
+  let routine = chestAndArms;
 
   return (method, path, body, query) => {
     const key = `${method} ${path}`;
@@ -147,16 +152,23 @@ export function createApi() {
       return { status: 200, body: routineList };
     }
     if (key === 'POST /api/v1/routines') {
-      return { status: 201, body: { id: 'routine-new', name: body.name } };
+      return { status: 201, body: { id: 'routine-new', name: body.name, movedDays: [] } };
     }
     if (key === 'GET /api/v1/week-plan-days') {
       return { status: 200, body: weekPlan(routineList) };
     }
     if (method === 'GET' && path.startsWith('/api/v1/routines/')) {
-      return { status: 200, body: chestAndArms };
+      return { status: 200, body: routine };
     }
     if (method === 'PUT' && path.startsWith('/api/v1/routines/')) {
-      return { status: 200, body: { id, name: body.name } };
+      const movedDays = body.weekdays.flatMap((weekday) =>
+        routineList
+          .filter((item) => item.id !== id && item.weekdays.includes(weekday))
+          .map((item) => ({ weekday, fromRoutine: item.name })),
+      );
+      routine = { ...routine, name: body.name, weekdays: body.weekdays };
+
+      return { status: 200, body: { id, name: body.name, movedDays } };
     }
     if (method === 'DELETE') {
       return { status: 204 };
@@ -172,7 +184,15 @@ export function createApi() {
   };
 }
 
+// The same routine with each group's exercises next to each other, so they join into blocks.
+const groupOrder = ['Chest', 'Biceps', 'Triceps'];
+const chestAndArmsTogether = {
+  ...chestAndArms,
+  exercises: [...chestAndArms.exercises].sort((first, second) => groupOrder.indexOf(first.groupName) - groupOrder.indexOf(second.groupName)),
+};
+
 export const sample = {
+  chestAndArmsTogether,
   benchPress: exercises[0],
   lateralRaise: exercises[6],
   chest,

@@ -12,6 +12,7 @@ import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DragHandleIcon } from './icons';
+import { joinedCardStyle } from './joined-cards';
 import { useReduceMotion } from './use-reduce-motion';
 
 interface Drag {
@@ -28,6 +29,8 @@ interface DraggableListProps<Item> {
   onReorder: (items: Item[]) => void;
   /** Shows the rows without handles, for a part of the list that has no order of its own. */
   locked?: boolean;
+  /** Joins two neighbouring rows into one block, except while dragging, which needs every row free. */
+  joined?: (above: Item, below: Item) => boolean;
   /** What sits to the right of the handle. A row is one line high. */
   renderRow: (item: Item) => ReactNode;
 }
@@ -60,6 +63,7 @@ export function DraggableList<Item>({
   onDragChange,
   onReorder,
   locked = false,
+  joined,
   renderRow,
 }: DraggableListProps<Item>) {
   const { size, space } = useTheme();
@@ -140,6 +144,16 @@ export function DraggableList<Item>({
           dragging={drag !== null}
           lifted={drag?.from === index}
           locked={locked}
+          withPrevious={
+            drag === null &&
+            index > 0 &&
+            joined?.(items[index - 1], item) === true
+          }
+          withNext={
+            drag === null &&
+            index < items.length - 1 &&
+            joined?.(item, items[index + 1]) === true
+          }
           pan={pan}
           onStartDrag={startDrag}
           onMoveDrag={moveDrag}
@@ -165,6 +179,8 @@ interface DraggableRowProps {
   dragging: boolean;
   lifted: boolean;
   locked: boolean;
+  withPrevious: boolean;
+  withNext: boolean;
   pan: Animated.Value;
   onStartDrag: (index: number) => void;
   onMoveDrag: (distance: number) => void;
@@ -181,6 +197,8 @@ function DraggableRow({
   dragging,
   lifted,
   locked,
+  withPrevious,
+  withNext,
   pan,
   onStartDrag,
   onMoveDrag,
@@ -233,7 +251,12 @@ function DraggableRow({
           height: size.optionRowMin,
           paddingLeft: locked ? space.md : 4,
           paddingRight: 4,
-          borderRadius: radius.card,
+          ...joinedCardStyle({
+            withPrevious,
+            withNext,
+            gap: space.sm,
+            radius: radius.card,
+          }),
           borderColor: lifted ? colors.muted : colors.border,
           backgroundColor: colors.card,
           transform: [{ translateY: lifted ? pan : offset }],

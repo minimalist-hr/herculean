@@ -7,12 +7,14 @@ import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PencilIcon, TrashIcon } from '@/components/icons';
+import { joinedCardStyle } from '@/components/joined-cards';
 import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
-import { counted, dayNames, joined, targetText } from './formats';
+import { DayChips } from './day-chips';
+import { counted, dayNames, joined, sameGroup, targetText } from './formats';
 import { useDeleteRoutine } from './use-delete-routine';
 import { useRoutine } from './use-routine';
 
@@ -101,31 +103,50 @@ function Details({ routine }: { routine: Routine }) {
       </View>
 
       <View style={{ gap: space.sm }}>
+        <Text style={[text.eyebrow, styles.sectionTitle]}>Days</Text>
+        <DayChips selected={routine.weekdays} />
+      </View>
+
+      <View style={{ gap: space.sm }}>
         <Text style={[text.eyebrow, styles.sectionTitle]}>Exercises</Text>
         <View style={{ gap: space.sm }}>
-          {routine.exercises.map((exercise) => (
-            <View
-              key={exercise.exerciseId}
-              style={[
-                styles.exercise,
-                {
-                  minHeight: size.listRowMin,
-                  paddingVertical: space.sm,
-                  paddingHorizontal: 14,
-                  borderRadius: radius.card,
-                  borderColor: colors.border,
-                  backgroundColor: colors.card,
-                },
-              ]}
-            >
-              <Text style={[text.listItemName, { color: colors.text }]}>
-                {exercise.name}
-              </Text>
-              <Text style={[text.meta, { color: colors.primaryText }]}>
-                {targetText(exercise)}
-              </Text>
-            </View>
-          ))}
+          {routine.exercises.map((exercise, index) => {
+            return (
+              <View
+                key={exercise.exerciseId}
+                style={[
+                  styles.exercise,
+                  {
+                    minHeight: size.listRowMin,
+                    paddingVertical: space.sm,
+                    paddingHorizontal: 14,
+                    borderColor: colors.border,
+                    backgroundColor: colors.card,
+                  },
+                  joinedCardStyle({
+                    withPrevious:
+                      index > 0 &&
+                      sameGroup(routine.exercises[index - 1], exercise),
+                    withNext:
+                      index < routine.exercises.length - 1 &&
+                      sameGroup(exercise, routine.exercises[index + 1]),
+                    gap: space.sm,
+                    radius: radius.card,
+                  }),
+                ]}
+              >
+                <Text style={[text.listItemName, { color: colors.text }]}>
+                  {exercise.name}
+                </Text>
+                <Text style={text.meta}>
+                  <Text style={{ color: colors.primaryText }}>
+                    {targetText(exercise)}
+                  </Text>
+                  {` · ${exercise.groupName}`}
+                </Text>
+              </View>
+            );
+          })}
         </View>
       </View>
 
@@ -198,14 +219,12 @@ function RoutineSkeleton() {
 }
 
 function subtitleOf(routine: Routine) {
-  const days = routine.weekdays.map((weekday) => dayNames[weekday].full);
   const setCount = routine.exercises.reduce(
     (sum, exercise) => sum + exercise.targetSets,
     0,
   );
 
   return [
-    days.length > 0 ? `Every ${days.join(', ')}` : 'Not in your week plan',
     counted(routine.exercises.length, 'exercise', 'exercises'),
     counted(setCount, 'set', 'sets'),
   ].join(' · ');

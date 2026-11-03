@@ -41,6 +41,11 @@ internal sealed class RoutineReadRepository(TrainingDbContext dbContext) : IRout
         ];
     }
 
+    public Task<Dictionary<RoutineId, string>> ListNamesAsync(CancellationToken cancellationToken) =>
+        dbContext.Routines
+            .AsNoTracking()
+            .ToDictionaryAsync(routine => routine.Id, routine => routine.Name, cancellationToken);
+
     public async Task<RoutineDetailsResponse?> GetAsync(RoutineId id, CancellationToken cancellationToken)
     {
         var routine = await dbContext.Routines
@@ -54,6 +59,8 @@ internal sealed class RoutineReadRepository(TrainingDbContext dbContext) : IRout
                     .Select(exercise => new RoutineExerciseResponse(
                         exercise.ExerciseId.Value,
                         exercise.Exercise.Name,
+                        exercise.Exercise.GroupId.Value,
+                        exercise.Exercise.Group.Name,
                         exercise.TargetSets,
                         exercise.TargetRepsFrom,
                         exercise.TargetRepsTo))

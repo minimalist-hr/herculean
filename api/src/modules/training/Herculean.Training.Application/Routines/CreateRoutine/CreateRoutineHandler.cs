@@ -7,6 +7,7 @@ using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Routines;
+using Herculean.Training.Domain.WeekPlan;
 
 namespace Herculean.Training.Application.Routines.CreateRoutine;
 
@@ -15,9 +16,12 @@ internal sealed class CreateRoutineHandler(
     CurrentUser currentUser,
     IRoutineRepository routineRepository,
     IExerciseRepository exerciseRepository,
+    IRoutineReadRepository routineReadRepository,
+    WeekPlanner weekPlanner,
+    UserClock userClock,
     IUnitOfWork unitOfWork)
 {
-    public async Task<Result<RoutineResponse>> HandleAsync(CreateRoutineRequest request, CancellationToken cancellationToken)
+    public async Task<Result<RoutineSavedResponse>> HandleAsync(CreateRoutineRequest request, CancellationToken cancellationToken)
     {
         ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -43,8 +47,11 @@ internal sealed class CreateRoutineHandler(
 
         Routine routine = Routine.Create(currentUser.UserId, request.Name, exercises);
         routineRepository.Add(routine);
+        DateOnly today = await userClock.GetTodayAsync(cancellationToken);
+        List<MovedDay> movedDays = await weekPlanner.PlanRoutineAsync(routine, request.Weekdays, today, cancellationToken);
+        Dictionary<RoutineId, string> names = await routineReadRepository.ListNamesAsync(cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new RoutineResponse(routine.Id.Value, routine.Name);
+        return RoutineSavedResponse.From(routine, movedDays, names);
     }
 }

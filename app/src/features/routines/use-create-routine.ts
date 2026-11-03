@@ -4,11 +4,13 @@ import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import { exerciseKeys } from '@/features/exercises/query-keys';
 
+import type { Weekday } from './formats';
 import { routineKeys } from './query-keys';
 import type { RoutineExerciseDraft } from './routine-draft';
 
 interface CreateRoutine {
   name: string;
+  weekdays: Weekday[];
   exercises: RoutineExerciseDraft[];
 }
 
@@ -17,10 +19,11 @@ export function useCreateRoutine() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ name, exercises }: CreateRoutine) => {
+    mutationFn: async ({ name, weekdays, exercises }: CreateRoutine) => {
       const { data, error } = await api.POST('/api/v1/routines', {
         body: {
           name,
+          weekdays,
           exercises: exercises.map((exercise) => ({
             exerciseId: exercise.exerciseId,
             targetSets: exercise.targetSets,
@@ -37,9 +40,12 @@ export function useCreateRoutine() {
     },
     onSuccess: () =>
       Promise.all(
-        [routineKeys.all, exerciseKeys.details].map((queryKey) =>
-          queryClient.invalidateQueries({ queryKey }),
-        ),
+        [
+          routineKeys.all,
+          routineKeys.weekPlan,
+          routineKeys.details,
+          exerciseKeys.details,
+        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       ),
   });
 }

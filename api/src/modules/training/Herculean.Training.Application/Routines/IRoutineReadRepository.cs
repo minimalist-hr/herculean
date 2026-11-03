@@ -9,6 +9,9 @@ internal interface IRoutineReadRepository
     /// <summary>The current user's routines, by their first planned weekday, then name.</summary>
     Task<List<RoutineListItemResponse>> ListAsync(CancellationToken cancellationToken);
 
+    /// <summary>The names of the current user's routines, by ID.</summary>
+    Task<Dictionary<RoutineId, string>> ListNamesAsync(CancellationToken cancellationToken);
+
     /// <summary>One of the current user's routines, or null if there is none.</summary>
     Task<RoutineDetailsResponse?> GetAsync(RoutineId id, CancellationToken cancellationToken);
 }

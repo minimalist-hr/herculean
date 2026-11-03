@@ -57,6 +57,7 @@ function problem(status: number, code: string, detail: string) {
 
 interface Saved {
   name: string;
+  weekdays: string[];
   exercises: { exerciseId: string; targetSets: number }[];
 }
 
@@ -87,7 +88,10 @@ function answer(save?: () => Response, groups: unknown[] = [chest, legs]) {
       saved = (await request.json()) as Saved;
       return (
         save?.() ??
-        Response.json({ id: 'r', name: saved.name.trim() }, { status: 201 })
+        Response.json(
+          { id: 'r', name: saved.name.trim(), movedDays: [] },
+          { status: 201 },
+        )
       );
     }
     if (url.pathname === '/api/v1/exercises' && request.method === 'POST') {
@@ -194,11 +198,7 @@ test('starts empty and says what to do', async () => {
   answer();
   await openNew();
 
-  expect(
-    screen.getByText(
-      'Not planned yet. Add it to days in the week plan after saving.',
-    ),
-  ).toBeOnTheScreen();
+  expect(screen.getByText('Pick its days now or later.')).toBeOnTheScreen();
   expect(screen.getByText('No exercises yet')).toBeOnTheScreen();
 });
 
@@ -234,6 +234,7 @@ test('picked exercises come back at 3 × 8–10, and saving sends them', async (
   await editorClosed();
   expect(saved).toEqual({
     name: 'Legs',
+    weekdays: [],
     exercises: [
       {
         exerciseId: 'squat',
@@ -413,6 +414,49 @@ test('moving an exercise changes the order it saves in', async () => {
       'squat',
     ]);
   });
+});
+
+test('picked days are sent in week order, and clearing one takes it back', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+  await fireEvent.changeText(screen.getByLabelText('Name'), 'Legs');
+
+  expect(screen.getByText(/· optional/)).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Thursday' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Monday' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Friday' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Friday' }));
+  await pressLast('Save routine');
+
+  await editorClosed();
+  expect(saved?.weekdays).toEqual(['monday', 'thursday']);
+});
+
+test('days taken from different routines are named together', async () => {
+  answer(() =>
+    Response.json(
+      {
+        id: 'r',
+        name: 'Legs',
+        movedDays: [
+          { weekday: 'monday', fromRoutine: 'Push' },
+          { weekday: 'thursday', fromRoutine: 'Pull' },
+        ],
+      },
+      { status: 201 },
+    ),
+  );
+  await openNew();
+  await addSquat();
+  await fireEvent.changeText(screen.getByLabelText('Name'), 'Legs');
+  await pressLast('Save routine');
+
+  expect(
+    await screen.findByText(
+      'Legs created. Monday and Thursday moved from other routines.',
+    ),
+  ).toBeOnTheScreen();
 });
 
 test('a name the user already has shows under Name', async () => {

@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.24 · 3 November 2026 · Minimalist
+Version 0.25 · 3 November 2026 · Minimalist
+
+> Changes since 0.24: days are picked on the routine, not per day, so R10 is gone. On R01 each weekday has its own muted color, linking its square to the routine's day tag. R20 and R30 have an optional Days row, saved with Save routine, with a small "Picking a day replaces its routine" beside its title. R05 shows the days and can't change them. On R01 the week plan is a compact strip above the routines, and R03 doesn't have it. Targets on R20 and R30 are `primaryText`, like R05, and Forgot password? on A01 lines up with the fields. Exercises on R05, R20 and R30 show their group, and neighbours in the same group join.
 
 > Changes since 0.23: built screens now come from the running app, so their PNG, HTML and source show what is built, every state included. New states are listed in each row below. The tool is in `capture/`. Screens not built yet stay drawings. A00, A02, A13, A14 and E10 stay drawings too: the web version can't reach the first two, the next two aren't app screens, and E10 needs logging.
 
@@ -59,7 +61,7 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 ## 1. Scope
 
 - **Platform:** phone app, designed at 390 × 844 px (iPhone 14/15 size). Long screens are drawn at full scroll height and marked "full scroll".
-- **Screens:** 124 app screens in six areas, plus one brand board.
+- **Screens:** 128 app screens in six areas, plus one brand board.
 - **Themes:** dark (default) and light, two accent colors, four fonts and two corner styles. Each one can be switched on every board through Tweaks.
 - **Not in scope yet:** see section 11, Parked.
 
@@ -315,6 +317,14 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 **Groups.** A group can only be deleted when it has no exercises. Only an empty group's trash on E35 is active, in red.
 
+**Day colors.** Each weekday has its own muted color (`day` tokens), only on R01: its square in the week plan and its day tag on the routine below. It never means a status, and the day name always shows with it. Picked Days chips (R05, R20, R30) use `primary`.
+
+**Optional fields.** An optional field says so after its label, as "Days · optional" and "Also works · optional". Required fields say nothing.
+
+**Picking days.** A day holds one routine. Picking a day another routine has moves it to this one when the form is saved, and the notification says so: "Legs saved. Monday moved from Push."
+
+**Groups in a routine.** Each exercise on R05, R20 and R30 shows its group after its target. Exercises keep the user's order, and neighbours in the same main group join into one block, with one line between them and round corners only outside. While a row is dragged on R20 every card separates, and they rejoin on drop.
+
 **Exercises in a routine.** An exercise in a routine can't be deleted. Its trash on E10 is muted, and tapping it says "It's in Legs and Arms. Remove it from those routines first." One routine reads "It's in Legs. Remove it from that routine first." More than three read "It's in 5 routines. Remove it from them first."
 
 **Actions that aren't available.** An action that isn't available looks muted but stays tappable, and a notification says why, for example "Move or delete this group's exercises first." A button dimmed while another action waits is different: it can't be pressed.
@@ -403,10 +413,9 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | Row | Screens | What happens |
 |---|---|---|
-| **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines, R04 No search matches, R06 Load failure, R07 Routine deleted, with Undo | Your routines with their day tags, then the week plan ("Repeats every week") with one row per day. The title, a short description and search by name stay pinned, and New routine is pinned at the bottom. With no routines, search goes. While searching, the week plan goes. |
-| **R2 Week plan** | R10 Week plan day | A weekday on R01 opens R10, a sheet to pick the routine or Rest day → Save day. Today, the week strip and the month follow the plan. |
-| **R3 Edit a routine** | R05 Routine details, R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine, R08 Loading, R09 Load failure, R24 Name taken, R25 Exercise removed, with Undo, R26 Confirm | A routine on R01 opens R05: its name, days and totals, edit and delete buttons, and its exercises with targets, for display only. Edit opens R20, a page with name, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine. R21 opens as a page from R20. Delete opens R22. Deleting a routine makes its days rest days, and a notification on R01 offers Undo, which brings them back. |
-| **R4 New routine** | R30 New routine, R31 Fields missing | A page with name and exercises, then Save routine. Opens from New routine on R01/R03 and from Create routine on H05/W05. |
+| **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines, R04 No search matches, R06 Load failure, R07 Routine deleted, with Undo, R11 Rest day says how to plan it | The week plan, then your routines with their day tags. The week plan ("Repeats every week") is one strip of seven days: a square in the day's color for a day with a routine, a dash for a rest day. Tapping a day with a routine opens its R05, and tapping a rest day says "Thursday is a rest day. Edit a routine to pick its days." The title, a short description and search by name stay pinned, and New routine is pinned at the bottom. With no routines, search and the week plan go. While searching, the week plan goes. Today, the week strip and the month follow the plan. |
+| **R3 Edit a routine** | R05 Routine details, R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine, R28 A day moved from another routine, R27 Same group joined, R29 Same group joined while editing | A routine on R01 opens R05: its name and totals, edit and delete buttons, then its days and its exercises with targets, for display only. Edit opens R20, a page with name, days, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine. R21 opens as a page from R20. Delete opens R22. Deleting a routine makes its days rest days, and a notification on R01 offers Undo, which brings them back. |
+| **R4 New routine** | R30 New routine, R32 Days picked | A page with name, days and exercises, then Save routine. Days are optional. Opens from New routine on R01/R03 and from Create routine on H05/W05. |
 
 ### E · Exercises
 
@@ -443,7 +452,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 **Parked for later**
 - Home content beyond today's card.
 - Bodyweight logging (Pull-up, Triceps dip).
-- Highlighting today's row in the R01 week plan.
+- Highlighting today in the R01 week plan.
 - A progression nudge.
 - Exercise notes.
 - Supersets.

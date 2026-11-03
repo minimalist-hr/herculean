@@ -68,7 +68,15 @@ export function AddExerciseScreen({ back }: { back: string }) {
     setPicked((current) =>
       current.some((item) => item.id === exercise.id)
         ? current.filter((item) => item.id !== exercise.id)
-        : [...current, { id: exercise.id, name: exercise.name }],
+        : [
+            ...current,
+            {
+              id: exercise.id,
+              name: exercise.name,
+              groupId: exercise.groupId,
+              groupName: exercise.groupName,
+            },
+          ],
     );
   }
 
@@ -314,6 +322,8 @@ export function AddExerciseScreen({ back }: { back: string }) {
               ...picked.map((exercise) => ({
                 exerciseId: exercise.id,
                 name: exercise.name,
+                groupId: exercise.groupId,
+                groupName: exercise.groupName,
                 ...startingTargets,
               })),
             ]);

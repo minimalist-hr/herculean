@@ -15,6 +15,8 @@ internal sealed record RoutineDetailsResponse(
 internal sealed record RoutineExerciseResponse(
     [property: Description("The exercise's ID.")] Guid ExerciseId,
     [property: Description("The exercise's name.")] string Name,
+    [property: Description("The ID of the group it belongs to.")] Guid GroupId,
+    [property: Description("The name of the group it belongs to.")] string GroupName,
     [property: Description("The sets to do.")] int TargetSets,
     [property: Description("The low end of the rep range.")] int TargetRepsFrom,
     [property: Description("The high end of the rep range.")] int TargetRepsTo);

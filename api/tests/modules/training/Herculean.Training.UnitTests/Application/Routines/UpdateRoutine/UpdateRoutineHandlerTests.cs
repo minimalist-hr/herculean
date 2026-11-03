@@ -1,10 +1,12 @@
 using Herculean.SharedKernel.Results;
+using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Routines;
 using Herculean.Training.Application.Routines.UpdateRoutine;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
+using Herculean.Training.Domain.WeekPlan;
 
 namespace Herculean.Training.UnitTests.Application.Routines.UpdateRoutine;
 
@@ -13,6 +15,8 @@ public sealed class UpdateRoutineHandlerTests
     private readonly UserId _userId = UserId.From(Guid.CreateVersion7());
     private readonly FakeExerciseRepository _exerciseRepository = new();
     private readonly FakeRoutineRepository _routineRepository = new();
+    private readonly FakeRoutineReadRepository _routineReadRepository = new();
+    private readonly FakeWeekPlanDayRepository _weekPlanDayRepository = new();
     private readonly FakeUnitOfWork _unitOfWork = new();
     private readonly UpdateRoutineHandler _handler;
     private readonly Exercise _squat;
@@ -27,7 +31,10 @@ public sealed class UpdateRoutineHandlerTests
         _press = AddExercise("Press");
         _routine = Routine.Create(_userId, "Legs", [new RoutineExerciseValues(_squat.Id, 3, 8, 10), new RoutineExerciseValues(_lunge.Id, 3, 8, 10)]);
         _routineRepository.Add(_routine);
-        _handler = new UpdateRoutineHandler(new UpdateRoutineValidator(), _routineRepository, _exerciseRepository, _unitOfWork);
+        _handler = new UpdateRoutineHandler(new UpdateRoutineValidator(), _routineRepository, _exerciseRepository, _routineReadRepository,
+            new WeekPlanner(_weekPlanDayRepository),
+            new UserClock(new CurrentUser(new FakeCurrentUserAccessor()), new FakeGetUserTimeZone(), TimeProvider.System),
+            _unitOfWork);
     }
 
     [Fact]
@@ -35,7 +42,7 @@ public sealed class UpdateRoutineHandlerTests
     {
         RoutineExerciseId keptRow = _routine.Exercises[1].Id;
 
-        Result<RoutineResponse> result = await HandleAsync(
+        Result<RoutineSavedResponse> result = await HandleAsync(
             _routine.Id.Value,
             " Lower body ",
             new RoutineExerciseItem(_press.Id.Value, 2, 5, 5),
@@ -53,9 +60,25 @@ public sealed class UpdateRoutineHandlerTests
     }
 
     [Fact]
+    public async Task ADayFromALiveRoutineIsNamedAndOneFromADeletedRoutineIsLeftOut()
+    {
+        Routine push = Routine.Create(_userId, "Push", []);
+        _routineReadRepository.Names[push.Id] = "Push";
+        _weekPlanDayRepository.Add(WeekPlanDay.Create(_userId, Weekday.Monday, push.Id, new DateOnly(2026, 1, 1)));
+        _weekPlanDayRepository.Add(WeekPlanDay.Create(_userId, Weekday.Friday, RoutineId.New(), new DateOnly(2026, 1, 1)));
+
+        Result<RoutineSavedResponse> result = await _handler.HandleAsync(
+            _routine.Id.Value,
+            new UpdateRoutineRequest("Legs", [Weekday.Monday, Weekday.Friday], [new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10)]),
+            TestContext.Current.CancellationToken);
+
+        result.Value.MovedDays.ShouldBe([new MovedDayResponse(Weekday.Monday, "Push")]);
+    }
+
+    [Fact]
     public async Task ARoutineCanKeepItsOwnName()
     {
-        Result<RoutineResponse> result = await HandleAsync(_routine.Id.Value, "LEGS", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10));
+        Result<RoutineSavedResponse> result = await HandleAsync(_routine.Id.Value, "LEGS", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10));
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -65,7 +88,7 @@ public sealed class UpdateRoutineHandlerTests
     {
         _routineRepository.Add(Routine.Create(_userId, "Arms", []));
 
-        Result<RoutineResponse> result = await HandleAsync(_routine.Id.Value, "arms", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10));
+        Result<RoutineSavedResponse> result = await HandleAsync(_routine.Id.Value, "arms", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10));
 
         result.Error.ShouldBe(RoutineErrors.NameTaken);
         _routine.Name.ShouldBe("Legs");
@@ -75,7 +98,7 @@ public sealed class UpdateRoutineHandlerTests
     [Fact]
     public async Task AnUnknownRoutineIsNotFound()
     {
-        Result<RoutineResponse> result = await HandleAsync(Guid.CreateVersion7(), "Legs", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10));
+        Result<RoutineSavedResponse> result = await HandleAsync(Guid.CreateVersion7(), "Legs", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10));
 
         result.Error.ShouldBe(RoutineErrors.NotFound);
     }
@@ -83,7 +106,7 @@ public sealed class UpdateRoutineHandlerTests
     [Fact]
     public async Task AnUnknownExerciseIsNotFound()
     {
-        Result<RoutineResponse> result = await HandleAsync(_routine.Id.Value, "Legs", new RoutineExerciseItem(Guid.CreateVersion7(), 3, 8, 10));
+        Result<RoutineSavedResponse> result = await HandleAsync(_routine.Id.Value, "Legs", new RoutineExerciseItem(Guid.CreateVersion7(), 3, 8, 10));
 
         result.Error.ShouldBe(ExerciseErrors.NotFound);
         _unitOfWork.Saved.ShouldBeFalse();
@@ -92,7 +115,7 @@ public sealed class UpdateRoutineHandlerTests
     [Fact]
     public async Task NoExercisesIsNotValid()
     {
-        Result<RoutineResponse> result = await HandleAsync(_routine.Id.Value, "Legs");
+        Result<RoutineSavedResponse> result = await HandleAsync(_routine.Id.Value, "Legs");
 
         result.IsSuccess.ShouldBeFalse();
         _routine.Exercises.Count.ShouldBe(2);
@@ -106,6 +129,6 @@ public sealed class UpdateRoutineHandlerTests
         return exercise;
     }
 
-    private Task<Result<RoutineResponse>> HandleAsync(Guid id, string name, params RoutineExerciseItem[] exercises) =>
-        _handler.HandleAsync(id, new UpdateRoutineRequest(name, [.. exercises]), TestContext.Current.CancellationToken);
+    private Task<Result<RoutineSavedResponse>> HandleAsync(Guid id, string name, params RoutineExerciseItem[] exercises) =>
+        _handler.HandleAsync(id, new UpdateRoutineRequest(name, [], [.. exercises]), TestContext.Current.CancellationToken);
 }

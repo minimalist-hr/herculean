@@ -33,6 +33,8 @@ function routine(weekdays: string[] = ['monday']) {
       {
         exerciseId: 'squat',
         name: 'Squat',
+        groupId: 'legs',
+        groupName: 'Legs',
         targetSets: 3,
         targetRepsFrom: 8,
         targetRepsTo: 10,
@@ -40,6 +42,8 @@ function routine(weekdays: string[] = ['monday']) {
       {
         exerciseId: 'lunge',
         name: 'Lunge',
+        groupId: 'legs',
+        groupName: 'Legs',
         targetSets: 2,
         targetRepsFrom: 6,
         targetRepsTo: 6,
@@ -148,21 +152,22 @@ test('shows the skeleton, then the routine for display', async () => {
 
   expect(await screen.findByLabelText('Loading the routine')).toBeOnTheScreen();
   expect(await screen.findByRole('header', { name: 'Legs' })).toBeOnTheScreen();
-  expect(
-    screen.getByText('Every Monday · 2 exercises · 5 sets'),
-  ).toBeOnTheScreen();
+  expect(screen.getByText('2 exercises · 5 sets')).toBeOnTheScreen();
   expect(screen.getByText('3 × 8–10')).toBeOnTheScreen();
+  expect(screen.getAllByText(/· Legs$/)).toHaveLength(2);
   expect(screen.getByText('2 × 6')).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: 'Squat' })).toBeNull();
 });
 
-test('a routine with no days says so', async () => {
-  answer(routine([]));
+test('its days show, and can only be changed by editing', async () => {
+  answer(routine(['monday', 'thursday']));
   await open();
 
-  expect(
-    await screen.findByText('Not in your week plan · 2 exercises · 5 sets'),
-  ).toBeOnTheScreen();
+  expect(await screen.findByLabelText('Monday, planned')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Thursday, planned')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Tuesday')).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: 'Monday' })).toBeNull();
+  expect(screen.queryByText('Picking a day replaces its routine')).toBeNull();
 });
 
 test('a failed read says so, and Try again reads it again', async () => {

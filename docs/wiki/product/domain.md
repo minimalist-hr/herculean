@@ -102,6 +102,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A routine's name has 1 to 100 characters, trimmed. It differs from the user's other routines, regardless of case. A deleted routine's name can be used again.
 - A user can have at most 50 routines.
 - A routine has 1 to 30 exercises when saved, each once.
+- A routine's days are saved with the routine. A day holds one routine, so picking a day another routine has moves it. A change applies from today on.
 - A target has 1 to 20 sets, and a rep range from 1 to 100 whose low end isn't above its high end.
 - Deleting a routine turns its weekdays into rest days from the date it was deleted, in the user's time zone. Earlier days keep their plan, and past workouts keep their name. Undo brings the weekdays back.
 - A group's name has 1 to 30 characters, trimmed. It differs from the user's other groups, regardless of case. A deleted group's name can be used again.

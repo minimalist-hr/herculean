@@ -66,7 +66,8 @@ async function mockApi(page, state) {
       return;
     }
 
-    const body = request.postData() === undefined ? undefined : JSON.parse(request.postData());
+    const postData = request.hasPostData() ? await request.fetchPostData() : undefined;
+    const body = postData === undefined ? undefined : JSON.parse(postData);
     const answer = custom ?? api(request.method(), url.pathname, body, url.searchParams);
     await request.respond({
       status: answer.status,
@@ -264,6 +265,7 @@ ${body}
 const tokens = [
   ['#050506', 'c.bg'], ['#0F1012', 'c.card'], ['#17181B', 'c.raised'], ['#2C2F34', 'c.border'], ['#F2F3F5', 'c.text'], ['#A9AEB6', 'c.muted'],
   ['#1A55E6', 'c.primary'], ['#7EA2FF', 'c.primaryText'], ['#FFFFFF', 'c.onPrimary'], ['#F87171', 'c.danger'], ['#DC2626', 'c.dangerFill'],
+  ['#C58FA6', 'c.day.monday'], ['#A99BC9', 'c.day.tuesday'], ['#7FB0C2', 'c.day.wednesday'], ['#7FB59F', 'c.day.thursday'], ['#A9B77E', 'c.day.friday'], ['#C9B57A', 'c.day.saturday'], ['#C99A7A', 'c.day.sunday'],
 ];
 const radii = [['6px', 'r.card'], ['4px', 'r.ctrl'], ['3px', 'r.pill'], ['10px', 'r.sheet']];
 

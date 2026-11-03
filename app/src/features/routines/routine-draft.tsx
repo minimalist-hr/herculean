@@ -17,11 +17,15 @@ export const startingTargets: Targets = {
 export interface RoutineExerciseDraft extends Targets {
   exerciseId: string;
   name: string;
+  groupId: string;
+  groupName: string;
 }
 
 export interface PickedExercise {
   id: string;
   name: string;
+  groupId: string;
+  groupName: string;
 }
 
 interface RoutineDraftPages {

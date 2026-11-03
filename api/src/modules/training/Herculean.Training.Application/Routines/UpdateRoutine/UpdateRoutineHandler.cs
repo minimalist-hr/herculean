@@ -5,7 +5,9 @@ using Herculean.SharedKernel.Results;
 using Herculean.SharedKernel.Validation;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
+using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain.Routines;
+using Herculean.Training.Domain.WeekPlan;
 
 namespace Herculean.Training.Application.Routines.UpdateRoutine;
 
@@ -13,9 +15,12 @@ internal sealed class UpdateRoutineHandler(
     IValidator<UpdateRoutineRequest> validator,
     IRoutineRepository routineRepository,
     IExerciseRepository exerciseRepository,
+    IRoutineReadRepository routineReadRepository,
+    WeekPlanner weekPlanner,
+    UserClock userClock,
     IUnitOfWork unitOfWork)
 {
-    public async Task<Result<RoutineResponse>> HandleAsync(Guid id, UpdateRoutineRequest request, CancellationToken cancellationToken)
+    public async Task<Result<RoutineSavedResponse>> HandleAsync(Guid id, UpdateRoutineRequest request, CancellationToken cancellationToken)
     {
         ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -42,8 +47,11 @@ internal sealed class UpdateRoutineHandler(
         }
 
         routine.Update(request.Name, exercises);
+        DateOnly today = await userClock.GetTodayAsync(cancellationToken);
+        List<MovedDay> movedDays = await weekPlanner.PlanRoutineAsync(routine, request.Weekdays, today, cancellationToken);
+        Dictionary<RoutineId, string> names = await routineReadRepository.ListNamesAsync(cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new RoutineResponse(routine.Id.Value, routine.Name);
+        return RoutineSavedResponse.From(routine, movedDays, names);
     }
 }

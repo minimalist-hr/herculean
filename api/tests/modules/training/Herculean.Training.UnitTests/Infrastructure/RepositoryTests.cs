@@ -53,16 +53,17 @@ public sealed class RepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GroupIdsAreTheCurrentUsersGroupsThatAreNotDeleted()
+    public async Task OnlyTheCurrentUsersGroupsThatAreNotDeletedExist()
     {
         IReadOnlyList<Group> groups = await SaveGroupsAsync(_userId);
-        await SaveGroupsAsync(UserId.From(Guid.CreateVersion7()));
+        IReadOnlyList<Group> others = await SaveGroupsAsync(UserId.From(Guid.CreateVersion7()));
         _dbContext.Entry(groups[0]).Property(group => group.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        GroupRepository groupRepository = new(_dbContext);
 
-        List<GroupId> ids = await new GroupRepository(_dbContext).ListIdsAsync(TestContext.Current.CancellationToken);
-
-        ids.ShouldBe(groups.Skip(1).Select(group => group.Id), ignoreOrder: true);
+        (await groupRepository.AllExistAsync([groups[1].Id, groups[2].Id], TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await groupRepository.AllExistAsync([groups[0].Id, groups[1].Id], TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await groupRepository.AllExistAsync([others[0].Id], TestContext.Current.CancellationToken)).ShouldBeFalse();
     }
 
     [Fact]

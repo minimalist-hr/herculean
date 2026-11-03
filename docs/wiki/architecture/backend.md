@@ -71,6 +71,8 @@ Herculean.Training.Application/
 
 - **Endpoint:** HTTP only. It holds the route and auth, calls the handler and turns its `Result` into an HTTP response. Each parameter names where it comes from: `[FromBody]`, `[FromRoute]`, `[FromQuery]` or `[FromServices]`.
 - **Handler:** the use case. Its first step calls the validator.
+- **Domain service:** a business rule across aggregates, in Domain. It is named for what it does, with no `Service` suffix, for example `WeekPlanner`. It knows no clock and no responses: the handler passes in what it needs.
+- **Application service:** a helper for handlers that is no use case, in Application, for example `CurrentUser` and `UserClock`.
 - **Validator:** FluentValidation. Every request has one.
 - **No input, no request:** an endpoint with no input, for example "list my routines", has no request type.
 - **Routes:** each resource keeps its routes and OpenAPI tag as constants in one class in Application, for example `UserRoutes.Me`. Each endpoint keeps its name in a `Name` constant.
@@ -86,9 +88,9 @@ Herculean.Training.Application/
 
 ## Data access
 
-- **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure.
+- **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure. A repository returns aggregates to change, or answers a check that a write needs, such as `NameExistsAsync`. It never returns data for display.
 - **Unit of work:** a handler saves once, through its module's `IUnitOfWork`, which is the module's DbContext. Repositories never save.
-- **Reads** query the DbContext directly with projections. Each has a read repository: its interface in Application, for example `IExerciseReadRepository`, and its code in Infrastructure.
+- **Reads** query the DbContext directly with projections. Each has a read repository: its interface in Application, for example `IExerciseReadRepository`, and its code in Infrastructure. It returns what a response needs, and never changes anything.
 - **One database:** one schema and one DbContext per module.
 - **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
 - **Foreign keys** never cascade in the database: they are `ON DELETE RESTRICT`, or `NO ACTION` where EF deletes the children itself. Code deletes child rows on purpose. A child removed from its aggregate, for example a used refresh token, is deleted on save (EF client cascade).
@@ -108,6 +110,7 @@ Herculean.Training.Application/
 ## Events between modules
 
 - Modules talk through events and through queries in Contracts.
+- A query is a record in the answering module's Contracts, for example `GetUserTimeZoneQuery`. That module answers it with an `IQueryHandler<TQuery, TResult>`, named after the query, for example `GetUserTimeZoneQueryHandler`. It only reads. The asking module injects the handler by that interface.
 - Events use an outbox. A module that sends events has an `outbox_messages` table in its schema.
 - An event is a record in the sending module's Contracts, for example `AccountCreatedIntegrationEvent`. The handler adds it with `IOutbox`, and the unit of work saves it in the same transaction as the change.
 - A receiving module handles it with an `IIntegrationEventHandler<T>`, named after the event, for example `AccountCreatedIntegrationEventHandler`, and registered with `AddIntegrationEventHandler`.

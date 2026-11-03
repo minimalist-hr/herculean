@@ -28,8 +28,7 @@ internal sealed class CreateExerciseHandler(
         GroupId groupId = GroupId.From(request.GroupId);
         List<GroupId> alsoWorksGroupIds = [.. (request.AlsoWorksGroupIds ?? []).Select(GroupId.From)];
 
-        List<GroupId> usersGroupIds = await groupRepository.ListIdsAsync(cancellationToken);
-        if (!usersGroupIds.Contains(groupId) || !alsoWorksGroupIds.All(usersGroupIds.Contains))
+        if (!await groupRepository.AllExistAsync([groupId, .. alsoWorksGroupIds], cancellationToken))
         {
             return GroupErrors.NotFound;
         }

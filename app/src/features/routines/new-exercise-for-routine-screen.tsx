@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { NewExerciseScreen } from '@/features/exercises/new-exercise-screen';
+import { useGroups } from '@/features/exercises/use-groups';
 
 import { useRoutineDraft } from './routine-draft';
 
@@ -8,6 +9,7 @@ import { useRoutineDraft } from './routine-draft';
 export function NewExerciseForRoutineScreen() {
   const router = useRouter();
   const { setPicked, setCreatedIds } = useRoutineDraft();
+  const groups = useGroups();
   const { name, groupId } = useLocalSearchParams<{
     name?: string;
     groupId?: string;
@@ -21,7 +23,14 @@ export function NewExerciseForRoutineScreen() {
       onCreated={(exercise) => {
         setPicked((current) => [
           ...current,
-          { id: exercise.id, name: exercise.name },
+          {
+            id: exercise.id,
+            name: exercise.name,
+            groupId: exercise.groupId,
+            groupName:
+              groups.data?.find((group) => group.id === exercise.groupId)
+                ?.name ?? '',
+          },
         ]);
         setCreatedIds((current) => [...current, exercise.id]);
         router.back();

@@ -153,6 +153,7 @@ public sealed class RoutineReadRepositoryTests : IDisposable
         details.Weekdays.ShouldBe([Weekday.Monday, Weekday.Thursday]);
         details.Exercises.Select(exercise => exercise.TargetSets).ShouldBe([3, 4]);
         details.Exercises[0].Name.ShouldStartWith("Legs");
+        details.Exercises[0].GroupName.ShouldNotBeNullOrEmpty();
         details.Exercises[1].TargetRepsTo.ShouldBe(5);
     }
 

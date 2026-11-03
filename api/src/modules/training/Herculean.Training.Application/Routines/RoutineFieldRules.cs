@@ -4,6 +4,7 @@ using FluentValidation;
 
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Routines;
+using Herculean.Training.Domain.WeekPlan;
 
 namespace Herculean.Training.Application.Routines;
 
@@ -18,6 +19,8 @@ internal sealed record RoutineExerciseItem(
 internal interface IRoutineFields
 {
     string Name { get; }
+
+    List<Weekday> Weekdays { get; }
 
     List<RoutineExerciseItem> Exercises { get; }
 }
@@ -39,6 +42,11 @@ internal static class RoutineFieldRules
         validator.RuleFor(request => request.Name)
             .Must(name => !string.IsNullOrWhiteSpace(name) && name.Trim().Length <= Routine.NameMaxLength)
             .WithMessage($"'{{PropertyName}}' must have 1 to {Routine.NameMaxLength} characters.");
+        validator.RuleFor(request => request.Weekdays)
+            .NotNull()
+            .Must(weekdays => weekdays is null || weekdays.Distinct().Count() == weekdays.Count)
+            .WithMessage("'{PropertyName}' can't repeat a weekday.");
+        validator.RuleForEach(request => request.Weekdays).IsInEnum();
         validator.RuleFor(request => request.Exercises)
             .Must(exercises => exercises is { Count: > 0 and <= Routine.MaxExercises })
             .WithMessage($"'{{PropertyName}}' must have 1 to {Routine.MaxExercises} exercises.")

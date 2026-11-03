@@ -36,6 +36,7 @@ using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Domain.WeekPlan;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
@@ -60,11 +61,14 @@ public static class TrainingModule
 
         builder.Services.AddCurrentUserAccessor();
         builder.Services.AddScoped<CurrentUser>();
+        builder.Services.AddScoped<UserClock>();
 
         builder.Services.AddScoped<IWorkoutSettingsRepository, WorkoutSettingsRepository>();
         builder.Services.AddScoped<IGroupRepository, GroupRepository>();
         builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
         builder.Services.AddScoped<IRoutineRepository, RoutineRepository>();
+        builder.Services.AddScoped<IWeekPlanDayRepository, WeekPlanDayRepository>();
+        builder.Services.AddScoped<WeekPlanner>();
         builder.Services.AddScoped<IGroupReadRepository, GroupReadRepository>();
         builder.Services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
         builder.Services.AddScoped<IRoutineReadRepository, RoutineReadRepository>();

@@ -22,7 +22,8 @@ import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
-import { counted, targetText } from './formats';
+import { DayChips } from './day-chips';
+import { counted, sameGroup, targetText, type Weekday } from './formats';
 import { useRoutineDraft, type RoutineExerciseDraft } from './routine-draft';
 
 const routineNameSchema = z.object({
@@ -33,15 +34,22 @@ const routineNameSchema = z.object({
     .max(100, 'At most 100 characters.'),
 });
 
+const noDays: Weekday[] = [];
+
 interface RoutineEditorProps {
   /** The screen its back link returns to. */
   back: string;
   title: string;
   subtitle: string;
   initialName: string;
+  initialWeekdays?: Weekday[];
   saving: boolean;
   /** Saves the routine. A failure it throws shows on the form. */
-  onSave: (name: string, exercises: RoutineExerciseDraft[]) => Promise<unknown>;
+  onSave: (
+    name: string,
+    weekdays: Weekday[],
+    exercises: RoutineExerciseDraft[],
+  ) => Promise<unknown>;
 }
 
 /** A page with a routine's name and exercises. Nothing is sent until Save routine. */
@@ -50,6 +58,7 @@ export function RoutineEditor({
   title,
   subtitle,
   initialName,
+  initialWeekdays = noDays,
   saving,
   onSave,
 }: RoutineEditorProps) {
@@ -57,6 +66,7 @@ export function RoutineEditor({
   const router = useRouter();
   const { pages, exercises, changed, setExercises, setPicked, setCreatedIds } =
     useRoutineDraft();
+  const [selectedDays, setSelectedDays] = useState(initialWeekdays);
   const [noExercisesError, setNoExercisesError] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [removing, setRemoving] = useState<RoutineExerciseDraft>();
@@ -66,7 +76,11 @@ export function RoutineEditor({
     defaultValues: { name: initialName },
   });
 
-  const guard = useLeaveGuard(formState.isDirty || changed);
+  const guard = useLeaveGuard(
+    formState.isDirty ||
+      changed ||
+      selectedDays.join() !== initialWeekdays.join(),
+  );
 
   // An Undo can do nothing once the form is gone.
   useEffect(() => dismissAction, []);
@@ -81,7 +95,7 @@ export function RoutineEditor({
 
       guard.allow();
       try {
-        await onSave(name, exercises);
+        await onSave(name, selectedDays, exercises);
       } catch (error) {
         guard.block();
         if (
@@ -168,6 +182,23 @@ export function RoutineEditor({
           />
 
           <View style={{ gap: space.sm }}>
+            <View style={styles.daysTitle}>
+              <Text style={text.eyebrow}>
+                Days
+                <Text style={[text.meta, styles.optional]}> · optional</Text>
+              </Text>
+              <Text style={text.meta}>Picking a day replaces its routine</Text>
+            </View>
+            <DayChips
+              selected={selectedDays}
+              onChange={(days) => {
+                dismissNotification();
+                setSelectedDays(days);
+              }}
+            />
+          </View>
+
+          <View style={{ gap: space.sm }}>
             <View style={[styles.sectionTitle, { gap: space.md }]}>
               <View style={styles.sectionText}>
                 <Text style={text.eyebrow}>Exercises</Text>
@@ -194,6 +225,7 @@ export function RoutineEditor({
                 moveLabel={(exercise) => `Move ${exercise.name}`}
                 onDragChange={setDragging}
                 onReorder={setExercises}
+                joined={sameGroup}
                 renderRow={(exercise) => (
                   <>
                     <Pressable
@@ -210,7 +242,12 @@ export function RoutineEditor({
                       >
                         {exercise.name}
                       </Text>
-                      <Text style={text.meta}>{targetText(exercise)}</Text>
+                      <Text style={text.meta}>
+                        <Text style={{ color: colors.primaryText }}>
+                          {targetText(exercise)}
+                        </Text>
+                        {` · ${exercise.groupName}`}
+                      </Text>
                     </Pressable>
                     <Pressable
                       accessibilityRole="button"
@@ -288,6 +325,16 @@ export function RoutineEditor({
 }
 
 const styles = StyleSheet.create({
+  daysTitle: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  optional: {
+    textTransform: 'none',
+    letterSpacing: 0,
+  },
   sectionTitle: {
     flexDirection: 'row',
     alignItems: 'center',

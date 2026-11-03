@@ -22,19 +22,19 @@ internal static class UpdateRoutineEndpoint
     }
 
     [EndpointSummary("Change a routine")]
-    [EndpointDescription("Replaces a routine's name, exercises, order and targets. Workouts already started keep what they copied.")]
-    [ProducesResponseType<RoutineResponse>(StatusCodes.Status200OK, Description = "The changed routine.")]
+    [EndpointDescription("Replaces a routine's name, weekdays, exercises, order and targets. Weekdays change from today, and workouts already started keep what they copied.")]
+    [ProducesResponseType<RoutineSavedResponse>(StatusCodes.Status200OK, Description = "The changed routine.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each one.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json", Description = "The routine or one of the exercises does not exist.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "The user already has another routine with this name.")]
-    private static async Task<Results<Ok<RoutineResponse>, ProblemHttpResult>> HandleAsync(
+    private static async Task<Results<Ok<RoutineSavedResponse>, ProblemHttpResult>> HandleAsync(
         [FromRoute, Description("The routine's ID.")] Guid id,
         [FromBody] UpdateRoutineRequest request,
         [FromServices] UpdateRoutineHandler handler,
         CancellationToken cancellationToken)
     {
-        Result<RoutineResponse> result = await handler.HandleAsync(id, request, cancellationToken);
+        Result<RoutineSavedResponse> result = await handler.HandleAsync(id, request, cancellationToken);
 
         return result.IsSuccess ? TypedResults.Ok(result.Value) : result.Error.ToProblem();
     }

@@ -20,18 +20,18 @@ internal static class CreateRoutineEndpoint
     }
 
     [EndpointSummary("Create a routine")]
-    [EndpointDescription("Adds a routine with its exercises and targets to the signed-in user's list. It isn't planned on any weekday yet.")]
-    [ProducesResponseType<RoutineResponse>(StatusCodes.Status201Created, Description = "The new routine.")]
+    [EndpointDescription("Adds a routine with its exercises and targets to the signed-in user's list. It is planned on the weekdays it names, from today.")]
+    [ProducesResponseType<RoutineSavedResponse>(StatusCodes.Status201Created, Description = "The new routine.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each one.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json", Description = "One of the exercises does not exist.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "The user already has a routine with this name, or has reached the limit of 50 routines.")]
-    private static async Task<Results<Created<RoutineResponse>, ProblemHttpResult>> HandleAsync(
+    private static async Task<Results<Created<RoutineSavedResponse>, ProblemHttpResult>> HandleAsync(
         [FromBody] CreateRoutineRequest request,
         [FromServices] CreateRoutineHandler handler,
         CancellationToken cancellationToken)
     {
-        Result<RoutineResponse> result = await handler.HandleAsync(request, cancellationToken);
+        Result<RoutineSavedResponse> result = await handler.HandleAsync(request, cancellationToken);
 
         return result.IsSuccess
             ? TypedResults.Created($"{RoutineRoutes.Routines}/{result.Value.Id}", result.Value)

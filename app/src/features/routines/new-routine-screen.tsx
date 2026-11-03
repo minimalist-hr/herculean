@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 
 import { notifySuccess } from '@/components/notifications';
 
+import { savedMessage } from './formats';
 import { RoutineEditor } from './routine-editor';
 import { useCreateRoutine } from './use-create-routine';
 
@@ -18,12 +19,16 @@ export function NewRoutineScreen({
     <RoutineEditor
       back="Routines"
       title="New routine"
-      subtitle="Not planned yet. Add it to days in the week plan after saving."
+      subtitle="Pick its days now or later."
       initialName={initialName}
       saving={createRoutine.isPending}
-      onSave={async (name, exercises) => {
-        const routine = await createRoutine.mutateAsync({ name, exercises });
-        notifySuccess(`${routine.name} created.`);
+      onSave={async (name, weekdays, exercises) => {
+        const routine = await createRoutine.mutateAsync({
+          name,
+          weekdays,
+          exercises,
+        });
+        notifySuccess(savedMessage(routine, 'created'));
         router.back();
       }}
     />

@@ -6,6 +6,7 @@ import { notifySuccess } from '@/components/notifications';
 import { usePageOptions } from '@/components/use-page-options';
 import { DetailsSkeleton } from '@/features/exercises/exercises-skeleton';
 
+import { savedMessage } from './formats';
 import { RoutineDraftProvider } from './routine-draft';
 import { RoutineEditor } from './routine-editor';
 import { useRoutine } from './use-routine';
@@ -56,10 +57,15 @@ export function EditRoutineScreen({ id }: { id: string }) {
       title={title}
       subtitle="Changes apply to new workouts. Logged workouts stay as they are."
       initialName={routine.data?.name ?? ''}
+      initialWeekdays={routine.data?.weekdays}
       saving={updateRoutine.isPending}
-      onSave={async (name, exercises) => {
-        const saved = await updateRoutine.mutateAsync({ name, exercises });
-        notifySuccess(`${saved.name} saved.`);
+      onSave={async (name, weekdays, exercises) => {
+        const saved = await updateRoutine.mutateAsync({
+          name,
+          weekdays,
+          exercises,
+        });
+        notifySuccess(savedMessage(saved, 'saved'));
         router.back();
       }}
     />

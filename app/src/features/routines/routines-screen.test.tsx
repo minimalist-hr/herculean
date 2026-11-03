@@ -6,6 +6,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import NewRoutineLayout from '@/app/routine/new/_layout';
 import NewRoutineRoute from '@/app/routine/new/index';
 
+import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -63,6 +64,7 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -93,7 +95,7 @@ beforeEach(() => {
   mockFetch.mockReset();
 });
 
-test('shows the skeleton, then the routines and below them the week plan', async () => {
+test('shows the skeleton, then the week plan and below it the routines', async () => {
   const days = restWeek();
   days[0] = {
     weekday: 'monday',
@@ -107,10 +109,38 @@ test('shows the skeleton, then the routines and below them the week plan', async
 
   expect(await screen.findByText('4 exercises · 10 sets')).toBeOnTheScreen();
   expect(screen.queryByLabelText('Loading your routines')).toBeNull();
-  expect(screen.getByText('Mon, Fri')).toBeOnTheScreen();
+  expect(screen.getAllByText('Fri')).toHaveLength(2);
   expect(screen.getByText('Repeats every week')).toBeOnTheScreen();
-  expect(screen.getByText('Monday')).toBeOnTheScreen();
-  expect(screen.getAllByText('Rest day')).toHaveLength(6);
+  expect(
+    screen.getByRole('button', { name: 'Monday, Legs' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Tuesday, rest day' }),
+  ).toBeOnTheScreen();
+});
+
+test('a day with a routine opens it, and a rest day says how to plan it', async () => {
+  const days = restWeek();
+  days[0] = {
+    weekday: 'monday',
+    routineId: 'legs',
+    routineName: 'Legs',
+  } as never;
+  answer([legs], days);
+  await renderRoutines();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Tuesday, rest day' }),
+  );
+  expect(
+    await screen.findByText(
+      'Tuesday is a rest day. Edit a routine to pick its days.',
+    ),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Monday, Legs' }));
+
+  expect(await screen.findByText('Routine screen')).toBeOnTheScreen();
 });
 
 test('one exercise and one set read in the singular', async () => {
@@ -129,7 +159,7 @@ test('without routines it says what to do', async () => {
     screen.getByText('Create a routine, then plan it on the days you train.'),
   ).toBeOnTheScreen();
   expect(screen.queryByLabelText('Search routines')).toBeNull();
-  expect(screen.getAllByText('Rest day')).toHaveLength(7);
+  expect(screen.queryByText('Repeats every week')).toBeNull();
 });
 
 test('a failed read says so, and Try again reads both again', async () => {
@@ -175,7 +205,7 @@ test('a search narrows the routines by name', async () => {
 
   expect(screen.getByRole('button', { name: /^Push/ })).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: /^Legs/ })).toBeNull();
-  expect(screen.queryByText('Monday')).toBeNull();
+  expect(screen.queryByText('Repeats every week')).toBeNull();
 });
 
 test('no matches says so, and New routine starts from the search', async () => {

@@ -27,4 +27,10 @@ internal sealed class WeekPlanDay : Entity<WeekPlanDayId>
 
     public static WeekPlanDay Create(UserId userId, Weekday weekday, RoutineId? routineId, DateOnly effectiveFrom) =>
         new(WeekPlanDayId.New(), userId, weekday, routineId, effectiveFrom);
+
+    /// <summary>Changes what this change holds, for a weekday changed again on the same date.</summary>
+    public void ChangeRoutine(RoutineId? routineId)
+    {
+        RoutineId = routineId;
+    }
 }

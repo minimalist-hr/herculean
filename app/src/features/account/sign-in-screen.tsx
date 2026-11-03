@@ -159,13 +159,17 @@ export function SignInScreen() {
                     />
                   )}
                 />
-                <TextLink
-                  label="Forgot password?"
-                  dimmed={waiting}
-                  onPress={() => {
-                    router.push('/forgot-password');
-                  }}
-                />
+                <View
+                  style={{ marginLeft: -space.sm, alignSelf: 'flex-start' }}
+                >
+                  <TextLink
+                    label="Forgot password?"
+                    dimmed={waiting}
+                    onPress={() => {
+                      router.push('/forgot-password');
+                    }}
+                  />
+                </View>
               </View>
             </View>
           </View>

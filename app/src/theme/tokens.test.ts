@@ -6,6 +6,7 @@ import { tokens } from './tokens';
 interface DesignTokens {
   color: {
     neutral: unknown;
+    day: { dark: unknown; light: unknown };
     accent: Record<
       'Racing blue' | 'Titanium',
       { default?: boolean; dark: unknown; light: unknown }
@@ -32,6 +33,11 @@ const { dark: racingBlueDark, light: racingBlueLight } =
   design.color.accent['Racing blue'];
 const { dark: titaniumDark, light: titaniumLight } =
   design.color.accent.Titanium;
+
+test('day colors match the design', () => {
+  expect(tokens.color.day.dark).toEqual(design.color.day.dark);
+  expect(tokens.color.day.light).toEqual(design.color.day.light);
+});
 
 test('neutral colors match the design', () => {
   expect(tokens.color.neutral).toEqual(design.color.neutral);

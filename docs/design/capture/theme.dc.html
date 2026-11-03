@@ -26,6 +26,7 @@ class Component extends DCLogic {
     c.danger = dark ? '#F87171' : '#DC2626';
     c.dangerFill = '#DC2626';
     c.onDanger = '#FFFFFF';
+    c.day = { monday: dark ? '#C58FA6' : '#8E4A68', tuesday: dark ? '#A99BC9' : '#66568F', wednesday: dark ? '#7FB0C2' : '#3B6E82', thursday: dark ? '#7FB59F' : '#3C7560', friday: dark ? '#A9B77E' : '#5C6B32', saturday: dark ? '#C9B57A' : '#75621F', sunday: dark ? '#C99A7A' : '#8A5735' };
     const st = this.state || {};
     const radio = (items, key, def) => {
       const cur = st[key] || def;

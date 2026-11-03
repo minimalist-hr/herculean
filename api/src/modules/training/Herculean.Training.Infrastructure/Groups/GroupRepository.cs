@@ -12,8 +12,12 @@ internal sealed class GroupRepository(TrainingDbContext dbContext) : IGroupRepos
             .IgnoreQueryFilters([TrainingDbContext.UserFilter, TrainingDbContext.SoftDeleteFilter])
             .AnyAsync(group => group.UserId == userId, cancellationToken);
 
-    public Task<List<GroupId>> ListIdsAsync(CancellationToken cancellationToken) =>
-        dbContext.Groups.Select(group => group.Id).ToListAsync(cancellationToken);
+    public async Task<bool> AllExistAsync(IReadOnlyCollection<GroupId> ids, CancellationToken cancellationToken)
+    {
+        int found = await dbContext.Groups.CountAsync(group => ids.Contains(group.Id), cancellationToken);
+
+        return found == ids.Count;
+    }
 
     public Task<List<Group>> ListAsync(CancellationToken cancellationToken) =>
         dbContext.Groups.ToListAsync(cancellationToken);

@@ -6,6 +6,7 @@ using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
+using Herculean.Training.Domain.WeekPlan;
 
 namespace Herculean.Training.UnitTests.Application.Routines.CreateRoutine;
 
@@ -14,6 +15,8 @@ public sealed class CreateRoutineHandlerTests
     private readonly FakeCurrentUserAccessor _currentUserAccessor = new();
     private readonly FakeExerciseRepository _exerciseRepository = new();
     private readonly FakeRoutineRepository _routineRepository = new();
+    private readonly FakeRoutineReadRepository _routineReadRepository = new();
+    private readonly FakeWeekPlanDayRepository _weekPlanDayRepository = new();
     private readonly FakeUnitOfWork _unitOfWork = new();
     private readonly CreateRoutineHandler _handler;
     private readonly Exercise _squat;
@@ -26,7 +29,10 @@ public sealed class CreateRoutineHandlerTests
         _lunge = Exercise.Create(userId, "Lunge", GroupId.New(), []);
         _exerciseRepository.Add(_squat);
         _exerciseRepository.Add(_lunge);
-        _handler = new CreateRoutineHandler(new CreateRoutineValidator(), new CurrentUser(_currentUserAccessor), _routineRepository, _exerciseRepository, _unitOfWork);
+        _handler = new CreateRoutineHandler(new CreateRoutineValidator(), new CurrentUser(_currentUserAccessor), _routineRepository, _exerciseRepository, _routineReadRepository,
+            new WeekPlanner(_weekPlanDayRepository),
+            new UserClock(new CurrentUser(new FakeCurrentUserAccessor()), new FakeGetUserTimeZone(), TimeProvider.System),
+            _unitOfWork);
     }
 
     private RoutineExerciseItem Squat => new(_squat.Id.Value, 3, 8, 10);
@@ -36,7 +42,7 @@ public sealed class CreateRoutineHandlerTests
     [Fact]
     public async Task AValidRoutineIsSavedWithItsExercisesInOrder()
     {
-        Result<RoutineResponse> result = await HandleAsync("  Legs ", Lunge, Squat);
+        Result<RoutineSavedResponse> result = await HandleAsync("  Legs ", Lunge, Squat);
 
         result.Value.Name.ShouldBe("Legs");
         Routine routine = _routineRepository.Routines.ShouldHaveSingleItem();
@@ -59,7 +65,7 @@ public sealed class CreateRoutineHandlerTests
     {
         await HandleAsync("Legs", Squat);
 
-        Result<RoutineResponse> result = await HandleAsync(name, Squat);
+        Result<RoutineSavedResponse> result = await HandleAsync(name, Squat);
 
         result.Error.ShouldBe(RoutineErrors.NameTaken);
         _routineRepository.Routines.ShouldHaveSingleItem();
@@ -70,7 +76,7 @@ public sealed class CreateRoutineHandlerTests
     {
         _routineRepository.Count = Routine.MaxPerUser;
 
-        Result<RoutineResponse> result = await HandleAsync("Legs", Squat);
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat);
 
         result.Error.ShouldBe(RoutineErrors.LimitReached);
         result.Error!.Description.ShouldContain("50");
@@ -80,7 +86,7 @@ public sealed class CreateRoutineHandlerTests
     [Fact]
     public async Task AnExerciseTheUserDoesNotHaveIsNotFound()
     {
-        Result<RoutineResponse> result = await HandleAsync("Legs", Squat, new RoutineExerciseItem(Guid.CreateVersion7(), 3, 8, 10));
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat, new RoutineExerciseItem(Guid.CreateVersion7(), 3, 8, 10));
 
         result.Error.ShouldBe(ExerciseErrors.NotFound);
         _routineRepository.Routines.ShouldBeEmpty();
@@ -91,7 +97,7 @@ public sealed class CreateRoutineHandlerTests
     {
         _lunge.Delete(DateTimeOffset.UnixEpoch);
 
-        Result<RoutineResponse> result = await HandleAsync("Legs", Lunge);
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Lunge);
 
         result.Error.ShouldBe(ExerciseErrors.NotFound);
     }
@@ -101,7 +107,7 @@ public sealed class CreateRoutineHandlerTests
     [InlineData("   ")]
     public async Task ABlankNameFailsWithAFieldError(string name)
     {
-        Result<RoutineResponse> result = await HandleAsync(name, Squat);
+        Result<RoutineSavedResponse> result = await HandleAsync(name, Squat);
 
         result.Error.ShouldNotBeNull().Fields.ShouldContainKey("name");
     }
@@ -118,7 +124,7 @@ public sealed class CreateRoutineHandlerTests
     [Fact]
     public async Task ARoutineNeedsAnExercise()
     {
-        Result<RoutineResponse> result = await HandleAsync("Legs");
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs");
 
         result.Error.ShouldNotBeNull().Fields.ShouldContainKey("exercises");
     }
@@ -126,7 +132,7 @@ public sealed class CreateRoutineHandlerTests
     [Fact]
     public async Task AnExerciseCanOnlyBeInARoutineOnce()
     {
-        Result<RoutineResponse> result = await HandleAsync("Legs", Squat, Squat);
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat, Squat);
 
         result.Error.ShouldNotBeNull().Fields.ShouldContainKey("exercises");
     }
@@ -136,7 +142,7 @@ public sealed class CreateRoutineHandlerTests
     {
         RoutineExerciseItem[] exercises = [.. Enumerable.Range(0, Routine.MaxExercises + 1).Select(_ => new RoutineExerciseItem(Guid.CreateVersion7(), 3, 8, 10))];
 
-        Result<RoutineResponse> result = await HandleAsync("Legs", exercises);
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", exercises);
 
         result.Error.ShouldNotBeNull().Fields.ShouldContainKey("exercises");
     }
@@ -149,7 +155,7 @@ public sealed class CreateRoutineHandlerTests
     [InlineData(3, 10, 8)]
     public async Task TargetsOutOfRangeFail(int sets, int repsFrom, int repsTo)
     {
-        Result<RoutineResponse> result = await HandleAsync("Legs", new RoutineExerciseItem(_squat.Id.Value, sets, repsFrom, repsTo));
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", new RoutineExerciseItem(_squat.Id.Value, sets, repsFrom, repsTo));
 
         result.Error.ShouldNotBeNull().Type.ShouldBe(ErrorType.Validation);
     }
@@ -159,11 +165,11 @@ public sealed class CreateRoutineHandlerTests
     [InlineData(20, 100, 100)]
     public async Task TargetsAtTheirLimitsAreAllowed(int sets, int repsFrom, int repsTo)
     {
-        Result<RoutineResponse> result = await HandleAsync("Legs", new RoutineExerciseItem(_squat.Id.Value, sets, repsFrom, repsTo));
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", new RoutineExerciseItem(_squat.Id.Value, sets, repsFrom, repsTo));
 
         result.IsSuccess.ShouldBeTrue();
     }
 
-    private Task<Result<RoutineResponse>> HandleAsync(string name, params RoutineExerciseItem[] exercises) =>
-        _handler.HandleAsync(new CreateRoutineRequest(name, [.. exercises]), TestContext.Current.CancellationToken);
+    private Task<Result<RoutineSavedResponse>> HandleAsync(string name, params RoutineExerciseItem[] exercises) =>
+        _handler.HandleAsync(new CreateRoutineRequest(name, [], [.. exercises]), TestContext.Current.CancellationToken);
 }

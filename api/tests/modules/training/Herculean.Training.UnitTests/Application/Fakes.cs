@@ -1,4 +1,6 @@
+using Herculean.Account.Contracts;
 using Herculean.SharedKernel.Auth;
+using Herculean.SharedKernel.Queries;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
@@ -15,6 +17,7 @@ using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Domain.WeekPlan;
 
 namespace Herculean.Training.UnitTests.Application;
 
@@ -51,8 +54,8 @@ internal sealed class FakeGroupRepository : IGroupRepository
     public Task<bool> AnyForUserAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Groups.Any(group => group.UserId == userId));
 
-    public Task<List<GroupId>> ListIdsAsync(CancellationToken cancellationToken) =>
-        Task.FromResult(Active.Select(group => group.Id).ToList());
+    public Task<bool> AllExistAsync(IReadOnlyCollection<GroupId> ids, CancellationToken cancellationToken) =>
+        Task.FromResult(ids.All(id => Active.Any(group => group.Id == id)));
 
     public Task<List<Group>> ListAsync(CancellationToken cancellationToken) =>
         Task.FromResult(Active.ToList());
@@ -185,6 +188,10 @@ internal sealed class FakeRoutineReadRepository : IRoutineReadRepository
 
     public List<RoutineDetailsResponse> Details { get; } = [];
 
+    public Dictionary<RoutineId, string> Names { get; } = [];
+
+    public Task<Dictionary<RoutineId, string>> ListNamesAsync(CancellationToken cancellationToken) => Task.FromResult(Names);
+
     public Task<List<RoutineListItemResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
 
     public Task<RoutineDetailsResponse?> GetAsync(RoutineId id, CancellationToken cancellationToken) =>
@@ -196,6 +203,25 @@ internal sealed class FakeWeekPlanReadRepository : IWeekPlanReadRepository
     public List<WeekPlanDayResponse> Items { get; } = [];
 
     public Task<List<WeekPlanDayResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
+}
+
+internal sealed class FakeWeekPlanDayRepository : IWeekPlanDayRepository
+{
+    public List<WeekPlanDay> Days { get; } = [];
+
+    public Task<List<WeekPlanDay>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Days.ToList());
+
+    public void Add(WeekPlanDay day)
+    {
+        Days.Add(day);
+    }
+}
+
+internal sealed class FakeGetUserTimeZone : IQueryHandler<GetUserTimeZoneQuery, string>
+{
+    public string TimeZone { get; set; } = "Europe/Zagreb";
+
+    public Task<string> HandleAsync(GetUserTimeZoneQuery query, CancellationToken cancellationToken) => Task.FromResult(TimeZone);
 }
 
 internal sealed class FakeUnitOfWork : IUnitOfWork

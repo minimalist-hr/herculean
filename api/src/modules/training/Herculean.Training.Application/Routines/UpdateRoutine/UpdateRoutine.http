@@ -36,6 +36,7 @@ Content-Type: application/json
 
 {
   "name": "Legs",
+  "weekdays": ["monday"],
   "exercises": [
     {
       "exerciseId": "{{createExercise.response.body.$.id}}",
@@ -53,6 +54,7 @@ Content-Type: application/json
 
 {
   "name": "Lower body",
+  "weekdays": ["monday"],
   "exercises": [
     {
       "exerciseId": "{{createExercise.response.body.$.id}}",
@@ -70,5 +72,6 @@ Content-Type: application/json
 
 {
   "name": "Lower body",
+  "weekdays": ["monday"],
   "exercises": []
 }

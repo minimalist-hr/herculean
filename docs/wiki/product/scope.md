@@ -16,7 +16,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 |---|---|---|
 | 1 | [Account](#1-account) | A00, A01, A03, A10–A14, A20, A30, H20, H21 |
 | 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E36, L22 |
-| 3 | [Routines](#3-routines) | R01–R03, R05, R10, R20–R23, R30, L20, L21, L23, L24 |
+| 3 | [Routines](#3-routines) | R01–R03, R05, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
 | 5 | [Logging](#5-logging) | W10, W11, L01–L04, L10–L15, L30, L31, W02, H02 |
 | 6 | [Edit workout and month](#6-edit-workout-and-month) | W30–W32, W40–W42 |
@@ -105,11 +105,11 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 
 **What it does:** you plan your week. You create routines with exercises and targets, and put a routine or a rest day on each weekday. You can edit, reorder and delete routines.
 
-**Screens:** R01 Routines, R02 Loading, R03 No routines, R05 Routine details, R10 Week plan day, R20 Edit routine, R21 Sets and reps, R22 Delete routine, R23 Remove exercise, R30 New routine, L20 Add exercise, L21 No matches, L23 New one selected, L24 Loading.
+**Screens:** R01 Routines, R02 Loading, R03 No routines, R05 Routine details, R20 Edit routine, R21 Sets and reps, R22 Delete routine, R23 Remove exercise, R30 New routine, L20 Add exercise, L21 No matches, L23 New one selected, L24 Loading.
 
 **Flows**
 - **Routines tab:** R02 → R01, or R03 when there are no routines.
-- **Week plan:** a weekday on R01 → R10 → Save day → R01.
+- **Week plan:** a day with a routine on R01 → R05. A rest day says how to plan it.
 - **Routine details:** a routine on R01 → R05.
 - **Edit routine:** edit on R05 → R20. Tap targets → R21 → Save targets. The trash → R23 → R20, with a notification that has Undo. Drag handles reorder. Save routine → R05. The back link cancels.
 - **Add exercise:** on R20 or R30 → L24 → L20, or L21 when nothing matches → L22 → L23 → back with the picked exercises at 3 × 8–10.
@@ -125,18 +125,18 @@ Changes on R20 and R30 stay in the app until Save routine.
 | Method | Route | Used by |
 |---|---|---|
 | GET | `/api/v1/routines` | R01 (with day tags), W10 (with last done date) |
-| POST | `/api/v1/routines` | R30 |
+| POST | `/api/v1/routines` | R30: name, days, exercises, order and targets |
 | GET | `/api/v1/routines/{id}` | R05, R20 |
-| PUT | `/api/v1/routines/{id}` | R20 Save routine: name, exercises, order and targets |
+| PUT | `/api/v1/routines/{id}` | R20 Save routine: name, days, exercises, order and targets |
 | DELETE | `/api/v1/routines/{id}` | R22 |
 | POST | `/api/v1/routines/{id}/restore` | Undo on R01 |
 | GET | `/api/v1/week-plan-days` | R01 |
-| PUT | `/api/v1/week-plan-days/{weekday}` | R10 |
 
 **Left to other features:** Create routine on H05 and W05 opens R30. Those screens are built in [4. Today and other days](#4-today-and-other-days).
 
 **Done when**
-- Changing a weekday in R10 changes today and later only. Past days keep the plan they had.
+- Changing a routine's days on R20 or R30 changes today and later only. Past days keep the plan they had.
+- A day holds one routine, so picking a day another routine has moves it.
 - Deleting a routine turns its weekdays into rest days from that date on. Earlier days keep their plan, and Undo brings the weekdays back.
 
 ---

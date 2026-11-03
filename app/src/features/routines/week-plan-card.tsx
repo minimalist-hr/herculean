@@ -1,17 +1,24 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { notifyFailure } from '@/components/notifications';
+import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dayNames } from './formats';
+import { dayNames, weekdays } from './formats';
 
-/** Each day of the week with its routine or a rest day. */
+const mark = 14;
+
+/** The week at a glance: a colored square on a day with a routine, a dash on a rest day. */
 export function WeekPlanCard({
   days,
 }: {
-  days: components['schemas']['WeekPlanDayResponse'][];
+  /** Nothing yet while it loads. */
+  days?: components['schemas']['WeekPlanDayResponse'][];
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, dayColors, radius, space, text } = useTheme();
+  const router = useRouter();
 
   return (
     <View style={{ gap: space.sm }}>
@@ -29,37 +36,76 @@ export function WeekPlanCard({
           },
         ]}
       >
-        {days.map((day, index) => (
-          <View
-            key={day.weekday}
-            style={[
-              styles.day,
-              {
-                gap: space.md,
-                minHeight: 52,
-                paddingHorizontal: space.lg,
-                borderTopWidth: index === 0 ? 0 : 1,
-                borderTopColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[text.listItemName, { color: colors.text }]}>
-              {dayNames[day.weekday].full}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={[
-                text.body,
-                styles.dayRoutine,
-                {
-                  color: day.routineName === null ? colors.muted : colors.text,
-                },
-              ]}
+        {weekdays.map((weekday, index) => {
+          const day = days?.find((item) => item.weekday === weekday);
+          const routineId = day?.routineId ?? null;
+          const { full, short } = dayNames[weekday];
+          const cellStyle = [
+            styles.cell,
+            {
+              gap: space.sm,
+              borderLeftWidth: index === 0 ? 0 : 1,
+              borderLeftColor: colors.border,
+            },
+          ];
+
+          if (days === undefined) {
+            return (
+              <View key={weekday} style={cellStyle}>
+                <Text style={[text.meta, styles.day]}>{short}</Text>
+                <Skeleton width={mark} height={mark} />
+              </View>
+            );
+          }
+
+          return (
+            <Pressable
+              key={weekday}
+              accessibilityRole="button"
+              accessibilityLabel={`${full}, ${day?.routineName ?? 'rest day'}`}
+              onPress={() => {
+                if (routineId === null) {
+                  notifyFailure(
+                    `${full} is a rest day. Edit a routine to pick its days.`,
+                  );
+                } else {
+                  router.push({
+                    pathname: '/routines/[id]',
+                    params: { id: routineId },
+                  });
+                }
+              }}
+              style={cellStyle}
             >
-              {day.routineName ?? 'Rest day'}
-            </Text>
-          </View>
-        ))}
+              <Text
+                style={[
+                  text.meta,
+                  styles.day,
+                  { color: routineId === null ? colors.muted : colors.text },
+                ]}
+              >
+                {short}
+              </Text>
+              <View style={styles.mark}>
+                {routineId === null ? (
+                  <View
+                    style={[styles.dash, { backgroundColor: colors.muted }]}
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.mark,
+                      {
+                        borderRadius: radius.pill,
+                        backgroundColor: dayColors[weekday],
+                      },
+                    ]}
+                  />
+                )}
+              </View>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
@@ -73,15 +119,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   card: {
+    flexDirection: 'row',
     borderWidth: 1,
     overflow: 'hidden',
   },
-  day: {
-    flexDirection: 'row',
+  cell: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    minHeight: 60,
   },
-  dayRoutine: {
-    flexShrink: 1,
+  day: {
+    fontWeight: '600',
+  },
+  mark: {
+    width: mark,
+    height: mark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dash: {
+    width: 12,
+    height: 2,
   },
 });

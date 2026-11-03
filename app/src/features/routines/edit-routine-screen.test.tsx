@@ -35,6 +35,8 @@ const routine = {
     {
       exerciseId: 'squat',
       name: 'Squat',
+      groupId: 'g',
+      groupName: 'Legs',
       targetSets: 3,
       targetRepsFrom: 8,
       targetRepsTo: 10,
@@ -42,6 +44,8 @@ const routine = {
     {
       exerciseId: 'lunge',
       name: 'Lunge',
+      groupId: 'g',
+      groupName: 'Legs',
       targetSets: 2,
       targetRepsFrom: 6,
       targetRepsTo: 6,
@@ -51,6 +55,7 @@ const routine = {
 
 interface Saved {
   name: string;
+  weekdays: string[];
   exercises: { exerciseId: string; targetSets: number }[];
 }
 
@@ -62,7 +67,7 @@ function answer(save?: () => Response) {
     const { pathname } = new URL(request.url);
     if (request.method === 'PUT') {
       saved = (await request.json()) as Saved;
-      return save?.() ?? Response.json({ id, name: saved.name });
+      return save?.() ?? Response.json({ id, name: saved.name, movedDays: [] });
     }
     if (pathname === '/api/v1/groups') {
       return Response.json([]);
@@ -152,6 +157,7 @@ test('starts from the routine, with its name on the back link and only Save', as
   expect(screen.getByRole('link', { name: 'Legs' })).toBeOnTheScreen();
   expect(screen.getByText('Squat')).toBeOnTheScreen();
   expect(screen.getByText('2 exercises · 5 sets')).toBeOnTheScreen();
+  expect(screen.getAllByText(/· Legs$/)).toHaveLength(2);
   expect(
     screen.getByRole('button', { name: 'Save routine' }),
   ).toBeOnTheScreen();
@@ -186,6 +192,43 @@ test('saving sends the changes, says so and goes back', async () => {
     'squat',
     'lunge',
   ]);
+});
+
+test('days start from the routine, and picking one sends it and says what moved', async () => {
+  answer(() =>
+    Response.json({
+      id,
+      name: 'Legs',
+      movedDays: [{ weekday: 'thursday', fromRoutine: 'Push' }],
+    }),
+  );
+  await loaded();
+
+  expect(
+    screen.getByText('Picking a day replaces its routine'),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Monday' })).toHaveProp(
+    'accessibilityState',
+    { selected: true },
+  );
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Thursday' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+
+  expect(
+    await screen.findByText('Legs saved. Thursday moved from Push.'),
+  ).toBeOnTheScreen();
+  expect(saved?.weekdays).toEqual(['monday', 'thursday']);
+});
+
+test('a changed day asks before leaving', async () => {
+  answer();
+  await loaded();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Monday' }));
+  await fireEvent.press(screen.getByRole('link', { name: 'Legs' }));
+
+  expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
 });
 
 test('a taken name shows under Name and stays on the page', async () => {

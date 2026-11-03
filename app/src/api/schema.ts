@@ -259,7 +259,7 @@ export interface paths {
         put?: never;
         /**
          * Create a routine
-         * @description Adds a routine with its exercises and targets to the signed-in user's list. It isn't planned on any weekday yet.
+         * @description Adds a routine with its exercises and targets to the signed-in user's list. It is planned on the weekdays it names, from today.
          */
         post: operations["CreateRoutine"];
         delete?: never;
@@ -282,7 +282,7 @@ export interface paths {
         get: operations["GetRoutine"];
         /**
          * Change a routine
-         * @description Replaces a routine's name, exercises, order and targets. Workouts already started keep what they copied.
+         * @description Replaces a routine's name, weekdays, exercises, order and targets. Weekdays change from today, and workouts already started keep what they copied.
          */
         put: operations["UpdateRoutine"];
         post?: never;
@@ -479,6 +479,8 @@ export interface components {
         CreateRoutineRequest: {
             /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case. */
             name: string;
+            /** @description The weekdays it is on from today, which can be none. Another routine on one of them loses that day. */
+            weekdays: components["schemas"]["Weekday"][];
             /** @description Its exercises in order, 1 to 30, each once. */
             exercises: components["schemas"]["RoutineExerciseItem"][];
         };
@@ -588,6 +590,13 @@ export interface components {
             /** @description The group's name. */
             name: string;
         };
+        /** @description A weekday that moved to this routine from another one. */
+        MovedDayResponse: {
+            /** @description The weekday. */
+            weekday: components["schemas"]["Weekday"];
+            /** @description The name of the routine it moved from. */
+            fromRoutine: string;
+        };
         /** @description An error, as Problem Details (RFC 9457). Every error has the same fields. */
         ProblemDetails: {
             /** @description A link to the HTTP status in RFC 9110. */
@@ -667,6 +676,13 @@ export interface components {
             /** @description The exercise's name. */
             name: string;
             /**
+             * Format: uuid
+             * @description The ID of the group it belongs to.
+             */
+            groupId: string;
+            /** @description The name of the group it belongs to. */
+            groupName: string;
+            /**
              * Format: int32
              * @description The sets to do.
              */
@@ -714,6 +730,18 @@ export interface components {
             /** @description The routine's name. */
             name: string;
         };
+        /** @description A saved routine, and the days it took from other routines. */
+        RoutineSavedResponse: {
+            /**
+             * Format: uuid
+             * @description The routine's ID.
+             */
+            id: string;
+            /** @description The routine's name. */
+            name: string;
+            /** @description The weekdays that moved here from another routine, from Monday. */
+            movedDays: components["schemas"]["MovedDayResponse"][];
+        };
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
             /** @description A JWT. Send it as `Authorization: Bearer <accessToken>`. */
@@ -760,6 +788,8 @@ export interface components {
         UpdateRoutineRequest: {
             /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case. */
             name: string;
+            /** @description The weekdays it is on from today, which can be none. Another routine on one of them loses that day. */
+            weekdays: components["schemas"]["Weekday"][];
             /** @description Its exercises in order, 1 to 30, each once. */
             exercises: components["schemas"]["RoutineExerciseItem"][];
         };
@@ -1594,7 +1624,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RoutineResponse"];
+                    "application/json": components["schemas"]["RoutineSavedResponse"];
                 };
             };
             /** @description A field is not valid. The errors name each one. */
@@ -1698,7 +1728,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RoutineResponse"];
+                    "application/json": components["schemas"]["RoutineSavedResponse"];
                 };
             };
             /** @description A field is not valid. The errors name each one. */

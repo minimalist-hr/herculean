@@ -21,6 +21,8 @@ type TextRole =
 
 export interface Theme {
   colors: Colors;
+  /** One muted color per weekday, for the week plan on the Routines tab. */
+  dayColors: Record<keyof typeof tokens.color.day.dark, string>;
   radius: typeof tokens.radius;
   space: typeof tokens.space;
   opacity: { dimmed: number; disabled: number; pulse: number; glow: number };
@@ -59,6 +61,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
 
   return {
     colors,
+    dayColors: tokens.color.day[scheme],
     radius: tokens.radius,
     space: tokens.space,
     opacity: {

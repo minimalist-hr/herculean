@@ -20,8 +20,7 @@ internal sealed class RestoreExerciseHandler(
         }
 
         // While it was deleted nothing held its groups, so they may be gone.
-        List<GroupId> usersGroupIds = await groupRepository.ListIdsAsync(cancellationToken);
-        if (!usersGroupIds.Contains(exercise.GroupId) || !exercise.AlsoWorks.All(alsoWorks => usersGroupIds.Contains(alsoWorks.GroupId)))
+        if (!await groupRepository.AllExistAsync([exercise.GroupId, .. exercise.AlsoWorks.Select(alsoWorks => alsoWorks.GroupId)], cancellationToken))
         {
             return GroupErrors.NotFound;
         }

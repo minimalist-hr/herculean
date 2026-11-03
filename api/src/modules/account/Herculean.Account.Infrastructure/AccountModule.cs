@@ -14,8 +14,11 @@ using Herculean.Account.Application.Sessions;
 using Herculean.Account.Application.Sessions.CreateSession;
 using Herculean.Account.Application.Sessions.RefreshSession;
 using Herculean.Account.Application.Users.CreateUser;
+using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetCurrentUser;
+using Herculean.Account.Application.Users.GetUserTimeZone;
 using Herculean.Account.Application.Users.UpdateCurrentUser;
+using Herculean.Account.Contracts;
 using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.Account.Infrastructure.Auth;
@@ -25,6 +28,7 @@ using Herculean.Account.Infrastructure.Users;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
+using Herculean.SharedKernel.Queries;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -83,6 +87,8 @@ public static class AccountModule
         builder.Services.AddSingleton<IPasswordResetQueue>(services => services.GetRequiredService<PasswordResetQueue>());
         builder.Services.AddHostedService<PasswordResetEmailJob>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
+        builder.Services.AddScoped<IQueryHandler<GetUserTimeZoneQuery, string>, GetUserTimeZoneQueryHandler>();
 
         builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>();
         builder.Services.AddScoped<CreateUserHandler>();

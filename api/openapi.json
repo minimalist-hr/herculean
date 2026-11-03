@@ -982,7 +982,7 @@
           "Routines"
         ],
         "summary": "Create a routine",
-        "description": "Adds a routine with its exercises and targets to the signed-in user's list. It isn't planned on any weekday yet.",
+        "description": "Adds a routine with its exercises and targets to the signed-in user's list. It is planned on the weekdays it names, from today.",
         "operationId": "CreateRoutine",
         "requestBody": {
           "content": {
@@ -1000,7 +1000,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoutineResponse"
+                  "$ref": "#/components/schemas/RoutineSavedResponse"
                 }
               }
             }
@@ -1116,7 +1116,7 @@
           "Routines"
         ],
         "summary": "Change a routine",
-        "description": "Replaces a routine's name, exercises, order and targets. Workouts already started keep what they copied.",
+        "description": "Replaces a routine's name, weekdays, exercises, order and targets. Weekdays change from today, and workouts already started keep what they copied.",
         "operationId": "UpdateRoutine",
         "parameters": [
           {
@@ -1146,7 +1146,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoutineResponse"
+                  "$ref": "#/components/schemas/RoutineSavedResponse"
                 }
               }
             }
@@ -1869,6 +1869,7 @@
       "CreateRoutineRequest": {
         "required": [
           "name",
+          "weekdays",
           "exercises"
         ],
         "type": "object",
@@ -1876,6 +1877,13 @@
           "name": {
             "type": "string",
             "description": "The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case."
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Weekday"
+            },
+            "description": "The weekdays it is on from today, which can be none. Another routine on one of them loses that day."
           },
           "exercises": {
             "type": "array",
@@ -2123,6 +2131,24 @@
         },
         "description": "A muscle group. It orders the exercise list and the chips."
       },
+      "MovedDayResponse": {
+        "required": [
+          "weekday",
+          "fromRoutine"
+        ],
+        "type": "object",
+        "properties": {
+          "weekday": {
+            "description": "The weekday.",
+            "$ref": "#/components/schemas/Weekday"
+          },
+          "fromRoutine": {
+            "type": "string",
+            "description": "The name of the routine it moved from."
+          }
+        },
+        "description": "A weekday that moved to this routine from another one."
+      },
       "ProblemDetails": {
         "required": [
           "type",
@@ -2269,6 +2295,8 @@
         "required": [
           "exerciseId",
           "name",
+          "groupId",
+          "groupName",
           "targetSets",
           "targetRepsFrom",
           "targetRepsTo"
@@ -2283,6 +2311,15 @@
           "name": {
             "type": "string",
             "description": "The exercise's name."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The ID of the group it belongs to.",
+            "format": "uuid"
+          },
+          "groupName": {
+            "type": "string",
+            "description": "The name of the group it belongs to."
           },
           "targetSets": {
             "type": "integer",
@@ -2359,6 +2396,33 @@
           }
         },
         "description": "A routine."
+      },
+      "RoutineSavedResponse": {
+        "required": [
+          "id",
+          "name",
+          "movedDays"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The routine's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The routine's name."
+          },
+          "movedDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovedDayResponse"
+            },
+            "description": "The weekdays that moved here from another routine, from Monday."
+          }
+        },
+        "description": "A saved routine, and the days it took from other routines."
       },
       "TokenResponse": {
         "required": [
@@ -2473,6 +2537,7 @@
       "UpdateRoutineRequest": {
         "required": [
           "name",
+          "weekdays",
           "exercises"
         ],
         "type": "object",
@@ -2480,6 +2545,13 @@
           "name": {
             "type": "string",
             "description": "The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case."
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Weekday"
+            },
+            "description": "The weekdays it is on from today, which can be none. Another routine on one of them loses that day."
           },
           "exercises": {
             "type": "array",

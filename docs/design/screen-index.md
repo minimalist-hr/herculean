@@ -1,6 +1,6 @@
 # Screen index
 
-124 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+128 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -109,23 +109,27 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | R02 | Routines · loading | R1 Routines tab | 390×844 | [png](screens/R02-Routines-Loading.png) · [html](html/R02-Routines-Loading.html) · [source](source/R02-Routines-Loading.dc.html) |
-| R01 | Routines · full scroll | R1 Routines tab | 390×1110 | [png](screens/R01-Routines.png) · [html](html/R01-Routines.html) · [source](source/R01-Routines.dc.html) |
+| R01 | Routines | R1 Routines tab | 390×844 | [png](screens/R01-Routines.png) · [html](html/R01-Routines.html) · [source](source/R01-Routines.dc.html) |
 | R03 | Routines · no routines yet | R1 Routines tab | 390×844 | [png](screens/R03-Routines-Empty.png) · [html](html/R03-Routines-Empty.html) · [source](source/R03-Routines-Empty.dc.html) |
 | R04 | Routines · no search matches | R1 Routines tab | 390×844 | [png](screens/R04-Routines-No-Matches.png) · [html](html/R04-Routines-No-Matches.html) · [source](source/R04-Routines-No-Matches.dc.html) |
 | R06 | Routines · load failure | R1 Routines tab | 390×844 | [png](screens/R06-Routines-Load-Failure.png) · [html](html/R06-Routines-Load-Failure.html) · [source](source/R06-Routines-Load-Failure.dc.html) |
 | R07 | Routines · routine deleted, with Undo | R1 Routines tab | 390×844 | [png](screens/R07-Routines-Deleted-Undo.png) · [html](html/R07-Routines-Deleted-Undo.html) · [source](source/R07-Routines-Deleted-Undo.dc.html) |
-| R10 | Routines › Week plan day · sheet | R2 Week plan | 390×844 | [png](screens/R10-Routines-Pick-Day.png) · [html](html/R10-Routines-Pick-Day.html) · [source](source/R10-Routines-Pick-Day.dc.html) |
+| R11 | Routines · rest day says how to plan it | R1 Routines tab | 390×844 | [png](screens/R11-Routines-Rest-Day.png) · [html](html/R11-Routines-Rest-Day.html) · [source](source/R11-Routines-Rest-Day.dc.html) |
 | R05 | Routines › Routine details | R3 Edit a routine | 390×844 | [png](screens/R05-Routines-Details.png) · [html](html/R05-Routines-Details.html) · [source](source/R05-Routines-Details.dc.html) |
 | R08 | Routines › Routine details · loading | R3 Edit a routine | 390×844 | [png](screens/R08-Routines-Details-Loading.png) · [html](html/R08-Routines-Details-Loading.html) · [source](source/R08-Routines-Details-Loading.dc.html) |
 | R09 | Routines › Routine details · load failure | R3 Edit a routine | 390×844 | [png](screens/R09-Routines-Details-Load-Failure.png) · [html](html/R09-Routines-Details-Load-Failure.html) · [source](source/R09-Routines-Details-Load-Failure.dc.html) |
-| R20 | Routines › Edit routine · full scroll | R3 Edit a routine | 390×909 | [png](screens/R20-Routines-Edit.png) · [html](html/R20-Routines-Edit.html) · [source](source/R20-Routines-Edit.dc.html) |
-| R24 | Routines › Edit routine · name taken · full scroll | R3 Edit a routine | 390×933 | [png](screens/R24-Routines-Edit-Name-Taken.png) · [html](html/R24-Routines-Edit-Name-Taken.html) · [source](source/R24-Routines-Edit-Name-Taken.dc.html) |
+| R20 | Routines › Edit routine · full scroll | R3 Edit a routine | 390×993 | [png](screens/R20-Routines-Edit.png) · [html](html/R20-Routines-Edit.html) · [source](source/R20-Routines-Edit.dc.html) |
+| R24 | Routines › Edit routine · name taken · full scroll | R3 Edit a routine | 390×1017 | [png](screens/R24-Routines-Edit-Name-Taken.png) · [html](html/R24-Routines-Edit-Name-Taken.html) · [source](source/R24-Routines-Edit-Name-Taken.dc.html) |
 | R25 | Routines › Edit routine · exercise removed, with Undo | R3 Edit a routine | 390×844 | [png](screens/R25-Routines-Edit-Exercise-Removed.png) · [html](html/R25-Routines-Edit-Exercise-Removed.html) · [source](source/R25-Routines-Edit-Exercise-Removed.dc.html) |
 | R26 | Routines › Edit routine › Discard changes · confirm | R3 Edit a routine | 390×844 | [png](screens/R26-Routines-Edit-Discard.png) · [html](html/R26-Routines-Edit-Discard.html) · [source](source/R26-Routines-Edit-Discard.dc.html) |
+| R28 | Routines › Routine details · a day moved from another routine | R3 Edit a routine | 390×844 | [png](screens/R28-Routines-Edit-Day-Moved.png) · [html](html/R28-Routines-Edit-Day-Moved.html) · [source](source/R28-Routines-Edit-Day-Moved.dc.html) |
+| R27 | Routines › Routine details · same group joined | R3 Edit a routine | 390×844 | [png](screens/R27-Routines-Details-Same-Group.png) · [html](html/R27-Routines-Details-Same-Group.html) · [source](source/R27-Routines-Details-Same-Group.dc.html) |
+| R29 | Routines › Edit routine · same group joined · full scroll | R3 Edit a routine | 390×957 | [png](screens/R29-Routines-Edit-Same-Group.png) · [html](html/R29-Routines-Edit-Same-Group.html) · [source](source/R29-Routines-Edit-Same-Group.dc.html) |
 | R21 | Routines › Edit routine › Sets and reps | R3 Edit a routine | 390×844 | [png](screens/R21-Routines-Edit-Targets.png) · [html](html/R21-Routines-Edit-Targets.html) · [source](source/R21-Routines-Edit-Targets.dc.html) |
 | R23 | Routines › Edit routine › Remove exercise · confirm | R3 Edit a routine | 390×844 | [png](screens/R23-Routines-Remove-Exercise-Confirm.png) · [html](html/R23-Routines-Remove-Exercise-Confirm.html) · [source](source/R23-Routines-Remove-Exercise-Confirm.dc.html) |
 | R22 | Routines › Delete routine · confirm | R3 Edit a routine | 390×844 | [png](screens/R22-Routines-Delete-Confirm.png) · [html](html/R22-Routines-Delete-Confirm.html) · [source](source/R22-Routines-Delete-Confirm.dc.html) |
 | R30 | Routines › New routine | R4 New routine | 390×844 | [png](screens/R30-Routines-New.png) · [html](html/R30-Routines-New.html) · [source](source/R30-Routines-New.dc.html) |
+| R32 | Routines › New routine · days picked | R4 New routine | 390×844 | [png](screens/R32-Routines-New-Days-Picked.png) · [html](html/R32-Routines-New-Days-Picked.html) · [source](source/R32-Routines-New-Days-Picked.dc.html) |
 | R31 | Routines › New routine · fields missing | R4 New routine | 390×844 | [png](screens/R31-Routines-New-Errors.png) · [html](html/R31-Routines-New-Errors.html) · [source](source/R31-Routines-New-Errors.dc.html) |
 
 ## E · Exercises

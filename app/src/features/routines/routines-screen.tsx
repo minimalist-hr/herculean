@@ -21,7 +21,7 @@ import { WeekPlanCard } from './week-plan-card';
 type Routine = components['schemas']['RoutineListItemResponse'];
 
 export function RoutinesScreen() {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, dayColors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const routines = useRoutines();
   const weekPlan = useWeekPlan();
@@ -31,10 +31,6 @@ export function RoutinesScreen() {
 
   function renderRoutine(routine: Routine) {
     const summary = `${counted(routine.exerciseCount, 'exercise', 'exercises')} · ${counted(routine.setCount, 'set', 'sets')}`;
-    const days = routine.weekdays
-      .map((weekday) => dayNames[weekday].short)
-      .join(', ');
-
     return (
       <Pressable
         key={routine.id}
@@ -65,8 +61,17 @@ export function RoutinesScreen() {
           </Text>
           <Text style={text.meta}>{summary}</Text>
         </View>
-        {days !== '' && (
-          <Text style={[text.chip, { color: colors.primaryText }]}>{days}</Text>
+        {routine.weekdays.length > 0 && (
+          <Text style={[text.chip, { color: colors.muted }]}>
+            {routine.weekdays.map((weekday, index) => (
+              <Text key={weekday}>
+                {index > 0 && ', '}
+                <Text style={{ color: dayColors[weekday] }}>
+                  {dayNames[weekday].short}
+                </Text>
+              </Text>
+            ))}
+          </Text>
         )}
         <ChevronRightIcon color={colors.muted} size={16} />
       </Pressable>
@@ -77,26 +82,23 @@ export function RoutinesScreen() {
     if (routines.data !== undefined && weekPlan.data !== undefined) {
       if (noRoutines) {
         return (
-          <View style={{ gap: size.gap.sectionMax }}>
-            <View
-              style={[
-                styles.noRoutines,
-                {
-                  gap: space.xs,
-                  padding: space.xl,
-                  borderRadius: radius.card,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              <Text style={[text.listItemName, { color: colors.text }]}>
-                No routines yet
-              </Text>
-              <Text style={[text.meta, styles.centered]}>
-                Create a routine, then plan it on the days you train.
-              </Text>
-            </View>
-            <WeekPlanCard days={weekPlan.data} />
+          <View
+            style={[
+              styles.noRoutines,
+              {
+                gap: space.xs,
+                padding: space.xl,
+                borderRadius: radius.card,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[text.listItemName, { color: colors.text }]}>
+              No routines yet
+            </Text>
+            <Text style={[text.meta, styles.centered]}>
+              Create a routine, then plan it on the days you train.
+            </Text>
           </View>
         );
       }
@@ -122,8 +124,8 @@ export function RoutinesScreen() {
 
       return (
         <View style={{ gap: size.gap.sectionMax }}>
-          <View style={{ gap: space.sm }}>{shown.map(renderRoutine)}</View>
           {search === '' && <WeekPlanCard days={weekPlan.data} />}
+          <View style={{ gap: space.sm }}>{shown.map(renderRoutine)}</View>
         </View>
       );
     }
@@ -145,27 +147,30 @@ export function RoutinesScreen() {
         accessible
         accessibilityLabel="Loading your routines"
         accessibilityLiveRegion="polite"
-        style={{ gap: space.sm }}
+        style={{ gap: size.gap.sectionMax }}
       >
-        {[120, 100, 130, 90].map((width, index) => (
-          <View
-            key={index}
-            style={[
-              styles.skeletonRow,
-              {
-                gap: space.sm,
-                minHeight: size.listRowMin,
-                paddingHorizontal: space.lg,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-              },
-            ]}
-          >
-            <Skeleton width={width} height={14} />
-            <Skeleton width={110} height={10} />
-          </View>
-        ))}
+        <WeekPlanCard />
+        <View style={{ gap: space.sm }}>
+          {[120, 100, 130, 90].map((width, index) => (
+            <View
+              key={index}
+              style={[
+                styles.skeletonRow,
+                {
+                  gap: space.sm,
+                  minHeight: size.listRowMin,
+                  paddingHorizontal: space.lg,
+                  borderRadius: radius.card,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                },
+              ]}
+            >
+              <Skeleton width={width} height={14} />
+              <Skeleton width={110} height={10} />
+            </View>
+          ))}
+        </View>
       </View>
     );
   }
