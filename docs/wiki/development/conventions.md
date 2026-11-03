@@ -9,6 +9,7 @@ title: Conventions
 - A new wiki page is listed both on [Home](/home) and in `_sidebar.md`.
 - A design change is proposed and approved before it is built.
 - Design issues are GitLab issues with the `design` label.
+- An MR that changes a screen also recaptures it, with all its states, using [`docs/design/capture`](https://gitlab.com/minimalist-sds/herculean/-/tree/main/docs/design/capture).
 - Screens are named by ID, for example W10.
 - Each fact is written once, in one place, and linked from elsewhere.
 - H20 and H21 stay true: a change to what the app stores, who receives it or where it lives updates them in the same MR, with a new "Last updated" date.
