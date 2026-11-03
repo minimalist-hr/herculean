@@ -42,7 +42,7 @@ const searchWaitMs = 300;
 export function AddExerciseScreen({ back }: { back: string }) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
-  const { exercises, setExercises, picked, setPicked, createdIds } =
+  const { pages, exercises, setExercises, picked, setPicked, createdIds } =
     useRoutineDraft();
   const guard = useLeaveGuard(picked.length > 0);
   const [searchText, setSearchText] = useState('');
@@ -266,10 +266,12 @@ export function AddExerciseScreen({ back }: { back: string }) {
                 }
 
                 dismissNotification();
-                router.push({
-                  pathname: '/routine/new/new-exercise',
-                  params: { name: typedSearch, groupId: groupId ?? '' },
-                });
+                router.push(
+                  pages.newExercise({
+                    name: typedSearch,
+                    groupId: groupId ?? '',
+                  }),
+                );
               }}
             />
           </View>

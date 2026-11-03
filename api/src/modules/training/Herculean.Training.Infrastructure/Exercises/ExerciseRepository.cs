@@ -14,6 +14,12 @@ internal sealed class ExerciseRepository(TrainingDbContext dbContext) : IExercis
             .Include(exercise => exercise.AlsoWorks)
             .SingleOrDefaultAsync(exercise => exercise.Id == id, cancellationToken);
 
+    public Task<Exercise?> GetDeletedAsync(ExerciseId id, CancellationToken cancellationToken) =>
+        dbContext.Exercises
+            .IgnoreQueryFilters([TrainingDbContext.SoftDeleteFilter])
+            .Include(exercise => exercise.AlsoWorks)
+            .SingleOrDefaultAsync(exercise => exercise.Id == id && exercise.DeletedAtUtc != null, cancellationToken);
+
     public Task<bool> NameExistsAsync(string name, ExerciseId? exceptId, CancellationToken cancellationToken)
     {
         string normalizedName = Exercise.NormalizeName(name);

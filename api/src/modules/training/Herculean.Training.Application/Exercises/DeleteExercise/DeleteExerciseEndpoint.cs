@@ -22,10 +22,11 @@ internal static class DeleteExerciseEndpoint
     }
 
     [EndpointSummary("Delete an exercise")]
-    [EndpointDescription("Removes an exercise from the signed-in user's list and routines. Logged workouts keep it, and its name can be used again.")]
+    [EndpointDescription("Removes an exercise from the signed-in user's list. Logged workouts keep it, and its name can be used again.")]
     [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The exercise is deleted.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json", Description = "The exercise does not exist, is already deleted, or belongs to another user.")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "The exercise is in a routine.")]
     private static async Task<Results<NoContent, ProblemHttpResult>> HandleAsync(
         [FromRoute, Description("The exercise's ID.")] Guid id,
         [FromServices] DeleteExerciseHandler handler,

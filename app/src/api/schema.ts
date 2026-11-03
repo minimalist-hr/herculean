@@ -212,7 +212,7 @@ export interface paths {
         post?: never;
         /**
          * Delete an exercise
-         * @description Removes an exercise from the signed-in user's list and routines. Logged workouts keep it, and its name can be used again.
+         * @description Removes an exercise from the signed-in user's list. Logged workouts keep it, and its name can be used again.
          */
         delete: operations["DeleteExercise"];
         options?: never;
@@ -268,6 +268,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/routines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a routine
+         * @description Returns one of the signed-in user's routines, with the weekdays it is planned on and its exercises and targets in order.
+         */
+        get: operations["GetRoutine"];
+        /**
+         * Change a routine
+         * @description Replaces a routine's name, exercises, order and targets. Workouts already started keep what they copied.
+         */
+        put: operations["UpdateRoutine"];
+        post?: never;
+        /**
+         * Delete a routine
+         * @description Removes a routine from the signed-in user's list. Its weekdays read as rest days while it is deleted, logged workouts keep their name, and its name can be used again.
+         */
+        delete: operations["DeleteRoutine"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/routines/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore a routine
+         * @description Brings a deleted routine back, on the weekdays that still hold it.
+         */
+        post: operations["RestoreRoutine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/week-plan-days": {
         parameters: {
             query?: never;
@@ -314,6 +362,26 @@ export interface paths {
          * @description Changes a group's name. It shows on every chip and section.
          */
         patch: operations["RenameGroup"];
+        trace?: never;
+    };
+    "/api/v1/exercises/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore an exercise
+         * @description Brings a deleted exercise back to the signed-in user's list.
+         */
+        post: operations["RestoreExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/groups/{id}/restore": {
@@ -443,6 +511,8 @@ export interface components {
             group: components["schemas"]["GroupResponse"];
             /** @description The other groups it also works, in their order. */
             alsoWorksGroups: components["schemas"]["GroupResponse"][];
+            /** @description The routines that have it, by name. It can't be deleted while there are any. */
+            routines: components["schemas"]["RoutineResponse"][];
         };
         /** @description An exercise in the list. */
         ExerciseListItemResponse: {
@@ -550,6 +620,20 @@ export interface components {
             /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case. */
             name: string;
         };
+        /** @description A routine, its days and its exercises. */
+        RoutineDetailsResponse: {
+            /**
+             * Format: uuid
+             * @description The routine's ID.
+             */
+            id: string;
+            /** @description The routine's name. */
+            name: string;
+            /** @description The weekdays it is planned on now, from Monday. */
+            weekdays: components["schemas"]["Weekday"][];
+            /** @description Its exercises in order. */
+            exercises: components["schemas"]["RoutineExerciseResponse"][];
+        };
         /** @description An exercise in a routine and its targets. */
         RoutineExerciseItem: {
             /**
@@ -570,6 +654,31 @@ export interface components {
             /**
              * Format: int32
              * @description The high end of the rep range, 1 to 100. It can't be below the low end.
+             */
+            targetRepsTo: number;
+        };
+        /** @description An exercise in a routine and its targets. */
+        RoutineExerciseResponse: {
+            /**
+             * Format: uuid
+             * @description The exercise's ID.
+             */
+            exerciseId: string;
+            /** @description The exercise's name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description The sets to do.
+             */
+            targetSets: number;
+            /**
+             * Format: int32
+             * @description The low end of the rep range.
+             */
+            targetRepsFrom: number;
+            /**
+             * Format: int32
+             * @description The high end of the rep range.
              */
             targetRepsTo: number;
         };
@@ -646,6 +755,13 @@ export interface components {
         UpdateGroupOrderRequest: {
             /** @description Every one of the user's groups, once each, in the new order. */
             groupIds: string[];
+        };
+        /** @description A routine's new name and exercises. */
+        UpdateRoutineRequest: {
+            /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case. */
+            name: string;
+            /** @description Its exercises in order, 1 to 30, each once. */
+            exercises: components["schemas"]["RoutineExerciseItem"][];
         };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateWorkoutSettingsRequest: {
@@ -1339,6 +1455,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
+            /** @description The exercise is in a routine. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
         };
     };
     ListGroups: {
@@ -1500,6 +1625,199 @@ export interface operations {
                 };
             };
             /** @description The user already has a routine with this name, or has reached the limit of 50 routines. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The routine's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The routine. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoutineDetailsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The routine does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The routine's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoutineRequest"];
+            };
+        };
+        responses: {
+            /** @description The changed routine. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoutineResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The routine or one of the exercises does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user already has another routine with this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The routine's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The routine is deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The routine does not exist, is already deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RestoreRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The routine's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The restored routine. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoutineResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The routine does not exist, is not deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Another routine has its name now, or one of its exercises was deleted. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1681,6 +1999,56 @@ export interface operations {
                 };
             };
             /** @description The user already has another group with this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RestoreExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The restored exercise. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise does not exist, is not deleted, or belongs to another user, or one of its groups is gone. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Another exercise has its name now. */
             409: {
                 headers: {
                     [name: string]: unknown;

@@ -19,8 +19,12 @@ internal sealed class DeleteExerciseHandler(
             return ExerciseErrors.NotFound;
         }
 
+        if (await routineRepository.UsesExerciseAsync(exercise.Id, cancellationToken))
+        {
+            return ExerciseErrors.InRoutine;
+        }
+
         exercise.Delete(timeProvider.GetUtcNow());
-        await routineRepository.RemoveExerciseAsync(exercise.Id, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

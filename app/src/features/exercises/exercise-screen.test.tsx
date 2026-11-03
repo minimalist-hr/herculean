@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
+import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -29,6 +30,7 @@ function exercise(group: string, alsoWorks: string[] = []) {
     name: 'Bench press',
     group: { id: group, name: group },
     alsoWorksGroups: alsoWorks.map((name) => ({ id: name, name })),
+    routines: [] as { id: string; name: string }[],
   };
 }
 
@@ -53,6 +55,7 @@ function Layout() {
     >
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -120,7 +123,7 @@ test('shows that it has no sessions and is in no routine', async () => {
   expect(screen.getByText('Used in')).toBeOnTheScreen();
   expect(
     screen.getByText(
-      'Not in any routine yet. Add it from Edit routine on the Routines tab.',
+      'Not in any routine yet. Add it when you create or edit a routine.',
     ),
   ).toBeOnTheScreen();
 });
@@ -160,6 +163,139 @@ test('the edit button waits for the exercise', async () => {
   await screen.findByRole('alert');
 
   expect(screen.queryByRole('button', { name: 'Edit exercise' })).toBeNull();
+});
+
+function inRoutines(...names: string[]) {
+  return {
+    ...exercise('Shoulders'),
+    routines: names.map((name) => ({ id: name, name })),
+  };
+}
+
+test.each([
+  [['Legs'], "It's in Legs. Remove it from that routine first."],
+  [
+    ['Arms', 'Legs'],
+    "It's in Arms and Legs. Remove it from those routines first.",
+  ],
+  [
+    ['Arms', 'Back', 'Legs'],
+    "It's in Arms, Back and Legs. Remove it from those routines first.",
+  ],
+  [
+    ['Arms', 'Back', 'Chest', 'Legs', 'Push'],
+    "It's in 5 routines. Remove it from them first.",
+  ],
+])(
+  'in routines %j, the trash is muted and says why',
+  async (names, message) => {
+    answer(inRoutines(...names));
+    await renderExercise();
+
+    await fireEvent.press(
+      await screen.findByRole('button', {
+        name: 'Delete exercise, not available while it is in a routine',
+      }),
+    );
+
+    expect(await screen.findByText(message)).toBeOnTheScreen();
+    expect(screen.queryByText('Delete Bench press?')).toBeNull();
+    expect(screen.getByText(names[0])).toBeOnTheScreen();
+    expect(
+      mockFetch.mock.calls.some(([request]) => request.method === 'DELETE'),
+    ).toBe(false);
+  },
+);
+
+test('deleting asks first, goes back, and Undo restores it', async () => {
+  const requests: string[] = [];
+  mockFetch.mockImplementation((request) => {
+    const { pathname } = new URL(request.url);
+    requests.push(`${request.method} ${pathname}`);
+    if (request.method === 'DELETE') {
+      return Promise.resolve(new Response(null, { status: 204 }));
+    }
+    if (request.method === 'POST') {
+      return Promise.resolve(
+        Response.json({
+          id,
+          name: 'Bench press',
+          groupId: 'Shoulders',
+          alsoWorksGroupIds: [],
+        }),
+      );
+    }
+    return Promise.resolve(Response.json(exercise('Shoulders')));
+  });
+  await renderExercise();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Delete exercise' }),
+  );
+  const buttons = await screen.findAllByRole('button', {
+    name: 'Delete exercise',
+  });
+  await fireEvent.press(buttons[buttons.length - 1]);
+
+  expect(await screen.findByText('Bench press deleted.')).toBeOnTheScreen();
+  expect(requests).toContain(`DELETE /api/v1/exercises/${id}`);
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+
+  await waitFor(() => {
+    expect(requests).toContain(`POST /api/v1/exercises/${id}/restore`);
+  });
+});
+
+test('a failed delete and a failed Undo say so', async () => {
+  let deleted = false;
+  mockFetch.mockImplementation((request) => {
+    if (request.method === 'DELETE') {
+      if (!deleted) {
+        deleted = true;
+        return Promise.reject(new TypeError('Network request failed'));
+      }
+      return Promise.resolve(new Response(null, { status: 204 }));
+    }
+    if (request.method === 'POST') {
+      return Promise.resolve(
+        Response.json(
+          {
+            type: 'about:blank',
+            title: 'Conflict',
+            status: 409,
+            detail: 'You already have an exercise with this name.',
+            code: 'exercise.name_taken',
+            traceId: '00-1',
+          },
+          { status: 409 },
+        ),
+      );
+    }
+    return Promise.resolve(Response.json(exercise('Shoulders')));
+  });
+  await renderExercise();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Delete exercise' }),
+  );
+  let buttons = await screen.findAllByRole('button', {
+    name: 'Delete exercise',
+  });
+  await fireEvent.press(buttons[buttons.length - 1]);
+
+  expect(
+    await screen.findByText("Couldn't delete the exercise. Try again."),
+  ).toBeOnTheScreen();
+
+  buttons = screen.getAllByRole('button', { name: 'Delete exercise' });
+  await fireEvent.press(buttons[buttons.length - 1]);
+  await screen.findByText('Bench press deleted.');
+  await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+
+  expect(
+    await screen.findByText('You already have an exercise with this name.'),
+  ).toBeOnTheScreen();
 });
 
 test('the back link is there while it loads', async () => {

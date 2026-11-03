@@ -32,6 +32,14 @@ internal sealed class RoutineExercise : Entity<RoutineExerciseId>
 
     public int TargetRepsTo { get; private set; }
 
+    internal void Update(int order, RoutineExerciseValues values)
+    {
+        Order = order;
+        TargetSets = values.TargetSets;
+        TargetRepsFrom = values.TargetRepsFrom;
+        TargetRepsTo = values.TargetRepsTo;
+    }
+
     internal static RoutineExercise Create(UserId userId, RoutineId routineId, int order, RoutineExerciseValues values) =>
         new(RoutineExerciseId.New(), userId, routineId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo);
 }

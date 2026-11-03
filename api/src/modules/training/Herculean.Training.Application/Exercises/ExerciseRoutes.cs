@@ -7,4 +7,6 @@ internal static class ExerciseRoutes
     public const string Exercises = "/api/v1/exercises";
 
     public const string Exercise = $"{Exercises}/{{id:guid}}";
+
+    public const string RestoreExercise = $"{Exercise}/restore";
 }

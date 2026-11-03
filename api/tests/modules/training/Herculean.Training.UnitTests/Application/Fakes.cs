@@ -6,6 +6,7 @@ using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Routines;
+using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.WeekPlan;
 using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
@@ -133,6 +134,9 @@ internal sealed class FakeExerciseRepository : IExerciseRepository
     public Task<Exercise?> GetAsync(ExerciseId id, CancellationToken cancellationToken) =>
         Task.FromResult(Exercises.SingleOrDefault(exercise => exercise.Id == id && exercise.DeletedAtUtc is null));
 
+    public Task<Exercise?> GetDeletedAsync(ExerciseId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Exercises.SingleOrDefault(exercise => exercise.Id == id && exercise.DeletedAtUtc is not null));
+
     public Task<bool> NameExistsAsync(string name, ExerciseId? exceptId, CancellationToken cancellationToken) =>
         Task.FromResult(Exercises.Any(exercise =>
             exercise.DeletedAtUtc is null && exercise.Id != exceptId && exercise.NormalizedName == Exercise.NormalizeName(name)));
@@ -150,34 +154,41 @@ internal sealed class FakeRoutineRepository : IRoutineRepository
 {
     public List<Routine> Routines { get; } = [];
 
-    public List<ExerciseId> RemovedExercises { get; } = [];
-
     /// <summary>The count to report, so a test needs no 50 routines.</summary>
     public int? Count { get; set; }
 
     public Task<int> CountAsync(CancellationToken cancellationToken) => Task.FromResult(Count ?? Routines.Count);
 
-    public Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken) =>
-        Task.FromResult(Routines.Any(routine => routine.NormalizedName == Routine.NormalizeName(name)));
+    public Task<Routine?> GetAsync(RoutineId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Active.SingleOrDefault(routine => routine.Id == id));
 
-    public Task RemoveExerciseAsync(ExerciseId exerciseId, CancellationToken cancellationToken)
-    {
-        RemovedExercises.Add(exerciseId);
+    public Task<Routine?> GetDeletedAsync(RoutineId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Routines.SingleOrDefault(routine => routine.Id == id && routine.DeletedAtUtc is not null));
 
-        return Task.CompletedTask;
-    }
+    public Task<bool> NameExistsAsync(string name, RoutineId? exceptId, CancellationToken cancellationToken) =>
+        Task.FromResult(Active.Any(routine => routine.Id != exceptId && routine.NormalizedName == Routine.NormalizeName(name)));
+
+    public Task<bool> UsesExerciseAsync(ExerciseId exerciseId, CancellationToken cancellationToken) =>
+        Task.FromResult(Active.Any(routine => routine.Exercises.Any(exercise => exercise.ExerciseId == exerciseId)));
 
     public void Add(Routine routine)
     {
         Routines.Add(routine);
     }
+
+    private IEnumerable<Routine> Active => Routines.Where(routine => routine.DeletedAtUtc is null);
 }
 
 internal sealed class FakeRoutineReadRepository : IRoutineReadRepository
 {
     public List<RoutineListItemResponse> Items { get; } = [];
 
+    public List<RoutineDetailsResponse> Details { get; } = [];
+
     public Task<List<RoutineListItemResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
+
+    public Task<RoutineDetailsResponse?> GetAsync(RoutineId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Details.SingleOrDefault(routine => routine.Id == id.Value));
 }
 
 internal sealed class FakeWeekPlanReadRepository : IWeekPlanReadRepository

@@ -134,7 +134,7 @@ async function openNew() {
     {
       _layout: Layout,
       index: RoutinesScreen,
-      'routine/[id]': () => <PlaceholderScreen title="Routine screen" />,
+      'routines/[id]': () => <PlaceholderScreen title="Routine screen" />,
       'routine/new/_layout': NewRoutineLayout,
       'routine/new/index': NewRoutineRoute,
       'routine/new/add-exercise': AddExerciseRoute,
@@ -293,7 +293,7 @@ test('a new exercise from a search comes back selected and new, and its descript
   await screen.findByRole('header', { name: 'New exercise' });
   expect(
     screen.getByText(
-      'It’s added to your exercise list and can be used in any workout.',
+      'It’s added to your exercise list and can be used in any routine or workout.',
     ),
   ).toBeOnTheScreen();
   expect(screen.getByLabelText('Name')).toHaveDisplayValue('Hack squat');

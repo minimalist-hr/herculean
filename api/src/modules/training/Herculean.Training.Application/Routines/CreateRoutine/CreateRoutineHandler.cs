@@ -25,20 +25,13 @@ internal sealed class CreateRoutineHandler(
             return validationResult.ToError();
         }
 
-        List<RoutineExerciseValues> exercises =
-        [
-            .. request.Exercises.Select(exercise => new RoutineExerciseValues(
-                ExerciseId.From(exercise.ExerciseId),
-                exercise.TargetSets,
-                exercise.TargetRepsFrom,
-                exercise.TargetRepsTo)),
-        ];
+        List<RoutineExerciseValues> exercises = request.ToExerciseValues();
         if (!await exerciseRepository.AllExistAsync([.. exercises.Select(exercise => exercise.ExerciseId)], cancellationToken))
         {
             return ExerciseErrors.NotFound;
         }
 
-        if (await routineRepository.NameExistsAsync(request.Name, cancellationToken))
+        if (await routineRepository.NameExistsAsync(request.Name, null, cancellationToken))
         {
             return RoutineErrors.NameTaken;
         }

@@ -1,0 +1,249 @@
+import { useRouter, type Href } from 'expo-router';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import type { components } from '@/api/schema';
+import { BackLink } from '@/components/back-link';
+import { Button } from '@/components/button';
+import { HeaderIconButton } from '@/components/header-icon-button';
+import { PencilIcon, TrashIcon } from '@/components/icons';
+import { LoadFailure } from '@/components/load-failure';
+import { Sheet } from '@/components/sheet';
+import { Skeleton } from '@/components/skeleton';
+import { useTheme } from '@/theme/theme-provider';
+
+import { counted, dayNames, joined, targetText } from './formats';
+import { useDeleteRoutine } from './use-delete-routine';
+import { useRoutine } from './use-routine';
+
+type Routine = components['schemas']['RoutineDetailsResponse'];
+
+export function RoutineScreen({ id }: { id: string }) {
+  const { colors, size } = useTheme();
+  const router = useRouter();
+  const routine = useRoutine(id);
+
+  function renderContent() {
+    if (routine.data !== undefined) {
+      return <Details routine={routine.data} />;
+    }
+
+    if (routine.isError) {
+      return (
+        <LoadFailure
+          message="Couldn't load this routine."
+          onRetry={() => {
+            void routine.refetch();
+          }}
+        />
+      );
+    }
+
+    return <RoutineSkeleton />;
+  }
+
+  return (
+    <ScrollView
+      style={{ backgroundColor: colors.bg }}
+      contentContainerStyle={{
+        paddingTop: size.topPaddingSubPage,
+        paddingHorizontal: size.sidePadding,
+        paddingBottom: size.gap.sectionMax,
+      }}
+    >
+      <BackLink
+        label="Routines"
+        onPress={() => {
+          router.back();
+        }}
+      />
+      {renderContent()}
+    </ScrollView>
+  );
+}
+
+function Details({ routine }: { routine: Routine }) {
+  const { colors, radius, size, space, text } = useTheme();
+  const router = useRouter();
+  const deleteRoutine = useDeleteRoutine();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  return (
+    <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
+      <View style={styles.heading}>
+        <View style={[styles.titleRow, { gap: space.sm }]}>
+          <Text
+            accessibilityRole="header"
+            style={[text.pageTitle, styles.title, { color: colors.text }]}
+          >
+            {routine.name}
+          </Text>
+          <HeaderIconButton
+            label="Edit routine"
+            onPress={() => {
+              router.push(`/routine/${routine.id}/edit` as Href);
+            }}
+          >
+            <PencilIcon color={colors.text} size={20} />
+          </HeaderIconButton>
+          <HeaderIconButton
+            label="Delete routine"
+            onPress={() => {
+              setConfirmingDelete(true);
+            }}
+          >
+            <TrashIcon color={colors.dangerFill} size={20} />
+          </HeaderIconButton>
+        </View>
+        <Text style={[text.body, { color: colors.muted }]}>
+          {subtitleOf(routine)}
+        </Text>
+      </View>
+
+      <View style={{ gap: space.sm }}>
+        <Text style={[text.eyebrow, styles.sectionTitle]}>Exercises</Text>
+        <View style={{ gap: space.sm }}>
+          {routine.exercises.map((exercise) => (
+            <View
+              key={exercise.exerciseId}
+              style={[
+                styles.exercise,
+                {
+                  minHeight: size.listRowMin,
+                  paddingVertical: space.sm,
+                  paddingHorizontal: 14,
+                  borderRadius: radius.card,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                },
+              ]}
+            >
+              <Text style={[text.listItemName, { color: colors.text }]}>
+                {exercise.name}
+              </Text>
+              <Text style={[text.meta, { color: colors.primaryText }]}>
+                {targetText(exercise)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <Sheet
+        visible={confirmingDelete}
+        title={`Delete ${routine.name}?`}
+        message={deleteMessageOf(routine)}
+        onClose={() => {
+          setConfirmingDelete(false);
+        }}
+      >
+        <Button
+          label="Delete routine"
+          variant="danger"
+          waitingLabel="Deleting routine"
+          waiting={deleteRoutine.isPending}
+          onPress={() => {
+            deleteRoutine.mutate(routine, {
+              onSuccess: () => {
+                router.back();
+              },
+            });
+          }}
+        />
+      </Sheet>
+    </View>
+  );
+}
+
+function RoutineSkeleton() {
+  const { colors, radius, size, space } = useTheme();
+
+  return (
+    <View
+      accessible
+      accessibilityLabel="Loading the routine"
+      accessibilityLiveRegion="polite"
+      style={{ gap: size.gap.sectionMax, marginTop: 2 }}
+    >
+      <View style={styles.heading}>
+        <View style={[styles.skeletonTitle, { height: size.headerIconButton }]}>
+          <Skeleton width={220} height={32} />
+        </View>
+        <Skeleton width={240} height={14} />
+      </View>
+      <View style={{ gap: space.sm }}>
+        <Skeleton width={70} height={10} />
+        {[190, 150, 210].map((width) => (
+          <View
+            key={width}
+            style={[
+              styles.exercise,
+              {
+                gap: space.sm,
+                minHeight: size.listRowMin,
+                paddingHorizontal: 14,
+                borderRadius: radius.card,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              },
+            ]}
+          >
+            <Skeleton width={width} height={14} />
+            <Skeleton width={70} height={10} />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function subtitleOf(routine: Routine) {
+  const days = routine.weekdays.map((weekday) => dayNames[weekday].full);
+  const setCount = routine.exercises.reduce(
+    (sum, exercise) => sum + exercise.targetSets,
+    0,
+  );
+
+  return [
+    days.length > 0 ? `Every ${days.join(', ')}` : 'Not in your week plan',
+    counted(routine.exercises.length, 'exercise', 'exercises'),
+    counted(setCount, 'set', 'sets'),
+  ].join(' · ');
+}
+
+function deleteMessageOf(routine: Routine) {
+  const days = routine.weekdays.map((weekday) => dayNames[weekday].full);
+  const logged = 'Workouts you already logged stay.';
+
+  if (days.length === 0) {
+    return `It isn't in your week plan. ${logged}`;
+  }
+
+  return days.length === 1
+    ? `${days[0]} becomes a rest day in the week plan. ${logged}`
+    : `${joined(days)} become rest days in the week plan. ${logged}`;
+}
+
+const styles = StyleSheet.create({
+  heading: {
+    gap: 4,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  skeletonTitle: {
+    justifyContent: 'center',
+  },
+  title: {
+    flex: 1,
+  },
+  sectionTitle: {
+    paddingHorizontal: 4,
+  },
+  exercise: {
+    justifyContent: 'center',
+    gap: 2,
+    borderWidth: 1,
+  },
+});

@@ -1,12 +1,10 @@
 # Screen index
 
-91 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+93 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
 ## A · Account
-
-Flow map: [open](areas/A-Account.png)
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
@@ -23,8 +21,6 @@ Flow map: [open](areas/A-Account.png)
 | A30 | Account › Setup | A3 Create account | 390×844 | [png](screens/A30-Account-Setup.png) · [html](html/A30-Account-Setup.html) · [source](source/A30-Account-Setup.dc.html) |
 
 ## H · Home
-
-Flow map: [open](areas/H-Home.png)
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
@@ -49,8 +45,6 @@ Flow map: [open](areas/H-Home.png)
 | H21 | Settings › Privacy policy · full scroll | H3 About and legal | 390×1000 | [png](screens/H21-Settings-Privacy.png) · [html](html/H21-Settings-Privacy.html) · [source](source/H21-Settings-Privacy.dc.html) |
 
 ## W · Workout
-
-Flow map: [open](areas/W-Workout.png)
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
@@ -78,8 +72,6 @@ Flow map: [open](areas/W-Workout.png)
 
 ## L · Logging
 
-Flow map: [open](areas/L-Logging.png)
-
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | L03 | Logging · loading | L1 Log sets | 390×844 | [png](screens/L03-Logging-Loading.png) · [html](html/L03-Logging-Loading.html) · [source](source/L03-Logging-Loading.dc.html) |
@@ -102,23 +94,20 @@ Flow map: [open](areas/L-Logging.png)
 
 ## R · Routines
 
-Flow map: [open](areas/R-Routines.png)
-
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
 | R02 | Routines · loading, full scroll | R1 Routines tab | 390×1210 | [png](screens/R02-Routines-Loading.png) · [html](html/R02-Routines-Loading.html) · [source](source/R02-Routines-Loading.dc.html) |
 | R01 | Routines · full scroll | R1 Routines tab | 390×1210 | [png](screens/R01-Routines.png) · [html](html/R01-Routines.html) · [source](source/R01-Routines.dc.html) |
 | R03 | Routines · no routines yet, full scroll | R1 Routines tab | 390×900 | [png](screens/R03-Routines-Empty.png) · [html](html/R03-Routines-Empty.html) · [source](source/R03-Routines-Empty.dc.html) |
 | R10 | Routines › Week plan day · sheet | R2 Week plan | 390×844 | [png](screens/R10-Routines-Pick-Day.png) · [html](html/R10-Routines-Pick-Day.html) · [source](source/R10-Routines-Pick-Day.dc.html) |
-| R20 | Routines › Edit routine · full scroll | R3 Edit a routine | 390×1000 | [png](screens/R20-Routines-Edit.png) · [html](html/R20-Routines-Edit.html) · [source](source/R20-Routines-Edit.dc.html) |
+| R05 | Routines › Routine details | R3 Edit a routine | 390×844 | [png](screens/R05-Routines-Details.png) · [html](html/R05-Routines-Details.html) · [source](source/R05-Routines-Details.dc.html) |
+| R20 | Routines › Edit routine · full scroll | R3 Edit a routine | 390×900 | [png](screens/R20-Routines-Edit.png) · [html](html/R20-Routines-Edit.html) · [source](source/R20-Routines-Edit.dc.html) |
 | R21 | Routines › Edit routine › Sets and reps | R3 Edit a routine | 390×844 | [png](screens/R21-Routines-Edit-Targets.png) · [html](html/R21-Routines-Edit-Targets.html) · [source](source/R21-Routines-Edit-Targets.dc.html) |
 | R23 | Routines › Edit routine › Remove exercise · confirm | R3 Edit a routine | 390×844 | [png](screens/R23-Routines-Remove-Exercise-Confirm.png) · [html](html/R23-Routines-Remove-Exercise-Confirm.html) · [source](source/R23-Routines-Remove-Exercise-Confirm.dc.html) |
 | R22 | Routines › Delete routine · confirm | R3 Edit a routine | 390×844 | [png](screens/R22-Routines-Delete-Confirm.png) · [html](html/R22-Routines-Delete-Confirm.html) · [source](source/R22-Routines-Delete-Confirm.dc.html) |
 | R30 | Routines › New routine | R4 New routine | 390×844 | [png](screens/R30-Routines-New.png) · [html](html/R30-Routines-New.html) · [source](source/R30-Routines-New.dc.html) |
 
 ## E · Exercises
-
-Flow map: [open](areas/E-Exercises.png)
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|

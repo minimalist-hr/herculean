@@ -120,6 +120,7 @@ function answer({
       id,
       name: stored.name,
       group: nameOf(stored.groupId),
+      routines: [],
       alsoWorksGroups: stored.alsoWorksGroupIds.map(nameOf),
     });
   });

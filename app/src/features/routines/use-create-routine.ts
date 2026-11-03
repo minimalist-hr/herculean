@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
+import { exerciseKeys } from '@/features/exercises/query-keys';
 
 import { routineKeys } from './query-keys';
 import type { RoutineExerciseDraft } from './routine-draft';
@@ -11,7 +12,7 @@ interface CreateRoutine {
   exercises: RoutineExerciseDraft[];
 }
 
-/** Creates a routine, then refreshes the routine list. */
+/** Creates a routine, then refreshes the routine list and the exercises it uses. */
 export function useCreateRoutine() {
   const queryClient = useQueryClient();
 
@@ -35,6 +36,10 @@ export function useCreateRoutine() {
       return data;
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: routineKeys.all }),
+      Promise.all(
+        [routineKeys.all, exerciseKeys.details].map((queryKey) =>
+          queryClient.invalidateQueries({ queryKey }),
+        ),
+      ),
   });
 }

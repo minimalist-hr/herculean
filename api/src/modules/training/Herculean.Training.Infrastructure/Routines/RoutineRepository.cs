@@ -10,21 +10,28 @@ internal sealed class RoutineRepository(TrainingDbContext dbContext) : IRoutineR
     public Task<int> CountAsync(CancellationToken cancellationToken) =>
         dbContext.Routines.CountAsync(cancellationToken);
 
-    public Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken)
+    public Task<Routine?> GetAsync(RoutineId id, CancellationToken cancellationToken) =>
+        dbContext.Routines
+            .Include(routine => routine.Exercises)
+            .SingleOrDefaultAsync(routine => routine.Id == id, cancellationToken);
+
+    public Task<Routine?> GetDeletedAsync(RoutineId id, CancellationToken cancellationToken) =>
+        dbContext.Routines
+            .IgnoreQueryFilters([TrainingDbContext.SoftDeleteFilter])
+            .Include(routine => routine.Exercises)
+            .SingleOrDefaultAsync(routine => routine.Id == id && routine.DeletedAtUtc != null, cancellationToken);
+
+    public Task<bool> NameExistsAsync(string name, RoutineId? exceptId, CancellationToken cancellationToken)
     {
         string normalizedName = Routine.NormalizeName(name);
 
-        return dbContext.Routines.AnyAsync(routine => routine.NormalizedName == normalizedName, cancellationToken);
+        return dbContext.Routines.AnyAsync(
+            routine => routine.NormalizedName == normalizedName && routine.Id != exceptId,
+            cancellationToken);
     }
 
-    public async Task RemoveExerciseAsync(ExerciseId exerciseId, CancellationToken cancellationToken)
-    {
-        List<RoutineExercise> uses = await dbContext.Set<RoutineExercise>()
-            .Where(exercise => exercise.ExerciseId == exerciseId)
-            .ToListAsync(cancellationToken);
-
-        dbContext.Set<RoutineExercise>().RemoveRange(uses);
-    }
+    public Task<bool> UsesExerciseAsync(ExerciseId exerciseId, CancellationToken cancellationToken) =>
+        dbContext.Routines.AnyAsync(routine => routine.Exercises.Any(exercise => exercise.ExerciseId == exerciseId), cancellationToken);
 
     public void Add(Routine routine)
     {

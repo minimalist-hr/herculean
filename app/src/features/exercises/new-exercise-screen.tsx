@@ -30,7 +30,7 @@ export function NewExerciseScreen({
     <ExerciseFormPage
       back={back}
       title="New exercise"
-      subtitle="It’s added to your exercise list and can be used in any workout."
+      subtitle="It’s added to your exercise list and can be used in any routine or workout."
       initialValues={{
         name: initialName,
         groupId: initialGroupId,

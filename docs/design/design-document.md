@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.22 · 3 November 2026 · Minimalist
+Version 0.23 · 3 November 2026 · Minimalist
+
+> Changes since 0.22: a routine now has a details screen, R05, with edit and delete buttons like E10. A routine on R01 opens R05. R20 has only Save routine, its back link names the routine and cancels, and it has a new description. R22 opens from R05. The `areas/` images and Flow boards are gone: `screens/`, `html/` and `source/` are what count. The screen index board and canvas now list every screen. Copy checked against what the app does: E11's hint names both ways to add an exercise, L22 says routines too, and W32 no longer says "for good", because it has Undo. Routines and exercises can now be undone after a delete, so only delete account can't. An exercise in a routine can't be deleted: its trash on E10 is muted, Used in lists routines by name, and E21 no longer mentions routines.
 
 > Changes since 0.21: creating and editing are pages now, so E20, L22, E32 and E33 are pages, and E33 is Edit group, not Rename. A page has a back link named after the screen it came from, a title, one short description, the fields and Save in the bottom box. The back link cancels. Deletes and other confirmations stay sheets, and no sheet has a Cancel button: the X or a tap outside closes it. A delete button is `dangerFill` with a white label in both themes, so the label stays readable. Trash icons match it. Error text keeps `danger`. The name field on create and edit forms has no placeholder. The notification bar and the undo bar come down from the top of the screen. R20 becomes a page when it is built. Done on the keyboard only closes it. "Your training" is gone from E01 to E04, R01 to R03 and R10. E01 to E04 have a short description under the title, then full-width search and the chips, and New exercise in a box pinned above the tab bar. Groups is a link chip at the start of the chips, and alone on E04. On E04, New exercise replaces the dashed action. E03 has no button of its own. E35's rows only show an exercise and no longer open it. On E30, a short description and a search are added under the title, New group sits in a box pinned above the tab bar, and the sorting hint moves below the list. While a search has text, the rows lose their handles and the hint goes, because only part of the list shows. New is the word for every create action: New exercise, New group, New routine. R01 to R03 have a short description, search by name and New routine pinned above the tab bar, and the week plan sits below the routines. R20, R30, Add exercise (L20, L21, L23, L24) and Sets and reps (R21) are pages. R30's Exercises heading always shows its counts. On Add exercise, New exercise closes the list, after a line and a gap, the chips are one sideways line, and rows are separate and show only the group. R21's steppers are stacked. Leaving a form with changes asks first (Form pages). With no groups, New exercise on E01 to E04 and L20 is muted and says "Create a group first.", and E36 shows "No groups yet" with no search. With one group, L22 and E20 hide Also works. The "No sessions yet" card on E11 and E35 has no icon. A10 to A12 have a back link to Sign in in place of the "Forgot password?" label, A10 and A12 lose Cancel, and A11 loses Back to sign in. Email fields say "Your email", and the second password field is Confirm password. The glows on A00 to A03 use `opacity.glow`, though the drawings keep a straight fade and the app a smooth one. The undo bar no longer dims the screen. The area panels `areas/` and the Flow boards don't show this.
 
@@ -44,7 +46,7 @@ Version 0.22 · 3 November 2026 · Minimalist
 
 > Changes since 0.1: R03 week plan rows read "Rest day" instead of "Not planned". Discard workout now shows an undo bar on W01. Delete routine and delete exercise no longer have undo bars (section 7).
 
-> In this package: the canvas boards are rendered under `screens/`, the area panels with their flows under `areas/`, and the original Claude Design source under `source/`. See `README.md` and `screen-index.md`.
+> In this package: the canvas boards are rendered under `screens/`, and the original Claude Design source under `source/`. See `README.md` and `screen-index.md`.
 
 Herculean is a workout log for people who train on a fixed weekly split. You plan routines, put them on the days of the week, log your sets at the gym, and see your history and progress per exercise.
 
@@ -55,7 +57,7 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 ## 1. Scope
 
 - **Platform:** phone app, designed at 390 × 844 px (iPhone 14/15 size). Long screens are drawn at full scroll height and marked "full scroll".
-- **Screens:** 90 app screens in six areas, plus one brand board.
+- **Screens:** 93 app screens in six areas, plus one brand board.
 - **Themes:** dark (default) and light, two accent colors, four fonts and two corner styles. Each one can be switched on every board through Tweaks.
 - **Not in scope yet:** see section 11, Parked.
 
@@ -67,13 +69,8 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 |---|---|
 | **B01 Brand** | Logo concepts and the chosen logo. At the top of the canvas. |
 | **Screen index** | Every screen by ID, with its row and position. Below the brand board. |
-| **Area panels** | One panel per area, top to bottom: A Account, H Home, W Workout, L Logging, R Routines, E Exercises. |
 
 **Screen IDs.** One letter for the area, then two digits. The first digit is the flow (row) and the second is the screen. For example, W42 is in Workout, row W4x (Month), screen 2. Board titles read `ID · Area › Screen · state`.
-
-**Rows.** Inside an area panel, each flow is one horizontal row with a dashed outline. The starting screen is on the left, and the screens it opens follow to the right with labelled arrows. Each row has a title (for example "W3 · Other days") and a one-line note saying how you get there.
-
-**"Already designed" notes.** A screen is never drawn twice. When a flow reaches a screen that exists elsewhere, a dashed note names it and its row instead (for example "Same as L20 → L22 → L23").
 
 ---
 
@@ -186,9 +183,9 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 | **Primary** | 48 px, filled `primary`, 15 px uppercase bold | The main action: Save …, Start workout, Load routine, Sign in |
 | **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout, View workout |
 | **Danger** | 48 px, filled `dangerFill` | The confirm action in delete and remove confirms |
-| **Danger text** | 44 px, `danger` text | Delete … inside edit screens (R20) and Remove set |
+| **Danger text** | 44 px, `danger` text | Remove set |
 | **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Add set, and the way between A01 and A20 |
-| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, E10 and E11 edit and delete |
+| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, R05, E10 and E11 edit and delete |
 
 **Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
 
@@ -305,16 +302,18 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 **Undo bars after every removal**
 - **Logging:** set removed (L12), exercise removed, and workout discarded (shown on W01).
 - **Edit workout:** set removed (W31) and exercise removed.
-- **Routines:** exercise removed from a routine.
-- **Exercises:** group deleted (shown on E30).
+- **Routines:** exercise removed from a routine, and routine deleted (shown on R01).
+- **Exercises:** exercise deleted (shown on E01), and group deleted (shown on E30).
 - **Other:** workout deleted, and profile photo removed (shown on H10).
-- **Exceptions:** delete account, delete routine and delete exercise have no undo. Each asks first (H19, R22, E21).
+- **Exception:** delete account has no undo (H19).
 
 **Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it is dimmed and counts down: "Send link again in 0:42".
 
-**Delete inside edit screens.** "Delete routine" (R20) sits below Save routine, styled as danger text. An exercise is deleted from its details: a red trash icon to the right of the edit button on E10 and E11.
+**Delete from details.** A routine or exercise is deleted from its details: a red trash icon to the right of the edit button on R05, E10 and E11.
 
 **Groups.** A group can only be deleted when it has no exercises. Only an empty group's trash on E35 is active, in red.
+
+**Exercises in a routine.** An exercise in a routine can't be deleted. Its trash on E10 is muted, and tapping it says "It's in Legs and Arms. Remove it from those routines first." One routine reads "It's in Legs. Remove it from that routine first." More than three read "It's in 5 routines. Remove it from them first."
 
 **Actions that aren't available.** An action that isn't available looks muted but stays tappable, and a notification says why, for example "Move or delete this group's exercises first." A button dimmed while another action waits is different: it can't be pressed.
 
@@ -404,7 +403,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 |---|---|---|
 | **R1 Routines tab** | R02 Loading, R01 Routines, R03 No routines | Your routines with their day tags, then the week plan ("Repeats every week") with one row per day. The title, a short description and search by name stay pinned, and New routine is pinned at the bottom. With no routines, search goes. While searching, the week plan goes. |
 | **R2 Week plan** | R10 Week plan day | A weekday on R01 opens R10, a sheet to pick the routine or Rest day → Save day. Today, the week strip and the month follow the plan. |
-| **R3 Edit a routine** | R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine | Name, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine and Delete routine. R20 is a page, and R21 opens as a page from it. Deleting a routine makes its days rest days. |
+| **R3 Edit a routine** | R05 Routine details, R20 Edit routine, R21 Sets and reps, R23 Remove exercise, R22 Delete routine | A routine on R01 opens R05: its name, days and totals, edit and delete buttons, and its exercises with targets, for display only. Edit opens R20, a page with name, exercises with targets, drag handles, trash and Add exercise (new exercises start at 3 × 8–10), then Save routine. R21 opens as a page from R20. Delete opens R22. Deleting a routine makes its days rest days, and a notification on R01 offers Undo, which brings them back. |
 | **R4 New routine** | R30 New routine | A page with name and exercises, then Save routine. Opens from New routine on R01/R03 and from Create routine on H05/W05. |
 
 ### E · Exercises
@@ -412,8 +411,8 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title and its description, search and the chips stay pinned, with Groups (→ E30) as a link chip before All, and New exercise is pinned at the bottom,, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." |
-| **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines, and every session by month. Edit icon in the header. |
-| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | A page with name, group and "Also works", then Save exercise. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20, and the trash icon opens E21. Deleting removes the exercise from routines; logged workouts keep it. Then a notification says "Bench press deleted." |
+| **E2 Exercise details** | E10 Exercise, E11 Never done | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines by name with a line between them, which only show and open nothing, and every session by month. Edit icon in the header. |
+| **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm | A page with name, group and "Also works", then Save exercise. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20, and the trash icon opens E21. Only an exercise in no routine can be deleted, and logged workouts keep it. Then a notification says "Bench press deleted." with Undo. |
 | **E4 Groups** | E31 Loading, E30 Groups, E36 No groups, E35 Group, E33 Edit group, E32 New group, E34 Delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title, its short description and search stay pinned, New group is pinned at the bottom, and the sorting hint sits below the list. While searching, the groups can't be dragged and New group starts from what was typed. New group and Edit group are pages. A row opens E35: the exercises in the group and those that also work it, which only show and open nothing, with Edit and Delete in the header; only an empty group can be deleted. |
 
 ---

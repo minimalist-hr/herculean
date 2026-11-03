@@ -42,7 +42,7 @@ export function RoutinesScreen() {
         accessibilityLabel={`${routine.name}, ${summary}`}
         onPress={() => {
           router.push({
-            pathname: '/routine/[id]',
+            pathname: '/routines/[id]',
             params: { id: routine.id },
           });
         }}

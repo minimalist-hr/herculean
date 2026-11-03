@@ -59,5 +59,10 @@ internal sealed class Exercise : Entity<ExerciseId>
         DeletedAtUtc = deletedAtUtc;
     }
 
+    public void Restore()
+    {
+        DeletedAtUtc = null;
+    }
+
     public static string NormalizeName(string name) => name.Trim().ToLowerInvariant();
 }

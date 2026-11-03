@@ -7,7 +7,8 @@ import { BackLink } from '@/components/back-link';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
-import { notifySuccess } from '@/components/notifications';
+import { notifyFailure } from '@/components/notifications';
+import { joined } from '@/features/routines/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
@@ -62,9 +63,10 @@ export function ExerciseScreen({ id }: { id: string }) {
 }
 
 function Details({ exercise }: { exercise: Exercise }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, opacity, radius, size, space, text } = useTheme();
   const router = useRouter();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const inUse = exercise.routines.length > 0;
 
   return (
     <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
@@ -88,12 +90,25 @@ function Details({ exercise }: { exercise: Exercise }) {
             <PencilIcon color={colors.text} size={20} />
           </HeaderIconButton>
           <HeaderIconButton
-            label="Delete exercise"
+            label={
+              inUse
+                ? 'Delete exercise, not available while it is in a routine'
+                : 'Delete exercise'
+            }
             onPress={() => {
-              setConfirmingDelete(true);
+              if (inUse) {
+                notifyFailure(inRoutinesMessage(exercise.routines));
+              } else {
+                setConfirmingDelete(true);
+              }
             }}
           >
-            <TrashIcon color={colors.dangerFill} size={20} />
+            <View style={{ opacity: inUse ? opacity.disabled : 1 }}>
+              <TrashIcon
+                color={inUse ? colors.muted : colors.dangerFill}
+                size={20}
+              />
+            </View>
           </HeaderIconButton>
         </View>
         <Text style={[text.body, { color: colors.muted }]}>
@@ -109,18 +124,44 @@ function Details({ exercise }: { exercise: Exercise }) {
           style={[
             styles.usedIn,
             {
-              paddingVertical: space.lg,
-              paddingHorizontal: 14,
               borderRadius: radius.card,
               borderColor: colors.border,
               backgroundColor: colors.card,
             },
           ]}
         >
-          <Text style={[text.body, { color: colors.muted }]}>
-            Not in any routine yet. Add it from Edit routine on the Routines
-            tab.
-          </Text>
+          {inUse ? (
+            exercise.routines.map((routine, index) => (
+              <Text
+                key={routine.id}
+                style={[
+                  text.listItemName,
+                  {
+                    paddingVertical: space.lg,
+                    paddingHorizontal: 14,
+                    borderTopWidth: index === 0 ? 0 : 1,
+                    borderTopColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
+              >
+                {routine.name}
+              </Text>
+            ))
+          ) : (
+            <Text
+              style={[
+                text.body,
+                {
+                  paddingVertical: space.lg,
+                  paddingHorizontal: 14,
+                  color: colors.muted,
+                },
+              ]}
+            >
+              Not in any routine yet. Add it when you create or edit a routine.
+            </Text>
+          )}
         </View>
       </View>
 
@@ -131,12 +172,24 @@ function Details({ exercise }: { exercise: Exercise }) {
           setConfirmingDelete(false);
         }}
         onDeleted={() => {
-          notifySuccess(`${exercise.name} deleted.`);
           router.back();
         }}
       />
     </View>
   );
+}
+
+/** Names up to three routines. More would make the message too long to read. */
+function inRoutinesMessage(routines: Exercise['routines']) {
+  if (routines.length > 3) {
+    return `It's in ${String(routines.length)} routines. Remove it from them first.`;
+  }
+
+  const names = joined(routines.map((routine) => routine.name));
+
+  return routines.length === 1
+    ? `It's in ${names}. Remove it from that routine first.`
+    : `It's in ${names}. Remove it from those routines first.`;
 }
 
 function subtitleOf({ group, alsoWorksGroups }: Exercise) {

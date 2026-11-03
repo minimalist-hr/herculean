@@ -179,25 +179,6 @@ public sealed class RepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task AnExerciseIsTakenOutOfRoutinesAndOnlyThatOne()
-    {
-        RoutineRepository routineRepository = new(_dbContext);
-        Exercise squat = Exercise.Create(_userId, "Squat", GroupId.New(), []);
-        Exercise lunge = Exercise.Create(_userId, "Lunge", GroupId.New(), []);
-        _dbContext.Exercises.AddRange(squat, lunge);
-        Routine legs = Routine.Create(_userId, "Legs", [new RoutineExerciseValues(squat.Id, 3, 8, 10), new RoutineExerciseValues(lunge.Id, 3, 8, 10)]);
-        routineRepository.Add(legs);
-        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        await routineRepository.RemoveExerciseAsync(squat.Id, TestContext.Current.CancellationToken);
-        await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
-        _dbContext.ChangeTracker.Clear();
-
-        Routine read = await _dbContext.Routines.Include(routine => routine.Exercises).SingleAsync(TestContext.Current.CancellationToken);
-        read.Exercises.ShouldHaveSingleItem().ExerciseId.ShouldBe(lunge.Id);
-    }
-
-    [Fact]
     public async Task TheRoutineNameCheckIgnoresCaseAndCountSkipsDeleted()
     {
         RoutineRepository routineRepository = new(_dbContext);
@@ -207,8 +188,8 @@ public sealed class RepositoryTests : IDisposable
         _dbContext.Entry(deleted).Property(routine => routine.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
         await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        (await routineRepository.NameExistsAsync(" LEGS ", TestContext.Current.CancellationToken)).ShouldBeTrue();
-        (await routineRepository.NameExistsAsync("Arms", TestContext.Current.CancellationToken)).ShouldBeFalse();
+        (await routineRepository.NameExistsAsync(" LEGS ", null, TestContext.Current.CancellationToken)).ShouldBeTrue();
+        (await routineRepository.NameExistsAsync("Arms", null, TestContext.Current.CancellationToken)).ShouldBeFalse();
         (await routineRepository.CountAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
     }
 

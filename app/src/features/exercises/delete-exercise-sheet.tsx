@@ -1,5 +1,4 @@
 import { Button } from '@/components/button';
-import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 
 import { useDeleteExercise } from './use-delete-exercise';
@@ -17,7 +16,7 @@ export function DeleteExerciseSheet({
   onClose,
   onDeleted,
 }: DeleteExerciseSheetProps) {
-  const deleteExercise = useDeleteExercise(exercise.id);
+  const deleteExercise = useDeleteExercise();
 
   return (
     <Sheet
@@ -32,12 +31,7 @@ export function DeleteExerciseSheet({
         waitingLabel="Deleting exercise"
         waiting={deleteExercise.isPending}
         onPress={() => {
-          deleteExercise.mutate(undefined, {
-            onSuccess: onDeleted,
-            onError: () => {
-              notifyFailure("Couldn't delete the exercise. Try again.");
-            },
-          });
+          deleteExercise.mutate(exercise, { onSuccess: onDeleted });
         }}
       />
     </Sheet>

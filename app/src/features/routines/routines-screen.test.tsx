@@ -73,7 +73,7 @@ async function renderRoutines() {
     {
       _layout: Layout,
       index: RoutinesScreen,
-      'routine/[id]': () => <PlaceholderScreen title="Routine screen" />,
+      'routines/[id]': () => <PlaceholderScreen title="Routine screen" />,
       'routine/new/_layout': NewRoutineLayout,
       'routine/new/index': NewRoutineRoute,
     },

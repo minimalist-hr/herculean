@@ -2,6 +2,7 @@ using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups.ListGroups;
+using Herculean.Training.Application.Routines;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 
@@ -45,6 +46,11 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
                 exercise.AlsoWorks
                     .OrderBy(alsoWorks => alsoWorks.Group.Order)
                     .Select(alsoWorks => new GroupResponse(alsoWorks.GroupId.Value, alsoWorks.Group.Name))
+                    .ToList(),
+                dbContext.Routines
+                    .Where(routine => routine.Exercises.Any(routineExercise => routineExercise.ExerciseId == id))
+                    .OrderBy(routine => routine.Name)
+                    .Select(routine => new RoutineResponse(routine.Id.Value, routine.Name))
                     .ToList()))
             .SingleOrDefaultAsync(cancellationToken);
 }

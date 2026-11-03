@@ -9,8 +9,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 | Path | What it is | Use it for |
 |---|---|---|
 | `design-document.md` | The written spec: brand, tokens, components, navigation, interaction and content rules, every screen by area, sample data, parked ideas | Read first. The source of truth for rules. |
-| `screen-index.md` | All 92 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
-| `areas/*.png` | One image per area (A, H, W, L, R, E) with every flow row, the screens in place, labelled arrows and "already designed" notes | Seeing how screens connect |
+| `screen-index.md` | All 93 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
 | `screens/*.png` | Every screen rendered at 2× (780 px wide), default settings: dark, Racing blue, Chakra Petch, sharp corners | Looking at a screen |
 | `html/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
 | `source/*.dc.html`, `source/canvas.json` | The original Claude Design files (templates plus a small `renderVals()` script with the theme logic and sample data) | Theme switching logic, list data, states |
@@ -22,7 +21,6 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 - **IDs:** area letter, then two digits; the first digit groups screens by flow. Row numbers don't always match that digit (W40–W42 sit in row W5 Month, H10–H19 in row H2 Settings), so use `screen-index.md` for the row of each ID. Board titles read `ID · Area › Screen · state`.
 - **"full scroll"** screens are drawn at their full scrolled height, not 844 px.
 - **Sheets and confirms** are drawn over a dimmed copy of the screen that opens them.
-- **"Already designed" notes** in `areas/` mean the flow reaches a screen that lives in another row. A screen is never drawn twice.
 - **Sample data** (Friday 23 October 2026, Filip's split, Smith machine incline bench press 82.5 kg × 10) is design data only. It is consistent across screens, which makes it a good seed and test fixture.
 
 ## Notes on the export

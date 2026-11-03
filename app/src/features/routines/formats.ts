@@ -18,6 +18,13 @@ export function counted(count: number, one: string, many: string) {
   return `${String(count)} ${count === 1 ? one : many}`;
 }
 
+/** Words in a sentence, for example "Legs, Arms and Back". */
+export function joined(words: string[]) {
+  return words.length < 2
+    ? words.join('')
+    : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
+}
+
 /** A target, for example "3 × 8–10", or "4 × 6" for a fixed rep count. */
 export function targetText({
   targetSets,

@@ -3,6 +3,7 @@ using Herculean.Training.Application.Exercises.DeleteExercise;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
+using Herculean.Training.Domain.Routines;
 
 namespace Herculean.Training.UnitTests.Application.Exercises.DeleteExercise;
 
@@ -27,8 +28,34 @@ public sealed class DeleteExerciseHandlerTests
 
         result.IsSuccess.ShouldBeTrue();
         _exercise.DeletedAtUtc.ShouldNotBeNull();
-        _routineRepository.RemovedExercises.ShouldHaveSingleItem().ShouldBe(_exercise.Id);
         _unitOfWork.Saved.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task AnExerciseInARoutineIsKept()
+    {
+        _routineRepository.Add(Routine.Create(
+            _exercise.UserId,
+            "Legs",
+            [new RoutineExerciseValues(_exercise.Id, 3, 8, 10), new RoutineExerciseValues(ExerciseId.New(), 3, 8, 10)]));
+
+        Result result = await _handler.HandleAsync(_exercise.Id.Value, TestContext.Current.CancellationToken);
+
+        result.Error.ShouldBe(ExerciseErrors.InRoutine);
+        _exercise.DeletedAtUtc.ShouldBeNull();
+        _unitOfWork.Saved.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ADeletedRoutineDoesNotHoldItsExercises()
+    {
+        Routine routine = Routine.Create(_exercise.UserId, "Legs", [new RoutineExerciseValues(_exercise.Id, 3, 8, 10)]);
+        routine.Delete(DateTimeOffset.UnixEpoch);
+        _routineRepository.Add(routine);
+
+        Result result = await _handler.HandleAsync(_exercise.Id.Value, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]

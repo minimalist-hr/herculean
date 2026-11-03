@@ -8,6 +8,9 @@ internal interface IExerciseRepository
     /// <summary>One of the current user's exercises with its also works groups, or null if there is none.</summary>
     Task<Exercise?> GetAsync(ExerciseId id, CancellationToken cancellationToken);
 
+    /// <summary>One of the current user's deleted exercises with its also works groups, or null if there is none.</summary>
+    Task<Exercise?> GetDeletedAsync(ExerciseId id, CancellationToken cancellationToken);
+
     /// <summary>Checks the current user's exercises for the name, regardless of case.</summary>
     /// <param name="name">The name to look for.</param>
     /// <param name="exceptId">An exercise to leave out, so one can keep its own name. Null checks them all.</param>

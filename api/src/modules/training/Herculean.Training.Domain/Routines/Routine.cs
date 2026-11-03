@@ -44,5 +44,38 @@ internal sealed class Routine : Entity<RoutineId>
         return routine;
     }
 
+    /// <summary>Replaces the name and exercises. An exercise that stays keeps its row.</summary>
+    public void Update(string name, IReadOnlyList<RoutineExerciseValues> exercises)
+    {
+        Name = name.Trim();
+        NormalizedName = NormalizeName(name);
+
+        _exercises.RemoveAll(exercise => exercises.All(values => values.ExerciseId != exercise.ExerciseId));
+        foreach ((RoutineExerciseValues values, int order) in exercises.Select((values, order) => (values, order)))
+        {
+            RoutineExercise? existing = _exercises.Find(exercise => exercise.ExerciseId == values.ExerciseId);
+            if (existing is null)
+            {
+                _exercises.Add(RoutineExercise.Create(UserId, Id, order, values));
+            }
+            else
+            {
+                existing.Update(order, values);
+            }
+        }
+
+        _exercises.Sort((first, second) => first.Order.CompareTo(second.Order));
+    }
+
+    public void Delete(DateTimeOffset deletedAtUtc)
+    {
+        DeletedAtUtc = deletedAtUtc;
+    }
+
+    public void Restore()
+    {
+        DeletedAtUtc = null;
+    }
+
     public static string NormalizeName(string name) => name.Trim().ToLowerInvariant();
 }

@@ -2,6 +2,7 @@ using System.ComponentModel;
 
 using FluentValidation;
 
+using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Routines;
 
 namespace Herculean.Training.Application.Routines;
@@ -23,6 +24,15 @@ internal interface IRoutineFields
 
 internal static class RoutineFieldRules
 {
+    public static List<RoutineExerciseValues> ToExerciseValues(this IRoutineFields fields) =>
+    [
+        .. fields.Exercises.Select(exercise => new RoutineExerciseValues(
+            ExerciseId.From(exercise.ExerciseId),
+            exercise.TargetSets,
+            exercise.TargetRepsFrom,
+            exercise.TargetRepsTo)),
+    ];
+
     public static void AddRoutineFieldRules<T>(this AbstractValidator<T> validator)
         where T : IRoutineFields
     {

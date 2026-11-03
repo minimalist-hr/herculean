@@ -98,20 +98,20 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A user can have at most 500 exercises, so the exercise list can load whole.
 - An exercise's "also works" groups can't repeat a group, or include the group it belongs to.
 - Edits to an exercise show everywhere, past workouts included.
-- Deleting an exercise removes it from routines. Past workouts keep it.
+- An exercise in a routine can't be deleted: remove it from its routines first. Past workouts keep a deleted exercise.
 - A routine's name has 1 to 100 characters, trimmed. It differs from the user's other routines, regardless of case. A deleted routine's name can be used again.
 - A user can have at most 50 routines.
-- A routine has 1 to 30 exercises when saved, each once. Deleting an exercise can leave it with none.
+- A routine has 1 to 30 exercises when saved, each once.
 - A target has 1 to 20 sets, and a rep range from 1 to 100 whose low end isn't above its high end.
-- Deleting a routine turns its weekdays into rest days from today on. Past workouts keep their name.
+- Deleting a routine turns its weekdays into rest days from the date it was deleted, in the user's time zone. Earlier days keep their plan, and past workouts keep their name. Undo brings the weekdays back.
 - A group's name has 1 to 30 characters, trimmed. It differs from the user's other groups, regardless of case. A deleted group's name can be used again.
 - A user can have at most 50 groups.
 - A group can only be deleted when no exercise uses it, as its group or as "also works".
 
 ### Delete and undo
 
-- Every removal has an undo, except deleting the account, a routine or an exercise. Those ask first instead.
-- Workouts, routines, exercises and groups are soft-deleted. Undo restores workouts and groups. Deleted routines and exercises stay, so past workouts keep their names.
+- Every removal has an undo, except deleting the account, which asks first instead.
+- Workouts, routines, exercises and groups are soft-deleted. Undo restores them. A deleted one stays, so past workouts keep its name. Restoring fails if its name was reused, or if a routine's exercise or an exercise's group is gone.
 - Sets, exercises in a workout and the profile photo are added back on undo.
 - Removals in an edit screen before Save (W31, R20) are undone in the app. The server never sees them.
 

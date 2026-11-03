@@ -777,7 +777,7 @@
           "Exercises"
         ],
         "summary": "Delete an exercise",
-        "description": "Removes an exercise from the signed-in user's list and routines. Logged workouts keep it, and its name can be used again.",
+        "description": "Removes an exercise from the signed-in user's list. Logged workouts keep it, and its name can be used again.",
         "operationId": "DeleteExercise",
         "parameters": [
           {
@@ -807,6 +807,16 @@
           },
           "404": {
             "description": "The exercise does not exist, is already deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The exercise is in a routine.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1027,6 +1037,271 @@
           },
           "409": {
             "description": "The user already has a routine with this name, or has reached the limit of 50 routines.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/routines/{id}": {
+      "get": {
+        "tags": [
+          "Routines"
+        ],
+        "summary": "Get a routine",
+        "description": "Returns one of the signed-in user's routines, with the weekdays it is planned on and its exercises and targets in order.",
+        "operationId": "GetRoutine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The routine's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The routine.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutineDetailsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The routine does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Routines"
+        ],
+        "summary": "Change a routine",
+        "description": "Replaces a routine's name, exercises, order and targets. Workouts already started keep what they copied.",
+        "operationId": "UpdateRoutine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The routine's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoutineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The changed routine.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutineResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The routine or one of the exercises does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user already has another routine with this name.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Routines"
+        ],
+        "summary": "Delete a routine",
+        "description": "Removes a routine from the signed-in user's list. Its weekdays read as rest days while it is deleted, logged workouts keep their name, and its name can be used again.",
+        "operationId": "DeleteRoutine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The routine's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The routine is deleted."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The routine does not exist, is already deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/routines/{id}/restore": {
+      "post": {
+        "tags": [
+          "Routines"
+        ],
+        "summary": "Restore a routine",
+        "description": "Brings a deleted routine back, on the weekdays that still hold it.",
+        "operationId": "RestoreRoutine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The routine's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The restored routine.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoutineResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The routine does not exist, is not deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another routine has its name now, or one of its exercises was deleted.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1273,6 +1548,75 @@
           },
           "409": {
             "description": "An exercise uses the group, as its group or as also works.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/exercises/{id}/restore": {
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Restore an exercise",
+        "description": "Brings a deleted exercise back to the signed-in user's list.",
+        "operationId": "RestoreExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The exercise's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The restored exercise.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The exercise does not exist, is not deleted, or belongs to another user, or one of its groups is gone.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another exercise has its name now.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1589,7 +1933,8 @@
           "id",
           "name",
           "group",
-          "alsoWorksGroups"
+          "alsoWorksGroups",
+          "routines"
         ],
         "type": "object",
         "properties": {
@@ -1612,6 +1957,13 @@
               "$ref": "#/components/schemas/GroupResponse"
             },
             "description": "The other groups it also works, in their order."
+          },
+          "routines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineResponse"
+            },
+            "description": "The routines that have it, by name. It can't be deleted while there are any."
           }
         },
         "description": "An exercise and its groups."
@@ -1846,6 +2198,41 @@
         },
         "description": "A group's new name."
       },
+      "RoutineDetailsResponse": {
+        "required": [
+          "id",
+          "name",
+          "weekdays",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The routine's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The routine's name."
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Weekday"
+            },
+            "description": "The weekdays it is planned on now, from Monday."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineExerciseResponse"
+            },
+            "description": "Its exercises in order."
+          }
+        },
+        "description": "A routine, its days and its exercises."
+      },
       "RoutineExerciseItem": {
         "required": [
           "exerciseId",
@@ -1873,6 +2260,43 @@
           "targetRepsTo": {
             "type": "integer",
             "description": "The high end of the rep range, 1 to 100. It can't be below the low end.",
+            "format": "int32"
+          }
+        },
+        "description": "An exercise in a routine and its targets."
+      },
+      "RoutineExerciseResponse": {
+        "required": [
+          "exerciseId",
+          "name",
+          "targetSets",
+          "targetRepsFrom",
+          "targetRepsTo"
+        ],
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "targetSets": {
+            "type": "integer",
+            "description": "The sets to do.",
+            "format": "int32"
+          },
+          "targetRepsFrom": {
+            "type": "integer",
+            "description": "The low end of the rep range.",
+            "format": "int32"
+          },
+          "targetRepsTo": {
+            "type": "integer",
+            "description": "The high end of the rep range.",
             "format": "int32"
           }
         },
@@ -2045,6 +2469,27 @@
           }
         },
         "description": "The order of the user's groups."
+      },
+      "UpdateRoutineRequest": {
+        "required": [
+          "name",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 100 characters. Spaces around it are removed. It must differ from the user's other routines, regardless of case."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineExerciseItem"
+            },
+            "description": "Its exercises in order, 1 to 30, each once."
+          }
+        },
+        "description": "A routine's new name and exercises."
       },
       "UpdateWorkoutSettingsRequest": {
         "type": "object",

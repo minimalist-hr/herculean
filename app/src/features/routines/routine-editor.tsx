@@ -55,7 +55,7 @@ export function RoutineEditor({
 }: RoutineEditorProps) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
-  const { exercises, setExercises, setPicked, setCreatedIds } =
+  const { pages, exercises, changed, setExercises, setPicked, setCreatedIds } =
     useRoutineDraft();
   const [noExercisesError, setNoExercisesError] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -66,7 +66,7 @@ export function RoutineEditor({
     defaultValues: { name: initialName },
   });
 
-  const guard = useLeaveGuard(formState.isDirty || exercises.length > 0);
+  const guard = useLeaveGuard(formState.isDirty || changed);
 
   // An Undo can do nothing once the form is gone.
   useEffect(() => dismissAction, []);
@@ -180,7 +180,7 @@ export function RoutineEditor({
                 onPress={() => {
                   setPicked([]);
                   setCreatedIds([]);
-                  router.push('/routine/new/add-exercise');
+                  router.push(pages.addExercise);
                 }}
               >
                 <PlusIcon color={colors.text} size={20} />
@@ -200,10 +200,7 @@ export function RoutineEditor({
                       accessibilityRole="button"
                       accessibilityLabel={`${exercise.name}, ${targetText(exercise)}`}
                       onPress={() => {
-                        router.push({
-                          pathname: '/routine/new/targets',
-                          params: { exerciseId: exercise.exerciseId },
-                        });
+                        router.push(pages.targets(exercise.exerciseId));
                       }}
                       style={styles.exercise}
                     >

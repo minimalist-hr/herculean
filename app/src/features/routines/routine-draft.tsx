@@ -1,3 +1,4 @@
+import type { Href } from 'expo-router';
 import { createContext, use, useMemo, useState, type ReactNode } from 'react';
 
 export interface Targets {
@@ -23,8 +24,50 @@ export interface PickedExercise {
   name: string;
 }
 
+interface RoutineDraftPages {
+  addExercise: Href;
+  targets: (exerciseId: string) => Href;
+  newExercise: (params: { name: string; groupId: string }) => Href;
+}
+
+/** The pages of a new routine, or of the routine with this ID. */
+function pagesOf(routineId: string | undefined): RoutineDraftPages {
+  if (routineId === undefined) {
+    return {
+      addExercise: '/routine/new/add-exercise',
+      targets: (exerciseId) => ({
+        pathname: '/routine/new/targets',
+        params: { exerciseId },
+      }),
+      newExercise: (params) => ({
+        pathname: '/routine/new/new-exercise',
+        params,
+      }),
+    };
+  }
+
+  return {
+    addExercise: {
+      pathname: '/routine/[id]/edit/add-exercise',
+      params: { id: routineId },
+    },
+    targets: (exerciseId) => ({
+      pathname: '/routine/[id]/edit/targets',
+      params: { id: routineId, exerciseId },
+    }),
+    newExercise: (params) => ({
+      pathname: '/routine/[id]/edit/new-exercise',
+      params: { id: routineId, ...params },
+    }),
+  };
+}
+
 interface RoutineDraft {
+  /** Where the draft's pages live. */
+  pages: RoutineDraftPages;
   exercises: RoutineExerciseDraft[];
+  /** Whether the exercises differ from what the draft started with. */
+  changed: boolean;
   setExercises: React.Dispatch<React.SetStateAction<RoutineExerciseDraft[]>>;
   /** What is picked on Add exercise so far. */
   picked: PickedExercise[];
@@ -34,23 +77,37 @@ interface RoutineDraft {
   setCreatedIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
+const noExercises: RoutineExerciseDraft[] = [];
+
 const RoutineDraftContext = createContext<RoutineDraft | null>(null);
 
 /** Keeps a routine that is being edited, which several pages work on. Nothing is sent until Save routine. */
-export function RoutineDraftProvider({ children }: { children: ReactNode }) {
-  const [exercises, setExercises] = useState<RoutineExerciseDraft[]>([]);
+export function RoutineDraftProvider({
+  routineId,
+  initialExercises = noExercises,
+  children,
+}: {
+  /** The routine being edited. A new routine has none. */
+  routineId?: string;
+  initialExercises?: RoutineExerciseDraft[];
+  children: ReactNode;
+}) {
+  const [exercises, setExercises] = useState(initialExercises);
+  const [startedWith] = useState(initialExercises);
   const [picked, setPicked] = useState<PickedExercise[]>([]);
   const [createdIds, setCreatedIds] = useState<string[]>([]);
   const draft = useMemo(
     () => ({
+      pages: pagesOf(routineId),
       exercises,
+      changed: JSON.stringify(exercises) !== JSON.stringify(startedWith),
       setExercises,
       picked,
       setPicked,
       createdIds,
       setCreatedIds,
     }),
-    [createdIds, exercises, picked],
+    [createdIds, exercises, picked, routineId, startedWith],
   );
 
   return (

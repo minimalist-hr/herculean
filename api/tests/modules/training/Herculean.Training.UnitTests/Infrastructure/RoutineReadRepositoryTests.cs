@@ -1,4 +1,6 @@
 using Herculean.Training.Application.Auth;
+using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
 using Herculean.Training.Domain;
@@ -7,6 +9,7 @@ using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
 using Herculean.Training.Infrastructure;
+using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.WeekPlan;
 using Herculean.Training.UnitTests.Application;
@@ -135,6 +138,75 @@ public sealed class RoutineReadRepositoryTests : IDisposable
         await _dbContext.SaveChangesAsync(Token);
 
         (await ListDaysAsync())[0].RoutineId.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ARoutineComesWithItsDaysAndExercisesInOrder()
+    {
+        Routine routine = await SaveRoutineAsync("Legs", (3, 8, 10), (4, 5, 5));
+        await SaveDayAsync(Weekday.Thursday, routine, new DateOnly(2026, 1, 1));
+        await SaveDayAsync(Weekday.Monday, routine, new DateOnly(2026, 1, 1));
+
+        RoutineDetailsResponse details = (await new RoutineReadRepository(_dbContext).GetAsync(routine.Id, Token)).ShouldNotBeNull();
+
+        details.Name.ShouldBe("Legs");
+        details.Weekdays.ShouldBe([Weekday.Monday, Weekday.Thursday]);
+        details.Exercises.Select(exercise => exercise.TargetSets).ShouldBe([3, 4]);
+        details.Exercises[0].Name.ShouldStartWith("Legs");
+        details.Exercises[1].TargetRepsTo.ShouldBe(5);
+    }
+
+    [Fact]
+    public async Task AnUnknownRoutineIsNull()
+    {
+        (await new RoutineReadRepository(_dbContext).GetAsync(RoutineId.New(), Token)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task AChangedRoutineSavesItsNewExercisesAndDropsTheOldOnes()
+    {
+        Routine saved = await SaveRoutineAsync("Legs", (3, 8, 10), (4, 5, 5));
+        ExerciseId kept = saved.Exercises[1].ExerciseId;
+        RoutineRepository repository = new(_dbContext);
+        Routine routine = (await repository.GetAsync(saved.Id, Token)).ShouldNotBeNull();
+        Routine donor = await SaveRoutineAsync("Donor", (1, 1, 1));
+
+        routine.Update("Legs", [new RoutineExerciseValues(donor.Exercises[0].ExerciseId, 2, 6, 6), new RoutineExerciseValues(kept, 4, 5, 5)]);
+        await _dbContext.SaveChangesAsync(Token);
+
+        RoutineDetailsResponse details = (await new RoutineReadRepository(_dbContext).GetAsync(saved.Id, Token)).ShouldNotBeNull();
+        details.Exercises.Select(exercise => exercise.ExerciseId).ShouldBe([donor.Exercises[0].ExerciseId.Value, kept.Value]);
+    }
+
+    [Fact]
+    public async Task AnExerciseListsItsRoutinesByName()
+    {
+        Routine legs = await SaveRoutineAsync("Legs", (3, 8, 10));
+        Routine arms = await SaveRoutineAsync("Arms", (3, 8, 10));
+        RoutineRepository repository = new(_dbContext);
+        ExerciseId exerciseId = legs.Exercises[0].ExerciseId;
+        arms.Update("Arms", [new RoutineExerciseValues(arms.Exercises[0].ExerciseId, 3, 8, 10), new RoutineExerciseValues(exerciseId, 3, 8, 10)]);
+        await _dbContext.SaveChangesAsync(Token);
+
+        (await repository.UsesExerciseAsync(exerciseId, Token)).ShouldBeTrue();
+        ExerciseDetailsResponse details = (await new ExerciseReadRepository(_dbContext).GetAsync(exerciseId, Token)).ShouldNotBeNull();
+        details.Routines.Select(routine => routine.Name).ShouldBe(["Arms", "Legs"]);
+    }
+
+    [Fact]
+    public async Task ADeletedRoutineDoesNotHoldItsExerciseAndCanBeFound()
+    {
+        Routine legs = await SaveRoutineAsync("Legs", (3, 8, 10));
+        ExerciseId exerciseId = legs.Exercises[0].ExerciseId;
+        RoutineRepository repository = new(_dbContext);
+        legs.Delete(DateTimeOffset.UnixEpoch);
+        await _dbContext.SaveChangesAsync(Token);
+        _dbContext.ChangeTracker.Clear();
+
+        (await repository.UsesExerciseAsync(exerciseId, Token)).ShouldBeFalse();
+        (await repository.GetAsync(legs.Id, Token)).ShouldBeNull();
+        Routine deleted = (await repository.GetDeletedAsync(legs.Id, Token)).ShouldNotBeNull();
+        deleted.Exercises.ShouldHaveSingleItem();
     }
 
     public void Dispose()
