@@ -103,6 +103,45 @@ export const sampleDay = {
   upNext: { date: '2026-10-24', routineName: 'Back and shoulders 2' },
 };
 
+const legsDay = {
+  date: '2026-10-21',
+  status: 'missed',
+  hasRoutines: true,
+  routine: {
+    id: 'routine-legs',
+    name: 'Legs',
+    exercises: [target('Barbell squat', 3, 8, 10), target('Leg press', 3, 10, 12)],
+  },
+  upNext: { date: '2026-10-22', routineName: null },
+};
+
+const tomorrowDay = {
+  date: '2026-10-24',
+  status: 'planned',
+  hasRoutines: true,
+  routine: {
+    id: 'routine-back-and-shoulders-2',
+    name: 'Back and shoulders 2',
+    exercises: [target('Barbell row', 3, 8, 10), target('Lat pulldown', 2, 10, 12), target('Dumbbell shoulder press', 3, 8, 10), target('Cable lateral raise', 2, 10, 12)],
+  },
+  upNext: { date: '2026-10-25', routineName: null },
+};
+
+const sampleRestDay = (date, nextDate, routineName) => ({
+  date,
+  status: 'rest',
+  hasRoutines: true,
+  routine: null,
+  upNext: { date: nextDate, routineName },
+});
+
+const sampleDays = {
+  '2026-10-21': legsDay,
+  '2026-10-22': sampleRestDay('2026-10-22', '2026-10-23', 'Chest and arms 2'),
+  '2026-10-24': tomorrowDay,
+  '2026-10-25': sampleRestDay('2026-10-25', '2026-10-26', 'Chest and arms 1'),
+};
+
 /** The design's sample week, with past days missed. */
 export function sampleWeek(today) {
   return weekdays.map((weekday, index) => {
@@ -178,7 +217,7 @@ export function createApi() {
       return { status: 200, body: sampleWeek(sampleToday) };
     }
     if (method === 'GET' && path.startsWith('/api/v1/days/')) {
-      return { status: 200, body: { ...sampleDay, date: path.split('/')[4] } };
+      return { status: 200, body: sampleDays[path.split('/')[4]] ?? { ...sampleDay, date: path.split('/')[4] } };
     }
     if (key === 'GET /api/v1/routines') {
       return { status: 200, body: routineList };

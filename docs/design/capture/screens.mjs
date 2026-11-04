@@ -91,6 +91,26 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor('Rest day');
   } },
+  { id: 'W23', file: 'W23-Workout-Yesterday-Rest-Day', title: 'Workout › Yesterday · rest day', row: 'W3 Other days', today: friday, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Thursday 22, rest day');
+    await on.waitFor('Rest day');
+  } },
+  { id: 'W21', file: 'W21-Workout-Missed-Day', title: 'Workout › Missed day', row: 'W3 Other days', today: friday, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Wednesday 21, Legs, missed');
+    await on.waitFor('Log workout');
+  } },
+  { id: 'W24', file: 'W24-Workout-Upcoming-Day', title: 'Workout › Upcoming day · tomorrow', row: 'W3 Other days', today: friday, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Saturday 24, Back and shoulders 2');
+    await on.waitFor('Scheduled for Saturday');
+  } },
+  { id: 'W25', file: 'W25-Workout-Rest-Day', title: 'Workout › Rest day', row: 'W3 Other days', today: friday, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Sunday 25, rest day');
+    await on.waitFor('Rest day');
+  } },
   { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } } }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('No routines yet');

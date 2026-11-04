@@ -159,7 +159,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 | Method | Route | Used by |
 |---|---|---|
-| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after |
+| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after. Up next doesn't show on days before yesterday |
 | GET | `/api/v1/days` | Week strip, with `from` and `to` filters |
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
 | DELETE | `/api/v1/workouts/{id}` | Undo skip |

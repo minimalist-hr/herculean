@@ -260,3 +260,168 @@ test.each([
 
   expect(await screen.findByText(message)).toBeOnTheScreen();
 });
+
+describe('other days', () => {
+  const missedDay = {
+    ...plannedDay,
+    date: '2026-11-02',
+    status: 'missed',
+    upNext: { date: '2026-11-03', routineName: 'Legs' },
+  };
+  const upcomingDay = {
+    ...plannedDay,
+    date: '2026-11-04',
+    upNext: { date: '2026-11-05', routineName: null },
+  };
+  const laterRestDay = {
+    ...restDay,
+    date: '2026-11-05',
+    upNext: { date: '2026-11-06', routineName: 'Arms' },
+  };
+  const yesterdayRestDay = {
+    ...restDay,
+    date: '2026-11-02',
+    upNext: { date: '2026-11-03', routineName: 'Legs' },
+  };
+  const fullWeek = [
+    { date: '2026-11-02', status: 'missed', routineName: 'Arms' },
+    { date: '2026-11-03', status: 'planned', routineName: 'Legs' },
+    { date: '2026-11-04', status: 'planned', routineName: 'Arms' },
+    { date: '2026-11-05', status: 'rest', routineName: null },
+  ];
+
+  function answerByDate(byDate: Record<string, unknown>) {
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      return Promise.resolve(
+        Response.json(
+          pathname === '/api/v1/days'
+            ? fullWeek
+            : byDate[pathname.split('/').at(-1) ?? ''],
+        ),
+      );
+    });
+  }
+
+  async function open(label: string) {
+    await fireEvent.press(await screen.findByRole('button', { name: label }));
+  }
+
+  test('a missed day says so, and offers to log or skip it', async () => {
+    answerByDate({ '2026-11-03': restDay, '2026-11-02': missedDay });
+    await renderWorkout();
+    await open('Monday 2, Arms, missed');
+
+    expect(await screen.findByText('Missed')).toBeOnTheScreen();
+    expect(screen.getByText('Yesterday')).toBeOnTheScreen();
+    expect(screen.getByText('Monday, 2nd November')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Scheduled, but nothing was logged.'),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Month' })).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Log workout' }));
+    expect(
+      await screen.findByText('Logging comes in a later update.'),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Skip workout' }));
+    expect(
+      await screen.findByText('Skipping comes in a later update.'),
+    ).toBeOnTheScreen();
+  });
+
+  test('tomorrow shows the plan, with nothing to do yet', async () => {
+    answerByDate({ '2026-11-03': restDay, '2026-11-04': upcomingDay });
+    await renderWorkout();
+    await open('Wednesday 4, Arms');
+
+    expect(
+      await screen.findByText('Scheduled for Wednesday'),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Tomorrow')).toBeOnTheScreen();
+    expect(screen.getByText('Wednesday, 4th November')).toBeOnTheScreen();
+    expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Skip workout' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Other routine' })).toBeNull();
+  });
+
+  test('a later rest day has its weekday as the title, and the next date', async () => {
+    answerByDate({ '2026-11-03': restDay, '2026-11-05': laterRestDay });
+    await renderWorkout();
+    await open('Thursday 5, rest day');
+
+    expect(await screen.findByText('Rest day')).toBeOnTheScreen();
+    expect(screen.getAllByText('Thursday')).toHaveLength(2);
+    expect(screen.getByText('5th November')).toBeOnTheScreen();
+    expect(screen.getByText('Arms')).toBeOnTheScreen();
+    expect(screen.getByText('Fri, 6th Nov')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Other routine' })).toBeNull();
+  });
+
+  test('yesterday as a rest day points to today', async () => {
+    answerByDate({ '2026-11-03': restDay, '2026-11-02': yesterdayRestDay });
+    await renderWorkout();
+    await open('Monday 2, Arms, missed');
+
+    expect(await screen.findByText('Up next')).toBeOnTheScreen();
+    expect(screen.getByText('Yesterday')).toBeOnTheScreen();
+    expect(screen.getByText('Today')).toBeOnTheScreen();
+  });
+
+  test('an older rest day has no up next', async () => {
+    // Friday 6 November, so Monday is no longer yesterday.
+    jest.setSystemTime(new Date(2026, 10, 6, 18));
+    answerByDate({
+      '2026-11-06': { ...restDay, date: '2026-11-06' },
+      '2026-11-02': yesterdayRestDay,
+    });
+    await renderWorkout();
+    await open('Monday 2, Arms, missed');
+
+    expect(await screen.findByText('2nd November')).toBeOnTheScreen();
+    expect(await screen.findByText('Rest day')).toBeOnTheScreen();
+    expect(screen.queryByText('Up next')).toBeNull();
+  });
+
+  test('Back to today returns to today', async () => {
+    answerByDate({ '2026-11-03': plannedDay, '2026-11-04': upcomingDay });
+    await renderWorkout();
+    await open('Wednesday 4, Arms');
+    await screen.findByText('Scheduled for Wednesday');
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Back to today' }),
+    );
+
+    expect(await screen.findByText('Scheduled for Tuesday')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Back to today' })).toBeNull();
+  });
+
+  test('tapping today from today changes nothing', async () => {
+    answerByDate({ '2026-11-03': plannedDay });
+    await renderWorkout();
+    await open('Tuesday 3, Legs, today');
+
+    expect(await screen.findByText('Scheduled for Tuesday')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
+  });
+
+  test('the selected day has a white marker, and today keeps its own', async () => {
+    answerByDate({ '2026-11-03': restDay, '2026-11-02': missedDay });
+    await renderWorkout();
+    await open('Monday 2, Arms, missed');
+    await screen.findByText('Missed');
+
+    expect(screen.getByTestId('marker-2026-11-02')).toHaveStyle({
+      backgroundColor: '#FFFFFF',
+    });
+    expect(screen.getByTestId('marker-2026-11-03')).toHaveStyle({
+      backgroundColor: '#A9AEB6',
+    });
+  });
+});

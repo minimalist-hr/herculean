@@ -18,21 +18,15 @@ internal sealed class DayPlan(IReadOnlyCollection<PlanChange> changes, UserCalen
             .Where(change => change.Weekday == weekday && change.EffectiveFrom <= date)
             .MaxBy(change => change.EffectiveFrom);
 
-        if (change?.RoutineId is null)
-        {
-            return null;
-        }
+        bool deleted = change?.RoutineDeletedAtUtc is DateTimeOffset deletedAtUtc && date >= calendar.DateOf(deletedAtUtc);
 
-        return change.RoutineDeletedAtUtc is DateTimeOffset deletedAtUtc && date >= calendar.DateOf(deletedAtUtc) ? null : change;
+        return change?.RoutineId is null || deleted ? null : change;
     }
 
-    public DayStatus StatusOn(DateOnly date)
+    public DayStatus StatusOn(DateOnly date) => RoutineOn(date) switch
     {
-        if (RoutineOn(date) is null)
-        {
-            return DayStatus.Rest;
-        }
-
-        return date < calendar.Today ? DayStatus.Missed : DayStatus.Planned;
-    }
+        null => DayStatus.Rest,
+        _ when date < calendar.Today => DayStatus.Missed,
+        _ => DayStatus.Planned,
+    };
 }

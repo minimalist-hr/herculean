@@ -50,6 +50,7 @@ export function Button({
         styles.button,
         {
           gap: space.sm,
+          paddingHorizontal: space.md,
           borderRadius: radius.control,
           opacity: dimmed || muted ? opacity.dimmed : 1,
         },

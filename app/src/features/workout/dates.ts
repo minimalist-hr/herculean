@@ -23,6 +23,24 @@ export function dateText(date: Date) {
   return `${String(date.getFullYear())}-${month}-${day}`;
 }
 
+/** A date the API sent, in the phone's time zone. */
+export function dateFromText(text: string) {
+  const [year, month, day] = text.split('-').map(Number);
+
+  return new Date(year, month - 1, day);
+}
+
+/** How many days a date is after another. Negative when it is before. */
+export function daysFrom(from: string, to: string) {
+  const dayNumber = (text: string) => {
+    const date = dateFromText(text);
+
+    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
+  return Math.round((dayNumber(to) - dayNumber(from)) / 86_400_000);
+}
+
 export function dayNameOf(date: Date) {
   return dayNames[weekdays[(date.getDay() + 6) % 7]];
 }
@@ -51,4 +69,26 @@ function ordinal(day: number) {
 /** A date in words, for example "Sunday, 25th October". */
 export function longDate(date: Date) {
   return `${dayNameOf(date).full}, ${ordinal(date.getDate())} ${months[date.getMonth()]}`;
+}
+
+/** A date in few words, for example "Mon, 26th Oct". */
+export function shortDate(date: Date) {
+  return `${dayNameOf(date).short}, ${ordinal(date.getDate())} ${months[date.getMonth()].slice(0, 3)}`;
+}
+
+/** The small line and the title above a day. */
+export function dayHeading(date: Date, today: string) {
+  const titles: Record<number, string | undefined> = {
+    [-1]: 'Yesterday',
+    0: 'Today',
+    1: 'Tomorrow',
+  };
+  const title = titles[daysFrom(today, dateText(date))];
+
+  return title === undefined
+    ? {
+        label: `${ordinal(date.getDate())} ${months[date.getMonth()]}`,
+        title: dayNameOf(date).full,
+      }
+    : { label: longDate(date), title };
 }

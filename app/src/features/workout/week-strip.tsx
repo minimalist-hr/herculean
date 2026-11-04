@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { useTheme } from '@/theme/theme-provider';
@@ -22,16 +22,20 @@ function dayLabel(date: Date, day: DaySummary | undefined, isToday: boolean) {
   return parts.join(', ');
 }
 
-/** A week from Monday, with today filled in. A marker means a workout belongs on that day, and its color says how it went. A rest day has none. */
+/** A week from Monday. The selected day is filled in, and today is outlined when another day is selected. A marker means a workout belongs on that day, and its color says how it went. A rest day has none. */
 export function WeekStrip({
   week,
   today,
+  selected,
   days,
+  onSelect,
 }: {
   week: Date[];
   today: string;
+  selected: string;
   /** Nothing while it loads, or if it couldn't load: the dates still show. */
   days?: DaySummary[];
+  onSelect: (date: string) => void;
 }) {
   const { colors, radius, space, text } = useTheme();
 
@@ -41,24 +45,31 @@ export function WeekStrip({
         const dateKey = dateText(date);
         const day = days?.find((item) => item.date === dateKey);
         const isToday = dateKey === today;
+        const isSelected = dateKey === selected;
         const markerColor = {
-          missed: colors.danger,
-          planned: isToday ? colors.onPrimary : colors.muted,
+          missed: isSelected ? colors.onPrimary : colors.danger,
+          planned: isSelected ? colors.onPrimary : colors.muted,
           rest: 'transparent',
         }[day?.status ?? 'rest'];
+        const numberColor = isToday ? colors.primaryText : colors.text;
 
         return (
-          <View
+          <Pressable
             key={dateKey}
-            accessible
+            accessibilityRole="button"
             accessibilityLabel={dayLabel(date, day, isToday)}
+            accessibilityState={{ selected: isSelected }}
+            onPress={() => {
+              onSelect(dateKey);
+            }}
             style={[
               styles.day,
               {
                 gap: space.xs,
                 borderRadius: radius.control,
-                borderColor: isToday ? colors.primary : colors.border,
-                backgroundColor: isToday ? colors.primary : 'transparent',
+                borderColor:
+                  isSelected || isToday ? colors.primary : colors.border,
+                backgroundColor: isSelected ? colors.primary : 'transparent',
               },
             ]}
           >
@@ -66,7 +77,7 @@ export function WeekStrip({
               style={[
                 text.eyebrow,
                 styles.weekday,
-                { color: isToday ? colors.onPrimary : colors.muted },
+                { color: isSelected ? colors.onPrimary : colors.muted },
               ]}
             >
               {dayNameOf(date).short}
@@ -74,7 +85,7 @@ export function WeekStrip({
             <Text
               style={[
                 text.statValue,
-                { color: isToday ? colors.onPrimary : colors.text },
+                { color: isSelected ? colors.onPrimary : numberColor },
               ]}
             >
               {date.getDate()}
@@ -83,7 +94,7 @@ export function WeekStrip({
               testID={`marker-${dateKey}`}
               style={[styles.marker, { backgroundColor: markerColor }]}
             />
-          </View>
+          </Pressable>
         );
       })}
     </View>

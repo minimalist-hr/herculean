@@ -2,6 +2,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { CalendarIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
@@ -9,7 +10,7 @@ import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateText, dayNameOf, longDate, weekOf } from './dates';
+import { dateFromText, dateText, dayHeading, weekOf } from './dates';
 import { DayCard, DayCardSkeleton } from './day-card';
 import { useDay } from './use-day';
 import { useDays } from './use-days';
@@ -20,7 +21,13 @@ export function WorkoutScreen() {
   const [now, setNow] = useState(() => new Date());
   const today = dateText(now);
   const week = weekOf(now);
-  const day = useDay(today);
+  const [picked, setPicked] = useState<string | null>(null);
+  // A new week has moved on from a day picked in the last one.
+  const selected =
+    picked !== null && week.some((date) => dateText(date) === picked)
+      ? picked
+      : today;
+  const day = useDay(selected);
   const days = useDays(dateText(week[0]), dateText(week[6]));
   const { refetch: refetchDay } = day;
   const { refetch: refetchDays } = days;
@@ -40,7 +47,7 @@ export function WorkoutScreen() {
 
   function renderContent() {
     if (day.data !== undefined) {
-      return <DayCard day={day.data} dayName={dayNameOf(now).full} />;
+      return <DayCard day={day.data} today={today} />;
     }
 
     if (day.isError) {
@@ -58,6 +65,8 @@ export function WorkoutScreen() {
     return <DayCardSkeleton />;
   }
 
+  const { label, title } = dayHeading(dateFromText(selected), today);
+
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
       <View
@@ -68,18 +77,36 @@ export function WorkoutScreen() {
           paddingBottom: space.lg,
         }}
       >
-        <View style={styles.header}>
-          <ScreenHeading label={longDate(now)} title="Today" />
-          <HeaderIconButton
-            label="Month"
-            onPress={() => {
-              notifyFailure('The month view comes in a later update.');
-            }}
-          >
-            <CalendarIcon color={colors.text} />
-          </HeaderIconButton>
+        <View style={[styles.header, { gap: space.md }]}>
+          <View style={styles.heading}>
+            <ScreenHeading label={label} title={title} />
+          </View>
+          {selected === today ? (
+            <HeaderIconButton
+              label="Month"
+              onPress={() => {
+                notifyFailure('The month view comes in a later update.');
+              }}
+            >
+              <CalendarIcon color={colors.text} />
+            </HeaderIconButton>
+          ) : (
+            <Button
+              label="Back to today"
+              variant="secondary"
+              onPress={() => {
+                setPicked(null);
+              }}
+            />
+          )}
         </View>
-        <WeekStrip week={week} today={today} days={days.data} />
+        <WeekStrip
+          week={week}
+          today={today}
+          selected={selected}
+          days={days.data}
+          onSelect={setPicked}
+        />
       </View>
       <ScrollView
         contentContainerStyle={{
@@ -101,5 +128,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+  },
+  heading: {
+    flex: 1,
   },
 });

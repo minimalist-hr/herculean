@@ -10,6 +10,8 @@ import { ExerciseTargets } from '@/features/routines/exercise-targets';
 import { counted } from '@/features/routines/formats';
 import { useTheme } from '@/theme/theme-provider';
 
+import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
+
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
 
@@ -44,99 +46,175 @@ function Card({ children }: { children: ReactNode }) {
 
 function CardHeading({
   label,
+  labelColor,
   title,
   meta,
 }: {
   label: string;
+  /** A status color: the label then has a dot before it. */
+  labelColor?: string;
   title: string;
   meta: string;
 }) {
-  const { colors, space, text } = useTheme();
+  const { colors, radius, space, text } = useTheme();
 
   return (
     <View style={{ gap: space.xs }}>
-      <Text style={text.eyebrow}>{label}</Text>
+      <View style={[styles.label, { gap: space.sm }]}>
+        {labelColor !== undefined && (
+          <View
+            style={[
+              styles.dot,
+              { borderRadius: radius.check, backgroundColor: labelColor },
+            ]}
+          />
+        )}
+        <Text
+          style={[
+            text.eyebrow,
+            labelColor !== undefined && { color: labelColor },
+          ]}
+        >
+          {label}
+        </Text>
+      </View>
       <Text style={[text.cardTitle, { color: colors.text }]}>{title}</Text>
       <Text style={text.meta}>{meta}</Text>
     </View>
   );
 }
 
-function PlannedCard({
-  dayName,
+function Actions({ children }: { children: ReactNode[] }) {
+  const { space } = useTheme();
+
+  return (
+    <View style={[styles.buttons, { gap: space.sm }]}>
+      {children.map((button, index) => (
+        <View key={index} style={styles.button}>
+          {button}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function PlannedContent({
+  date,
   routine,
 }: {
-  dayName: string;
+  date: Date;
   routine: DayRoutine;
 }) {
-  const { colors, space } = useTheme();
+  const { colors } = useTheme();
   const sets = routine.exercises.reduce(
     (total, exercise) => total + exercise.targetSets,
     0,
   );
 
   return (
-    <Card>
+    <>
       <CardHeading
-        label={`Scheduled for ${dayName}`}
+        label={`Scheduled for ${dayNameOf(date).full}`}
         title={routine.name}
         meta={`${counted(routine.exercises.length, 'exercise', 'exercises')} · ${counted(sets, 'set', 'sets')}`}
       />
       <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
-      <Button label="Start workout" onPress={comesInLogging} />
-      <View style={[styles.buttons, { gap: space.sm }]}>
-        <View style={styles.button}>
-          <Button
-            label="Other routine"
-            variant="secondary"
-            onPress={comesInLogging}
-          />
-        </View>
-        <View style={styles.button}>
-          <Button
-            label="Skip workout"
-            variant="secondary"
-            onPress={skipComesLater}
-          />
-        </View>
-      </View>
-    </Card>
+    </>
   );
 }
 
-function RestCard({ upNext }: { upNext: Day['upNext'] }) {
-  const { colors, space, text } = useTheme();
+function MissedCard({ routine }: { routine: DayRoutine }) {
+  const { colors } = useTheme();
 
   return (
     <Card>
       <CardHeading
-        label="Today"
+        label="Missed"
+        labelColor={colors.danger}
+        title={routine.name}
+        meta="Scheduled, but nothing was logged."
+      />
+      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      <Actions>
+        {[
+          <Button
+            key="log"
+            label="Log workout"
+            variant="secondary"
+            onPress={comesInLogging}
+          />,
+          <Button
+            key="skip"
+            label="Skip workout"
+            variant="secondary"
+            onPress={skipComesLater}
+          />,
+        ]}
+      </Actions>
+    </Card>
+  );
+}
+
+function upNextWhen(date: string, today: string) {
+  const days = daysFrom(today, date);
+  if (days === 0) {
+    return 'Today';
+  }
+
+  return days === 1 ? 'Tomorrow' : shortDate(dateFromText(date));
+}
+
+function UpNext({ upNext, today }: { upNext: Day['upNext']; today: string }) {
+  const { colors, space, text } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.upNext,
+        {
+          gap: space.md,
+          paddingTop: space.md,
+          borderTopColor: colors.border,
+        },
+      ]}
+    >
+      <View style={{ gap: 2 }}>
+        <Text style={text.eyebrow}>Up next</Text>
+        <Text style={[text.listItemName, { color: colors.text }]}>
+          {upNext.routineName ?? 'Rest'}
+        </Text>
+      </View>
+      <Text style={text.meta}>{upNextWhen(upNext.date, today)}</Text>
+    </View>
+  );
+}
+
+function RestCard({
+  date,
+  day,
+  today,
+}: {
+  date: Date;
+  day: Day;
+  today: string;
+}) {
+  const daysAway = daysFrom(today, day.date);
+
+  return (
+    <Card>
+      <CardHeading
+        label={daysAway === 0 ? 'Today' : dayNameOf(date).full}
         title="Rest day"
         meta="Nothing planned. Recovery is part of the program."
       />
-      <View
-        style={[
-          styles.upNext,
-          {
-            gap: space.md,
-            paddingTop: space.md,
-            borderTopColor: colors.border,
-          },
-        ]}
-      >
-        <View style={{ gap: 2 }}>
-          <Text style={text.eyebrow}>Up next</Text>
-          <Text style={[text.listItemName, { color: colors.text }]}>
-            {upNext.routineName ?? 'Rest'}
-          </Text>
-        </View>
-        <Text style={text.meta}>Tomorrow</Text>
-      </View>
-      <Button
-        label="Other routine"
-        variant="secondary"
-        onPress={comesInLogging}
-      />
+      {daysAway >= -1 && <UpNext upNext={day.upNext} today={today} />}
+      {daysAway === 0 && (
+        <Button
+          label="Other routine"
+          variant="secondary"
+          onPress={comesInLogging}
+        />
+      )}
     </Card>
   );
 }
@@ -161,16 +239,47 @@ function NoRoutinesCard() {
   );
 }
 
-/** Today's card: what is planned, a rest day, or the way to a first routine. */
-export function DayCard({ day, dayName }: { day: Day; dayName: string }) {
-  if (!day.hasRoutines) {
-    return <NoRoutinesCard />;
+/** A day's card: what is planned or was missed, a rest day, or the way to a first routine. */
+export function DayCard({ day, today }: { day: Day; today: string }) {
+  const date = dateFromText(day.date);
+
+  if (day.routine === null) {
+    return day.hasRoutines ? (
+      <RestCard date={date} day={day} today={today} />
+    ) : (
+      <NoRoutinesCard />
+    );
   }
 
-  return day.routine === null ? (
-    <RestCard upNext={day.upNext} />
-  ) : (
-    <PlannedCard dayName={dayName} routine={day.routine} />
+  if (day.status === 'missed') {
+    return <MissedCard routine={day.routine} />;
+  }
+
+  return (
+    <Card>
+      <PlannedContent date={date} routine={day.routine} />
+      {day.date === today && (
+        <>
+          <Button label="Start workout" onPress={comesInLogging} />
+          <Actions>
+            {[
+              <Button
+                key="other"
+                label="Other routine"
+                variant="secondary"
+                onPress={comesInLogging}
+              />,
+              <Button
+                key="skip"
+                label="Skip workout"
+                variant="secondary"
+                onPress={skipComesLater}
+              />,
+            ]}
+          </Actions>
+        </>
+      )}
+    </Card>
   );
 }
 
@@ -202,6 +311,14 @@ export function DayCardSkeleton() {
 const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
+  },
+  label: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 8,
+    height: 8,
   },
   buttons: {
     flexDirection: 'row',
