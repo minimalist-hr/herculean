@@ -96,7 +96,8 @@ async function renderWorkout() {
   await renderRouter(
     {
       _layout: Layout,
-      index: WorkoutScreen,
+      index: () => <WorkoutScreen />,
+      'workout/month': () => <PlaceholderScreen title="Month screen" />,
       'routine/new': () => <PlaceholderScreen title="New routine screen" />,
     },
     { initialUrl: '/' },
@@ -148,7 +149,7 @@ test('shows the date and the week while the day loads', async () => {
   mockFetch.mockImplementation(() => new Promise(() => undefined));
   await renderWorkout();
 
-  expect(screen.getByText('Tuesday, 3rd November')).toBeOnTheScreen();
+  expect(screen.getByText('Tue, 3rd November')).toBeOnTheScreen();
   expect(screen.getByLabelText('Monday 2')).toBeOnTheScreen();
   expect(screen.getByLabelText('Tuesday 3, today')).toBeOnTheScreen();
   expect(screen.getByLabelText('Loading this day')).toBeOnTheScreen();
@@ -252,7 +253,6 @@ test('says the week and the day could not load, and tries again', async () => {
 test.each([
   ['Start workout', 'Logging comes in a later update.'],
   ['Other routine', 'Logging comes in a later update.'],
-  ['Month', 'The month view comes in a later update.'],
 ])('%s says it comes later', async (name, message) => {
   answer(plannedDay);
   await renderWorkout();
@@ -261,6 +261,16 @@ test.each([
   await fireEvent.press(screen.getByRole('button', { name }));
 
   expect(await screen.findByText(message)).toBeOnTheScreen();
+});
+
+test('the calendar opens the month', async () => {
+  answer(plannedDay);
+  await renderWorkout();
+  await screen.findByText('Legs');
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Month' }));
+
+  expect(await screen.findByText('Month screen')).toBeOnTheScreen();
 });
 
 describe('other days', () => {
@@ -316,7 +326,7 @@ describe('other days', () => {
 
     expect(await screen.findByText('Missed')).toBeOnTheScreen();
     expect(screen.getByText('Yesterday')).toBeOnTheScreen();
-    expect(screen.getByText('Monday, 2nd November')).toBeOnTheScreen();
+    expect(screen.getByText('Mon, 2nd November')).toBeOnTheScreen();
     expect(
       screen.getByText('Scheduled, but nothing was logged.'),
     ).toBeOnTheScreen();
@@ -347,7 +357,7 @@ describe('other days', () => {
       await screen.findByText('Scheduled for Wednesday'),
     ).toBeOnTheScreen();
     expect(screen.getByText('Tomorrow')).toBeOnTheScreen();
-    expect(screen.getByText('Wednesday, 4th November')).toBeOnTheScreen();
+    expect(screen.getByText('Wed, 4th November')).toBeOnTheScreen();
     expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Skip workout' })).toBeNull();
@@ -729,8 +739,8 @@ describe('other weeks', () => {
     const hint = (id: string) =>
       screen.queryByTestId(id, { includeHiddenElements: true });
 
-    expect(hint('week-back-hint')).toBeOnTheScreen();
-    expect(hint('week-forward-hint')).toBeOnTheScreen();
+    expect(hint('week-strip-back-hint')).toBeOnTheScreen();
+    expect(hint('week-strip-forward-hint')).toBeOnTheScreen();
 
     for (const shown of ['10th November', '17th November', '24th November']) {
       await swipe(-200);
@@ -739,8 +749,8 @@ describe('other weeks', () => {
     await swipe(-200);
     await screen.findByText('1st December');
 
-    expect(hint('week-back-hint')).toBeOnTheScreen();
-    expect(hint('week-forward-hint')).toBeNull();
+    expect(hint('week-strip-back-hint')).toBeOnTheScreen();
+    expect(hint('week-strip-forward-hint')).toBeNull();
   });
 
   test('no chevron points before the week of the first day', async () => {
@@ -750,10 +760,12 @@ describe('other weeks', () => {
     await screen.findByLabelText(/^Monday 2/);
 
     expect(
-      screen.queryByTestId('week-back-hint', { includeHiddenElements: true }),
+      screen.queryByTestId('week-strip-back-hint', {
+        includeHiddenElements: true,
+      }),
     ).toBeNull();
     expect(
-      screen.queryByTestId('week-forward-hint', {
+      screen.queryByTestId('week-strip-forward-hint', {
         includeHiddenElements: true,
       }),
     ).toBeOnTheScreen();
@@ -767,7 +779,7 @@ describe('other weeks', () => {
     await swipe(-40);
 
     expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
-    expect(screen.getByText('Tuesday, 3rd November')).toBeOnTheScreen();
+    expect(screen.getByText('Tue, 3rd November')).toBeOnTheScreen();
   });
 
   test('Back to today returns from another week', async () => {
@@ -781,7 +793,7 @@ describe('other weeks', () => {
       screen.getByRole('button', { name: 'Back to today' }),
     );
 
-    expect(await screen.findByText('Tuesday, 3rd November')).toBeOnTheScreen();
+    expect(await screen.findByText('Tue, 3rd November')).toBeOnTheScreen();
     expect(screen.getByLabelText(/^Monday 2/)).toBeOnTheScreen();
   });
 
@@ -857,7 +869,7 @@ describe('other weeks', () => {
     }) as never);
     answerWeeks('2026-01-01');
     await renderWorkout();
-    await screen.findByText('Tuesday, 3rd November');
+    await screen.findByText('Tue, 3rd November');
 
     jest.setSystemTime(new Date(2026, 10, 4, 0, 5));
     await act(() => {
@@ -866,9 +878,7 @@ describe('other weeks', () => {
       });
     });
 
-    expect(
-      await screen.findByText('Wednesday, 4th November'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText('Wed, 4th November')).toBeOnTheScreen();
     expect(requestedDays()).toContain('/api/v1/days/2026-11-04');
   });
 });

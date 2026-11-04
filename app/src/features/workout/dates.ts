@@ -15,6 +15,9 @@ const months = [
   'December',
 ];
 
+/** How far ahead the week strip and the month reach. */
+export const weeksAhead = 4;
+
 /** A date as the API reads it, for example "2026-10-25". */
 export function dateText(date: Date) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -59,6 +62,45 @@ export function weekOf(date: Date) {
   );
 }
 
+/** The last day the user can reach: the end of the week, some weeks from now. */
+export function lastDayReached(now: Date) {
+  return addDays(weekOf(now)[0], weeksAhead * 7 + 6);
+}
+
+/** A month as the API reads it, for example "2026-10". */
+export function monthText(date: Date) {
+  return dateText(date).slice(0, 7);
+}
+
+export function addMonths(month: string, count: number) {
+  const first = dateFromText(`${month}-01`);
+
+  return monthText(new Date(first.getFullYear(), first.getMonth() + count, 1));
+}
+
+/** Every date of a month, in order. */
+export function monthDates(month: string) {
+  const first = dateFromText(`${month}-01`);
+  const count = new Date(
+    first.getFullYear(),
+    first.getMonth() + 1,
+    0,
+  ).getDate();
+
+  return Array.from({ length: count }, (_, index) => addDays(first, index));
+}
+
+export function monthName(date: Date) {
+  return months[date.getMonth()];
+}
+
+/** A month in words, for example "October 2026". */
+export function monthTitle(month: string) {
+  const first = dateFromText(`${month}-01`);
+
+  return `${monthName(first)} ${String(first.getFullYear())}`;
+}
+
 function ordinal(day: number) {
   const lastTwo = day % 100;
   if (lastTwo >= 11 && lastTwo <= 13) {
@@ -73,6 +115,11 @@ function ordinal(day: number) {
 /** A date in words, for example "Sunday, 25th October". */
 export function longDate(date: Date) {
   return `${dayNameOf(date).full}, ${ordinal(date.getDate())} ${months[date.getMonth()]}`;
+}
+
+/** A date with a short weekday, for example "Sun, 25th October". */
+export function shortWeekdayDate(date: Date) {
+  return `${dayNameOf(date).short}, ${ordinal(date.getDate())} ${months[date.getMonth()]}`;
 }
 
 /** A date in few words, for example "Mon, 26th Oct". */
@@ -100,5 +147,5 @@ export function dayHeading(date: Date, today: string) {
         ].join(' '),
         title: dayNameOf(date).full,
       }
-    : { label: longDate(date), title };
+    : { label: shortWeekdayDate(date), title };
 }

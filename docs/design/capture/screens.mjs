@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleWeek } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleDays, sampleWeek } from './fixtures.mjs';
 
 const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails } = sample;
 
@@ -15,6 +15,16 @@ const sunday = '2026-10-25T18:00:00';
 const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', workoutId: 'workout-skipped' } });
 const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
 const restDay = (routineName) => ({ status: 200, body: { ...sampleDay, date: '2026-10-25', status: 'rest', routine: null, upNext: { date: '2026-10-26', routineName } } });
+
+const openMonth = async (on) => {
+  await on.go('/workout/month');
+  await on.waitFor('Time trained');
+  await on.sleep(500);
+};
+const openDayFromMonth = async (on, day) => {
+  await openMonth(on);
+  await on.tap(day);
+};
 
 export const screens = [
   // A · Account
@@ -141,6 +151,42 @@ export const screens = [
   { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } } }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('No routines yet');
+  } },
+  { id: 'W29', file: 'W29-Workout-Day-From-Month', title: 'Workout › Day from the month', row: 'W3 Other days', today: friday, steps: async (on) => {
+    await openDayFromMonth(on, '21 October, Legs, missed');
+    await on.tap('Open day');
+    await on.waitFor('Back to month');
+  } },
+  { id: 'W41', file: 'W41-Workout-Month-Loading', title: 'Workout › Month · loading', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'hold', 'GET /api/v1/days': 'hold' }, steps: async (on) => {
+    await on.go('/workout/month');
+    await on.waitFor('October');
+  } },
+  { id: 'W40', file: 'W40-Workout-Month', title: 'Workout › Month', row: 'W5 Month', today: friday, steps: openMonth },
+  { id: 'W43', file: 'W43-Workout-Month-Day-Missed', title: 'Workout › Month › Day summary · missed, sheet', row: 'W5 Month', today: friday, full: false, steps: async (on) => {
+    await openDayFromMonth(on, '21 October, Legs, missed');
+    await on.waitFor('Open day');
+  } },
+  { id: 'W44', file: 'W44-Workout-Month-Day-Skipped', title: 'Workout › Month › Day summary · skipped, sheet', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days/2026-10-03': { status: 200, body: { ...sampleDays['2026-10-24'], date: '2026-10-03', status: 'skipped', workoutId: 'workout-skipped' } } }, steps: async (on) => {
+    await openDayFromMonth(on, '3 October, Back and shoulders 2, skipped');
+    await on.waitFor('Open day');
+  } },
+  { id: 'W45', file: 'W45-Workout-Month-Day-Planned', title: 'Workout › Month › Day summary · planned, sheet', row: 'W5 Month', today: friday, full: false, steps: async (on) => {
+    await openDayFromMonth(on, '24 October, Back and shoulders 2, planned');
+    await on.waitFor('Open day');
+  } },
+  { id: 'W46', file: 'W46-Workout-Month-Day-Rest', title: 'Workout › Month › Day summary · rest day, sheet', row: 'W5 Month', today: friday, full: false, steps: async (on) => {
+    await openDayFromMonth(on, '22 October, rest day');
+    await on.waitFor('Open day');
+  } },
+  { id: 'W47', file: 'W47-Workout-Month-First', title: 'Workout › Month · first month', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/days/first': { status: 200, body: { date: '2026-10-14' } } }, steps: openMonth },
+  { id: 'W48', file: 'W48-Workout-Month-Day-Selected', title: 'Workout › Month · another day selected', row: 'W5 Month', today: friday, steps: async (on) => {
+    await openDayFromMonth(on, '20 October, Back and shoulders 1, missed');
+    await on.tap('Close');
+    await on.sleep(400);
+  } },
+  { id: 'W49', file: 'W49-Workout-Month-Load-Failure', title: 'Workout › Month · load failure', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'fail' }, steps: async (on) => {
+    await on.go('/workout/month');
+    await on.waitFor("Couldn't load this month.");
   } },
   // E · Exercises
   { id: 'E02', file: 'E02-Exercises-Loading', title: 'Exercises · loading', row: 'E1 Exercises tab', answers: { ...lists('hold'), 'GET /api/v1/groups': 'hold' }, steps: (on) => on.go('/exercises') },

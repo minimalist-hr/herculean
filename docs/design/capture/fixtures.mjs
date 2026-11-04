@@ -139,7 +139,7 @@ const sampleRestDay = (date, nextDate, routineName) => ({
   upNext: { date: nextDate, routineName },
 });
 
-const sampleDays = {
+export const sampleDays = {
   '2026-10-21': legsDay,
   '2026-10-22': sampleRestDay('2026-10-22', '2026-10-23', 'Chest and arms 2'),
   '2026-10-24': tomorrowDay,
@@ -157,6 +157,34 @@ export function sampleWeek(today, skippedDate, from = '2026-10-19') {
     return { date, status, routineName: routine?.name ?? null };
   });
 }
+
+/** The design's sample month, with past days missed and 3 October skipped. */
+export function sampleMonth(from, to) {
+  const days = [];
+  for (let time = Date.parse(from); time <= Date.parse(to); time += 86_400_000) {
+    const date = new Date(time).toISOString().slice(0, 10);
+    const weekday = weekdays[(new Date(time).getUTCDay() + 6) % 7];
+    const routine = routineList.find((item) => item.weekdays.includes(weekday));
+    const planned = date === '2026-10-03' ? 'skipped' : date < '2026-10-23' ? 'missed' : 'planned';
+
+    days.push({ date, status: routine === undefined ? 'rest' : planned, routineName: routine?.name ?? null });
+  }
+
+  return days;
+}
+
+/** The sample month's summary. Done, time, checked sets and volume are zero until logging exists. */
+export const sampleMonthSummary = {
+  done: 0,
+  missed: 14,
+  skipped: 1,
+  minutesTrained: 0,
+  setsDone: 0,
+  setsPlanned: 228,
+  volumeKg: 0,
+  plannedDays: 15,
+  consistencyPercent: 0,
+};
 
 export const problem = (status, code, detail) => ({
   status,
@@ -219,7 +247,12 @@ export function createApi() {
       };
     }
     if (key === 'GET /api/v1/days') {
-      return { status: 200, body: sampleWeek(sampleToday, undefined, query.get('from')) };
+      const isMonth = Date.parse(query.get('to')) - Date.parse(query.get('from')) > 7 * 86_400_000;
+
+      return { status: 200, body: isMonth ? sampleMonth(query.get('from'), query.get('to')) : sampleWeek(sampleToday, undefined, query.get('from')) };
+    }
+    if (method === 'GET' && path.startsWith('/api/v1/month-summaries/')) {
+      return { status: 200, body: sampleMonthSummary };
     }
     if (key === 'GET /api/v1/days/first') {
       return { status: 200, body: { date: '2026-09-01' } };

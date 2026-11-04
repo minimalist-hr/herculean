@@ -13,6 +13,8 @@ export function closesAfterDrag({
   /** Positive is down. */
   velocity: number;
 }) {
+  'worklet';
+
   return (
     pulledDown > 0 &&
     (pulledDown > height * closeFraction || velocity > quickFlick)

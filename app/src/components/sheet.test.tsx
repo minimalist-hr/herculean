@@ -3,6 +3,11 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { useState } from 'react';
 import { Keyboard, Text } from 'react-native';
+import { State } from 'react-native-gesture-handler';
+import {
+  fireGestureHandler,
+  getByGestureTestId,
+} from 'react-native-gesture-handler/jest-utils';
 
 import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
@@ -107,6 +112,69 @@ test('a long pull down closes it', async () => {
   await dragBy(screen.getByTestId('sheet-drag'), 400);
 
   expect(onClose).toHaveBeenCalledTimes(1);
+});
+
+async function pullBody(translationY: number, velocityY = 0) {
+  await act(() => {
+    fireGestureHandler(getByGestureTestId('sheet-body'), [
+      { state: State.BEGAN },
+      { state: State.ACTIVE, translationY: 10 },
+      { translationY: 10 },
+      { translationY },
+      { state: State.END, translationY, velocityY },
+    ]);
+  });
+  // The end of a pull reaches JavaScript a moment later.
+  await act(async () => {
+    await jest.advanceTimersByTimeAsync(50);
+  });
+}
+
+test('a long pull down on the body closes it', async () => {
+  await renderSheet();
+  await measure();
+
+  await pullBody(400);
+
+  await waitFor(() => {
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+test('a quick flick down on the body closes it', async () => {
+  await renderSheet();
+  await measure();
+
+  await pullBody(30, 2000);
+
+  await waitFor(() => {
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+test('a short slow pull down on the body springs back', async () => {
+  await renderSheet();
+  await measure();
+
+  await pullBody(30);
+
+  expect(onClose).not.toHaveBeenCalled();
+});
+
+test('a pull down on a body scrolled away from its top only scrolls it', async () => {
+  await renderSheet();
+  await measure();
+  await fireEvent.scroll(screen.getByText('Field'), {
+    nativeEvent: {
+      contentOffset: { y: 80 },
+      contentSize: { height: 800, width: 300 },
+      layoutMeasurement: { height: 300, width: 300 },
+    },
+  });
+
+  await pullBody(400);
+
+  expect(onClose).not.toHaveBeenCalled();
 });
 
 test('a short slow pull down springs back', async () => {

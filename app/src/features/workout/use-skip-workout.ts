@@ -21,7 +21,7 @@ export function useSkipWorkout() {
     },
     onSuccess: () =>
       Promise.all(
-        [dayKeys.allDay, dayKeys.allDays].map((queryKey) =>
+        [dayKeys.allDay, dayKeys.allDays, dayKeys.allMonths].map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),
         ),
       ),

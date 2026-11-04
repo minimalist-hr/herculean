@@ -165,7 +165,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
 | DELETE | `/api/v1/workouts/{id}` | Undo skip |
 
-**Left to other features:** Home is planned again later. H03, W03 and W20 show a completed workout, and come with logging. Until their features are built, a button that leads to one says it comes in a later update. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit, Delete and the calendar icon are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
+**Left to other features:** Home is planned again later. H03, W03 and W20 show a completed workout, and come with logging. Until their features are built, a button that leads to one says it comes in a later update. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit and Delete are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
 
 **Done when**
 - Each day shows the status from the [day table](/product/domain#how-a-day-is-shown), in the user's time zone.
@@ -222,7 +222,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 **Flows**
 - **Edit:** Edit on W03 or W20 → W30. Sets use the L10 and L11 sheets. Remove set → W31 undo bar. The trash on an exercise → L13 → undo bar. Add exercise → the L20 flow. Save workout → back to the day.
 - **Delete:** Delete on W03 or W20 → W32 → the day, with an undo bar.
-- **Month:** the calendar icon on W01 → W41 → W40. Swipe or use the buttons to change month, from the first day's month to the month holding the last day the week strip reaches. Days and buttons past those limits look muted, and tapping one says why (W47). A tapped day stays selected (W48). A day → W43 to W46 → Open day → that day on the Workout tab, in its week, with "Back to month" (W29). W40's back link goes to today. If the month can't load → W49.
+- **Month:** the calendar icon on W01 → W41 → W40. Swipe to change month, from the first day's month to the month holding the last day the week strip reaches. Days past those limits look muted, and tapping one says why (W47). Back to today returns to today, and shows when another day or month is selected. A tapped day stays selected (W48). A day → W43 to W46 → Open day → that day on the Workout tab, in its week, with "Back to month" (W29). W40's back link, named Workout, goes to the Workout tab. If the month can't load → W49.
 
 Changes on W30 stay in the app until Save workout.
 

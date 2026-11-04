@@ -25,6 +25,12 @@ import Animated, {
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
+import {
+  GestureDetector,
+  GestureHandlerRootView,
+  useNativeGesture,
+  usePanGesture,
+} from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -44,10 +50,14 @@ import { useReduceMotion } from './use-reduce-motion';
 import { Tappable } from './tappable';
 
 const paddingBottomMin = 34;
+const borderTop = 1;
+const bodyPullStartsAfter = 8;
+const millisecondsInSecond = 1000;
 
 const easing = Easing.bezier(0.33, 1, 0.68, 1);
 
 function settle(value: SharedValue<number>, toValue: number) {
+  'worklet';
   value.set(withTiming(toValue, { duration: 180, easing }));
 }
 
@@ -103,6 +113,7 @@ export function Sheet({
   const actionsShown = keyboardHeight === 0;
   const parts = 1 + (body === undefined ? 0 : 1) + (actionsShown ? 1 : 0);
   const natural =
+    borderTop +
     paddingTop +
     headingHeight +
     (bodyHeight ?? 0) +
@@ -198,6 +209,7 @@ export function Sheet({
         velocity,
       });
       if (closes) {
+        settle(pulledDown, latest.current.shownHeight);
         latest.current.onClose();
       } else {
         settle(pulledDown, 0);
@@ -210,6 +222,10 @@ export function Sheet({
   const riseStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: (1 - progress.get()) * startingOffset }],
   }));
+  const closeFromBody = useCallback(() => {
+    latest.current.onClose();
+  }, []);
+
   const pullStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: pulledDown.get() }],
   }));
@@ -225,127 +241,126 @@ export function Sheet({
       navigationBarTranslucent
       onRequestClose={onClose}
     >
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          { backgroundColor: colors.scrim },
-          scrimStyle,
-        ]}
-      />
-      <KeyboardAvoidingView behavior="padding" style={styles.outside}>
-        <Tappable
-          feedback="none"
-          accessibilityLabel="Close"
-          style={styles.outside}
-          onPress={onClose}
+      <GestureHandlerRootView style={styles.gestureRoot}>
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: colors.scrim },
+            scrimStyle,
+          ]}
         />
-        <Animated.View style={riseStyle}>
-          <Animated.View
-            accessibilityViewIsModal
-            style={[
-              styles.sheet,
-              {
-                gap: space.lg,
-                maxHeight: full,
-                paddingTop,
-                paddingBottom,
-                borderTopLeftRadius: radius.sheetTop,
-                borderTopRightRadius: radius.sheetTop,
-                borderTopColor: colors.border,
-                backgroundColor: colors.card,
-              },
-              measured && { height: shownHeight },
-              pullStyle,
-            ]}
-          >
-            <DragArea
-              onMove={movePull}
-              onEnd={endPull}
-              onHeight={setHeadingHeight}
-            >
-              <View
-                style={[
-                  styles.grabber,
-                  {
-                    width: size.sheetGrabber.width,
-                    height: size.sheetGrabber.height,
-                    backgroundColor: colors.border,
-                  },
-                ]}
-              />
-              <View
-                style={[
-                  styles.heading,
-                  { gap: space.md, paddingHorizontal: size.sidePadding },
-                ]}
-              >
-                <View style={styles.headingText}>
-                  <Text
-                    accessibilityRole="header"
-                    style={[text.cardTitle, { color: colors.text }]}
-                  >
-                    {title}
-                  </Text>
-                  {message !== undefined && (
-                    <Text style={text.meta}>{message}</Text>
-                  )}
-                </View>
-                <Tappable
-                  accessibilityRole="button"
-                  accessibilityLabel="Close"
-                  onPress={onClose}
-                  style={[
-                    styles.close,
-                    {
-                      width: size.touchTargetMin,
-                      height: size.touchTargetMin,
-                    },
-                  ]}
-                >
-                  <CloseIcon color={colors.muted} size={20} />
-                </Tappable>
-              </View>
-            </DragArea>
-            {fill && <View style={styles.fillBody}>{body}</View>}
-            {!fill && body !== undefined && (
-              <ScrollView
-                scrollEnabled={scrollEnabled}
-                keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="on-drag"
-                style={styles.body}
-                onContentSizeChange={(_width, contentHeight) => {
-                  setBodyHeight(contentHeight);
-                }}
-                contentContainerStyle={{ paddingHorizontal: size.sidePadding }}
-              >
-                {body}
-              </ScrollView>
-            )}
-            <View
-              testID="sheet-actions"
-              onLayout={(event) => {
-                // Hidden, it measures nothing, and the last height still holds for when it comes back.
-                if (event.nativeEvent.layout.height > 0) {
-                  setActionsHeight(event.nativeEvent.layout.height);
-                }
-              }}
+        <KeyboardAvoidingView behavior="padding" style={styles.outside}>
+          <Tappable
+            feedback="none"
+            accessibilityLabel="Close"
+            style={styles.outside}
+            onPress={onClose}
+          />
+          <Animated.View style={riseStyle}>
+            <Animated.View
+              accessibilityViewIsModal
               style={[
-                styles.actions,
-                !actionsShown && styles.hidden,
+                styles.sheet,
                 {
-                  gap: size.gap.stackedButtons,
-                  paddingTop: space.lg,
-                  paddingHorizontal: size.sidePadding,
+                  gap: space.lg,
+                  maxHeight: full,
+                  paddingTop,
+                  paddingBottom,
+                  borderTopLeftRadius: radius.sheetTop,
+                  borderTopRightRadius: radius.sheetTop,
                   borderTopColor: colors.border,
+                  backgroundColor: colors.card,
                 },
+                measured && { height: shownHeight },
+                pullStyle,
               ]}
             >
-              {children}
-            </View>
+              <DragArea
+                onMove={movePull}
+                onEnd={endPull}
+                onHeight={setHeadingHeight}
+              >
+                <View
+                  style={[
+                    styles.grabber,
+                    {
+                      width: size.sheetGrabber.width,
+                      height: size.sheetGrabber.height,
+                      backgroundColor: colors.border,
+                    },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.heading,
+                    { gap: space.md, paddingHorizontal: size.sidePadding },
+                  ]}
+                >
+                  <View style={styles.headingText}>
+                    <Text
+                      accessibilityRole="header"
+                      style={[text.cardTitle, { color: colors.text }]}
+                    >
+                      {title}
+                    </Text>
+                    {message !== undefined && (
+                      <Text style={text.meta}>{message}</Text>
+                    )}
+                  </View>
+                  <Tappable
+                    accessibilityRole="button"
+                    accessibilityLabel="Close"
+                    onPress={onClose}
+                    style={[
+                      styles.close,
+                      {
+                        width: size.touchTargetMin,
+                        height: size.touchTargetMin,
+                      },
+                    ]}
+                  >
+                    <CloseIcon color={colors.muted} size={20} />
+                  </Tappable>
+                </View>
+              </DragArea>
+              {fill && <View style={styles.fillBody}>{body}</View>}
+              {!fill && body !== undefined && (
+                <SheetBody
+                  pulledDown={pulledDown}
+                  height={shownHeight}
+                  onClose={closeFromBody}
+                  onHeight={setBodyHeight}
+                  scrollEnabled={scrollEnabled}
+                >
+                  {body}
+                </SheetBody>
+              )}
+              <View
+                testID="sheet-actions"
+                onLayout={(event) => {
+                  // Hidden, it measures nothing, and the last height still holds for when it comes back.
+                  if (event.nativeEvent.layout.height > 0) {
+                    setActionsHeight(event.nativeEvent.layout.height);
+                  }
+                }}
+                style={[
+                  styles.actions,
+                  !actionsShown && styles.hidden,
+                  {
+                    gap: size.gap.stackedButtons,
+                    paddingTop: space.lg,
+                    paddingHorizontal: size.sidePadding,
+                    borderTopColor: colors.border,
+                  },
+                ]}
+              >
+                {children}
+              </View>
+            </Animated.View>
           </Animated.View>
-        </Animated.View>
-      </KeyboardAvoidingView>
-      {isTop && <NotificationBar inSheet />}
+        </KeyboardAvoidingView>
+        {isTop && <NotificationBar inSheet />}
+      </GestureHandlerRootView>
     </Modal>
   );
 }
@@ -358,6 +373,86 @@ interface DragAreaProps {
 }
 
 /** The top of a sheet, which pulls it down. A tap still reaches what is inside. */
+/** The scrolling body. A pull down moves the sheet once the body is at its top. It runs on the native side and off the JavaScript thread, because a scroll view takes a touch before JavaScript can ask for it, and so the sheet stays under the finger. */
+function SheetBody({
+  pulledDown,
+  height,
+  onClose,
+  onHeight,
+  scrollEnabled,
+  children,
+}: {
+  pulledDown: SharedValue<number>;
+  height: number;
+  onClose: () => void;
+  onHeight: (height: number) => void;
+  scrollEnabled: boolean;
+  children: ReactNode;
+}) {
+  const { size } = useTheme();
+  const atTop = useSharedValue(true);
+  const pullStart = useSharedValue<number | null>(null);
+  const scroll = useNativeGesture({});
+  const pull = usePanGesture({
+    testID: 'sheet-body',
+    activeOffsetY: bodyPullStartsAfter,
+    failOffsetY: -bodyPullStartsAfter,
+    simultaneousWith: scroll,
+    onUpdate: ({ translationY }) => {
+      'worklet';
+      if (pullStart.get() === null && atTop.get() && scrollEnabled) {
+        pullStart.set(translationY);
+      }
+      const start = pullStart.get();
+      if (start !== null) {
+        pulledDown.set(Math.max(0, translationY - start));
+      }
+    },
+    onDeactivate: ({ velocityY }) => {
+      'worklet';
+      if (pullStart.get() !== null) {
+        const closes = closesAfterDrag({
+          height,
+          pulledDown: pulledDown.get(),
+          velocity: velocityY / millisecondsInSecond,
+        });
+        // It keeps moving at once, because the screen behind can take a moment to answer a close.
+        settle(pulledDown, closes ? height : 0);
+        if (closes) {
+          scheduleOnRN(onClose);
+        }
+      }
+      pullStart.set(null);
+    },
+  });
+
+  return (
+    <GestureDetector gesture={pull}>
+      <View collapsable={false} style={styles.body}>
+        <GestureDetector gesture={scroll}>
+          <ScrollView
+            scrollEnabled={scrollEnabled}
+            bounces={false}
+            overScrollMode="never"
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            scrollEventThrottle={16}
+            onScroll={(event) => {
+              atTop.set(event.nativeEvent.contentOffset.y <= 0);
+            }}
+            onContentSizeChange={(_width, contentHeight) => {
+              onHeight(contentHeight);
+            }}
+            contentContainerStyle={{ paddingHorizontal: size.sidePadding }}
+          >
+            {children}
+          </ScrollView>
+        </GestureDetector>
+      </View>
+    </GestureDetector>
+  );
+}
+
 function DragArea({ onMove, onEnd, onHeight, children }: DragAreaProps) {
   const { space } = useTheme();
   const drag = useMemo(
@@ -393,11 +488,14 @@ function DragArea({ onMove, onEnd, onHeight, children }: DragAreaProps) {
 }
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   outside: {
     flex: 1,
   },
   sheet: {
-    borderTopWidth: 1,
+    borderTopWidth: borderTop,
   },
   grabber: {
     alignSelf: 'center',
