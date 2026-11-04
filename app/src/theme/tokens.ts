@@ -112,6 +112,13 @@ export const tokens = {
         uppercase: true,
         letterSpacing: '0.06em',
       },
+      dayName: {
+        size: 11,
+        weight: 600,
+        uppercase: true,
+        letterSpacing: '0.1em',
+        color: 'muted',
+      },
       eyebrow: {
         size: 12,
         weight: 600,
@@ -157,6 +164,7 @@ export const tokens = {
     screen: { width: 390, height: 844 },
     sidePadding: 16,
     topPaddingTab: 48,
+    statTilePadding: 14,
     topPaddingSubPage: 40,
     touchTargetMin: 44,
     listRowMin: 56,

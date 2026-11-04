@@ -159,7 +159,7 @@ test('shows the planned routine with its exercises and targets', async () => {
   answer(plannedDay);
   await renderWorkout();
 
-  expect(await screen.findByText('Scheduled for Tuesday')).toBeOnTheScreen();
+  expect(await screen.findByText('Planned for Tuesday')).toBeOnTheScreen();
   expect(screen.getAllByText('Legs')).toHaveLength(1);
   expect(screen.getByText('2 exercises · 5 sets')).toBeOnTheScreen();
   expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
@@ -328,7 +328,7 @@ describe('other days', () => {
     expect(screen.getByText('Yesterday')).toBeOnTheScreen();
     expect(screen.getByText('Mon, 2nd November')).toBeOnTheScreen();
     expect(
-      screen.getByText('Scheduled, but nothing was logged.'),
+      screen.getByText('Planned, but nothing was logged.'),
     ).toBeOnTheScreen();
     expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
@@ -353,9 +353,7 @@ describe('other days', () => {
     await renderWorkout();
     await open('Wednesday 4, Arms');
 
-    expect(
-      await screen.findByText('Scheduled for Wednesday'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText('Planned for Wednesday')).toBeOnTheScreen();
     expect(screen.getByText('Tomorrow')).toBeOnTheScreen();
     expect(screen.getByText('Wed, 4th November')).toBeOnTheScreen();
     expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
@@ -408,13 +406,13 @@ describe('other days', () => {
     answerByDate({ '2026-11-03': plannedDay, '2026-11-04': upcomingDay });
     await renderWorkout();
     await open('Wednesday 4, Arms');
-    await screen.findByText('Scheduled for Wednesday');
+    await screen.findByText('Planned for Wednesday');
 
     await fireEvent.press(
       screen.getByRole('button', { name: 'Back to today' }),
     );
 
-    expect(await screen.findByText('Scheduled for Tuesday')).toBeOnTheScreen();
+    expect(await screen.findByText('Planned for Tuesday')).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Back to today' })).toBeNull();
   });
@@ -424,7 +422,7 @@ describe('other days', () => {
     await renderWorkout();
     await open('Tuesday 3, Legs, today');
 
-    expect(await screen.findByText('Scheduled for Tuesday')).toBeOnTheScreen();
+    expect(await screen.findByText('Planned for Tuesday')).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
   });
 

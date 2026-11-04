@@ -23,6 +23,7 @@ import { useExercises } from '@/features/exercises/use-exercises';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { bestSetText } from '@/features/exercises/exercise-row';
 import { noGroupsMessage, useGroups } from '@/features/exercises/use-groups';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { startingTargets, useRoutineDraft } from './routine-draft';
@@ -310,18 +311,15 @@ export function AddExerciseScreen({ back }: { back: string }) {
           item.kind === 'row' ? (
             renderRow(item)
           ) : (
-            <Text
-              style={[
-                text.eyebrow,
-                {
-                  paddingTop: space.md,
-                  paddingBottom: space.xs,
-                  paddingHorizontal: size.sidePadding,
-                },
-              ]}
+            <SectionTitle
+              style={{
+                paddingTop: space.md,
+                paddingBottom: space.xs,
+                paddingHorizontal: size.sidePadding,
+              }}
             >
               {item.title}
-            </Text>
+            </SectionTitle>
           )
         }
         keyboardShouldPersistTaps="handled"

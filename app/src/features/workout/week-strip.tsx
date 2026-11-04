@@ -4,6 +4,7 @@ import type { components } from '@/api/schema';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateText, dayNameOf } from './dates';
+import { DayMarker } from './day-marker';
 import { Tappable } from '@/components/tappable';
 
 type DaySummary = components['schemas']['DaySummaryResponse'];
@@ -50,12 +51,6 @@ export function WeekStrip({
         const day = days?.find((item) => item.date === dateKey);
         const isToday = dateKey === today;
         const isSelected = dateKey === selected;
-        const markerColor = {
-          missed: isSelected ? colors.onPrimary : colors.danger,
-          planned: isSelected ? colors.onPrimary : colors.muted,
-          rest: 'transparent',
-          skipped: isSelected ? colors.onPrimary : colors.skipped,
-        }[day?.status ?? 'rest'];
         const numberColor = isToday ? colors.primaryText : colors.text;
 
         return (
@@ -84,8 +79,7 @@ export function WeekStrip({
           >
             <Text
               style={[
-                text.eyebrow,
-                styles.weekday,
+                text.dayName,
                 { color: isSelected ? colors.onPrimary : colors.muted },
               ]}
             >
@@ -99,9 +93,10 @@ export function WeekStrip({
             >
               {date.getDate()}
             </Text>
-            <View
-              testID={`marker-${dateKey}`}
-              style={[styles.marker, { backgroundColor: markerColor }]}
+            <DayMarker
+              date={dateKey}
+              status={day?.status ?? 'rest'}
+              selected={isSelected}
             />
           </Tappable>
         );
@@ -125,12 +120,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  weekday: {
-    fontSize: 11,
-  },
-  marker: {
-    width: 10,
-    height: 2,
   },
 });

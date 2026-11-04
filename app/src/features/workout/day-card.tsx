@@ -9,6 +9,8 @@ import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { ExerciseTargets } from '@/features/routines/exercise-targets';
 import { counted } from '@/features/routines/formats';
+import { SectionTitle } from '@/components/section-title';
+import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
@@ -55,28 +57,11 @@ function CardHeading({
   title: string;
   meta: string;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, space, text } = useTheme();
 
   return (
     <View style={{ gap: space.xs }}>
-      <View style={[styles.label, { gap: space.sm }]}>
-        {labelColor !== undefined && (
-          <View
-            style={[
-              styles.dot,
-              { borderRadius: radius.check, backgroundColor: labelColor },
-            ]}
-          />
-        )}
-        <Text
-          style={[
-            text.eyebrow,
-            labelColor !== undefined && { color: labelColor },
-          ]}
-        >
-          {label}
-        </Text>
-      </View>
+      <StatusLabel label={label} color={labelColor} />
       <Text style={[text.cardTitle, { color: colors.text }]}>{title}</Text>
       <Text style={text.meta}>{meta}</Text>
     </View>
@@ -187,7 +172,7 @@ function PlannedContent({
   return (
     <>
       <CardHeading
-        label={`Scheduled for ${dayNameOf(date).full}`}
+        label={`Planned for ${dayNameOf(date).full}`}
         title={routine.name}
         meta={`${counted(routine.exercises.length, 'exercise', 'exercises')} · ${counted(sets, 'set', 'sets')}`}
       />
@@ -205,7 +190,7 @@ function MissedCard({ date, routine }: { date: string; routine: DayRoutine }) {
         label="Missed"
         labelColor={colors.danger}
         title={routine.name}
-        meta="Scheduled, but nothing was logged."
+        meta="Planned, but nothing was logged."
       />
       <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
       <Button label="Log workout" onPress={comesInLogging} />
@@ -279,7 +264,7 @@ function UpNext({ upNext, today }: { upNext: Day['upNext']; today: string }) {
       ]}
     >
       <View style={{ gap: 2 }}>
-        <Text style={text.eyebrow}>Up next</Text>
+        <SectionTitle>Up next</SectionTitle>
         <Text style={[text.listItemName, { color: colors.text }]}>
           {upNext.routineName ?? 'Rest'}
         </Text>
@@ -421,14 +406,6 @@ export function DayCardSkeleton() {
 const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
-  },
-  label: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dot: {
-    width: 8,
-    height: 8,
   },
   buttons: {
     flexDirection: 'row',

@@ -90,6 +90,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
       primaryButton: toTextStyle(roles.primaryButton, colors),
       body: toTextStyle(roles.body, colors),
       secondaryButton: toTextStyle(roles.secondaryButton, colors),
+      dayName: toTextStyle(roles.dayName, colors),
       eyebrow: toTextStyle(roles.eyebrow, colors),
       meta: toTextStyle(roles.meta, colors),
       quickPick: toTextStyle(roles.quickPick, colors),

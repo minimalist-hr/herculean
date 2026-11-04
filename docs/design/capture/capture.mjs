@@ -57,7 +57,8 @@ async function mockApi(page, state) {
     }
 
     const key = `${request.method()} ${url.pathname}`;
-    const custom = state.answers?.[key];
+    const given = state.answers?.[key];
+    const custom = typeof given === 'function' ? given(url) : given;
     if (custom === 'hold') {
       return;
     }
@@ -134,6 +135,20 @@ function helpers(page) {
       await page.mouse.down();
       await page.mouse.move(x + distance / 2, y, { steps: 4 });
       await page.mouse.move(x + distance, y, { steps: 4 });
+      await page.mouse.up();
+      await sleep(600);
+    },
+    /** Picks up an element and moves it up or down, and keeps holding it. */
+    hold: async (name, distance) => {
+      const { x, y } = await waitForCenter(page, name);
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.mouse.move(x, y + distance / 2, { steps: 6 });
+      await page.mouse.move(x, y + distance, { steps: 6 });
+      await sleep(400);
+    },
+    /** Lets go of what is held. */
+    release: async () => {
       await page.mouse.up();
       await sleep(600);
     },

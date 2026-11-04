@@ -10,6 +10,7 @@ import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { joined } from '@/features/routines/formats';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
@@ -120,7 +121,7 @@ function Details({ exercise }: { exercise: Exercise }) {
       <NoSessionsCard message="Finish a workout with this exercise and its sets, best set and progress show up here." />
 
       <View style={{ gap: space.sm }}>
-        <Text style={text.eyebrow}>Used in</Text>
+        <SectionTitle>Used in</SectionTitle>
         {inUse ? (
           <View
             style={[

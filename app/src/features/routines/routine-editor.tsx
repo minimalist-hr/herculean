@@ -21,6 +21,7 @@ import {
 import { Sheet } from '@/components/sheet';
 import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DayChips } from './day-chips';
@@ -185,10 +186,10 @@ export function RoutineEditor({
 
           <View style={{ gap: space.sm }}>
             <View style={styles.daysTitle}>
-              <Text style={text.eyebrow}>
+              <SectionTitle>
                 Days
                 <Text style={[text.meta, styles.optional]}> · optional</Text>
-              </Text>
+              </SectionTitle>
               <Text style={text.meta}>Picking a day replaces its routine</Text>
             </View>
             <DayChips
@@ -203,7 +204,7 @@ export function RoutineEditor({
           <View style={{ gap: space.sm }}>
             <View style={[styles.sectionTitle, { gap: space.md }]}>
               <View style={styles.sectionText}>
-                <Text style={text.eyebrow}>Exercises</Text>
+                <SectionTitle>Exercises</SectionTitle>
                 <Text style={text.meta}>
                   {`${counted(exercises.length, 'exercise', 'exercises')} · ${counted(setCount, 'set', 'sets')}`}
                 </Text>

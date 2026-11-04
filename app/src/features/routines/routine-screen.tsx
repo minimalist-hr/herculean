@@ -10,6 +10,7 @@ import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseTargets } from './exercise-targets';
@@ -102,7 +103,7 @@ function Details({ routine }: { routine: Routine }) {
       </View>
 
       <View style={{ gap: space.sm }}>
-        <Text style={text.eyebrow}>Days</Text>
+        <SectionTitle>Days</SectionTitle>
         <View style={[styles.days, { gap: space.xs }]}>
           {(routine.weekdays.length === 0
             ? ['Not on any day yet']
@@ -128,7 +129,7 @@ function Details({ routine }: { routine: Routine }) {
       </View>
 
       <View style={{ gap: space.sm }}>
-        <Text style={text.eyebrow}>Exercises</Text>
+        <SectionTitle>Exercises</SectionTitle>
         <ExerciseTargets exercises={routine.exercises} />
       </View>
 

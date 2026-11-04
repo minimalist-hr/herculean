@@ -20,6 +20,7 @@ import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseRow } from './exercise-row';
@@ -239,18 +240,15 @@ export function ExercisesScreen() {
         );
       case 'section':
         return (
-          <Text
-            style={[
-              text.eyebrow,
-              {
-                paddingTop: space.md,
-                paddingBottom: space.xs,
-                paddingHorizontal: size.sidePadding,
-              },
-            ]}
+          <SectionTitle
+            style={{
+              paddingTop: space.md,
+              paddingBottom: space.xs,
+              paddingHorizontal: size.sidePadding,
+            }}
           >
             {item.title}
-          </Text>
+          </SectionTitle>
         );
       case 'row':
         return (

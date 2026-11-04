@@ -4,24 +4,24 @@ import {
   dateText,
   dayHeading,
   daysFrom,
-  longDate,
+  shortWeekdayDate,
   shortDate,
 } from './dates';
 
 test.each([
-  [1, 'Sunday, 1st November'],
-  [2, 'Monday, 2nd November'],
-  [3, 'Tuesday, 3rd November'],
-  [4, 'Wednesday, 4th November'],
-  [11, 'Wednesday, 11th November'],
-  [12, 'Thursday, 12th November'],
-  [13, 'Friday, 13th November'],
-  [21, 'Saturday, 21st November'],
-  [22, 'Sunday, 22nd November'],
-  [23, 'Monday, 23rd November'],
-  [30, 'Monday, 30th November'],
+  [1, 'Sun, 1st November'],
+  [2, 'Mon, 2nd November'],
+  [3, 'Tue, 3rd November'],
+  [4, 'Wed, 4th November'],
+  [11, 'Wed, 11th November'],
+  [12, 'Thu, 12th November'],
+  [13, 'Fri, 13th November'],
+  [21, 'Sat, 21st November'],
+  [22, 'Sun, 22nd November'],
+  [23, 'Mon, 23rd November'],
+  [30, 'Mon, 30th November'],
 ])('the %ith of the month reads correctly', (day, words) => {
-  expect(longDate(new Date(2026, 10, day))).toBe(words);
+  expect(shortWeekdayDate(new Date(2026, 10, day))).toBe(words);
 });
 
 test('a day in another year says the year', () => {

@@ -15,8 +15,8 @@ namespace Herculean.Training.UnitTests.Application.Workouts.CreateWorkout;
 public sealed class CreateWorkoutHandlerTests
 {
     // Tuesday 3 November 2026, at noon in Zagreb.
-    private static readonly DateOnly _today = new(2026, 11, 3);
-    private static readonly DateOnly _longAgo = new(2026, 1, 1);
+    private static readonly DateOnly Today = new(2026, 11, 3);
+    private static readonly DateOnly LongAgo = new(2026, 1, 1);
 
     private readonly RoutineId _legs = RoutineId.New();
     private readonly FakeDayReadRepository _dayReadRepository = new();
@@ -38,7 +38,7 @@ public sealed class CreateWorkoutHandlerTests
 
     private void Plan(Weekday weekday)
     {
-        _dayReadRepository.Changes.Add(new PlanChange(weekday, _longAgo, _legs, "Legs", null));
+        _dayReadRepository.Changes.Add(new PlanChange(weekday, LongAgo, _legs, "Legs", null));
     }
 
     private Task<Result<WorkoutResponse>> SkipAsync(DateOnly date) =>
@@ -49,9 +49,9 @@ public sealed class CreateWorkoutHandlerTests
     {
         Plan(Weekday.Tuesday);
 
-        Result<WorkoutResponse> result = await SkipAsync(_today);
+        Result<WorkoutResponse> result = await SkipAsync(Today);
 
-        result.Value.Date.ShouldBe(_today);
+        result.Value.Date.ShouldBe(Today);
         result.Value.Status.ShouldBe(WorkoutStatus.Skipped);
         result.Value.Name.ShouldBe("Legs");
         Workout workout = _workoutRepository.Workouts.ShouldHaveSingleItem();
@@ -69,7 +69,7 @@ public sealed class CreateWorkoutHandlerTests
         _dayReadRepository.Exercises.Add(new DayExerciseResponse(squat, "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10));
         _dayReadRepository.Exercises.Add(new DayExerciseResponse(lunge, "Lunge", Guid.CreateVersion7(), "Legs", 4, 6, 6));
 
-        await SkipAsync(_today);
+        await SkipAsync(Today);
 
         Workout workout = _workoutRepository.Workouts.ShouldHaveSingleItem();
         workout.Exercises.Count.ShouldBe(2);
@@ -89,7 +89,7 @@ public sealed class CreateWorkoutHandlerTests
     {
         Plan(Weekday.Monday);
 
-        Result<WorkoutResponse> result = await SkipAsync(_today.AddDays(-1));
+        Result<WorkoutResponse> result = await SkipAsync(Today.AddDays(-1));
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -99,7 +99,7 @@ public sealed class CreateWorkoutHandlerTests
     {
         Plan(Weekday.Wednesday);
 
-        Result<WorkoutResponse> result = await SkipAsync(_today.AddDays(1));
+        Result<WorkoutResponse> result = await SkipAsync(Today.AddDays(1));
 
         result.Error.ShouldBe(WorkoutErrors.DateInTheFuture);
         _unitOfWork.Saved.ShouldBeFalse();
@@ -108,7 +108,7 @@ public sealed class CreateWorkoutHandlerTests
     [Fact]
     public async Task ARestDayCanNotBeSkipped()
     {
-        Result<WorkoutResponse> result = await SkipAsync(_today);
+        Result<WorkoutResponse> result = await SkipAsync(Today);
 
         result.Error.ShouldBe(WorkoutErrors.NothingPlanned);
         _unitOfWork.Saved.ShouldBeFalse();
@@ -118,9 +118,9 @@ public sealed class CreateWorkoutHandlerTests
     public async Task ADayWithAWorkoutCanNotBeSkipped()
     {
         Plan(Weekday.Tuesday);
-        await SkipAsync(_today);
+        await SkipAsync(Today);
 
-        Result<WorkoutResponse> result = await SkipAsync(_today);
+        Result<WorkoutResponse> result = await SkipAsync(Today);
 
         result.Error.ShouldBe(WorkoutErrors.DateTaken);
         _workoutRepository.Workouts.ShouldHaveSingleItem();
@@ -130,10 +130,10 @@ public sealed class CreateWorkoutHandlerTests
     public async Task ADayCanBeSkippedAgainAfterAnUndo()
     {
         Plan(Weekday.Tuesday);
-        await SkipAsync(_today);
+        await SkipAsync(Today);
         _workoutRepository.Workouts[0].Delete(DateTimeOffset.UtcNow);
 
-        Result<WorkoutResponse> result = await SkipAsync(_today);
+        Result<WorkoutResponse> result = await SkipAsync(Today);
 
         result.IsSuccess.ShouldBeTrue();
     }

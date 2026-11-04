@@ -13,8 +13,8 @@ namespace Herculean.Training.UnitTests.Application.Days.GetMonthSummary;
 public sealed class GetMonthSummaryHandlerTests
 {
     // Tuesday 3 November 2026, at noon in Zagreb. 2 November is the month's first Monday.
-    private static readonly DateOnly _today = new(2026, 11, 3);
-    private static readonly DateOnly _longAgo = new(2026, 1, 1);
+    private static readonly DateOnly Today = new(2026, 11, 3);
+    private static readonly DateOnly LongAgo = new(2026, 1, 1);
 
     private readonly FakeDayReadRepository _dayReadRepository = new();
     private readonly GetMonthSummaryHandler _handler;
@@ -37,7 +37,7 @@ public sealed class GetMonthSummaryHandlerTests
     [Fact]
     public async Task CountsPastPlannedDaysAsMissed()
     {
-        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, _longAgo, RoutineId.New(), "Legs", null));
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
         _dayReadRepository.Exercises.Add(Exercise(3));
         _dayReadRepository.Exercises.Add(Exercise(2));
 
@@ -49,7 +49,7 @@ public sealed class GetMonthSummaryHandlerTests
     [Fact]
     public async Task CountsThePlanPerDayAcrossAPastMonth()
     {
-        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, _longAgo, RoutineId.New(), "Legs", null));
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
         _dayReadRepository.Exercises.Add(Exercise(3));
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-10");
@@ -61,11 +61,11 @@ public sealed class GetMonthSummaryHandlerTests
     [Fact]
     public async Task TodayCountsOnlyOnceSkipped()
     {
-        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Tuesday, _longAgo, RoutineId.New(), "Arms", null));
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Tuesday, LongAgo, RoutineId.New(), "Arms", null));
 
         (await GetAsync("2026-11")).Value.PlannedDays.ShouldBe(0);
 
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), _today, "Arms", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, "Arms", RoutineId.New()));
         _dayReadRepository.WorkoutExercises.Add(Exercise(4));
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-11");
@@ -76,8 +76,8 @@ public sealed class GetMonthSummaryHandlerTests
     [Fact]
     public async Task ASkippedDayIsNotAlsoMissed()
     {
-        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, _longAgo, RoutineId.New(), "Legs", null));
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), _today.AddDays(-1), "Legs", RoutineId.New()));
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today.AddDays(-1), "Legs", RoutineId.New()));
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-11");
 
@@ -88,7 +88,7 @@ public sealed class GetMonthSummaryHandlerTests
     [Fact]
     public async Task AFutureMonthHasNothingSoFar()
     {
-        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, _longAgo, RoutineId.New(), "Legs", null));
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-12");
 

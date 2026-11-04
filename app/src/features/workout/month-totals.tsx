@@ -3,6 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { Skeleton } from '@/components/skeleton';
 import { counted } from '@/features/routines/formats';
+import { SectionTitle } from '@/components/section-title';
+import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
 type MonthSummary = components['schemas']['MonthSummaryResponse'];
@@ -44,31 +46,23 @@ function CountTile({
   color: string;
   value?: number;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, radius, size, space, text } = useTheme();
 
   return (
     <View
       style={[
         styles.tile,
         {
-          gap: space.xs + 2,
+          gap: space.sm,
           paddingVertical: space.md,
-          paddingHorizontal: space.md + 2,
+          paddingHorizontal: size.statTilePadding,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
         },
       ]}
     >
-      <View style={[styles.countLabel, { gap: space.sm }]}>
-        <View
-          style={[
-            styles.dot,
-            { borderRadius: radius.check, backgroundColor: color },
-          ]}
-        />
-        <Text style={[text.eyebrow, { color }]}>{label}</Text>
-      </View>
+      <StatusLabel label={label} color={color} />
       {value === undefined ? (
         <SkeletonLine width={32} height={24} lineHeight={bigStatHeight} />
       ) : (
@@ -104,15 +98,15 @@ function TotalTile({
   value?: string;
   hint?: string;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, radius, size, space, text } = useTheme();
 
   return (
     <View
       style={[
         styles.tile,
         {
-          gap: space.xs + 2,
-          padding: space.md + 2,
+          gap: space.sm,
+          padding: size.statTilePadding,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
@@ -149,7 +143,7 @@ export function MonthTotals({
   title: string;
   summary?: MonthSummary;
 }) {
-  const { space, text } = useTheme();
+  const { space } = useTheme();
   const averageMinutes =
     summary !== undefined && summary.done > 0
       ? Math.round(summary.minutesTrained / summary.done)
@@ -157,9 +151,7 @@ export function MonthTotals({
 
   return (
     <View style={{ gap: space.sm }}>
-      <Text accessibilityRole="header" style={text.eyebrow}>
-        {title}
-      </Text>
+      <SectionTitle>{title}</SectionTitle>
       <View style={[styles.row, { gap: space.sm }]}>
         <TotalTile
           label="Time trained"
@@ -204,14 +196,6 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     borderWidth: 1,
-  },
-  countLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dot: {
-    width: 8,
-    height: 8,
   },
   skeletonLine: {
     justifyContent: 'center',

@@ -9,7 +9,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 | Path | What it is | Use it for |
 |---|---|---|
 | `design-document.md` | The written spec: brand, tokens, components, navigation, interaction and content rules, every screen by area, sample data, parked ideas | Read first. The source of truth for rules. |
-| `screen-index.md` | All 141 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
+| `screen-index.md` | All 207 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
 | `screens/*.png` | Every screen at 2× (780 px wide), default settings: dark, Racing blue, Chakra Petch, sharp corners | Looking at a screen |
 | `capture/` | The tool that captures built screens from the running app, with the list of every built screen and state | Updating a screen after a change |
 | `html/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
@@ -26,7 +26,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 
 ## Built and not built
 
-Built screens, listed in `capture/screens.mjs`, are captured from the running app, so they show what is built. Every other screen is a drawing of what is planned, except A00 and A02, which only the phone can reach. Captures come from the web version, so small details can differ on a phone. The logo glow on A01, A03, A04 and A05 sits higher on the web, and the phone is right. Captured source files have no links between screens.
+Built screens, listed in `capture/screens.mjs`, are captured from the running app, so they show what is built. Every other screen is a drawing of what is planned, except A00 and A02, which only the phone can reach, and A13 and A14, the email and the page its link opens, which the API sends. Captures come from the web version, so small details can differ on a phone. The logo glow on A01, A03, A04 and A05 sits higher on the web, and the phone is right. Captured source files have no links between screens.
 
 ## Notes on the export
 

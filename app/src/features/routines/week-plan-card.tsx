@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { notifyFailure } from '@/components/notifications';
 import { Skeleton } from '@/components/skeleton';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dayNames, weekdays } from './formats';
@@ -24,7 +25,7 @@ export function WeekPlanCard({
   return (
     <View style={{ gap: space.sm }}>
       <View style={styles.title}>
-        <Text style={text.eyebrow}>Week plan</Text>
+        <SectionTitle>Week plan</SectionTitle>
         <Text style={text.meta}>Repeats every week</Text>
       </View>
       <View

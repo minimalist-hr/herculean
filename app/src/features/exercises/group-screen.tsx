@@ -12,6 +12,7 @@ import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 import { useCurrentUser } from '@/features/account/use-current-user';
+import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseRow } from './exercise-row';
@@ -141,7 +142,7 @@ function Details({ group }: { group: Group }) {
       <NoSessionsCard message="Finish a workout with an exercise in this group and its progress shows up here." />
 
       <View style={{ gap: space.sm }}>
-        <Text style={text.eyebrow}>Exercises</Text>
+        <SectionTitle>Exercises</SectionTitle>
         {group.exercises.length > 0 ? (
           <View>{renderRows(group.exercises)}</View>
         ) : (
@@ -154,7 +155,7 @@ function Details({ group }: { group: Group }) {
 
       {group.alsoWorksExercises.length > 0 && (
         <View style={{ gap: space.sm }}>
-          <Text style={text.eyebrow}>Also works</Text>
+          <SectionTitle>Also works</SectionTitle>
           <View>{renderRows(group.alsoWorksExercises)}</View>
         </View>
       )}

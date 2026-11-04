@@ -479,10 +479,10 @@ describe('Back to today', () => {
 
 describe('day sheet', () => {
   test.each([
-    ['2 November, Legs, missed', 'Missed · Monday, 2nd November'],
-    ['5 November, Legs, skipped', 'Skipped · Thursday, 5th November'],
-    ['6 November, Legs, planned', 'Planned · Friday, 6th November'],
-    ['3 November, Legs, today', 'Today · Tuesday, 3rd November'],
+    ['2 November, Legs, missed', 'Missed · Mon, 2nd November'],
+    ['5 November, Legs, skipped', 'Skipped · Thu, 5th November'],
+    ['6 November, Legs, planned', 'Planned · Fri, 6th November'],
+    ['3 November, Legs, today', 'Today · Tue, 3rd November'],
   ])('%s shows its status and targets', async (name, status) => {
     answer();
     await renderMonth();
@@ -503,7 +503,7 @@ describe('day sheet', () => {
     await fireEvent.press(dayButton('4 November, rest day'));
 
     expect(await screen.findByText('Rest day')).toBeOnTheScreen();
-    expect(screen.getByText('Wednesday, 4th November')).toBeOnTheScreen();
+    expect(screen.getByText('Wed, 4th November')).toBeOnTheScreen();
     expect(
       screen.getByText('Nothing planned. Recovery is part of the program.'),
     ).toBeOnTheScreen();

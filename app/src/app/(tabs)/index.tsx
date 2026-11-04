@@ -1,6 +1,6 @@
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 
-// Built in feature 4, Today and other days.
+// Home is planned again later, see the wiki.
 export default function HomeRoute() {
   return <PlaceholderScreen title="Home" />;
 }

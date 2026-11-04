@@ -6,6 +6,7 @@ import { dayNames, weekdays } from '@/features/routines/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateText, monthDates, monthName, monthTitle } from './dates';
+import { DayMarker, MarkerBar } from './day-marker';
 
 type DaySummary = components['schemas']['DaySummaryResponse'];
 
@@ -98,7 +99,7 @@ export function MonthCalendar({
         {weekdays.map((weekday) => (
           <Text
             key={weekday}
-            style={[text.eyebrow, styles.weekday, styles.cell]}
+            style={[text.dayName, styles.weekday, styles.cell]}
           >
             {dayNames[weekday].short}
           </Text>
@@ -120,12 +121,6 @@ export function MonthCalendar({
             const isSelected = dateKey === selected;
             const isToday = dateKey === today;
             const inReach = dateKey >= firstDate && dateKey <= lastDate;
-            const markerColor = {
-              missed: isSelected ? colors.onPrimary : colors.danger,
-              planned: isSelected ? colors.onPrimary : colors.muted,
-              rest: 'transparent',
-              skipped: isSelected ? colors.onPrimary : colors.skipped,
-            }[inReach ? (day?.status ?? 'rest') : 'rest'];
             const numberColor = isToday ? colors.primaryText : colors.text;
 
             return (
@@ -173,9 +168,10 @@ export function MonthCalendar({
                 >
                   {date.getDate()}
                 </Text>
-                <View
-                  testID={`marker-${dateKey}`}
-                  style={[styles.marker, { backgroundColor: markerColor }]}
+                <DayMarker
+                  date={dateKey}
+                  status={inReach ? (day?.status ?? 'rest') : 'rest'}
+                  selected={isSelected}
                 />
               </Tappable>
             );
@@ -197,11 +193,8 @@ export function MonthCalendar({
         ]}
       >
         {legend.map((item) => (
-          <View
-            key={item.label}
-            style={[styles.legendItem, { gap: space.xs + 2 }]}
-          >
-            <View style={[styles.marker, { backgroundColor: item.color }]} />
+          <View key={item.label} style={[styles.legendItem, { gap: space.sm }]}>
+            <MarkerBar color={item.color} />
             <Text style={text.meta}>{item.label}</Text>
           </View>
         ))}
@@ -226,7 +219,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   weekday: {
-    fontSize: 11,
     textAlign: 'center',
   },
   emptyDay: {
@@ -237,10 +229,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  marker: {
-    width: 10,
-    height: 2,
   },
   legend: {
     flexDirection: 'row',

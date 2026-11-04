@@ -93,7 +93,7 @@ export function DetailsSkeleton({ label }: { label: string }) {
           styles.noSessions,
           {
             gap: space.sm,
-            paddingTop: 28,
+            paddingTop: space.xl,
             paddingBottom: size.gap.sectionMax,
             borderRadius: radius.card,
             borderColor: colors.border,

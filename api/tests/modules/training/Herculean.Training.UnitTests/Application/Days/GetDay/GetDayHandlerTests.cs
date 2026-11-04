@@ -11,8 +11,8 @@ namespace Herculean.Training.UnitTests.Application.Days.GetDay;
 public sealed class GetDayHandlerTests
 {
     // Tuesday 3 November 2026, at noon in Zagreb.
-    private static readonly DateOnly _today = new(2026, 11, 3);
-    private static readonly DateOnly _longAgo = new(2026, 1, 1);
+    private static readonly DateOnly Today = new(2026, 11, 3);
+    private static readonly DateOnly LongAgo = new(2026, 1, 1);
 
     private readonly FakeDayReadRepository _dayReadRepository = new();
     private readonly GetDayHandler _handler;
@@ -27,7 +27,7 @@ public sealed class GetDayHandlerTests
 
     private void Plan(Weekday weekday, string? name, DateOnly? from = null, DateTimeOffset? deletedAtUtc = null)
     {
-        _dayReadRepository.Changes.Add(new PlanChange(weekday, from ?? _longAgo, name is null ? null : RoutineId.New(), name, deletedAtUtc));
+        _dayReadRepository.Changes.Add(new PlanChange(weekday, from ?? LongAgo, name is null ? null : RoutineId.New(), name, deletedAtUtc));
     }
 
     private Task<DayResponse> GetAsync(DateOnly date) => _handler.HandleAsync(date, TestContext.Current.CancellationToken);
@@ -39,9 +39,9 @@ public sealed class GetDayHandlerTests
         DayExerciseResponse squat = new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10);
         _dayReadRepository.Exercises.Add(squat);
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
-        day.Date.ShouldBe(_today);
+        day.Date.ShouldBe(Today);
         day.Status.ShouldBe(DayStatus.Planned);
         day.Routine.ShouldNotBeNull().Name.ShouldBe("Legs");
         day.Routine.Exercises.ShouldHaveSingleItem().ShouldBe(squat);
@@ -52,7 +52,7 @@ public sealed class GetDayHandlerTests
     {
         Plan(Weekday.Monday, "Legs");
 
-        DayResponse day = await GetAsync(_today.AddDays(-1));
+        DayResponse day = await GetAsync(Today.AddDays(-1));
 
         day.Status.ShouldBe(DayStatus.Missed);
     }
@@ -62,7 +62,7 @@ public sealed class GetDayHandlerTests
     {
         Plan(Weekday.Wednesday, "Legs");
 
-        DayResponse day = await GetAsync(_today.AddDays(1));
+        DayResponse day = await GetAsync(Today.AddDays(1));
 
         day.Status.ShouldBe(DayStatus.Planned);
     }
@@ -70,7 +70,7 @@ public sealed class GetDayHandlerTests
     [Fact]
     public async Task ADayWithNoRoutineIsARestDay()
     {
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.Status.ShouldBe(DayStatus.Rest);
         day.Routine.ShouldBeNull();
@@ -80,9 +80,9 @@ public sealed class GetDayHandlerTests
     public async Task ADayWhoseRoutineWasTakenOffIsARestDay()
     {
         Plan(Weekday.Tuesday, "Legs");
-        Plan(Weekday.Tuesday, null, _today);
+        Plan(Weekday.Tuesday, null, Today);
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.Status.ShouldBe(DayStatus.Rest);
     }
@@ -91,9 +91,9 @@ public sealed class GetDayHandlerTests
     public async Task APastDayKeepsThePlanItHad()
     {
         Plan(Weekday.Monday, "Legs");
-        Plan(Weekday.Monday, "Arms", _today);
+        Plan(Weekday.Monday, "Arms", Today);
 
-        DayResponse day = await GetAsync(_today.AddDays(-1));
+        DayResponse day = await GetAsync(Today.AddDays(-1));
 
         day.Routine.ShouldNotBeNull().Name.ShouldBe("Legs");
     }
@@ -101,9 +101,9 @@ public sealed class GetDayHandlerTests
     [Fact]
     public async Task ADayBeforeTheRoutineWasPlannedIsARestDay()
     {
-        Plan(Weekday.Monday, "Legs", _today);
+        Plan(Weekday.Monday, "Legs", Today);
 
-        DayResponse day = await GetAsync(_today.AddDays(-1));
+        DayResponse day = await GetAsync(Today.AddDays(-1));
 
         day.Status.ShouldBe(DayStatus.Rest);
     }
@@ -114,7 +114,7 @@ public sealed class GetDayHandlerTests
         // 23:30 UTC on 2 November is already 3 November in Zagreb.
         Plan(Weekday.Tuesday, "Legs", deletedAtUtc: new DateTimeOffset(2026, 11, 2, 23, 30, 0, TimeSpan.Zero));
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.Status.ShouldBe(DayStatus.Rest);
     }
@@ -124,7 +124,7 @@ public sealed class GetDayHandlerTests
     {
         Plan(Weekday.Tuesday, "Legs", deletedAtUtc: new DateTimeOffset(2026, 11, 3, 11, 0, 0, TimeSpan.Zero));
 
-        DayResponse day = await GetAsync(_today.AddDays(-7));
+        DayResponse day = await GetAsync(Today.AddDays(-7));
 
         day.Status.ShouldBe(DayStatus.Missed);
         day.Routine.ShouldNotBeNull().Name.ShouldBe("Legs");
@@ -139,9 +139,9 @@ public sealed class GetDayHandlerTests
         _dayReadRepository.WorkoutExercises.Add(squat);
         _dayReadRepository.Exercises.Add(addedSince);
         Guid workoutId = Guid.CreateVersion7();
-        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, _today, "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, Today, "Legs", RoutineId.New()));
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.Status.ShouldBe(DayStatus.Skipped);
         day.WorkoutId.ShouldBe(workoutId);
@@ -153,9 +153,9 @@ public sealed class GetDayHandlerTests
     public async Task ASkippedDayStaysSkippedAfterItsRoutineLeavesThePlan()
     {
         Plan(Weekday.Tuesday, null);
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), _today, "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, "Legs", RoutineId.New()));
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.Status.ShouldBe(DayStatus.Skipped);
         day.Routine.ShouldNotBeNull().Name.ShouldBe("Legs");
@@ -166,7 +166,7 @@ public sealed class GetDayHandlerTests
     {
         Plan(Weekday.Tuesday, "Legs");
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.WorkoutId.ShouldBeNull();
     }
@@ -176,17 +176,17 @@ public sealed class GetDayHandlerTests
     {
         Plan(Weekday.Wednesday, "Legs");
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
-        day.UpNext.ShouldBe(new UpNextResponse(_today.AddDays(1), "Legs"));
+        day.UpNext.ShouldBe(new UpNextResponse(Today.AddDays(1), "Legs"));
     }
 
     [Fact]
     public async Task UpNextHasNoRoutineWhenTheDayAfterIsARestDay()
     {
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
-        day.UpNext.ShouldBe(new UpNextResponse(_today.AddDays(1), null));
+        day.UpNext.ShouldBe(new UpNextResponse(Today.AddDays(1), null));
     }
 
     [Theory]
@@ -196,7 +196,7 @@ public sealed class GetDayHandlerTests
     {
         _dayReadRepository.HasRoutines = hasRoutines;
 
-        DayResponse day = await GetAsync(_today);
+        DayResponse day = await GetAsync(Today);
 
         day.HasRoutines.ShouldBe(hasRoutines);
     }

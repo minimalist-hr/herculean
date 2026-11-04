@@ -112,11 +112,6 @@ function ordinal(day: number) {
   return `${String(day)}${suffix}`;
 }
 
-/** A date in words, for example "Sunday, 25th October". */
-export function longDate(date: Date) {
-  return `${dayNameOf(date).full}, ${ordinal(date.getDate())} ${months[date.getMonth()]}`;
-}
-
 /** A date with a short weekday, for example "Sun, 25th October". */
 export function shortWeekdayDate(date: Date) {
   return `${dayNameOf(date).short}, ${ordinal(date.getDate())} ${months[date.getMonth()]}`;

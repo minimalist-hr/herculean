@@ -12,7 +12,7 @@ namespace Herculean.Training.UnitTests.Application.Days.ListDays;
 public sealed class ListDaysHandlerTests
 {
     // Tuesday 3 November 2026, at noon in Zagreb.
-    private static readonly DateOnly _today = new(2026, 11, 3);
+    private static readonly DateOnly Today = new(2026, 11, 3);
 
     private readonly FakeDayReadRepository _dayReadRepository = new();
     private readonly ListDaysHandler _handler;
@@ -36,13 +36,13 @@ public sealed class ListDaysHandlerTests
         _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, longAgo, RoutineId.New(), "Legs", null));
         _dayReadRepository.Changes.Add(new PlanChange(Weekday.Tuesday, longAgo, RoutineId.New(), "Arms", null));
 
-        Result<List<DaySummaryResponse>> result = await ListAsync(_today.AddDays(-1), _today.AddDays(1));
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today.AddDays(-1), Today.AddDays(1));
 
         result.Value.ShouldBe(
         [
-            new DaySummaryResponse(_today.AddDays(-1), DayStatus.Missed, "Legs"),
-            new DaySummaryResponse(_today, DayStatus.Planned, "Arms"),
-            new DaySummaryResponse(_today.AddDays(1), DayStatus.Rest, null),
+            new DaySummaryResponse(Today.AddDays(-1), DayStatus.Missed, "Legs"),
+            new DaySummaryResponse(Today, DayStatus.Planned, "Arms"),
+            new DaySummaryResponse(Today.AddDays(1), DayStatus.Rest, null),
         ]);
     }
 
@@ -50,25 +50,25 @@ public sealed class ListDaysHandlerTests
     public async Task ASkippedDayShowsAsSkippedWithTheWorkoutsName()
     {
         _dayReadRepository.Changes.Add(new PlanChange(Weekday.Tuesday, new DateOnly(2026, 1, 1), RoutineId.New(), "Renamed since", null));
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), _today, "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, "Legs", RoutineId.New()));
 
-        Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today);
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today);
 
-        result.Value.ShouldHaveSingleItem().ShouldBe(new DaySummaryResponse(_today, DayStatus.Skipped, "Legs"));
+        result.Value.ShouldHaveSingleItem().ShouldBe(new DaySummaryResponse(Today, DayStatus.Skipped, "Legs"));
     }
 
     [Fact]
     public async Task ListsOneDay()
     {
-        Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today);
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today);
 
-        result.Value.ShouldHaveSingleItem().Date.ShouldBe(_today);
+        result.Value.ShouldHaveSingleItem().Date.ShouldBe(Today);
     }
 
     [Fact]
     public async Task ListsTheMostDays()
     {
-        Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today.AddDays(ListDaysValidator.MaxDays - 1));
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today.AddDays(ListDaysValidator.MaxDays - 1));
 
         result.Value.Count.ShouldBe(ListDaysValidator.MaxDays);
     }
@@ -76,7 +76,7 @@ public sealed class ListDaysHandlerTests
     [Fact]
     public async Task RejectsALastDateBeforeTheFirst()
     {
-        Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today.AddDays(-1));
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today.AddDays(-1));
 
         result.IsSuccess.ShouldBeFalse();
     }
@@ -84,7 +84,7 @@ public sealed class ListDaysHandlerTests
     [Fact]
     public async Task RejectsTooManyDays()
     {
-        Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today.AddDays(ListDaysValidator.MaxDays));
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today.AddDays(ListDaysValidator.MaxDays));
 
         result.IsSuccess.ShouldBeFalse();
     }

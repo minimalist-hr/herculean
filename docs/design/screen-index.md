@@ -1,6 +1,6 @@
 # Screen index
 
-141 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+207 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -52,6 +52,21 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H19 | Settings › Delete account · confirm | H2 Settings | 390×844 | [png](screens/H19-Settings-Delete-Account.png) · [html](html/H19-Settings-Delete-Account.html) · [source](source/H19-Settings-Delete-Account.dc.html) |
 | H20 | Settings › Terms of service | H3 About and legal | 390×844 | [png](screens/H20-Settings-Terms.png) · [html](html/H20-Settings-Terms.html) · [source](source/H20-Settings-Terms.dc.html) |
 | H21 | Settings › Privacy policy | H3 About and legal | 390×844 | [png](screens/H21-Settings-Privacy.png) · [html](html/H21-Settings-Privacy.html) · [source](source/H21-Settings-Privacy.dc.html) |
+| A06 | Account › Sign in · couldn't sign in | A1 Sign in | 390×844 | [png](screens/A06-Account-Sign-In-Failed.png) · [html](html/A06-Account-Sign-In-Failed.html) · [source](source/A06-Account-Sign-In-Failed.dc.html) |
+| A17 | Account › Reset password · sending | A2 Reset password | 390×844 | [png](screens/A17-Account-Reset-Password-Sending.png) · [html](html/A17-Account-Reset-Password-Sending.html) · [source](source/A17-Account-Reset-Password-Sending.dc.html) |
+| A18 | Account › Reset password · couldn't send | A2 Reset password | 390×844 | [png](screens/A18-Account-Reset-Password-Failed.png) · [html](html/A18-Account-Reset-Password-Failed.html) · [source](source/A18-Account-Reset-Password-Failed.dc.html) |
+| A19 | Account › Reset password · link can be sent again | A2 Reset password | 390×844 | [png](screens/A19-Account-Reset-Link-Send-Again.png) · [html](html/A19-Account-Reset-Link-Send-Again.html) · [source](source/A19-Account-Reset-Link-Send-Again.dc.html) |
+| A50 | Account › Reset password · sending again | A2 Reset password | 390×844 | [png](screens/A50-Account-Reset-Link-Sending-Again.png) · [html](html/A50-Account-Reset-Link-Sending-Again.html) · [source](source/A50-Account-Reset-Link-Sending-Again.dc.html) |
+| A51 | Account › Reset password · link sent again | A2 Reset password | 390×844 | [png](screens/A51-Account-Reset-Link-Sent-Again.png) · [html](html/A51-Account-Reset-Link-Sent-Again.html) · [source](source/A51-Account-Reset-Link-Sent-Again.dc.html) |
+| A52 | Account › Reset password · couldn't send again | A2 Reset password | 390×844 | [png](screens/A52-Account-Reset-Link-Send-Failed.png) · [html](html/A52-Account-Reset-Link-Send-Failed.html) · [source](source/A52-Account-Reset-Link-Send-Failed.dc.html) |
+| A53 | Account › New password · saving | A2 Reset password | 390×844 | [png](screens/A53-Account-New-Password-Saving.png) · [html](html/A53-Account-New-Password-Saving.html) · [source](source/A53-Account-New-Password-Saving.dc.html) |
+| A54 | Account › New password · couldn't save | A2 Reset password | 390×844 | [png](screens/A54-Account-New-Password-Failed.png) · [html](html/A54-Account-New-Password-Failed.html) · [source](source/A54-Account-New-Password-Failed.dc.html) |
+| A55 | Account › Sign in · password changed | A2 Reset password | 390×844 | [png](screens/A55-Account-New-Password-Saved.png) · [html](html/A55-Account-New-Password-Saved.html) · [source](source/A55-Account-New-Password-Saved.dc.html) |
+| A23 | Account › Create account · creating | A3 Create account | 390×844 | [png](screens/A23-Account-Create-Creating.png) · [html](html/A23-Account-Create-Creating.html) · [source](source/A23-Account-Create-Creating.dc.html) |
+| A24 | Account › Create account · couldn't create | A3 Create account | 390×844 | [png](screens/A24-Account-Create-Failed.png) · [html](html/A24-Account-Create-Failed.html) · [source](source/A24-Account-Create-Failed.dc.html) |
+| A32 | Account › Setup · finishing | A3 Create account | 390×844 | [png](screens/A32-Account-Setup-Finishing.png) · [html](html/A32-Account-Setup-Finishing.html) · [source](source/A32-Account-Setup-Finishing.dc.html) |
+| A33 | Account › Setup · couldn't finish | A3 Create account | 390×844 | [png](screens/A33-Account-Setup-Failed.png) · [html](html/A33-Account-Setup-Failed.html) · [source](source/A33-Account-Setup-Failed.dc.html) |
+| H00 | Home · not planned yet | H1 Today states | 390×844 | [png](screens/H00-Home-Placeholder.png) · [html](html/H00-Home-Placeholder.html) · [source](source/H00-Home-Placeholder.dc.html) |
 
 ## W · Workout
 
@@ -91,6 +106,21 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W47 | Workout › Month · first month · full scroll | W5 Month | 390×1024 | [png](screens/W47-Workout-Month-First.png) · [html](html/W47-Workout-Month-First.html) · [source](source/W47-Workout-Month-First.dc.html) |
 | W48 | Workout › Month · another day selected · full scroll | W5 Month | 390×1024 | [png](screens/W48-Workout-Month-Day-Selected.png) · [html](html/W48-Workout-Month-Day-Selected.html) · [source](source/W48-Workout-Month-Day-Selected.dc.html) |
 | W49 | Workout › Month · load failure | W5 Month | 390×844 | [png](screens/W49-Workout-Month-Load-Failure.png) · [html](html/W49-Workout-Month-Load-Failure.html) · [source](source/W49-Workout-Month-Load-Failure.dc.html) |
+| W12 | Workout › Today · logging comes later | W1 Today states | 390×844 | [png](screens/W12-Workout-Today-Logging-Later.png) · [html](html/W12-Workout-Today-Logging-Later.html) · [source](source/W12-Workout-Today-Logging-Later.dc.html) |
+| W13 | Workout › Skip workout · skipping | W1 Today states | 390×844 | [png](screens/W13-Workout-Skip-Skipping.png) · [html](html/W13-Workout-Skip-Skipping.html) · [source](source/W13-Workout-Skip-Skipping.dc.html) |
+| W14 | Workout › Skip workout · couldn't skip | W1 Today states | 390×844 | [png](screens/W14-Workout-Skip-Failed.png) · [html](html/W14-Workout-Skip-Failed.html) · [source](source/W14-Workout-Skip-Failed.dc.html) |
+| W15 | Workout › Undo skip · undoing | W1 Today states | 390×844 | [png](screens/W15-Workout-Undo-Skip-Undoing.png) · [html](html/W15-Workout-Undo-Skip-Undoing.html) · [source](source/W15-Workout-Undo-Skip-Undoing.dc.html) |
+| W16 | Workout › Undo skip · couldn't undo | W1 Today states | 390×844 | [png](screens/W16-Workout-Undo-Skip-Failed.png) · [html](html/W16-Workout-Undo-Skip-Failed.html) · [source](source/W16-Workout-Undo-Skip-Failed.dc.html) |
+| W17 | Workout › Today · first week, no earlier weeks · full scroll | W3 Other days | 390×939 | [png](screens/W17-Workout-First-Week.png) · [html](html/W17-Workout-First-Week.html) · [source](source/W17-Workout-First-Week.dc.html) |
+| W18 | Workout › Upcoming day · last week, no later weeks | W3 Other days | 390×844 | [png](screens/W18-Workout-Last-Week.png) · [html](html/W18-Workout-Last-Week.html) · [source](source/W18-Workout-Last-Week.dc.html) |
+| W19 | Workout › Day in another year | W3 Other days | 390×844 | [png](screens/W19-Workout-Another-Year.png) · [html](html/W19-Workout-Another-Year.html) · [source](source/W19-Workout-Another-Year.dc.html) |
+| W50 | Workout › Month · another month · full scroll | W5 Month | 390×1024 | [png](screens/W50-Workout-Month-Another-Month.png) · [html](html/W50-Workout-Month-Another-Month.html) · [source](source/W50-Workout-Month-Another-Month.dc.html) |
+| W51 | Workout › Month · last month, a later day says why | W5 Month | 390×844 | [png](screens/W51-Workout-Month-Last.png) · [html](html/W51-Workout-Month-Last.html) · [source](source/W51-Workout-Month-Last.dc.html) |
+| W52 | Workout › Month · first month, an earlier day says why | W5 Month | 390×844 | [png](screens/W52-Workout-Month-First-Says-Why.png) · [html](html/W52-Workout-Month-First-Says-Why.html) · [source](source/W52-Workout-Month-First-Says-Why.dc.html) |
+| W53 | Workout › Month · nothing planned yet · full scroll | W5 Month | 390×1024 | [png](screens/W53-Workout-Month-Nothing-Planned.png) · [html](html/W53-Workout-Month-Nothing-Planned.html) · [source](source/W53-Workout-Month-Nothing-Planned.dc.html) |
+| W54 | Workout › Month › Day summary · today, sheet | W5 Month | 390×844 | [png](screens/W54-Workout-Month-Day-Today.png) · [html](html/W54-Workout-Month-Day-Today.html) · [source](source/W54-Workout-Month-Day-Today.dc.html) |
+| W55 | Workout › Month › Day summary · loading, sheet | W5 Month | 390×844 | [png](screens/W55-Workout-Month-Day-Loading.png) · [html](html/W55-Workout-Month-Day-Loading.html) · [source](source/W55-Workout-Month-Day-Loading.dc.html) |
+| W56 | Workout › Month › Day summary · load failure, sheet | W5 Month | 390×844 | [png](screens/W56-Workout-Month-Day-Load-Failure.png) · [html](html/W56-Workout-Month-Day-Load-Failure.html) · [source](source/W56-Workout-Month-Day-Load-Failure.dc.html) |
 
 ## L · Logging
 
@@ -112,6 +142,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | L22 | Logging › New exercise | L2 Exercises | 390×844 | [png](screens/L22-Logging-New-Exercise.png) · [html](html/L22-Logging-New-Exercise.html) · [source](source/L22-Logging-New-Exercise.dc.html) |
 | L26 | Logging › New exercise · fields missing | L2 Exercises | 390×844 | [png](screens/L26-Logging-New-Exercise-Errors.png) · [html](html/L26-Logging-New-Exercise-Errors.html) · [source](source/L26-Logging-New-Exercise-Errors.dc.html) |
 | L27 | Logging › Add exercise · no groups, New exercise says why | L2 Exercises | 390×844 | [png](screens/L27-Logging-Add-Exercise-No-Groups.png) · [html](html/L27-Logging-Add-Exercise-No-Groups.html) · [source](source/L27-Logging-Add-Exercise-No-Groups.dc.html) |
+| L28 | Logging › Add exercise · nothing picked says why | L2 Exercises | 390×844 | [png](screens/L28-Logging-Add-Exercise-Pick-First.png) · [html](html/L28-Logging-Add-Exercise-Pick-First.html) · [source](source/L28-Logging-Add-Exercise-Pick-First.dc.html) |
 | L23 | Logging › Add exercise · new one selected | L2 Exercises | 390×844 | [png](screens/L23-Logging-Add-Exercise-New-Selected.png) · [html](html/L23-Logging-Add-Exercise-New-Selected.html) · [source](source/L23-Logging-Add-Exercise-New-Selected.dc.html) |
 | L30 | Logging › Finish workout | L3 Finish | 390×844 | [png](screens/L30-Logging-Finish.png) · [html](html/L30-Logging-Finish.html) · [source](source/L30-Logging-Finish.dc.html) |
 | L02 | Logging · no exercises left | L3 Finish | 390×844 | [png](screens/L02-Logging-No-Exercises.png) · [html](html/L02-Logging-No-Exercises.html) · [source](source/L02-Logging-No-Exercises.dc.html) |
@@ -144,6 +175,16 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | R30 | Routines › New routine | R4 New routine | 390×844 | [png](screens/R30-Routines-New.png) · [html](html/R30-Routines-New.html) · [source](source/R30-Routines-New.dc.html) |
 | R32 | Routines › New routine · days picked | R4 New routine | 390×844 | [png](screens/R32-Routines-New-Days-Picked.png) · [html](html/R32-Routines-New-Days-Picked.html) · [source](source/R32-Routines-New-Days-Picked.dc.html) |
 | R31 | Routines › New routine · fields missing | R4 New routine | 390×844 | [png](screens/R31-Routines-New-Errors.png) · [html](html/R31-Routines-New-Errors.html) · [source](source/R31-Routines-New-Errors.dc.html) |
+| R12 | Routines · couldn't undo a delete | R1 Routines tab | 390×844 | [png](screens/R12-Routines-Undo-Failed.png) · [html](html/R12-Routines-Undo-Failed.html) · [source](source/R12-Routines-Undo-Failed.dc.html) |
+| R33 | Routines › Routine details · not on any day | R3 Edit a routine | 390×844 | [png](screens/R33-Routines-Details-No-Days.png) · [html](html/R33-Routines-Details-No-Days.html) · [source](source/R33-Routines-Details-No-Days.dc.html) |
+| R34 | Routines › Edit routine · dragging an exercise | R3 Edit a routine | 390×844 | [png](screens/R34-Routines-Edit-Dragging.png) · [html](html/R34-Routines-Edit-Dragging.html) · [source](source/R34-Routines-Edit-Dragging.dc.html) |
+| R35 | Routines › Edit routine · loading | R3 Edit a routine | 390×844 | [png](screens/R35-Routines-Edit-Loading.png) · [html](html/R35-Routines-Edit-Loading.html) · [source](source/R35-Routines-Edit-Loading.dc.html) |
+| R36 | Routines › Edit routine · load failure | R3 Edit a routine | 390×844 | [png](screens/R36-Routines-Edit-Load-Failure.png) · [html](html/R36-Routines-Edit-Load-Failure.html) · [source](source/R36-Routines-Edit-Load-Failure.dc.html) |
+| R37 | Routines › Edit routine · saving · full scroll | R3 Edit a routine | 390×993 | [png](screens/R37-Routines-Edit-Saving.png) · [html](html/R37-Routines-Edit-Saving.html) · [source](source/R37-Routines-Edit-Saving.dc.html) |
+| R38 | Routines › Edit routine · couldn't save | R3 Edit a routine | 390×844 | [png](screens/R38-Routines-Edit-Failed.png) · [html](html/R38-Routines-Edit-Failed.html) · [source](source/R38-Routines-Edit-Failed.dc.html) |
+| R39 | Routines › Delete routine · deleting | R3 Edit a routine | 390×844 | [png](screens/R39-Routines-Delete-Deleting.png) · [html](html/R39-Routines-Delete-Deleting.html) · [source](source/R39-Routines-Delete-Deleting.dc.html) |
+| R40 | Routines › Delete routine · couldn't delete | R3 Edit a routine | 390×844 | [png](screens/R40-Routines-Delete-Failed.png) · [html](html/R40-Routines-Delete-Failed.html) · [source](source/R40-Routines-Delete-Failed.dc.html) |
+| R41 | Routines › Routine details · created | R4 New routine | 390×844 | [png](screens/R41-Routines-Created.png) · [html](html/R41-Routines-Created.html) · [source](source/R41-Routines-Created.dc.html) |
 
 ## E · Exercises
 
@@ -176,3 +217,28 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | E35 | Exercises › Groups › Group | E4 Groups | 390×844 | [png](screens/E35-Exercises-Groups-Group.png) · [html](html/E35-Exercises-Groups-Group.html) · [source](source/E35-Exercises-Groups-Group.dc.html) |
 | E40 | Exercises › Groups › Group · trash says why | E4 Groups | 390×844 | [png](screens/E40-Exercises-Groups-Group-Trash-Muted.png) · [html](html/E40-Exercises-Groups-Group-Trash-Muted.html) · [source](source/E40-Exercises-Groups-Group-Trash-Muted.dc.html) |
 | E41 | Exercises › Groups › Group · no exercises | E4 Groups | 390×844 | [png](screens/E41-Exercises-Groups-Group-Empty.png) · [html](html/E41-Exercises-Groups-Group-Empty.html) · [source](source/E41-Exercises-Groups-Group-Empty.dc.html) |
+| E07 | Exercises · no exercises in this group | E1 Exercises tab | 390×844 | [png](screens/E07-Exercises-Empty-Group.png) · [html](html/E07-Exercises-Empty-Group.html) · [source](source/E07-Exercises-Empty-Group.dc.html) |
+| E08 | Exercises › New exercise | E1 Exercises tab | 390×844 | [png](screens/E08-Exercises-New.png) · [html](html/E08-Exercises-New.html) · [source](source/E08-Exercises-New.dc.html) |
+| E09 | Exercises · exercise created | E1 Exercises tab | 390×844 | [png](screens/E09-Exercises-Created.png) · [html](html/E09-Exercises-Created.html) · [source](source/E09-Exercises-Created.dc.html) |
+| E15 | Exercises › Edit exercise · loading | E3 Edit or delete | 390×844 | [png](screens/E15-Exercises-Edit-Loading.png) · [html](html/E15-Exercises-Edit-Loading.html) · [source](source/E15-Exercises-Edit-Loading.dc.html) |
+| E16 | Exercises › Edit exercise · load failure | E3 Edit or delete | 390×844 | [png](screens/E16-Exercises-Edit-Load-Failure.png) · [html](html/E16-Exercises-Edit-Load-Failure.html) · [source](source/E16-Exercises-Edit-Load-Failure.dc.html) |
+| E24 | Exercises › Edit exercise · saving | E3 Edit or delete | 390×844 | [png](screens/E24-Exercises-Edit-Saving.png) · [html](html/E24-Exercises-Edit-Saving.html) · [source](source/E24-Exercises-Edit-Saving.dc.html) |
+| E25 | Exercises › Edit exercise · couldn't save | E3 Edit or delete | 390×844 | [png](screens/E25-Exercises-Edit-Failed.png) · [html](html/E25-Exercises-Edit-Failed.html) · [source](source/E25-Exercises-Edit-Failed.dc.html) |
+| E26 | Exercises › Exercise · saved | E3 Edit or delete | 390×844 | [png](screens/E26-Exercises-Edit-Saved.png) · [html](html/E26-Exercises-Edit-Saved.html) · [source](source/E26-Exercises-Edit-Saved.dc.html) |
+| E27 | Exercises › Delete exercise · deleting | E3 Edit or delete | 390×844 | [png](screens/E27-Exercises-Delete-Deleting.png) · [html](html/E27-Exercises-Delete-Deleting.html) · [source](source/E27-Exercises-Delete-Deleting.dc.html) |
+| E28 | Exercises › Delete exercise · couldn't delete | E3 Edit or delete | 390×844 | [png](screens/E28-Exercises-Delete-Failed.png) · [html](html/E28-Exercises-Delete-Failed.html) · [source](source/E28-Exercises-Delete-Failed.dc.html) |
+| E29 | Exercises · couldn't undo a delete | E1 Exercises tab | 390×844 | [png](screens/E29-Exercises-Undo-Failed.png) · [html](html/E29-Exercises-Undo-Failed.html) · [source](source/E29-Exercises-Undo-Failed.dc.html) |
+| E42 | Exercises › Groups · no search matches | E4 Groups | 390×844 | [png](screens/E42-Exercises-Groups-No-Matches.png) · [html](html/E42-Exercises-Groups-No-Matches.html) · [source](source/E42-Exercises-Groups-No-Matches.dc.html) |
+| E43 | Exercises › Groups · dragging a group | E4 Groups | 390×844 | [png](screens/E43-Exercises-Groups-Dragging.png) · [html](html/E43-Exercises-Groups-Dragging.html) · [source](source/E43-Exercises-Groups-Dragging.dc.html) |
+| E44 | Exercises › Groups · couldn't save the order | E4 Groups | 390×844 | [png](screens/E44-Exercises-Groups-Order-Failed.png) · [html](html/E44-Exercises-Groups-Order-Failed.html) · [source](source/E44-Exercises-Groups-Order-Failed.dc.html) |
+| E45 | Exercises › Groups › New group · saving | E4 Groups | 390×844 | [png](screens/E45-Exercises-Groups-New-Saving.png) · [html](html/E45-Exercises-Groups-New-Saving.html) · [source](source/E45-Exercises-Groups-New-Saving.dc.html) |
+| E46 | Exercises › Groups › New group · couldn't save | E4 Groups | 390×844 | [png](screens/E46-Exercises-Groups-New-Failed.png) · [html](html/E46-Exercises-Groups-New-Failed.html) · [source](source/E46-Exercises-Groups-New-Failed.dc.html) |
+| E47 | Exercises › Groups · group created | E4 Groups | 390×844 | [png](screens/E47-Exercises-Groups-Created.png) · [html](html/E47-Exercises-Groups-Created.html) · [source](source/E47-Exercises-Groups-Created.dc.html) |
+| E48 | Exercises › Groups › Group · saved | E4 Groups | 390×844 | [png](screens/E48-Exercises-Groups-Edit-Saved.png) · [html](html/E48-Exercises-Groups-Edit-Saved.html) · [source](source/E48-Exercises-Groups-Edit-Saved.dc.html) |
+| E49 | Exercises › Groups › Group · loading | E4 Groups | 390×844 | [png](screens/E49-Exercises-Groups-Group-Loading.png) · [html](html/E49-Exercises-Groups-Group-Loading.html) · [source](source/E49-Exercises-Groups-Group-Loading.dc.html) |
+| E50 | Exercises › Groups › Group · load failure | E4 Groups | 390×844 | [png](screens/E50-Exercises-Groups-Group-Load-Failure.png) · [html](html/E50-Exercises-Groups-Group-Load-Failure.html) · [source](source/E50-Exercises-Groups-Group-Load-Failure.dc.html) |
+| E51 | Exercises › Groups › Edit group · loading | E4 Groups | 390×844 | [png](screens/E51-Exercises-Groups-Edit-Loading.png) · [html](html/E51-Exercises-Groups-Edit-Loading.html) · [source](source/E51-Exercises-Groups-Edit-Loading.dc.html) |
+| E52 | Exercises › Groups › Edit group · load failure | E4 Groups | 390×844 | [png](screens/E52-Exercises-Groups-Edit-Load-Failure.png) · [html](html/E52-Exercises-Groups-Edit-Load-Failure.html) · [source](source/E52-Exercises-Groups-Edit-Load-Failure.dc.html) |
+| E53 | Exercises › Groups › Delete group · deleting | E4 Groups | 390×844 | [png](screens/E53-Exercises-Groups-Delete-Deleting.png) · [html](html/E53-Exercises-Groups-Delete-Deleting.html) · [source](source/E53-Exercises-Groups-Delete-Deleting.dc.html) |
+| E54 | Exercises › Groups › Delete group · couldn't delete | E4 Groups | 390×844 | [png](screens/E54-Exercises-Groups-Delete-Failed.png) · [html](html/E54-Exercises-Groups-Delete-Failed.html) · [source](source/E54-Exercises-Groups-Delete-Failed.dc.html) |
+| E55 | Exercises › Groups · couldn't undo a delete | E4 Groups | 390×844 | [png](screens/E55-Exercises-Groups-Undo-Failed.png) · [html](html/E55-Exercises-Groups-Undo-Failed.html) · [source](source/E55-Exercises-Groups-Undo-Failed.dc.html) |
