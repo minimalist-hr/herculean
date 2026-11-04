@@ -1,6 +1,5 @@
 import { useState, type Ref } from 'react';
 import {
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -12,6 +11,7 @@ import {
 import { useTheme } from '@/theme/theme-provider';
 
 import { EyeIcon, EyeOffIcon } from './icons';
+import { Tappable } from './tappable';
 
 interface TextFieldProps extends Omit<
   TextInputProps,
@@ -64,7 +64,7 @@ export function TextField({
           ]}
         />
         {password && (
-          <Pressable
+          <Tappable
             accessibilityRole="button"
             accessibilityLabel={
               hidden
@@ -81,7 +81,7 @@ export function TextField({
             ) : (
               <EyeOffIcon color={colors.muted} />
             )}
-          </Pressable>
+          </Tappable>
         )}
       </View>
       {message !== undefined && message !== '' && (

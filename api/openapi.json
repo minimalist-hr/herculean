@@ -1430,6 +1430,43 @@
         ]
       }
     },
+    "/api/v1/days/first": {
+      "get": {
+        "tags": [
+          "Days"
+        ],
+        "summary": "Get the first day",
+        "description": "Returns the first day the signed-in user can reach: the earlier of their first workout and the day their account was created.",
+        "operationId": "GetFirstDay",
+        "responses": {
+          "200": {
+            "description": "The first day.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirstDayResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/days/{date}": {
       "get": {
         "tags": [
@@ -2480,6 +2517,20 @@
           }
         },
         "description": "An exercise."
+      },
+      "FirstDayResponse": {
+        "required": [
+          "date"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The earlier of the first workout and the day the account was created, in the user's time zone.",
+            "format": "date"
+          }
+        },
+        "description": "The first day the user can reach."
       },
       "GroupDetailsResponse": {
         "required": [

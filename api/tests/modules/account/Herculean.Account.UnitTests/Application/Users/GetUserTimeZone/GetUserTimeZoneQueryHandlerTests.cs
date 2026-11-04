@@ -22,5 +22,8 @@ public sealed class GetUserTimeZoneQueryHandlerTests
     {
         public Task<string> GetTimeZoneAsync(UserId id, CancellationToken cancellationToken) =>
             id == userId ? Task.FromResult(timeZone) : throw new InvalidOperationException("No such user.");
+
+        public Task<DateTimeOffset> GetCreatedAtUtcAsync(UserId id, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Not used here.");
     }
 }

@@ -13,4 +13,11 @@ internal sealed class UserReadRepository(AccountDbContext dbContext) : IUserRead
             .Where(user => user.Id == id)
             .Select(user => user.TimeZone)
             .SingleAsync(cancellationToken);
+
+    public Task<DateTimeOffset> GetCreatedAtUtcAsync(UserId id, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.Id == id)
+            .Select(user => user.CreatedAtUtc)
+            .SingleAsync(cancellationToken);
 }

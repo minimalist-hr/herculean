@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { Spinner } from './spinner';
+import { Tappable } from './tappable';
 
 interface ButtonProps {
   label: string;
@@ -40,7 +41,7 @@ export function Button({
   }[variant];
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: waiting || dimmed, busy: waiting }}
@@ -80,7 +81,7 @@ export function Button({
       >
         {waiting && waitingLabel !== undefined ? waitingLabel : label}
       </Text>
-    </Pressable>
+    </Tappable>
   );
 }
 

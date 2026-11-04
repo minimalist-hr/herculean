@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { ChevronRightIcon } from '@/components/icons';
 import { formatSet, formatShortDate } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from '@/components/tappable';
 
 interface ExerciseRowProps {
   exercise: components['schemas']['ExerciseListItemResponse'];
@@ -35,7 +36,8 @@ export function ExerciseRow({
   const { colors, radius, size, space, text } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
+      feedback="fill"
       accessibilityRole={onPress === undefined ? undefined : 'button'}
       disabled={onPress === undefined}
       onPress={onPress}
@@ -65,7 +67,7 @@ export function ExerciseRow({
       {onPress !== undefined && (
         <ChevronRightIcon color={colors.muted} size={16} />
       )}
-    </Pressable>
+    </Tappable>
   );
 }
 

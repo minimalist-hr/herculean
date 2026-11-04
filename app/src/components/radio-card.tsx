@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from './tappable';
 
 interface RadioCardProps {
   label: string;
@@ -20,7 +21,7 @@ export function RadioCard({
   const { colors, radius, size, space, text } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="radio"
       accessibilityLabel={`${label}, ${detail}`}
       accessibilityState={{ checked: selected }}
@@ -65,7 +66,7 @@ export function RadioCard({
           />
         )}
       </View>
-    </Pressable>
+    </Tappable>
   );
 }
 

@@ -163,11 +163,18 @@ test('its days show, and can only be changed by editing', async () => {
   answer(routine(['monday', 'thursday']));
   await open();
 
-  expect(await screen.findByLabelText('Monday, planned')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Thursday, planned')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Tuesday')).toBeOnTheScreen();
+  expect(await screen.findByText('Mon')).toBeOnTheScreen();
+  expect(screen.getByText('Thu')).toBeOnTheScreen();
+  expect(screen.queryByText('Tue')).toBeNull();
   expect(screen.queryByRole('button', { name: 'Monday' })).toBeNull();
   expect(screen.queryByText('Picking a day replaces its routine')).toBeNull();
+});
+
+test('a routine on no days says so', async () => {
+  answer(routine([]));
+  await open();
+
+  expect(await screen.findByText('Not on any day yet')).toBeOnTheScreen();
 });
 
 test('a failed read says so, and Try again reads it again', async () => {

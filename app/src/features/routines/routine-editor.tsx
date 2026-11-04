@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { z } from 'zod';
 
 import { ApiProblemError, toFormErrors } from '@/api/problem';
@@ -11,7 +11,7 @@ import { Button } from '@/components/button';
 import { DraggableList } from '@/components/draggable-list';
 import { FormPage } from '@/components/form-page';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { PlusIcon, TrashIcon } from '@/components/icons';
+import { PencilIcon, PlusIcon, TrashIcon } from '@/components/icons';
 import {
   dismissAction,
   dismissNotification,
@@ -26,6 +26,7 @@ import { useTheme } from '@/theme/theme-provider';
 import { DayChips } from './day-chips';
 import { counted, sameGroup, targetText, type Weekday } from './formats';
 import { useRoutineDraft, type RoutineExerciseDraft } from './routine-draft';
+import { Tappable } from '@/components/tappable';
 
 const routineNameSchema = z.object({
   name: z
@@ -229,7 +230,7 @@ export function RoutineEditor({
                 joined={sameGroup}
                 renderRow={(exercise) => (
                   <>
-                    <Pressable
+                    <Tappable
                       accessibilityRole="button"
                       accessibilityLabel={`${exercise.name}, ${targetText(exercise)}`}
                       onPress={() => {
@@ -243,14 +244,24 @@ export function RoutineEditor({
                       >
                         {exercise.name}
                       </Text>
-                      <Text style={text.meta}>
-                        <Text style={{ color: colors.primaryText }}>
+                      <View style={[styles.target, { gap: space.xs }]}>
+                        <Text
+                          style={[text.meta, { color: colors.primaryText }]}
+                        >
                           {targetText(exercise)}
                         </Text>
-                        {` · ${exercise.groupName}`}
-                      </Text>
-                    </Pressable>
-                    <Pressable
+                        <View testID="edit-targets">
+                          <PencilIcon color={colors.primaryText} size={12} />
+                        </View>
+                        <Text
+                          numberOfLines={1}
+                          style={[text.meta, styles.group]}
+                        >
+                          {`· ${exercise.groupName}`}
+                        </Text>
+                      </View>
+                    </Tappable>
+                    <Tappable
                       accessibilityRole="button"
                       accessibilityLabel={`Remove ${exercise.name}`}
                       onPress={() => {
@@ -266,7 +277,7 @@ export function RoutineEditor({
                       ]}
                     >
                       <TrashIcon color={colors.dangerFill} size={20} />
-                    </Pressable>
+                    </Tappable>
                   </>
                 )}
               />
@@ -311,6 +322,13 @@ export function RoutineEditor({
 }
 
 const styles = StyleSheet.create({
+  target: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  group: {
+    flexShrink: 1,
+  },
   daysTitle: {
     flexDirection: 'row',
     alignItems: 'baseline',

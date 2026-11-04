@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateText, dayNameOf } from './dates';
+import { Tappable } from '@/components/tappable';
 
 type DaySummary = components['schemas']['DaySummaryResponse'];
 
@@ -29,6 +30,7 @@ export function WeekStrip({
   selected,
   days,
   onSelect,
+  onChangeWeek,
 }: {
   week: Date[];
   today: string;
@@ -36,6 +38,8 @@ export function WeekStrip({
   /** Nothing while it loads, or if it couldn't load: the dates still show. */
   days?: DaySummary[];
   onSelect: (date: string) => void;
+  /** 1 is the next week, and -1 the previous. Screen readers can't swipe, so each day offers these. */
+  onChangeWeek: (direction: number) => void;
 }) {
   const { colors, radius, space, text } = useTheme();
 
@@ -55,11 +59,15 @@ export function WeekStrip({
         const numberColor = isToday ? colors.primaryText : colors.text;
 
         return (
-          <Pressable
+          <Tappable
             key={dateKey}
             accessibilityRole="button"
             accessibilityLabel={dayLabel(date, day, isToday)}
             accessibilityState={{ selected: isSelected }}
+            accessibilityActions={weekActions}
+            onAccessibilityAction={({ nativeEvent }) => {
+              onChangeWeek(nativeEvent.actionName === 'nextWeek' ? 1 : -1);
+            }}
             onPress={() => {
               onSelect(dateKey);
             }}
@@ -95,12 +103,17 @@ export function WeekStrip({
               testID={`marker-${dateKey}`}
               style={[styles.marker, { backgroundColor: markerColor }]}
             />
-          </Pressable>
+          </Tappable>
         );
       })}
     </View>
   );
 }
+
+const weekActions = [
+  { name: 'previousWeek', label: 'Previous week' },
+  { name: 'nextWeek', label: 'Next week' },
+];
 
 const styles = StyleSheet.create({
   strip: {

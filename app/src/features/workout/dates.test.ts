@@ -1,4 +1,12 @@
-import { dateFromText, dateText, daysFrom, longDate, shortDate } from './dates';
+import {
+  addDays,
+  dateFromText,
+  dateText,
+  dayHeading,
+  daysFrom,
+  longDate,
+  shortDate,
+} from './dates';
 
 test.each([
   [1, 'Sunday, 1st November'],
@@ -14,6 +22,22 @@ test.each([
   [30, 'Monday, 30th November'],
 ])('the %ith of the month reads correctly', (day, words) => {
   expect(longDate(new Date(2026, 10, day))).toBe(words);
+});
+
+test('a day in another year says the year', () => {
+  expect(dayHeading(new Date(2025, 2, 3), '2026-11-03').label).toBe(
+    '3rd March 2025',
+  );
+});
+
+test('a day this year leaves the year out', () => {
+  expect(dayHeading(new Date(2026, 2, 3), '2026-11-03').label).toBe(
+    '3rd March',
+  );
+});
+
+test('adds days across a month', () => {
+  expect(dateText(addDays(new Date(2026, 10, 25), 7))).toBe('2026-12-02');
 });
 
 test('a short date reads correctly', () => {

@@ -1,7 +1,8 @@
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from './tappable';
 
 export function TabBar({
   state,
@@ -47,7 +48,7 @@ export function TabBar({
         };
 
         return (
-          <Pressable
+          <Tappable
             key={route.key}
             accessibilityRole="tab"
             accessibilityLabel={label}
@@ -64,7 +65,7 @@ export function TabBar({
             >
               {label}
             </Text>
-          </Pressable>
+          </Tappable>
         );
       })}
     </View>

@@ -218,6 +218,10 @@ internal sealed class FakeDayReadRepository : IDayReadRepository
 
     public List<DayWorkout> Workouts { get; } = [];
 
+    public DateOnly? FirstWorkoutDate { get; set; }
+
+    public Task<DateOnly?> GetFirstWorkoutDateAsync(CancellationToken cancellationToken) => Task.FromResult(FirstWorkoutDate);
+
     public List<DayExerciseResponse> WorkoutExercises { get; } = [];
 
     public Task<List<DayExerciseResponse>> ListWorkoutExercisesAsync(WorkoutId workoutId, CancellationToken cancellationToken) => Task.FromResult(WorkoutExercises);
@@ -268,6 +272,13 @@ internal sealed class FakeGetUserTimeZone : IQueryHandler<GetUserTimeZoneQuery, 
     public string TimeZone { get; set; } = "Europe/Zagreb";
 
     public Task<string> HandleAsync(GetUserTimeZoneQuery query, CancellationToken cancellationToken) => Task.FromResult(TimeZone);
+}
+
+internal sealed class FakeGetUserCreatedAt : IQueryHandler<GetUserCreatedAtQuery, DateTimeOffset>
+{
+    public DateTimeOffset CreatedAtUtc { get; set; } = new(2026, 1, 1, 12, 0, 0, TimeSpan.Zero);
+
+    public Task<DateTimeOffset> HandleAsync(GetUserCreatedAtQuery query, CancellationToken cancellationToken) => Task.FromResult(CreatedAtUtc);
 }
 
 internal sealed class FakeUnitOfWork : IUnitOfWork

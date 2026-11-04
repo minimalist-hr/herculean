@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from './tappable';
 
 interface HeaderIconButtonProps {
   label: string;
@@ -18,7 +19,7 @@ export function HeaderIconButton({
   const { colors, radius, size } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
@@ -34,7 +35,7 @@ export function HeaderIconButton({
       ]}
     >
       {children}
-    </Pressable>
+    </Tappable>
   );
 }
 

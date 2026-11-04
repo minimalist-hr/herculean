@@ -1,6 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -10,40 +11,71 @@ import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, dateText, dayHeading, weekOf } from './dates';
+import { addDays, dateFromText, dateText, dayHeading, weekOf } from './dates';
 import { DayCard, DayCardSkeleton } from './day-card';
+import { dayKeys } from './query-keys';
 import { useDay } from './use-day';
-import { useDays } from './use-days';
-import { WeekStrip } from './week-strip';
+import { useFirstDay } from './use-first-day';
+import { WeekPager } from './week-pager';
+
+const weeksAhead = 4;
 
 export function WorkoutScreen() {
   const { colors, size, space } = useTheme();
   const [now, setNow] = useState(() => new Date());
   const today = dateText(now);
-  const week = weekOf(now);
   const [picked, setPicked] = useState<string | null>(null);
-  // A new week has moved on from a day picked in the last one.
-  const selected =
-    picked !== null && week.some((date) => dateText(date) === picked)
-      ? picked
-      : today;
+  const selected = picked ?? today;
+  const selectedDate = dateFromText(selected);
+  const week = weekOf(selectedDate);
   const day = useDay(selected);
-  const days = useDays(dateText(week[0]), dateText(week[6]));
-  const { refetch: refetchDay } = day;
-  const { refetch: refetchDays } = days;
+  const firstDay = useFirstDay();
+  const queryClient = useQueryClient();
   const opened = useRef(false);
+
+  const firstMonday = weekOf(dateFromText(firstDay.data ?? today))[0];
+  const lastMonday = addDays(weekOf(now)[0], weeksAhead * 7);
+  const canGoBack = addDays(week[0], -7) >= firstMonday;
+  const canGoForward = addDays(week[0], 7) <= lastMonday;
+
+  function pick(date: string) {
+    setPicked(date === today ? null : date);
+  }
+
+  function changeWeek(direction: number) {
+    if (direction > 0 ? canGoForward : canGoBack) {
+      pick(dateText(addDays(selectedDate, direction * 7)));
+    }
+  }
+
+  const refresh = useCallback(() => {
+    setNow(new Date());
+    for (const queryKey of [dayKeys.allDay, dayKeys.allDays, dayKeys.first]) {
+      void queryClient.invalidateQueries({ queryKey });
+    }
+  }, [queryClient]);
 
   // Coming back may find another date, or changes made on other tabs.
   useFocusEffect(
     useCallback(() => {
       if (opened.current) {
-        setNow(new Date());
-        void refetchDay();
-        void refetchDays();
+        refresh();
       }
       opened.current = true;
-    }, [refetchDay, refetchDays]),
+    }, [refresh]),
   );
+
+  // The app can stay open past midnight, with this tab showing.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        refresh();
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, [refresh]);
 
   function renderContent() {
     if (day.data !== undefined) {
@@ -52,13 +84,7 @@ export function WorkoutScreen() {
 
     if (day.isError) {
       return (
-        <LoadFailure
-          message="Couldn't load this day."
-          onRetry={() => {
-            void day.refetch();
-            void days.refetch();
-          }}
-        />
+        <LoadFailure message="Couldn't load this day." onRetry={refresh} />
       );
     }
 
@@ -100,12 +126,14 @@ export function WorkoutScreen() {
             />
           )}
         </View>
-        <WeekStrip
+        <WeekPager
           week={week}
           today={today}
           selected={selected}
-          days={days.data}
-          onSelect={setPicked}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
+          onSelect={pick}
+          onChangeWeek={changeWeek}
         />
       </View>
       <ScrollView

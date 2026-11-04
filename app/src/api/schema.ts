@@ -356,6 +356,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/days/first": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the first day
+         * @description Returns the first day the signed-in user can reach: the earlier of their first workout and the day their account was created.
+         */
+        get: operations["GetFirstDay"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/days/{date}": {
         parameters: {
             query?: never;
@@ -721,6 +741,14 @@ export interface components {
             groupId: string;
             /** @description The other groups it also works. */
             alsoWorksGroupIds: string[];
+        };
+        /** @description The first day the user can reach. */
+        FirstDayResponse: {
+            /**
+             * Format: date
+             * @description The earlier of the first workout and the day the account was created, in the user's time zone.
+             */
+            date: string;
         };
         /** @description A group and the exercises that use it. */
         GroupDetailsResponse: {
@@ -2120,6 +2148,35 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetFirstDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The first day. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FirstDayResponse"];
                 };
             };
             /** @description Not signed in, or the access token expired. */

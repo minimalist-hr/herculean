@@ -12,7 +12,6 @@ import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
-import { DayChips } from './day-chips';
 import { ExerciseTargets } from './exercise-targets';
 import { counted, dayNames, joined } from './formats';
 import { useDeleteRoutine } from './use-delete-routine';
@@ -65,7 +64,7 @@ export function RoutineScreen({ id }: { id: string }) {
 }
 
 function Details({ routine }: { routine: Routine }) {
-  const { colors, size, space, text } = useTheme();
+  const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const deleteRoutine = useDeleteRoutine();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -104,7 +103,28 @@ function Details({ routine }: { routine: Routine }) {
 
       <View style={{ gap: space.sm }}>
         <Text style={text.eyebrow}>Days</Text>
-        <DayChips selected={routine.weekdays} />
+        <View style={[styles.days, { gap: space.xs }]}>
+          {(routine.weekdays.length === 0
+            ? ['Not on any day yet']
+            : routine.weekdays.map((day) => dayNames[day].short)
+          ).map((day) => (
+            <View
+              key={day}
+              style={[
+                styles.day,
+                {
+                  height: size.chip,
+                  paddingHorizontal: space.md,
+                  borderRadius: radius.pill,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                },
+              ]}
+            >
+              <Text style={[text.chip, { color: colors.text }]}>{day}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <View style={{ gap: space.sm }}>
@@ -206,6 +226,14 @@ function deleteMessageOf(routine: Routine) {
 }
 
 const styles = StyleSheet.create({
+  days: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  day: {
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
   heading: {
     gap: 4,
   },

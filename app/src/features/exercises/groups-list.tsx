@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { DraggableList } from '@/components/draggable-list';
 import { ChevronRightIcon } from '@/components/icons';
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from '@/components/tappable';
 
 type Group = components['schemas']['GroupListItemResponse'];
 
@@ -42,7 +43,8 @@ export function GroupsList({
       onReorder={onReorder}
       locked={locked}
       renderRow={(group) => (
-        <Pressable
+        <Tappable
+          feedback="fill"
           accessibilityRole="button"
           accessibilityLabel={`${group.name}, ${countOf(group)}`}
           onPress={() => {
@@ -60,7 +62,7 @@ export function GroupsList({
             <Text style={text.meta}>{countOf(group)}</Text>
           </View>
           <ChevronRightIcon color={colors.muted} size={16} />
-        </Pressable>
+        </Tappable>
       )}
     />
   );

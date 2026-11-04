@@ -131,6 +131,13 @@ export const screens = [
     await on.tap('Sunday 25, rest day');
     await on.waitFor('Rest day');
   } },
+  { id: 'W28', file: 'W28-Workout-Another-Week', title: 'Workout › Another week', row: 'W3 Other days', today: friday, answers: { 'GET /api/v1/days/2026-10-16': { status: 200, body: { ...legsDay, date: '2026-10-16' } } }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Start workout');
+    await on.sleep(500);
+    await on.swipe('Tuesday 20, Back and shoulders 1, missed', 200);
+    await on.waitFor('16th October');
+  } },
   { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } } }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('No routines yet');

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { EmptyCard } from '@/components/empty-card';
@@ -18,6 +18,7 @@ import { counted, dayNames } from './formats';
 import { useRoutines } from './use-routines';
 import { useWeekPlan } from './use-week-plan';
 import { WeekPlanCard } from './week-plan-card';
+import { Tappable } from '@/components/tappable';
 
 type Routine = components['schemas']['RoutineListItemResponse'];
 
@@ -33,7 +34,8 @@ export function RoutinesScreen() {
   function renderRoutine(routine: Routine) {
     const summary = `${counted(routine.exerciseCount, 'exercise', 'exercises')} · ${counted(routine.setCount, 'set', 'sets')}`;
     return (
-      <Pressable
+      <Tappable
+        feedback="fill"
         key={routine.id}
         accessibilityRole="button"
         accessibilityLabel={`${routine.name}, ${summary}`}
@@ -75,7 +77,7 @@ export function RoutinesScreen() {
           </Text>
         )}
         <ChevronRightIcon color={colors.muted} size={16} />
-      </Pressable>
+      </Tappable>
     );
   }
 

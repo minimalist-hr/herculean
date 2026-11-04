@@ -16,6 +16,7 @@ using Herculean.Account.Application.Sessions.RefreshSession;
 using Herculean.Account.Application.Users.CreateUser;
 using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetCurrentUser;
+using Herculean.Account.Application.Users.GetUserCreatedAt;
 using Herculean.Account.Application.Users.GetUserTimeZone;
 using Herculean.Account.Application.Users.UpdateCurrentUser;
 using Herculean.Account.Contracts;
@@ -89,6 +90,7 @@ public static class AccountModule
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
         builder.Services.AddScoped<IQueryHandler<GetUserTimeZoneQuery, string>, GetUserTimeZoneQueryHandler>();
+        builder.Services.AddScoped<IQueryHandler<GetUserCreatedAtQuery, DateTimeOffset>, GetUserCreatedAtQueryHandler>();
 
         builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>();
         builder.Services.AddScoped<CreateUserHandler>();

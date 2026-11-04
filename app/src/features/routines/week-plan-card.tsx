@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { notifyFailure } from '@/components/notifications';
@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dayNames, weekdays } from './formats';
+import { Tappable } from '@/components/tappable';
 
 const mark = 14;
 
@@ -59,7 +60,7 @@ export function WeekPlanCard({
           }
 
           return (
-            <Pressable
+            <Tappable
               key={weekday}
               accessibilityRole="button"
               accessibilityLabel={`${full}, ${day?.routineName ?? 'rest day'}`}
@@ -103,7 +104,7 @@ export function WeekPlanCard({
                   />
                 )}
               </View>
-            </Pressable>
+            </Tappable>
           );
         })}
       </View>

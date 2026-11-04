@@ -145,11 +145,11 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** Workout shows today at a glance. A week strip shows the status of each day. You can open any day of the week to see it as done, missed, skipped, rest or upcoming, and you can skip a workout and undo the skip.
 
-**Screens:** W01 Today, W04 Rest day, W05 No routines, W06 Skipped, W26 Skip confirm, W27 Undo skip confirm, W07 Loading, W08 Load failure, W09 Rest tomorrow, W21 Missed day, W22 Skipped day, W23 Yesterday rest day, W24 Tomorrow, W25 Rest day.
+**Screens:** W01 Today, W04 Rest day, W05 No routines, W06 Skipped, W26 Skip confirm, W27 Undo skip confirm, W07 Loading, W08 Load failure, W09 Rest tomorrow, W21 Missed day, W22 Skipped day, W23 Yesterday rest day, W24 Tomorrow, W25 Rest day, W28 Another week.
 
 **Flows**
 - **Workout tab:** W07 → W01, W04, W05, W06 or W09, or W08 if it fails to load.
-- **Other days:** a day in the week strip → W21 to W25, with "Back to today".
+- **Other days:** a day in the week strip → W21 to W25, with "Back to today". Swiping the strip → the same weekday in another week, W28.
 - **Skip:** Skip workout on W01 or W21 → W26 → W06 or W22. Undo skip → W27 → the day's plan. Every state and action: [What you can do on a day](/product/domain#what-you-can-do-on-a-day).
 - **No routines:** Create routine on W05 → R30.
 
@@ -161,6 +161,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 |---|---|---|
 | GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after. Up next doesn't show on days before yesterday |
 | GET | `/api/v1/days` | Week strip, with `from` and `to` filters |
+| GET | `/api/v1/days/first` | Week strip: how far back it reaches |
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
 | DELETE | `/api/v1/workouts/{id}` | Undo skip |
 

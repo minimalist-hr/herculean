@@ -1,8 +1,9 @@
-import { Pressable, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { ChevronRightIcon } from './icons';
+import { Tappable } from './tappable';
 
 interface ChipProps {
   label: string;
@@ -23,7 +24,7 @@ export function ChipLink({
   const { colors, radius, size, space, text } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="link"
       accessibilityLabel={label}
       onPress={onPress}
@@ -41,7 +42,7 @@ export function ChipLink({
     >
       <Text style={[text.chip, { color: colors.text }]}>{label}</Text>
       <ChevronRightIcon color={colors.muted} size={14} />
-    </Pressable>
+    </Tappable>
   );
 }
 
@@ -55,7 +56,7 @@ export function Chip({
   const { colors, radius, size, space, text } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
@@ -78,6 +79,6 @@ export function Chip({
       >
         {shownText}
       </Text>
-    </Pressable>
+    </Tappable>
   );
 }

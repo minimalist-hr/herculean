@@ -164,6 +164,14 @@ test('starts from the routine, with its name on the back link and only Save', as
   expect(screen.queryByRole('button', { name: 'Delete routine' })).toBeNull();
 });
 
+test('each exercise shows a pencil, because the row opens its sets and reps', async () => {
+  answer();
+  await openEdit();
+  await loaded();
+
+  expect(screen.getAllByTestId('edit-targets').length).toBeGreaterThan(0);
+});
+
 test('a failed read says so, and Try again reads it again', async () => {
   mockFetch.mockRejectedValueOnce(new TypeError('Network request failed'));
   await openEdit();

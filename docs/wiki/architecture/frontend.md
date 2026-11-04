@@ -40,6 +40,7 @@ app/
 - Terms and privacy are open in every status.
 - A10–A12 are also open while restoring, so a reset link can open the app from closed. A signed-in user who opens a link with the app already running goes to Home.
 - Four tabs: Home, Workout, Routines, Exercises. Sub-pages open on top of the tabs, or in a tab's own stack when the design keeps the tab bar, as Exercises does. Pressing the open tab returns to its first page.
+- Anything tappable uses `components/tappable.tsx`, so it reacts when pressed. Lint rejects a plain `Pressable`. What it shows at rest is in section 7 of the [design document](https://gitlab.com/minimalist-sds/herculean/-/blob/main/docs/design/design-document.md).
 - Creating and editing are pages, built on `components/form-page.tsx`. `components/use-leave-guard.tsx` asks before leaving one with changes. Pages that work on one routine share it through `features/routines/routine-draft.tsx`. Deletes, confirmations and quick picks are sheets. See `docs/design/design-document.md` for the exceptions. Sheets are components inside the screen that opens them, not routes. A sheet closes back to that screen, or to the sheet below it when one opened another.
 
 ## Data

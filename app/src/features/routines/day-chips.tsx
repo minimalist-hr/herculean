@@ -1,13 +1,14 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { dayNames, weekdays, type Weekday } from './formats';
+import { Tappable } from '@/components/tappable';
 
 interface DayChipsProps {
   selected: Weekday[];
-  /** Picks or clears a day. Without it, the chips only show the days. */
-  onChange?: (selected: Weekday[]) => void;
+  /** Picks or clears a day. */
+  onChange: (selected: Weekday[]) => void;
 }
 
 /** The seven days of the week, with a routine's days picked. */
@@ -24,32 +25,9 @@ export function DayChips({ selected, onChange }: DayChipsProps) {
           borderColor: picked ? colors.primary : colors.border,
           backgroundColor: picked ? colors.primary : colors.raised,
         };
-        const label = (
-          <Text
-            style={[
-              text.chip,
-              { color: picked ? colors.onPrimary : colors.text },
-            ]}
-          >
-            {dayNames[weekday].short}
-          </Text>
-        );
-
-        if (onChange === undefined) {
-          return (
-            <View
-              key={weekday}
-              accessible
-              accessibilityLabel={`${dayNames[weekday].full}${picked ? ', planned' : ''}`}
-              style={[styles.chip, chipStyle]}
-            >
-              {label}
-            </View>
-          );
-        }
 
         return (
-          <Pressable
+          <Tappable
             key={weekday}
             accessibilityRole="button"
             accessibilityLabel={dayNames[weekday].full}
@@ -63,8 +41,15 @@ export function DayChips({ selected, onChange }: DayChipsProps) {
             }}
             style={[styles.chip, chipStyle]}
           >
-            {label}
-          </Pressable>
+            <Text
+              style={[
+                text.chip,
+                { color: picked ? colors.onPrimary : colors.text },
+              ]}
+            >
+              {dayNames[weekday].short}
+            </Text>
+          </Tappable>
         );
       })}
     </View>

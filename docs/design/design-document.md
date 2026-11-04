@@ -1,6 +1,10 @@
 # Herculean: design document
 
-Version 0.29 · 4 November 2026 · Minimalist
+Version 0.31 · 4 November 2026 · Minimalist
+
+> Changes since 0.30: every action now shows it can be used, at rest and when pressed (section 7). Chevrons beside the week strip show that weeks scroll. R20 and R30 have a pencil beside each target. R05 shows only the routine's days, each in a small box with the `card` fill, because all seven chips there looked tappable.
+
+> Changes since 0.29: swiping the week strip opens the same weekday in the week before or after, with the strip following the finger. A short swipe springs back, and it bounces at the first day's week and 4 weeks ahead. W28 is another week, and a date in another year says the year. The selected day now stays until Back to today, and the date also updates when the app comes back after midnight.
 
 > Changes since 0.28: W06 and W22 are built. Skip workout on W01 or W21 asks first in W26, and Undo skip asks first in W27. The card then changes, with no notification. W06 lists its exercises like W22, above Up next. A skipped day has an orange marker in the week strip, or white while selected. W22 has only Undo skip, like W06: to log that day, undo first. W21 and past rest days (W23) also offer Other routine. W27 says "This day goes back to its plan."
 
@@ -296,6 +300,19 @@ A short title, one sentence saying what to do, and the one action that fixes it.
 
 ## 7. Interaction rules
 
+**Every action shows it can be used.** Anything tappable looks it at rest and reacts when pressed. Something read-only must not look tappable, so R05 shows only the routine's days, in small boxes with the `card` fill and no chevron.
+
+| What it does | At rest | When pressed |
+|---|---|---|
+| Main action | Filled or outlined button | Dims to the `pressed` opacity |
+| Opens another screen | A chevron on the right | The row fills with `raised` |
+| Edits something on a row (R20, R30) | A small pencil beside it | Dims |
+| Icon action | A boxed or colored icon | Dims |
+| Pick or toggle | An outlined chip or card | Dims |
+| Text link | Accent uppercase text | Dims |
+| Reorder | A drag handle | The row lifts |
+| Swipe (week strip) | A small muted chevron in the side padding, gone when there is nothing that way | The strip follows the finger |
+
 **Saving**
 - Save buttons name what they save: Save set, Save routine, Save color, Save workout.
 - Sheets and form pages have no Cancel. Where one remains, it sits below the Save button.
@@ -409,7 +426,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 |---|---|---|
 | **W1 Today states** | W07 Loading, W08 Load failure, W01 Today, W02 In progress, W03 Completed, W06 Skipped, W26 Skip confirm, W27 Undo skip confirm, W04 Rest day, W09 Rest tomorrow, W05 No routines | The day header, a calendar icon button (→ W40) and a week strip Mon–Sun. A marker means a workout belongs on that day: muted when planned, white on today, then green for done, orange for skipped and red for missed. A rest day has none. Today's card shows the routine and its exercises with targets. W01 has Start workout, Other routine and Skip workout. W03 has Edit and Delete. Its exercises look like R05's, on the card. W06 has its exercises, Up next and Undo skip. Skip workout asks first in W26, and Undo skip in W27, each a sheet with one button. Undoing brings W01 back today, or W21 on a past day. W09 is W04 when the next day is a rest day too. Up next always shows the day after the one shown: a routine or Rest. |
 | **W2 Choose a routine** | W10 Choose a routine, W11 Loading | A sheet listing every routine with its last-done date. Picking one replaces today's plan only, then logging opens. |
-| **W3 Other days** | W20 Past day, W23 Yesterday rest day, W21 Missed day, W22 Skipped day, W24 Tomorrow, W25 Rest day | Opened from a day in the week strip. W20 is a completed workout with Edit and Delete. W21 is missed (red) with Log workout, then Other routine and Skip workout, laid out like W01. W22 is skipped (orange) with Undo skip. W24 shows the plan, and W25 shows a rest day. The selected day stays when you leave the tab and come back, until the week changes. |
+| **W3 Other days** | W20 Past day, W23 Yesterday rest day, W21 Missed day, W22 Skipped day, W24 Tomorrow, W25 Rest day, W28 Another week | Opened from a day in the week strip. W20 is a completed workout with Edit and Delete. W21 is missed (red) with Log workout, then Other routine and Skip workout, laid out like W01. W22 is skipped (orange) with Undo skip. W24 shows the plan, and W25 shows a rest day. The selected day stays when you leave the tab and come back, until Back to today. W28 is another week: swiping the strip opens the same weekday there, and it reaches from the week of the first day to 4 weeks ahead. |
 | **W4 Edit or delete a workout** | W30 Edit workout, W31 Set removed, W32 Delete confirm | Edit every set's weight and reps, add or remove sets and exercises, then Save workout. Delete asks first, then shows an undo bar. |
 | **W5 Month** | W41 Loading, W40 Month, W42 Day summary | Summary tiles for Done, Missed and Skipped, then a calendar with today filled in the accent and a status bar under each past day, plus a legend. Below that are the month totals: time trained, sets, volume and consistency. Previous and next month buttons. Tapping a day opens the W42 summary sheet, and Open day goes to the full day screen. |
 

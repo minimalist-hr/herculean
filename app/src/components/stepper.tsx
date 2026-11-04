@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { MinusIcon, PlusIcon } from './icons';
+import { Tappable } from './tappable';
 
 interface StepperProps {
   /** Names the value for screen readers, for example "Default rest time". */
@@ -99,7 +100,7 @@ function StepButton({ label, disabled, onPress, children }: StepButtonProps) {
   const { colors, opacity, radius, size } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
@@ -118,7 +119,7 @@ function StepButton({ label, disabled, onPress, children }: StepButtonProps) {
       ]}
     >
       {children}
-    </Pressable>
+    </Tappable>
   );
 }
 

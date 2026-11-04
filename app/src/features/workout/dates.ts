@@ -45,6 +45,10 @@ export function dayNameOf(date: Date) {
   return dayNames[weekdays[(date.getDay() + 6) % 7]];
 }
 
+export function addDays(date: Date, days: number) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
 /** The seven days of a date's week, from Monday. */
 export function weekOf(date: Date) {
   const monday = date.getDate() - ((date.getDay() + 6) % 7);
@@ -76,7 +80,7 @@ export function shortDate(date: Date) {
   return `${dayNameOf(date).short}, ${ordinal(date.getDate())} ${months[date.getMonth()].slice(0, 3)}`;
 }
 
-/** The small line and the title above a day. */
+/** The small line and the title above a day. Another year says which. */
 export function dayHeading(date: Date, today: string) {
   const titles: Record<number, string | undefined> = {
     [-1]: 'Yesterday',
@@ -87,7 +91,13 @@ export function dayHeading(date: Date, today: string) {
 
   return title === undefined
     ? {
-        label: `${ordinal(date.getDate())} ${months[date.getMonth()]}`,
+        label: [
+          ordinal(date.getDate()),
+          months[date.getMonth()],
+          ...(String(date.getFullYear()) === today.slice(0, 4)
+            ? []
+            : [date.getFullYear()]),
+        ].join(' '),
         title: dayNameOf(date).full,
       }
     : { label: longDate(date), title };

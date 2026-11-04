@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from './tappable';
 
 interface TextLinkProps {
   label: string;
@@ -14,7 +15,7 @@ export function TextLink({ label, onPress, dimmed = false }: TextLinkProps) {
   const { colors, opacity, size, space, text } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="link"
       accessibilityLabel={label}
       accessibilityState={{ disabled: dimmed }}
@@ -32,7 +33,7 @@ export function TextLink({ label, onPress, dimmed = false }: TextLinkProps) {
       <Text style={[text.secondaryButton, { color: colors.primaryText }]}>
         {label}
       </Text>
-    </Pressable>
+    </Tappable>
   );
 }
 

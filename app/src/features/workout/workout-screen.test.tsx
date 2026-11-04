@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
+import { AccessibilityInfo, AppState } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { WorkoutScreen } from './workout-screen';
@@ -651,5 +653,222 @@ describe('skip', () => {
       await screen.findByText("Couldn't undo. Try again."),
     ).toBeOnTheScreen();
     expect(screen.getByText('Skipped')).toBeOnTheScreen();
+  });
+});
+
+describe('other weeks', () => {
+  /** Answers every day as a rest day, with the first day given. */
+  function answerWeeks(first: string) {
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      if (pathname === '/api/v1/days') {
+        return Promise.resolve(Response.json([]));
+      }
+      if (pathname === '/api/v1/days/first') {
+        return Promise.resolve(Response.json({ date: first }));
+      }
+
+      return Promise.resolve(
+        Response.json({ ...restDay, date: pathname.split('/').at(-1) }),
+      );
+    });
+  }
+
+  function requestedDays() {
+    return mockFetch.mock.calls.map(
+      ([request]) => new URL(request.url).pathname,
+    );
+  }
+
+  const strip = () => screen.getByTestId('week-strip');
+
+  async function swipe(distance: number) {
+    await dragBy(strip(), distance, 4, 'x');
+  }
+
+  // The clock is fixed, so a slide with a duration would never finish.
+  beforeEach(() => {
+    jest
+      .spyOn(AccessibilityInfo, 'isReduceMotionEnabled')
+      .mockResolvedValue(true);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('swiping left opens the same weekday next week', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+
+    await swipe(-200);
+
+    expect(await screen.findByText('10th November')).toBeOnTheScreen();
+    expect(screen.getByText('Tuesday')).toBeOnTheScreen();
+    expect(requestedDays()).toContain('/api/v1/days/2026-11-10');
+    expect(screen.getByRole('button', { name: 'Back to today' })).toBeTruthy();
+  });
+
+  test('swiping right opens the same weekday last week', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+    await screen.findByLabelText(/^Monday 26/, { includeHiddenElements: true });
+
+    await swipe(200);
+
+    expect(await screen.findByText('27th October')).toBeOnTheScreen();
+    expect(requestedDays()).toContain('/api/v1/days/2026-10-27');
+  });
+
+  test('chevrons beside the strip show the weeks that can be reached', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByLabelText(/^Monday 26/, { includeHiddenElements: true });
+    const hint = (id: string) =>
+      screen.queryByTestId(id, { includeHiddenElements: true });
+
+    expect(hint('week-back-hint')).toBeOnTheScreen();
+    expect(hint('week-forward-hint')).toBeOnTheScreen();
+
+    for (const shown of ['10th November', '17th November', '24th November']) {
+      await swipe(-200);
+      await screen.findByText(shown);
+    }
+    await swipe(-200);
+    await screen.findByText('1st December');
+
+    expect(hint('week-back-hint')).toBeOnTheScreen();
+    expect(hint('week-forward-hint')).toBeNull();
+  });
+
+  test('no chevron points before the week of the first day', async () => {
+    answerWeeks('2026-11-04');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+    await screen.findByLabelText(/^Monday 2/);
+
+    expect(
+      screen.queryByTestId('week-back-hint', { includeHiddenElements: true }),
+    ).toBeNull();
+    expect(
+      screen.queryByTestId('week-forward-hint', {
+        includeHiddenElements: true,
+      }),
+    ).toBeOnTheScreen();
+  });
+
+  test('a short swipe stays on the week', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+
+    await swipe(-40);
+
+    expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
+    expect(screen.getByText('Tuesday, 3rd November')).toBeOnTheScreen();
+  });
+
+  test('Back to today returns from another week', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+    await swipe(-200);
+    await screen.findByText('10th November');
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Back to today' }),
+    );
+
+    expect(await screen.findByText('Tuesday, 3rd November')).toBeOnTheScreen();
+    expect(screen.getByLabelText(/^Monday 2/)).toBeOnTheScreen();
+  });
+
+  test('a day in another week can be opened', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+    await swipe(-200);
+    await screen.findByText('10th November');
+
+    await fireEvent.press(screen.getByLabelText(/^Thursday 12/));
+
+    expect(await screen.findByText('12th November')).toBeOnTheScreen();
+    expect(requestedDays()).toContain('/api/v1/days/2026-11-12');
+  });
+
+  test('it stops at the week of the first day', async () => {
+    answerWeeks('2026-11-04');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+    await screen.findByLabelText(/^Monday 2/);
+
+    await swipe(200);
+
+    expect(screen.getByRole('button', { name: 'Month' })).toBeTruthy();
+    expect(requestedDays()).not.toContain('/api/v1/days/2026-10-27');
+  });
+
+  test('it stops 4 weeks ahead', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+
+    for (const shown of ['10th', '17th', '24th']) {
+      await swipe(-200);
+      await screen.findByText(`${shown} November`);
+    }
+    await swipe(-200);
+    await screen.findByText('1st December');
+
+    await swipe(-200);
+
+    expect(requestedDays()).not.toContain('/api/v1/days/2026-12-08');
+    expect(screen.getByText('1st December')).toBeOnTheScreen();
+  });
+
+  test('a screen reader can change the week from any day', async () => {
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Rest day');
+    const monday = screen.getByLabelText(/^Monday 2/);
+
+    expect(monday.props.accessibilityActions).toEqual([
+      { name: 'previousWeek', label: 'Previous week' },
+      { name: 'nextWeek', label: 'Next week' },
+    ]);
+
+    await fireEvent(monday, 'accessibilityAction', {
+      nativeEvent: { actionName: 'nextWeek' },
+    });
+
+    expect(await screen.findByText('10th November')).toBeOnTheScreen();
+  });
+
+  test('a day stays open when the tab comes back after midnight', async () => {
+    const listeners: ((state: string) => void)[] = [];
+    jest.spyOn(AppState, 'addEventListener').mockImplementation(((
+      _type: string,
+      listener: (state: string) => void,
+    ) => {
+      listeners.push(listener);
+      return { remove: jest.fn() };
+    }) as never);
+    answerWeeks('2026-01-01');
+    await renderWorkout();
+    await screen.findByText('Tuesday, 3rd November');
+
+    jest.setSystemTime(new Date(2026, 10, 4, 0, 5));
+    await act(() => {
+      listeners.forEach((listener) => {
+        listener('active');
+      });
+    });
+
+    expect(
+      await screen.findByText('Wednesday, 4th November'),
+    ).toBeOnTheScreen();
+    expect(requestedDays()).toContain('/api/v1/days/2026-11-04');
   });
 });

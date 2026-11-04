@@ -1,13 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
@@ -33,6 +26,7 @@ import { noGroupsMessage, useGroups } from '@/features/exercises/use-groups';
 import { useTheme } from '@/theme/theme-provider';
 
 import { startingTargets, useRoutineDraft } from './routine-draft';
+import { Tappable } from '@/components/tappable';
 
 type Exercise = components['schemas']['ExerciseListItemResponse'];
 
@@ -100,7 +94,7 @@ export function AddExerciseScreen({ back }: { back: string }) {
 
     return (
       <View style={{ paddingHorizontal: size.sidePadding }}>
-        <Pressable
+        <Tappable
           accessibilityRole="button"
           accessibilityLabel={exercise.name}
           accessibilityState={{ selected }}
@@ -153,7 +147,7 @@ export function AddExerciseScreen({ back }: { back: string }) {
           >
             {selected && <CheckIcon color={colors.onPrimary} size={16} />}
           </View>
-        </Pressable>
+        </Tappable>
       </View>
     );
   }

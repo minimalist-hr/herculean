@@ -15,5 +15,23 @@ export default defineConfig([
     },
   },
   { files: ['**/*.mjs'], extends: [configs.disableTypeChecked] },
+  {
+    files: ['src/**/*.tsx'],
+    ignores: ['**/*.test.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-native',
+              importNames: ['Pressable'],
+              message: 'Use Tappable, so every action reacts when pressed.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   { ignores: ['dist/*', '.expo/*', 'coverage/*', 'src/api/schema.ts'] },
 ]);

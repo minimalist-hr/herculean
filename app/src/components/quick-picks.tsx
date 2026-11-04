@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
+import { Tappable } from './tappable';
 
 interface QuickPicksProps {
   values: readonly number[];
@@ -30,7 +31,7 @@ export function QuickPicks({
       {values.map((value) => {
         const isSelected = value === selected;
         return (
-          <Pressable
+          <Tappable
             key={value}
             accessibilityRole="button"
             accessibilityLabel={formatSpoken(value)}
@@ -56,7 +57,7 @@ export function QuickPicks({
             >
               {format(value)}
             </Text>
-          </Pressable>
+          </Tappable>
         );
       })}
     </View>

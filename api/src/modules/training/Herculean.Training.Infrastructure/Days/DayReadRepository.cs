@@ -78,6 +78,11 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
             .Select(workout => new DayWorkout(workout.Id.Value, workout.Date, workout.Name, workout.RoutineId))
             .ToListAsync(cancellationToken);
 
+    public Task<DateOnly?> GetFirstWorkoutDateAsync(CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .AsNoTracking()
+            .MinAsync(workout => (DateOnly?)workout.Date, cancellationToken);
+
     public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) =>
         dbContext.Routines.AsNoTracking().AnyAsync(cancellationToken);
 }

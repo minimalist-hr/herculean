@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { CloseIcon, SearchIcon } from './icons';
+import { Tappable } from './tappable';
 
 const iconSize = 18;
 
@@ -49,7 +50,7 @@ export function SearchField({ label, value, onChangeText }: SearchFieldProps) {
         <SearchIcon color={colors.muted} size={iconSize} />
       </View>
       {hasText && (
-        <Pressable
+        <Tappable
           accessibilityRole="button"
           accessibilityLabel="Clear search"
           onPress={() => {
@@ -58,7 +59,7 @@ export function SearchField({ label, value, onChangeText }: SearchFieldProps) {
           style={[styles.clear, { width: size.touchTargetMin }]}
         >
           <CloseIcon color={colors.muted} size={iconSize} />
-        </Pressable>
+        </Tappable>
       )}
     </View>
   );

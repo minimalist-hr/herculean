@@ -147,9 +147,9 @@ const sampleDays = {
 };
 
 /** The design's sample week, with past days missed. */
-export function sampleWeek(today, skippedDate) {
+export function sampleWeek(today, skippedDate, from = '2026-10-19') {
   return weekdays.map((weekday, index) => {
-    const date = `2026-10-${String(19 + index)}`;
+    const date = new Date(Date.parse(from) + index * 86_400_000).toISOString().slice(0, 10);
     const routine = routineList.find((item) => item.weekdays.includes(weekday));
     const planned = date < today ? 'missed' : 'planned';
     const status = routine === undefined ? 'rest' : date === skippedDate ? 'skipped' : planned;
@@ -219,7 +219,10 @@ export function createApi() {
       };
     }
     if (key === 'GET /api/v1/days') {
-      return { status: 200, body: sampleWeek(sampleToday) };
+      return { status: 200, body: sampleWeek(sampleToday, undefined, query.get('from')) };
+    }
+    if (key === 'GET /api/v1/days/first') {
+      return { status: 200, body: { date: '2026-09-01' } };
     }
     if (method === 'GET' && path.startsWith('/api/v1/days/')) {
       return { status: 200, body: sampleDays[path.split('/')[4]] ?? { ...sampleDay, date: path.split('/')[4] } };

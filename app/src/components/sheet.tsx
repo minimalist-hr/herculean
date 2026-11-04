@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   PanResponder,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -42,6 +41,7 @@ import {
 import { closesAfterDrag } from './sheet-drag';
 import { useKeyboardHeight } from './use-keyboard-height';
 import { useReduceMotion } from './use-reduce-motion';
+import { Tappable } from './tappable';
 
 const paddingBottomMin = 34;
 
@@ -233,7 +233,8 @@ export function Sheet({
         ]}
       />
       <KeyboardAvoidingView behavior="padding" style={styles.outside}>
-        <Pressable
+        <Tappable
+          feedback="none"
           accessibilityLabel="Close"
           style={styles.outside}
           onPress={onClose}
@@ -289,7 +290,7 @@ export function Sheet({
                     <Text style={text.meta}>{message}</Text>
                   )}
                 </View>
-                <Pressable
+                <Tappable
                   accessibilityRole="button"
                   accessibilityLabel="Close"
                   onPress={onClose}
@@ -302,7 +303,7 @@ export function Sheet({
                   ]}
                 >
                   <CloseIcon color={colors.muted} size={20} />
-                </Pressable>
+                </Tappable>
               </View>
             </DragArea>
             {fill && <View style={styles.fillBody}>{body}</View>}

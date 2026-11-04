@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { ChevronLeftIcon } from './icons';
+import { Tappable } from './tappable';
 
 /** The link at the top of a sub-page, named after the screen it goes back to. */
 export function BackLink({
@@ -15,7 +16,7 @@ export function BackLink({
   const { colors, size, space, text } = useTheme();
 
   return (
-    <Pressable
+    <Tappable
       accessibilityRole="link"
       accessibilityLabel={label}
       onPress={onPress}
@@ -36,7 +37,7 @@ export function BackLink({
       >
         {label}
       </Text>
-    </Pressable>
+    </Tappable>
   );
 }
 

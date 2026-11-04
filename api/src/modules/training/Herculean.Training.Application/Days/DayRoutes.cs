@@ -7,4 +7,6 @@ internal static class DayRoutes
     public const string Days = "/api/v1/days";
 
     public const string Day = "/api/v1/days/{date}";
+
+    public const string FirstDay = "/api/v1/days/first";
 }

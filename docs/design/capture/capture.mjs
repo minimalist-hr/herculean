@@ -127,6 +127,16 @@ function helpers(page) {
       await field.type(text);
     },
     waitFor: (name) => waitForCenter(page, name),
+    /** Drags sideways from an element, which swipes it. */
+    swipe: async (name, distance) => {
+      const { x, y } = await waitForCenter(page, name);
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.mouse.move(x + distance / 2, y, { steps: 4 });
+      await page.mouse.move(x + distance, y, { steps: 4 });
+      await page.mouse.up();
+      await sleep(600);
+    },
     /** Moves within the app, because reloading the page would sign the user out. */
     go: async (path) => {
       await page.evaluate((target) => {

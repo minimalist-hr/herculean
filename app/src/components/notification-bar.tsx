@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Animated,
-  Easing,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme/theme-provider';
@@ -18,6 +11,7 @@ import {
   useSheetOpen,
 } from './notifications';
 import { useReduceMotion } from './use-reduce-motion';
+import { Tappable } from './tappable';
 
 /** Shows the latest notification at the top of the screen. A sheet shows those that stay with it itself. */
 export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
@@ -105,7 +99,7 @@ export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
         },
       ]}
     >
-      <Pressable
+      <Tappable
         accessibilityRole="alert"
         accessibilityLiveRegion="polite"
         onPress={dismissNotification}
@@ -133,7 +127,7 @@ export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
           {shown.message}
         </Text>
         {shown.action !== undefined && (
-          <Pressable
+          <Tappable
             accessibilityRole="button"
             accessibilityLabel={shown.action.label}
             onPress={shown.action.onPress}
@@ -145,9 +139,9 @@ export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
             <Text style={[text.secondaryButton, { color: colors.primaryText }]}>
               {shown.action.label}
             </Text>
-          </Pressable>
+          </Tappable>
         )}
-      </Pressable>
+      </Tappable>
     </Animated.View>
   );
 }

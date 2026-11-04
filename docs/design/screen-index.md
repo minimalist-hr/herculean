@@ -1,6 +1,6 @@
 # Screen index
 
-132 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+133 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -76,6 +76,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W22 | Workout › Skipped day | W3 Other days | 390×844 | [png](screens/W22-Workout-Skipped-Day.png) · [html](html/W22-Workout-Skipped-Day.html) · [source](source/W22-Workout-Skipped-Day.dc.html) |
 | W24 | Workout › Upcoming day · tomorrow | W3 Other days | 390×844 | [png](screens/W24-Workout-Upcoming-Day.png) · [html](html/W24-Workout-Upcoming-Day.html) · [source](source/W24-Workout-Upcoming-Day.dc.html) |
 | W25 | Workout › Rest day | W3 Other days | 390×844 | [png](screens/W25-Workout-Rest-Day.png) · [html](html/W25-Workout-Rest-Day.html) · [source](source/W25-Workout-Rest-Day.dc.html) |
+| W28 | Workout › Another week | W3 Other days | 390×844 | [png](screens/W28-Workout-Another-Week.png) · [html](html/W28-Workout-Another-Week.html) · [source](source/W28-Workout-Another-Week.dc.html) |
 | W30 | Workout › Edit workout · full scroll | W4 Edit or delete a workout | 390×1900 | [png](screens/W30-Workout-Edit.png) · [html](html/W30-Workout-Edit.html) · [source](source/W30-Workout-Edit.dc.html) |
 | W31 | Workout › Edit workout · set removed, undo bar | W4 Edit or delete a workout | 390×844 | [png](screens/W31-Workout-Edit-Set-Removed.png) · [html](html/W31-Workout-Edit-Set-Removed.html) · [source](source/W31-Workout-Edit-Set-Removed.dc.html) |
 | W32 | Workout › Delete workout · confirm | W4 Edit or delete a workout | 390×844 | [png](screens/W32-Workout-Delete-Confirm.png) · [html](html/W32-Workout-Delete-Confirm.html) · [source](source/W32-Workout-Delete-Confirm.dc.html) |
