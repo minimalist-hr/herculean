@@ -8,4 +8,5 @@ internal enum DayStatus
     Missed,
     Planned,
     Rest,
+    Skipped,
 }

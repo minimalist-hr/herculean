@@ -51,6 +51,7 @@ const restDay = {
   date: '2026-11-03',
   status: 'rest',
   hasRoutines: true,
+  workoutId: null,
   routine: null,
   upNext: { date: '2026-11-04', routineName: 'Arms' },
 };
@@ -249,7 +250,6 @@ test('says the week and the day could not load, and tries again', async () => {
 test.each([
   ['Start workout', 'Logging comes in a later update.'],
   ['Other routine', 'Logging comes in a later update.'],
-  ['Skip workout', 'Skipping comes in a later update.'],
   ['Month', 'The month view comes in a later update.'],
 ])('%s says it comes later', async (name, message) => {
   answer(plannedDay);
@@ -326,10 +326,13 @@ describe('other days', () => {
     expect(
       await screen.findByText('Logging comes in a later update.'),
     ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Skip workout' })).toBeTruthy();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Skip workout' }));
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Other routine' }),
+    );
     expect(
-      await screen.findByText('Skipping comes in a later update.'),
+      await screen.findByText('Logging comes in a later update.'),
     ).toBeOnTheScreen();
   });
 
@@ -370,6 +373,7 @@ describe('other days', () => {
     expect(await screen.findByText('Up next')).toBeOnTheScreen();
     expect(screen.getByText('Yesterday')).toBeOnTheScreen();
     expect(screen.getByText('Today')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Other routine' })).toBeTruthy();
   });
 
   test('an older rest day has no up next', async () => {
@@ -385,6 +389,7 @@ describe('other days', () => {
     expect(await screen.findByText('2nd November')).toBeOnTheScreen();
     expect(await screen.findByText('Rest day')).toBeOnTheScreen();
     expect(screen.queryByText('Up next')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Other routine' })).toBeTruthy();
   });
 
   test('Back to today returns to today', async () => {
@@ -423,5 +428,228 @@ describe('other days', () => {
     expect(screen.getByTestId('marker-2026-11-03')).toHaveStyle({
       backgroundColor: '#A9AEB6',
     });
+  });
+});
+
+describe('skip', () => {
+  const skipped = (day: object) => ({
+    ...day,
+    status: 'skipped',
+    workoutId: 'workout-1',
+  });
+  const missedDay = {
+    ...plannedDay,
+    date: '2026-11-02',
+    status: 'missed',
+    upNext: { date: '2026-11-03', routineName: 'Arms' },
+  };
+
+  /** Answers like the API: a skip changes the day, and an undo changes it back. */
+  function server(today: object, past: object = missedDay) {
+    const skippedDates = new Set<string>();
+    const requests: { method: string; path: string; body: unknown }[] = [];
+
+    mockFetch.mockImplementation(async (request) => {
+      const { pathname } = new URL(request.url);
+      const body: unknown =
+        request.method === 'POST' ? await request.clone().json() : undefined;
+      if (request.method !== 'GET') {
+        requests.push({ method: request.method, path: pathname, body });
+      }
+      if (request.method === 'POST') {
+        skippedDates.add((body as { date: string }).date);
+        return Response.json(
+          { id: 'workout-1', status: 'skipped', name: 'Legs' },
+          { status: 201 },
+        );
+      }
+      if (request.method === 'DELETE') {
+        skippedDates.clear();
+        return new Response(null, { status: 204 });
+      }
+      if (pathname === '/api/v1/days') {
+        return Response.json(
+          ['2026-11-02', '2026-11-03'].map((date) => ({
+            date,
+            status: skippedDates.has(date) ? 'skipped' : 'planned',
+            routineName: 'Legs',
+          })),
+        );
+      }
+
+      const date = pathname.split('/').at(-1) ?? '';
+      const day = date === '2026-11-03' ? today : past;
+      return Response.json(skippedDates.has(date) ? skipped(day) : day);
+    });
+
+    return requests;
+  }
+
+  async function press(name: string) {
+    await fireEvent.press(await screen.findByRole('button', { name }));
+  }
+
+  /** Presses a button on the card, then the same one in the sheet it opens. */
+  async function confirm(name: string) {
+    await press(name);
+    const buttons = await screen.findAllByRole('button', { name });
+    await fireEvent.press(buttons[buttons.length - 1]);
+  }
+
+  test('skipping asks first, and closing the sheet changes nothing', async () => {
+    const requests = server(plannedDay);
+    await renderWorkout();
+    await press('Skip workout');
+
+    expect(await screen.findByText('Skip Legs?')).toBeOnTheScreen();
+    expect(
+      screen.getByText('It shows as skipped, and you can undo it.'),
+    ).toBeOnTheScreen();
+    expect(requests).toEqual([]);
+
+    await press('Close');
+
+    expect(screen.getByRole('button', { name: 'Start workout' })).toBeTruthy();
+    expect(requests).toEqual([]);
+  });
+
+  test('undoing today asks first, and says it goes back to the plan', async () => {
+    const requests = server(plannedDay);
+    await renderWorkout();
+    await confirm('Skip workout');
+    await press('Undo skip');
+
+    expect(await screen.findByText('Undo this skip?')).toBeOnTheScreen();
+    expect(
+      screen.getByText('This day goes back to its plan.'),
+    ).toBeOnTheScreen();
+    expect(requests).toHaveLength(1);
+  });
+
+  test('undoing a past day asks first, and says it goes back to missed', async () => {
+    server(restDay);
+    await renderWorkout();
+    await press('Monday 2, Legs');
+    await confirm('Skip workout');
+    await press('Undo skip');
+
+    expect(await screen.findByText('Undo this skip?')).toBeOnTheScreen();
+    expect(
+      screen.getByText('This day goes back to its plan.'),
+    ).toBeOnTheScreen();
+  });
+
+  test('skipping today shows it as skipped, with its exercises and Up next', async () => {
+    const requests = server(plannedDay);
+    await renderWorkout();
+    await confirm('Skip workout');
+
+    expect(await screen.findByText('Skipped')).toBeOnTheScreen();
+    expect(requests).toEqual([
+      {
+        method: 'POST',
+        path: '/api/v1/workouts',
+        body: { date: '2026-11-03', status: 'skipped' },
+      },
+    ]);
+    expect(screen.getByText('You skipped today’s workout.')).toBeOnTheScreen();
+    expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
+    expect(screen.getByText('Up next')).toBeOnTheScreen();
+    expect(screen.getByText('Tomorrow')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Undo skip' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Log workout' })).toBeNull();
+  });
+
+  test('undoing a skip today brings Start workout back', async () => {
+    const requests = server(plannedDay);
+    await renderWorkout();
+    await confirm('Skip workout');
+    await confirm('Undo skip');
+
+    expect(
+      await screen.findByRole('button', { name: 'Start workout' }),
+    ).toBeTruthy();
+    expect(requests[1]).toEqual({
+      method: 'DELETE',
+      path: '/api/v1/workouts/workout-1',
+      body: undefined,
+    });
+  });
+
+  test('skipping a missed day offers only Undo skip, with no Up next', async () => {
+    server(restDay);
+    await renderWorkout();
+    await press('Monday 2, Legs');
+    await confirm('Skip workout');
+
+    expect(await screen.findByText('Skipped')).toBeOnTheScreen();
+    expect(screen.getByText('You skipped this workout.')).toBeOnTheScreen();
+    expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
+    expect(screen.queryByText('Up next')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Undo skip' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Log workout' })).toBeNull();
+  });
+
+  test('undoing a skip on a past day shows it as missed', async () => {
+    server(restDay);
+    await renderWorkout();
+    await press('Monday 2, Legs');
+    await confirm('Skip workout');
+    await confirm('Undo skip');
+
+    expect(await screen.findByText('Missed')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Skip workout' })).toBeTruthy();
+  });
+
+  test('the week strip marks a skipped day', async () => {
+    server(plannedDay);
+    await renderWorkout();
+    await press('Monday 2, Legs');
+    await confirm('Skip workout');
+    await screen.findByText('Skipped');
+    await press('Back to today');
+
+    const monday = await screen.findByRole('button', {
+      name: 'Monday 2, Legs, skipped',
+    });
+    expect(monday).toBeTruthy();
+    expect(screen.getByTestId('marker-2026-11-02')).toHaveStyle({
+      backgroundColor: '#FB923C',
+    });
+  });
+
+  test('a skip that fails says so, and the day stays', async () => {
+    answer(plannedDay);
+    const answers = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((request) =>
+      request.method === 'POST'
+        ? Promise.reject(new TypeError('Network request failed'))
+        : (answers as (request: Request) => Promise<Response>)(request),
+    );
+    await renderWorkout();
+    await confirm('Skip workout');
+
+    expect(
+      await screen.findByText("Couldn't skip the workout. Try again."),
+    ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Start workout' })).toBeTruthy();
+  });
+
+  test('an undo that fails says so, and the day stays skipped', async () => {
+    answer(skipped(plannedDay));
+    const answers = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((request) =>
+      request.method === 'DELETE'
+        ? Promise.reject(new TypeError('Network request failed'))
+        : (answers as (request: Request) => Promise<Response>)(request),
+    );
+    await renderWorkout();
+    await confirm('Undo skip');
+
+    expect(
+      await screen.findByText("Couldn't undo. Try again."),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Skipped')).toBeOnTheScreen();
   });
 });

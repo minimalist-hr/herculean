@@ -1,6 +1,7 @@
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Domain.Routines;
+using Herculean.Training.Domain.Workouts;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -45,6 +46,36 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
                 exercise.TargetSets,
                 exercise.TargetRepsFrom,
                 exercise.TargetRepsTo))
+            .ToListAsync(cancellationToken);
+
+    public Task<List<DayExerciseResponse>> ListWorkoutExercisesAsync(WorkoutId workoutId, CancellationToken cancellationToken) =>
+        dbContext.Set<WorkoutExercise>()
+            .IgnoreQueryFilters([TrainingDbContext.SoftDeleteFilter])
+            .AsNoTracking()
+            .Where(exercise => exercise.WorkoutId == workoutId)
+            .OrderBy(exercise => exercise.Order)
+            .Select(exercise => new DayExerciseResponse(
+                exercise.ExerciseId.Value,
+                exercise.Exercise.Name,
+                exercise.Exercise.GroupId.Value,
+                exercise.Exercise.Group.Name,
+                exercise.TargetSets,
+                exercise.TargetRepsFrom,
+                exercise.TargetRepsTo))
+            .ToListAsync(cancellationToken);
+
+    public Task<DayWorkout?> GetWorkoutAsync(DateOnly date, CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .AsNoTracking()
+            .Where(workout => workout.Date == date)
+            .Select(workout => new DayWorkout(workout.Id.Value, workout.Date, workout.Name, workout.RoutineId))
+            .SingleOrDefaultAsync(cancellationToken);
+
+    public Task<List<DayWorkout>> ListWorkoutsAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .AsNoTracking()
+            .Where(workout => workout.Date >= from && workout.Date <= to)
+            .Select(workout => new DayWorkout(workout.Id.Value, workout.Date, workout.Name, workout.RoutineId))
             .ToListAsync(cancellationToken);
 
     public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) =>

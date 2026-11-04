@@ -121,7 +121,6 @@ Herculean.Training.Application/
 | Event | From | Handled by | What happens |
 |---|---|---|---|
 | Account created | Account | Training | Creates workout settings with their starting values, and the 6 groups |
-| Account deleted | Account | Training | Deletes the user's training data |
 
 ## Auth
 

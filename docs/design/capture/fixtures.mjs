@@ -95,6 +95,7 @@ export const sampleDay = {
   date: '2026-10-23',
   status: 'planned',
   hasRoutines: true,
+  workoutId: null,
   routine: {
     id: 'routine-chest-and-arms-2',
     name: 'Chest and arms 2',
@@ -103,10 +104,11 @@ export const sampleDay = {
   upNext: { date: '2026-10-24', routineName: 'Back and shoulders 2' },
 };
 
-const legsDay = {
+export const legsDay = {
   date: '2026-10-21',
   status: 'missed',
   hasRoutines: true,
+  workoutId: null,
   routine: {
     id: 'routine-legs',
     name: 'Legs',
@@ -119,6 +121,7 @@ const tomorrowDay = {
   date: '2026-10-24',
   status: 'planned',
   hasRoutines: true,
+  workoutId: null,
   routine: {
     id: 'routine-back-and-shoulders-2',
     name: 'Back and shoulders 2',
@@ -131,6 +134,7 @@ const sampleRestDay = (date, nextDate, routineName) => ({
   date,
   status: 'rest',
   hasRoutines: true,
+  workoutId: null,
   routine: null,
   upNext: { date: nextDate, routineName },
 });
@@ -143,11 +147,12 @@ const sampleDays = {
 };
 
 /** The design's sample week, with past days missed. */
-export function sampleWeek(today) {
+export function sampleWeek(today, skippedDate) {
   return weekdays.map((weekday, index) => {
     const date = `2026-10-${String(19 + index)}`;
     const routine = routineList.find((item) => item.weekdays.includes(weekday));
-    const status = routine === undefined ? 'rest' : date < today ? 'missed' : 'planned';
+    const planned = date < today ? 'missed' : 'planned';
+    const status = routine === undefined ? 'rest' : date === skippedDate ? 'skipped' : planned;
 
     return { date, status, routineName: routine?.name ?? null };
   });

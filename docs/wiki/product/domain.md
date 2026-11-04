@@ -67,7 +67,6 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - The week plan repeats every week.
 - A weekday with no week plan day is a rest day.
 - A change applies from today on. Past days keep the plan they had.
-- Picking another routine for today (W10) starts today's workout from it. The week plan does not change.
 
 ### Workouts
 
@@ -76,8 +75,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A workout can start from a routine. Its name and exercises are copied when it starts, so later routine changes do not affect it.
 - Each set of a new workout starts with the weight and reps of the same set last time. If there was no last time, it starts at 0 kg and the low end of the target reps.
 - Logging a past day (W21) gives the workout that date. The start time is when logging started.
-- Skip workout creates a skipped workout with no sets. Undo skip deletes it.
-- Logging a skipped day (W22) turns its skipped workout into a workout in progress.
+- Skip workout creates a skipped workout with the routine's name, exercises and targets, and no sets, so later routine changes do not affect it. It works on today or a past day with a routine. Undo skip deletes it, and the day reads from the week plan again.
 - Save workout removes unchecked sets and marks the workout completed.
 - Discard workout deletes a workout in progress.
 
@@ -91,6 +89,40 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | No workout, a routine planned, the day is past | Missed |
 | No workout, a routine planned, today or later | Planned |
 | No workout, no routine planned | Rest day |
+
+### What you can do on a day
+
+One workout per date, and a workout only happens on today or a past day.
+
+| Day | State | Actions |
+|---|---|---|
+| Today | Planned | Start workout, Other routine, Skip workout |
+| Today | Rest | Other routine |
+| Today | No routines at all | Create routine |
+| Today or past | In progress | Resume workout |
+| Today or past | Completed | Edit, Delete |
+| Today or past | Skipped | Undo skip |
+| Past | Missed | Log workout, Other routine, Skip workout |
+| Past | Rest | Other routine |
+| Future | Planned or rest | None |
+
+| Action | What it does | The day then shows |
+|---|---|---|
+| Start workout, Log workout | Starts from the day's routine, copying its name, exercises and targets. Exercises deleted since are left out. If none are left, only Other routine and Skip workout are offered. | In progress |
+| Other routine | Starts from any routine picked on W10, for that date only. The week plan does not change. | In progress |
+| Skip workout | Asks first, then copies the routine | Skipped |
+| Undo skip | Asks first, then deletes the skip | Its plan |
+| Save workout | Finishes logging | Completed |
+| Discard workout | Deletes the workout in progress | Its plan |
+| Delete | Asks first, then offers an undo | Its plan |
+
+- "Its plan" is planned, missed or rest, from the week plan on that date.
+- Only one workout can be in progress. While one runs on another day, Start workout, Log workout and Other routine look muted, and tapping one says to resume or finish it first.
+- A workout that runs past midnight stays on the date it started.
+- A workout can't be added to a date before the account was created.
+- A workout keeps its copy when its routine changes or is deleted. Exercise renames show everywhere.
+
+Skip workout and Undo skip are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
 
 ### Exercises, routines and groups
 

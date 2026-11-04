@@ -1,26 +1,25 @@
 import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { notifyFailure } from '@/components/notifications';
+import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { ExerciseTargets } from '@/features/routines/exercise-targets';
 import { counted } from '@/features/routines/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
+import { useSkipWorkout } from './use-skip-workout';
+import { useUndoSkip } from './use-undo-skip';
 
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
 
 function comesInLogging() {
   notifyFailure('Logging comes in a later update.');
-}
-
-function skipComesLater() {
-  notifyFailure('Skipping comes in a later update.');
 }
 
 function Card({ children }: { children: ReactNode }) {
@@ -98,6 +97,80 @@ function Actions({ children }: { children: ReactNode[] }) {
   );
 }
 
+function SkipButton({
+  date,
+  routineName,
+}: {
+  date: string;
+  routineName: string;
+}) {
+  const skip = useSkipWorkout();
+  const [confirming, setConfirming] = useState(false);
+
+  return (
+    <>
+      <Button
+        label="Skip workout"
+        variant="secondary"
+        onPress={() => {
+          setConfirming(true);
+        }}
+      />
+      <Sheet
+        visible={confirming}
+        title={`Skip ${routineName}?`}
+        message="It shows as skipped, and you can undo it."
+        onClose={() => {
+          setConfirming(false);
+        }}
+      >
+        <Button
+          label="Skip workout"
+          waitingLabel="Skipping workout"
+          waiting={skip.isPending}
+          onPress={() => {
+            skip.mutate(date);
+          }}
+        />
+      </Sheet>
+    </>
+  );
+}
+
+function UndoSkipButton({ workoutId }: { workoutId: string }) {
+  const undo = useUndoSkip();
+  const [confirming, setConfirming] = useState(false);
+
+  return (
+    <>
+      <Button
+        label="Undo skip"
+        variant="secondary"
+        onPress={() => {
+          setConfirming(true);
+        }}
+      />
+      <Sheet
+        visible={confirming}
+        title="Undo this skip?"
+        message="This day goes back to its plan."
+        onClose={() => {
+          setConfirming(false);
+        }}
+      >
+        <Button
+          label="Undo skip"
+          waitingLabel="Undoing skip"
+          waiting={undo.isPending}
+          onPress={() => {
+            undo.mutate(workoutId);
+          }}
+        />
+      </Sheet>
+    </>
+  );
+}
+
 function PlannedContent({
   date,
   routine,
@@ -123,7 +196,7 @@ function PlannedContent({
   );
 }
 
-function MissedCard({ routine }: { routine: DayRoutine }) {
+function MissedCard({ date, routine }: { date: string; routine: DayRoutine }) {
   const { colors } = useTheme();
 
   return (
@@ -135,22 +208,49 @@ function MissedCard({ routine }: { routine: DayRoutine }) {
         meta="Scheduled, but nothing was logged."
       />
       <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      <Button label="Log workout" onPress={comesInLogging} />
       <Actions>
         {[
           <Button
-            key="log"
-            label="Log workout"
+            key="other"
+            label="Other routine"
             variant="secondary"
             onPress={comesInLogging}
           />,
-          <Button
-            key="skip"
-            label="Skip workout"
-            variant="secondary"
-            onPress={skipComesLater}
-          />,
+          <SkipButton key="skip" date={date} routineName={routine.name} />,
         ]}
       </Actions>
+    </Card>
+  );
+}
+
+function SkippedCard({
+  day,
+  routine,
+  today,
+  workoutId,
+}: {
+  day: Day;
+  routine: DayRoutine;
+  today: string;
+  workoutId: string;
+}) {
+  const { colors } = useTheme();
+  const isToday = day.date === today;
+
+  return (
+    <Card>
+      <CardHeading
+        label="Skipped"
+        labelColor={colors.skipped}
+        title={routine.name}
+        meta={
+          isToday ? 'You skipped today’s workout.' : 'You skipped this workout.'
+        }
+      />
+      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      {isToday && <UpNext upNext={day.upNext} today={today} />}
+      <UndoSkipButton workoutId={workoutId} />
     </Card>
   );
 }
@@ -208,7 +308,7 @@ function RestCard({
         meta="Nothing planned. Recovery is part of the program."
       />
       {daysAway >= -1 && <UpNext upNext={day.upNext} today={today} />}
-      {daysAway === 0 && (
+      {daysAway <= 0 && (
         <Button
           label="Other routine"
           variant="secondary"
@@ -239,7 +339,7 @@ function NoRoutinesCard() {
   );
 }
 
-/** A day's card: what is planned or was missed, a rest day, or the way to a first routine. */
+/** A day's card: what is planned, was missed or was skipped, a rest day, or the way to a first routine. */
 export function DayCard({ day, today }: { day: Day; today: string }) {
   const date = dateFromText(day.date);
 
@@ -251,8 +351,19 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
     );
   }
 
+  if (day.workoutId !== null) {
+    return (
+      <SkippedCard
+        day={day}
+        routine={day.routine}
+        today={today}
+        workoutId={day.workoutId}
+      />
+    );
+  }
+
   if (day.status === 'missed') {
-    return <MissedCard routine={day.routine} />;
+    return <MissedCard date={day.date} routine={day.routine} />;
   }
 
   return (
@@ -269,11 +380,10 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
                 variant="secondary"
                 onPress={comesInLogging}
               />,
-              <Button
+              <SkipButton
                 key="skip"
-                label="Skip workout"
-                variant="secondary"
-                onPress={skipComesLater}
+                date={day.date}
+                routineName={day.routine.name}
               />,
             ]}
           </Actions>

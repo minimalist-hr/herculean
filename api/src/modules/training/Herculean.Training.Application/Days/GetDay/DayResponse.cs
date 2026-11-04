@@ -7,7 +7,8 @@ internal sealed record DayResponse(
     [property: Description("The date.")] DateOnly Date,
     [property: Description("How the day is shown.")] DayStatus Status,
     [property: Description("Whether the user has any routine. Without one, the app offers to create it.")] bool HasRoutines,
-    [property: Description("The routine planned on this day. Null on a rest day.")] DayRoutineResponse? Routine,
+    [property: Description("The day's workout, which is how a skip is undone. Null when it has none.")] Guid? WorkoutId,
+    [property: Description("The routine planned on this day, or the one a skipped workout came from. Null on a rest day.")] DayRoutineResponse? Routine,
     [property: Description("The day after this one.")] UpNextResponse UpNext);
 
 [Description("A routine planned on a day.")]

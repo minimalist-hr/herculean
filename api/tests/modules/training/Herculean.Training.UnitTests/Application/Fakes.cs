@@ -20,6 +20,7 @@ using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 
 namespace Herculean.Training.UnitTests.Application;
 
@@ -215,11 +216,39 @@ internal sealed class FakeDayReadRepository : IDayReadRepository
 
     public bool HasRoutines { get; set; } = true;
 
+    public List<DayWorkout> Workouts { get; } = [];
+
+    public List<DayExerciseResponse> WorkoutExercises { get; } = [];
+
+    public Task<List<DayExerciseResponse>> ListWorkoutExercisesAsync(WorkoutId workoutId, CancellationToken cancellationToken) => Task.FromResult(WorkoutExercises);
+
+    public Task<DayWorkout?> GetWorkoutAsync(DateOnly date, CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.SingleOrDefault(workout => workout.Date == date));
+
+    public Task<List<DayWorkout>> ListWorkoutsAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.Where(workout => workout.Date >= from && workout.Date <= to).ToList());
+
     public Task<List<PlanChange>> ListPlanChangesAsync(CancellationToken cancellationToken) => Task.FromResult(Changes);
 
     public Task<List<DayExerciseResponse>> ListExercisesAsync(RoutineId routineId, CancellationToken cancellationToken) => Task.FromResult(Exercises);
 
     public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) => Task.FromResult(HasRoutines);
+}
+
+internal sealed class FakeWorkoutRepository : IWorkoutRepository
+{
+    public List<Workout> Workouts { get; } = [];
+
+    public Task<Workout?> GetAsync(WorkoutId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.SingleOrDefault(workout => workout.Id == id && workout.DeletedAtUtc is null));
+
+    public Task<bool> ExistsOnAsync(DateOnly date, CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.Any(workout => workout.Date == date && workout.DeletedAtUtc is null));
+
+    public void Add(Workout workout)
+    {
+        Workouts.Add(workout);
+    }
 }
 
 internal sealed class FakeWeekPlanDayRepository : IWeekPlanDayRepository

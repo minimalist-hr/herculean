@@ -47,6 +47,17 @@ public sealed class ListDaysHandlerTests
     }
 
     [Fact]
+    public async Task ASkippedDayShowsAsSkippedWithTheWorkoutsName()
+    {
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Tuesday, new DateOnly(2026, 1, 1), RoutineId.New(), "Renamed since", null));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), _today, "Legs", RoutineId.New()));
+
+        Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today);
+
+        result.Value.ShouldHaveSingleItem().ShouldBe(new DaySummaryResponse(_today, DayStatus.Skipped, "Legs"));
+    }
+
+    [Fact]
     public async Task ListsOneDay()
     {
         Result<List<DaySummaryResponse>> result = await ListAsync(_today, _today);

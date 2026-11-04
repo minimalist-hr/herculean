@@ -376,6 +376,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a workout
+         * @description Adds a skipped workout to a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout takes the routine's name.
+         */
+        post: operations["CreateWorkout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workouts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a workout
+         * @description Removes a workout from the signed-in user's date, which is how a skip is undone. The day then reads from the week plan again.
+         */
+        delete: operations["DeleteWorkout"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groups/{id}": {
         parameters: {
             query?: never;
@@ -540,6 +580,16 @@ export interface components {
             /** @description The phone's IANA time zone, for example Europe/Zagreb. */
             timeZone: string;
         };
+        /** @description A workout to add to a date. */
+        CreateWorkoutRequest: {
+            /**
+             * Format: date
+             * @description The date it belongs to.
+             */
+            date: string;
+            /** @description Where it stands. Only skipped for now. */
+            status: components["schemas"]["WorkoutStatus"];
+        };
         /** @description An exercise in a day's routine and its targets. */
         DayExerciseResponse: {
             /**
@@ -583,6 +633,11 @@ export interface components {
             status: components["schemas"]["DayStatus"];
             /** @description Whether the user has any routine. Without one, the app offers to create it. */
             hasRoutines: boolean;
+            /**
+             * Format: uuid
+             * @description The day's workout, which is how a skip is undone. Null when it has none.
+             */
+            workoutId: null | string;
             routine: null | components["schemas"]["DayRoutineResponse"];
             /** @description The day after this one. */
             upNext: components["schemas"]["UpNextResponse"];
@@ -603,7 +658,7 @@ export interface components {
          * @description How a day is shown.
          * @enum {unknown}
          */
-        DayStatus: "missed" | "planned" | "rest";
+        DayStatus: "missed" | "planned" | "rest" | "skipped";
         /** @description A day's status, for the week strip. */
         DaySummaryResponse: {
             /**
@@ -959,6 +1014,23 @@ export interface components {
             /** @description The routine's name. Null on a rest day. */
             routineName: null | string;
         };
+        /** @description A workout. */
+        WorkoutResponse: {
+            /**
+             * Format: uuid
+             * @description The workout's ID.
+             */
+            id: string;
+            /**
+             * Format: date
+             * @description The date it belongs to.
+             */
+            date: string;
+            /** @description Where it stands. */
+            status: components["schemas"]["WorkoutStatus"];
+            /** @description Its name, from the routine when it was created. */
+            name: string;
+        };
         /** @description The signed-in user's workout settings. */
         WorkoutSettingsResponse: {
             /**
@@ -971,6 +1043,11 @@ export interface components {
             /** @description Vibrate when the rest ends. */
             restVibrate: boolean;
         };
+        /**
+         * @description Where a workout stands.
+         * @enum {unknown}
+         */
+        WorkoutStatus: "skipped";
     };
     responses: never;
     parameters: never;
@@ -2087,6 +2164,96 @@ export interface operations {
             };
             /** @description Not signed in, or the access token expired. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateWorkout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkoutRequest"];
+            };
+        };
+        responses: {
+            /** @description The new workout. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The date already has a workout, is in the future, or has no routine planned. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteWorkout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workout is deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout does not exist, is already deleted, or belongs to another user. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -12,8 +12,8 @@ function dayLabel(date: Date, day: DaySummary | undefined, isToday: boolean) {
   if (day !== undefined) {
     parts.push(day.routineName ?? 'rest day');
   }
-  if (day?.status === 'missed') {
-    parts.push('missed');
+  if (day?.status === 'missed' || day?.status === 'skipped') {
+    parts.push(day.status);
   }
   if (isToday) {
     parts.push('today');
@@ -50,6 +50,7 @@ export function WeekStrip({
           missed: isSelected ? colors.onPrimary : colors.danger,
           planned: isSelected ? colors.onPrimary : colors.muted,
           rest: 'transparent',
+          skipped: isSelected ? colors.onPrimary : colors.skipped,
         }[day?.status ?? 'rest'];
         const numberColor = isToday ? colors.primaryText : colors.text;
 

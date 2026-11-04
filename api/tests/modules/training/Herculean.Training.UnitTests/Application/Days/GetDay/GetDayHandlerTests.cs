@@ -131,6 +131,47 @@ public sealed class GetDayHandlerTests
     }
 
     [Fact]
+    public async Task ASkippedDayShowsTheWorkoutsNameAndExercises()
+    {
+        Plan(Weekday.Tuesday, "Renamed since");
+        DayExerciseResponse squat = new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10);
+        DayExerciseResponse addedSince = new(Guid.CreateVersion7(), "Lunge", Guid.CreateVersion7(), "Legs", 4, 6, 6);
+        _dayReadRepository.WorkoutExercises.Add(squat);
+        _dayReadRepository.Exercises.Add(addedSince);
+        Guid workoutId = Guid.CreateVersion7();
+        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, _today, "Legs", RoutineId.New()));
+
+        DayResponse day = await GetAsync(_today);
+
+        day.Status.ShouldBe(DayStatus.Skipped);
+        day.WorkoutId.ShouldBe(workoutId);
+        day.Routine.ShouldNotBeNull().Name.ShouldBe("Legs");
+        day.Routine.Exercises.ShouldHaveSingleItem().ShouldBe(squat);
+    }
+
+    [Fact]
+    public async Task ASkippedDayStaysSkippedAfterItsRoutineLeavesThePlan()
+    {
+        Plan(Weekday.Tuesday, null);
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), _today, "Legs", RoutineId.New()));
+
+        DayResponse day = await GetAsync(_today);
+
+        day.Status.ShouldBe(DayStatus.Skipped);
+        day.Routine.ShouldNotBeNull().Name.ShouldBe("Legs");
+    }
+
+    [Fact]
+    public async Task ADayWithNoWorkoutHasNoWorkoutId()
+    {
+        Plan(Weekday.Tuesday, "Legs");
+
+        DayResponse day = await GetAsync(_today);
+
+        day.WorkoutId.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task UpNextIsTheRoutineOnTheDayAfter()
     {
         Plan(Weekday.Wednesday, "Legs");

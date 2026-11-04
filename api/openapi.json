@@ -1488,6 +1488,125 @@
         ]
       }
     },
+    "/api/v1/workouts": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Create a workout",
+        "description": "Adds a skipped workout to a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout takes the routine's name.",
+        "operationId": "CreateWorkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWorkoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The date already has a workout, is in the future, or has no routine planned.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}": {
+      "delete": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Delete a workout",
+        "description": "Removes a workout from the signed-in user's date, which is how a skip is undone. The day then reads from the week plan again.",
+        "operationId": "DeleteWorkout",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The workout is deleted."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout does not exist, is already deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/groups/{id}": {
       "get": {
         "tags": [
@@ -2066,6 +2185,25 @@
         },
         "description": "A new account."
       },
+      "CreateWorkoutRequest": {
+        "required": [
+          "date",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The date it belongs to.",
+            "format": "date"
+          },
+          "status": {
+            "description": "Where it stands. Only skipped for now.",
+            "$ref": "#/components/schemas/WorkoutStatus"
+          }
+        },
+        "description": "A workout to add to a date."
+      },
       "DayExerciseResponse": {
         "required": [
           "exerciseId",
@@ -2119,6 +2257,7 @@
           "date",
           "status",
           "hasRoutines",
+          "workoutId",
           "routine",
           "upNext"
         ],
@@ -2137,13 +2276,21 @@
             "type": "boolean",
             "description": "Whether the user has any routine. Without one, the app offers to create it."
           },
+          "workoutId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The day's workout, which is how a skip is undone. Null when it has none.",
+            "format": "uuid"
+          },
           "routine": {
             "oneOf": [
               {
                 "type": "null"
               },
               {
-                "description": "The routine planned on this day. Null on a rest day.",
+                "description": "The routine planned on this day, or the one a skipped workout came from. Null on a rest day.",
                 "$ref": "#/components/schemas/DayRoutineResponse"
               }
             ]
@@ -2186,7 +2333,8 @@
         "enum": [
           "missed",
           "planned",
-          "rest"
+          "rest",
+          "skipped"
         ],
         "description": "How a day is shown."
       },
@@ -2967,6 +3115,36 @@
         },
         "description": "What a weekday holds in the week plan."
       },
+      "WorkoutResponse": {
+        "required": [
+          "id",
+          "date",
+          "status",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The workout's ID.",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "description": "The date it belongs to.",
+            "format": "date"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/WorkoutStatus"
+          },
+          "name": {
+            "type": "string",
+            "description": "Its name, from the routine when it was created."
+          }
+        },
+        "description": "A workout."
+      },
       "WorkoutSettingsResponse": {
         "required": [
           "defaultRestSeconds",
@@ -2990,6 +3168,12 @@
           }
         },
         "description": "The signed-in user's workout settings."
+      },
+      "WorkoutStatus": {
+        "enum": [
+          "skipped"
+        ],
+        "description": "Where a workout stands."
       }
     },
     "securitySchemes": {
@@ -3028,6 +3212,9 @@
     },
     {
       "name": "Days"
+    },
+    {
+      "name": "Workouts"
     }
   ]
 }

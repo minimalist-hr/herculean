@@ -145,15 +145,15 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** Workout shows today at a glance. A week strip shows the status of each day. You can open any day of the week to see it as done, missed, skipped, rest or upcoming, and you can skip a workout and undo the skip.
 
-**Screens:** W01 Today, W04 Rest day, W05 No routines, W06 Skipped, W07 Loading, W08 Load failure, W09 Rest tomorrow, W21 Missed day, W22 Skipped day, W23 Yesterday rest day, W24 Tomorrow, W25 Rest day.
+**Screens:** W01 Today, W04 Rest day, W05 No routines, W06 Skipped, W26 Skip confirm, W27 Undo skip confirm, W07 Loading, W08 Load failure, W09 Rest tomorrow, W21 Missed day, W22 Skipped day, W23 Yesterday rest day, W24 Tomorrow, W25 Rest day.
 
 **Flows**
 - **Workout tab:** W07 → W01, W04, W05, W06 or W09, or W08 if it fails to load.
 - **Other days:** a day in the week strip → W21 to W25, with "Back to today".
-- **Skip:** Skip workout on W01 or W21 → W06 or W22. Undo skip → W01 or W21.
+- **Skip:** Skip workout on W01 or W21 → W26 → W06 or W22. Undo skip → W27 → the day's plan. Every state and action: [What you can do on a day](/product/domain#what-you-can-do-on-a-day).
 - **No routines:** Create routine on W05 → R30.
 
-**Entities:** Workout (skipped). Reads the week plan and routines.
+**Entities:** Workout (skipped), Workout exercise. Reads the week plan and routines.
 
 **Endpoints**
 
@@ -178,7 +178,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 **Screens:** W10 Choose a routine, W11 Loading, L01 Logging, L02 No exercises left, L03 Loading, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L14 Exercise history, L15 History empty, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, H02 Home in progress, H03 Home completed. Plus the Resume bar.
 
 **Flows**
-- **Start:** Start workout (H01), Load routine (W01), Log workout (W21 or W22), or a routine picked on W10 (from Other routine on W01 or H04) → L03 → L01.
+- **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → L03 → L01.
 - **Sets:** tap a weight or reps → L10 or L11 → Save set. Check a set → rest timer with −15, +15 and Skip. Add set adds a row. Remove set (in L10 or L11) → L12 undo bar.
 - **Exercises:** the trash → L13 → undo bar. Add exercise → the L20 flow from [3. Routines](#3-routines) → L01. Reorder → L04 → Save order. Removing every exercise shows L02.
 - **History:** the clock icon or the exercise name → L14, or L15 if never done. Full history → E10.
@@ -255,7 +255,7 @@ Changes on W30 stay in the app until Save workout.
 - **Photo:** H11 → Take photo or Choose from library. Remove photo → H10, with an undo bar.
 - **Email:** H17 → Save email → link in the email → the new email is active.
 - **Sign out:** → A01.
-- **Delete account:** → H19 → A01.
+- **Delete account:** → H19 → A01. An account deleted event tells Training to delete the user's training data, workouts included.
 
 **Entities:** User, Email change token, Refresh token, Workout settings.
 

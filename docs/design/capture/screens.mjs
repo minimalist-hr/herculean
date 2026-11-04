@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { problem, sample, sampleDay, sampleWeek } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleWeek } from './fixtures.mjs';
 
 const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails } = sample;
 
@@ -12,6 +12,7 @@ const lists = (answer) => ({ 'GET /api/v1/exercises': answer });
 const noGroups = { status: 200, body: [] };
 const friday = '2026-10-23T18:00:00';
 const sunday = '2026-10-25T18:00:00';
+const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', workoutId: 'workout-skipped' } });
 const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
 const restDay = (routineName) => ({ status: 200, body: { ...sampleDay, date: '2026-10-25', status: 'rest', routine: null, upNext: { date: '2026-10-26', routineName } } });
 
@@ -83,6 +84,20 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor('Start workout');
   } },
+  { id: 'W06', file: 'W06-Workout-Today-Skipped', title: 'Workout › Today · skipped', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Undo skip');
+  } },
+  { id: 'W26', file: 'W26-Workout-Skip-Confirm', title: 'Workout › Skip workout · confirm', row: 'W1 Today states', today: friday, full: false, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Skip workout');
+    await on.waitFor('Skip Chest and arms 2?');
+  } },
+  { id: 'W27', file: 'W27-Workout-Undo-Skip-Confirm', title: 'Workout › Undo skip · confirm', row: 'W1 Today states', today: friday, full: false, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) }, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Undo skip');
+    await on.waitFor('Undo this skip?');
+  } },
   { id: 'W04', file: 'W04-Workout-Today-Rest-Day', title: 'Workout › Today · rest day', row: 'W1 Today states', today: sunday, answers: { 'GET /api/v1/days': sundayWeek, 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1') }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Rest day');
@@ -100,6 +115,11 @@ export const screens = [
     await on.go('/workout');
     await on.tap('Wednesday 21, Legs, missed');
     await on.waitFor('Log workout');
+  } },
+  { id: 'W22', file: 'W22-Workout-Skipped-Day', title: 'Workout › Skipped day', row: 'W3 Other days', today: friday, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-21') }, 'GET /api/v1/days/2026-10-21': skippedDay(legsDay) }, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Wednesday 21, Legs, skipped');
+    await on.waitFor('Undo skip');
   } },
   { id: 'W24', file: 'W24-Workout-Upcoming-Day', title: 'Workout › Upcoming day · tomorrow', row: 'W3 Other days', today: friday, steps: async (on) => {
     await on.go('/workout');

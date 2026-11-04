@@ -7,6 +7,9 @@ namespace Herculean.Training.Application.Days;
 /// <summary>What a weekday holds from a date on. No routine ID means a rest day.</summary>
 internal sealed record PlanChange(Weekday Weekday, DateOnly EffectiveFrom, RoutineId? RoutineId, string? RoutineName, DateTimeOffset? RoutineDeletedAtUtc);
 
+/// <summary>A workout on a date, which decides how the day is shown.</summary>
+internal sealed record DayWorkout(Guid Id, DateOnly Date, string Name, RoutineId? RoutineId);
+
 /// <summary>What the week plan held on any date.</summary>
 internal sealed class DayPlan(IReadOnlyCollection<PlanChange> changes, UserCalendar calendar)
 {

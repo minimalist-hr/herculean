@@ -5,11 +5,13 @@ using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.WeekPlan;
 using Herculean.Training.Infrastructure.Settings;
+using Herculean.Training.Infrastructure.Workouts;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +36,8 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
 
     public DbSet<WeekPlanDay> WeekPlanDays => Set<WeekPlanDay>();
 
+    public DbSet<Workout> Workouts => Set<Workout>();
+
     private UserId CurrentUserId => currentUser.UserId;
 
     Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
@@ -49,6 +53,8 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
         modelBuilder.ApplyConfiguration(new RoutineConfiguration());
         modelBuilder.ApplyConfiguration(new RoutineExerciseConfiguration());
         modelBuilder.ApplyConfiguration(new WeekPlanDayConfiguration());
+        modelBuilder.ApplyConfiguration(new WorkoutConfiguration());
+        modelBuilder.ApplyConfiguration(new WorkoutExerciseConfiguration());
 
         modelBuilder.Entity<WorkoutSettings>()
             .HasQueryFilter(UserFilter, workoutSettings => workoutSettings.UserId == CurrentUserId);
@@ -67,5 +73,10 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
             .HasQueryFilter(UserFilter, exercise => exercise.UserId == CurrentUserId);
         modelBuilder.Entity<WeekPlanDay>()
             .HasQueryFilter(UserFilter, day => day.UserId == CurrentUserId);
+        modelBuilder.Entity<Workout>()
+            .HasQueryFilter(UserFilter, workout => workout.UserId == CurrentUserId)
+            .HasQueryFilter(SoftDeleteFilter, workout => workout.DeletedAtUtc == null);
+        modelBuilder.Entity<WorkoutExercise>()
+            .HasQueryFilter(UserFilter, exercise => exercise.UserId == CurrentUserId);
     }
 }
