@@ -9,7 +9,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 | Path | What it is | Use it for |
 |---|---|---|
 | `design-document.md` | The written spec: brand, tokens, components, navigation, interaction and content rules, every screen by area, sample data, parked ideas | Read first. The source of truth for rules. |
-| `screen-index.md` | All 133 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
+| `screen-index.md` | All 141 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
 | `screens/*.png` | Every screen at 2× (780 px wide), default settings: dark, Racing blue, Chakra Petch, sharp corners | Looking at a screen |
 | `capture/` | The tool that captures built screens from the running app, with the list of every built screen and state | Updating a screen after a change |
 | `html/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
@@ -19,7 +19,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 
 ## How to read a screen
 
-- **IDs:** area letter, then two digits; the first digit groups screens by flow. Row numbers don't always match that digit (W40–W42 sit in row W5 Month, H10–H19 in row H2 Settings), so use `screen-index.md` for the row of each ID. Board titles read `ID · Area › Screen · state`.
+- **IDs:** area letter, then two digits; the first digit groups screens by flow. Row numbers don't always match that digit (W40–W49 sit in row W5 Month, H10–H19 in row H2 Settings), so use `screen-index.md` for the row of each ID. Board titles read `ID · Area › Screen · state`.
 - **"full scroll"** screens are drawn at their full scrolled height, not 844 px.
 - **Sheets and confirms** are drawn over a dimmed copy of the screen that opens them.
 - **Sample data** (Friday 23 October 2026, Filip's split, Smith machine incline bench press 82.5 kg × 10) is design data only. It is consistent across screens, which makes it a good seed and test fixture.

@@ -151,6 +151,8 @@ Skip workout and Undo skip are built. The other actions come with [5. Logging](/
 ### Month totals (W40)
 
 - **Time trained:** the sum of workout durations.
-- **Sets:** checked sets, out of the target sets of planned days.
+- **Sets:** checked sets, out of the target sets of planned days so far.
 - **Volume:** volume of all sets.
-- **Consistency:** done days out of planned days so far.
+- **Consistency:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.
+- A skip counts as not done. A workout on a rest day counts as done.
+- Planned days so far are past days, plus today once its workout is done or skipped.

@@ -1525,6 +1525,64 @@
         ]
       }
     },
+    "/api/v1/month-summaries/{month}": {
+      "get": {
+        "tags": [
+          "Days"
+        ],
+        "summary": "Get a month's summary",
+        "description": "Returns a month's counts and totals for the signed-in user, in their time zone.",
+        "operationId": "GetMonthSummary",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "path",
+            "description": "The month, as yyyy-MM.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The month's summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonthSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The month is not a valid month.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/workouts": {
       "post": {
         "tags": [
@@ -2610,6 +2668,71 @@
           }
         },
         "description": "A muscle group. It orders the exercise list and the chips."
+      },
+      "MonthSummaryResponse": {
+        "required": [
+          "done",
+          "missed",
+          "skipped",
+          "minutesTrained",
+          "setsDone",
+          "setsPlanned",
+          "volumeKg",
+          "plannedDays",
+          "consistencyPercent"
+        ],
+        "type": "object",
+        "properties": {
+          "done": {
+            "type": "integer",
+            "description": "Days with a completed workout.",
+            "format": "int32"
+          },
+          "missed": {
+            "type": "integer",
+            "description": "Planned days that passed with nothing logged.",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "description": "Days with a skipped workout.",
+            "format": "int32"
+          },
+          "minutesTrained": {
+            "type": "integer",
+            "description": "The sum of workout durations, in minutes.",
+            "format": "int32"
+          },
+          "setsDone": {
+            "type": "integer",
+            "description": "Checked sets.",
+            "format": "int32"
+          },
+          "setsPlanned": {
+            "type": "integer",
+            "description": "The target sets of planned days so far.",
+            "format": "int32"
+          },
+          "volumeKg": {
+            "type": "number",
+            "description": "Weight times reps over all sets, in kilograms.",
+            "format": "double"
+          },
+          "plannedDays": {
+            "type": "integer",
+            "description": "Planned days so far: past days, plus today once its workout is done or skipped.",
+            "format": "int32"
+          },
+          "consistencyPercent": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Done days out of planned days so far, from 0 to 100. Null with no planned days yet.",
+            "format": "int32"
+          }
+        },
+        "description": "A month's counts and totals."
       },
       "MovedDayResponse": {
         "required": [

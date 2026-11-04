@@ -1,6 +1,6 @@
 # Screen index
 
-133 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+141 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -77,12 +77,20 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W24 | Workout › Upcoming day · tomorrow | W3 Other days | 390×844 | [png](screens/W24-Workout-Upcoming-Day.png) · [html](html/W24-Workout-Upcoming-Day.html) · [source](source/W24-Workout-Upcoming-Day.dc.html) |
 | W25 | Workout › Rest day | W3 Other days | 390×844 | [png](screens/W25-Workout-Rest-Day.png) · [html](html/W25-Workout-Rest-Day.html) · [source](source/W25-Workout-Rest-Day.dc.html) |
 | W28 | Workout › Another week | W3 Other days | 390×844 | [png](screens/W28-Workout-Another-Week.png) · [html](html/W28-Workout-Another-Week.html) · [source](source/W28-Workout-Another-Week.dc.html) |
+| W29 | Workout › Day from the month | W3 Other days | 390×844 | [png](screens/W29-Workout-Day-From-Month.png) · [html](html/W29-Workout-Day-From-Month.html) · [source](source/W29-Workout-Day-From-Month.dc.html) |
 | W30 | Workout › Edit workout · full scroll | W4 Edit or delete a workout | 390×1900 | [png](screens/W30-Workout-Edit.png) · [html](html/W30-Workout-Edit.html) · [source](source/W30-Workout-Edit.dc.html) |
 | W31 | Workout › Edit workout · set removed, undo bar | W4 Edit or delete a workout | 390×844 | [png](screens/W31-Workout-Edit-Set-Removed.png) · [html](html/W31-Workout-Edit-Set-Removed.html) · [source](source/W31-Workout-Edit-Set-Removed.dc.html) |
 | W32 | Workout › Delete workout · confirm | W4 Edit or delete a workout | 390×844 | [png](screens/W32-Workout-Delete-Confirm.png) · [html](html/W32-Workout-Delete-Confirm.html) · [source](source/W32-Workout-Delete-Confirm.dc.html) |
 | W41 | Workout › Month · loading, full scroll | W5 Month | 390×1060 | [png](screens/W41-Workout-Month-Loading.png) · [html](html/W41-Workout-Month-Loading.html) · [source](source/W41-Workout-Month-Loading.dc.html) |
 | W40 | Workout › Month · full scroll | W5 Month | 390×1060 | [png](screens/W40-Workout-Month.png) · [html](html/W40-Workout-Month.html) · [source](source/W40-Workout-Month.dc.html) |
 | W42 | Workout › Month › Day summary · sheet | W5 Month | 390×844 | [png](screens/W42-Workout-Month-Day-Sheet.png) · [html](html/W42-Workout-Month-Day-Sheet.html) · [source](source/W42-Workout-Month-Day-Sheet.dc.html) |
+| W43 | Workout › Month › Day summary · missed, sheet | W5 Month | 390×844 | [png](screens/W43-Workout-Month-Day-Missed.png) · [html](html/W43-Workout-Month-Day-Missed.html) · [source](source/W43-Workout-Month-Day-Missed.dc.html) |
+| W44 | Workout › Month › Day summary · skipped, sheet | W5 Month | 390×844 | [png](screens/W44-Workout-Month-Day-Skipped.png) · [html](html/W44-Workout-Month-Day-Skipped.html) · [source](source/W44-Workout-Month-Day-Skipped.dc.html) |
+| W45 | Workout › Month › Day summary · planned, sheet | W5 Month | 390×844 | [png](screens/W45-Workout-Month-Day-Planned.png) · [html](html/W45-Workout-Month-Day-Planned.html) · [source](source/W45-Workout-Month-Day-Planned.dc.html) |
+| W46 | Workout › Month › Day summary · rest day, sheet | W5 Month | 390×844 | [png](screens/W46-Workout-Month-Day-Rest.png) · [html](html/W46-Workout-Month-Day-Rest.html) · [source](source/W46-Workout-Month-Day-Rest.dc.html) |
+| W47 | Workout › Month · first month, full scroll | W5 Month | 390×1060 | [png](screens/W47-Workout-Month-First.png) · [html](html/W47-Workout-Month-First.html) · [source](source/W47-Workout-Month-First.dc.html) |
+| W48 | Workout › Month · another day selected, full scroll | W5 Month | 390×1060 | [png](screens/W48-Workout-Month-Day-Selected.png) · [html](html/W48-Workout-Month-Day-Selected.html) · [source](source/W48-Workout-Month-Day-Selected.dc.html) |
+| W49 | Workout › Month · load failure | W5 Month | 390×844 | [png](screens/W49-Workout-Month-Load-Failure.png) · [html](html/W49-Workout-Month-Load-Failure.html) · [source](source/W49-Workout-Month-Load-Failure.dc.html) |
 
 ## L · Logging
 

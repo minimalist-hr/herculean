@@ -9,6 +9,7 @@ using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Application.Days.GetFirstDay;
+using Herculean.Training.Application.Days.GetMonthSummary;
 using Herculean.Training.Application.Days.ListDays;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.CreateExercise;
@@ -106,6 +107,8 @@ public static class TrainingModule
         builder.Services.AddScoped<ListDaysHandler>();
         builder.Services.AddScoped<GetDayHandler>();
         builder.Services.AddScoped<GetFirstDayHandler>();
+        builder.Services.AddScoped<IValidator<GetMonthSummaryRequest>, GetMonthSummaryValidator>();
+        builder.Services.AddScoped<GetMonthSummaryHandler>();
         builder.Services.AddScoped<IValidator<CreateWorkoutRequest>, CreateWorkoutValidator>();
         builder.Services.AddScoped<CreateWorkoutHandler>();
         builder.Services.AddScoped<DeleteWorkoutHandler>();
@@ -144,6 +147,7 @@ public static class TrainingModule
         ListDaysEndpoint.Map(endpoints);
         GetFirstDayEndpoint.Map(endpoints);
         GetDayEndpoint.Map(endpoints);
+        GetMonthSummaryEndpoint.Map(endpoints);
         CreateWorkoutEndpoint.Map(endpoints);
         DeleteWorkoutEndpoint.Map(endpoints);
         GetGroupEndpoint.Map(endpoints);

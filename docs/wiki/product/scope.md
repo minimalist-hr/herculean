@@ -18,8 +18,8 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E36, L22 |
 | 3 | [Routines](#3-routines) | R01–R03, R05, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
-| 5 | [Logging](#5-logging) | W10, W11, L01–L04, L10–L15, L30, L31, W02, H02 |
-| 6 | [Edit workout and month](#6-edit-workout-and-month) | W30–W32, W40–W42 |
+| 5 | [Logging](#5-logging) | W10, W11, L01–L04, L10–L15, L30, L31, W02, H02, W42 |
+| 6 | [Edit workout and month](#6-edit-workout-and-month) | W29, W30–W32, W40, W41, W43–W49 |
 | 7 | [Settings](#7-settings) | H10–H19 |
 
 ---
@@ -176,7 +176,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W10 Choose a routine, W11 Loading, L01 Logging, L02 No exercises left, L03 Loading, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L14 Exercise history, L15 History empty, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, H02 Home in progress, H03 Home completed. Plus the Resume bar.
+**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, L01 Logging, L02 No exercises left, L03 Loading, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L14 Exercise history, L15 History empty, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, H02 Home in progress, H03 Home completed. Plus the Resume bar.
 
 **Flows**
 - **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → L03 → L01.
@@ -217,12 +217,12 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you correct a logged workout or delete it. You see a month at a time, with done, missed and skipped counts, a calendar with a status under each past day, and month totals.
 
-**Screens:** W30 Edit workout, W31 Set removed, W32 Delete workout, W40 Month, W41 Loading, W42 Day summary.
+**Screens:** W30 Edit workout, W31 Set removed, W32 Delete workout, W29 Day from the month, W40 Month, W41 Loading, W43 to W46 Day summary, W47 First month, W48 Another day selected, W49 Load failure.
 
 **Flows**
 - **Edit:** Edit on W03 or W20 → W30. Sets use the L10 and L11 sheets. Remove set → W31 undo bar. The trash on an exercise → L13 → undo bar. Add exercise → the L20 flow. Save workout → back to the day.
 - **Delete:** Delete on W03 or W20 → W32 → the day, with an undo bar.
-- **Month:** the calendar icon on W01 → W41 → W40. Previous and next month. A day → W42 → Open day → W20 to W25, with "Back to month".
+- **Month:** the calendar icon on W01 → W41 → W40. Swipe or use the buttons to change month, from the first day's month to the month holding the last day the week strip reaches. Days and buttons past those limits look muted, and tapping one says why (W47). A tapped day stays selected (W48). A day → W43 to W46 → Open day → that day on the Workout tab, in its week, with "Back to month" (W29). W40's back link goes to today. If the month can't load → W49.
 
 Changes on W30 stay in the app until Save workout.
 
@@ -235,7 +235,8 @@ Changes on W30 stay in the app until Save workout.
 | PUT | `/api/v1/workouts/{id}` | W30 Save workout: exercises and sets |
 | DELETE | `/api/v1/workouts/{id}` | W32 |
 | POST | `/api/v1/workouts/{id}/restore` | Undo after W32 |
-| GET | `/api/v1/days` | W40 calendar, W42, with `from` and `to` filters |
+| GET | `/api/v1/days` | W40 calendar, with `from` and `to` filters |
+| GET | `/api/v1/days/{date}` | W43 to W46 |
 | GET | `/api/v1/month-summaries/{yyyy-MM}` | W40 tiles and totals |
 
 **Done when**

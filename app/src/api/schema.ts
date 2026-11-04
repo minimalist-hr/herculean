@@ -396,6 +396,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/month-summaries/{month}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a month's summary
+         * @description Returns a month's counts and totals for the signed-in user, in their time zone.
+         */
+        get: operations["GetMonthSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workouts": {
         parameters: {
             query?: never;
@@ -788,6 +808,54 @@ export interface components {
             id: string;
             /** @description The group's name. */
             name: string;
+        };
+        /** @description A month's counts and totals. */
+        MonthSummaryResponse: {
+            /**
+             * Format: int32
+             * @description Days with a completed workout.
+             */
+            done: number;
+            /**
+             * Format: int32
+             * @description Planned days that passed with nothing logged.
+             */
+            missed: number;
+            /**
+             * Format: int32
+             * @description Days with a skipped workout.
+             */
+            skipped: number;
+            /**
+             * Format: int32
+             * @description The sum of workout durations, in minutes.
+             */
+            minutesTrained: number;
+            /**
+             * Format: int32
+             * @description Checked sets.
+             */
+            setsDone: number;
+            /**
+             * Format: int32
+             * @description The target sets of planned days so far.
+             */
+            setsPlanned: number;
+            /**
+             * Format: double
+             * @description Weight times reps over all sets, in kilograms.
+             */
+            volumeKg: number;
+            /**
+             * Format: int32
+             * @description Planned days so far: past days, plus today once its workout is done or skipped.
+             */
+            plannedDays: number;
+            /**
+             * Format: int32
+             * @description Done days out of planned days so far, from 0 to 100. Null with no planned days yet.
+             */
+            consistencyPercent: null | number;
         };
         /** @description A weekday that moved to this routine from another one. */
         MovedDayResponse: {
@@ -2211,6 +2279,47 @@ export interface operations {
                 };
             };
             /** @description The date is not a valid date. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMonthSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The month, as yyyy-MM. */
+                month: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The month's summary. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthSummaryResponse"];
+                };
+            };
+            /** @description The month is not a valid month. */
             400: {
                 headers: {
                     [name: string]: unknown;
