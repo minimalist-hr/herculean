@@ -1,6 +1,6 @@
 # Screen index
 
-207 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+206 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -75,7 +75,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W07 | Workout › Today · loading | W1 Today states | 390×844 | [png](screens/W07-Workout-Today-Loading.png) · [html](html/W07-Workout-Today-Loading.html) · [source](source/W07-Workout-Today-Loading.dc.html) |
 | W08 | Workout › Today · load failure | W1 Today states | 390×844 | [png](screens/W08-Workout-Today-Load-Failure.png) · [html](html/W08-Workout-Today-Load-Failure.html) · [source](source/W08-Workout-Today-Load-Failure.dc.html) |
 | W01 | Workout › Today · full scroll | W1 Today states | 390×939 | [png](screens/W01-Workout-Today.png) · [html](html/W01-Workout-Today.html) · [source](source/W01-Workout-Today.dc.html) |
-| W02 | Workout › Today · workout in progress | W1 Today states | 390×844 | [png](screens/W02-Workout-Today-In-Progress.png) · [html](html/W02-Workout-Today-In-Progress.html) · [source](source/W02-Workout-Today-In-Progress.dc.html) |
+| W02 | Workout › Today · in progress · full scroll | W1 Today states | 390×963 | [png](screens/W02-Workout-Today-In-Progress.png) · [html](html/W02-Workout-Today-In-Progress.html) · [source](source/W02-Workout-Today-In-Progress.dc.html) |
 | W03 | Workout › Today · completed | W1 Today states | 390×844 | [png](screens/W03-Workout-Today-Completed.png) · [html](html/W03-Workout-Today-Completed.html) · [source](source/W03-Workout-Today-Completed.dc.html) |
 | W06 | Workout › Today · skipped · full scroll | W1 Today states | 390×943 | [png](screens/W06-Workout-Today-Skipped.png) · [html](html/W06-Workout-Today-Skipped.html) · [source](source/W06-Workout-Today-Skipped.dc.html) |
 | W26 | Workout › Skip workout · confirm | W1 Today states | 390×844 | [png](screens/W26-Workout-Skip-Confirm.png) · [html](html/W26-Workout-Skip-Confirm.html) · [source](source/W26-Workout-Skip-Confirm.dc.html) |
@@ -96,17 +96,17 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W30 | Workout › Edit workout · full scroll | W4 Edit or delete a workout | 390×1900 | [png](screens/W30-Workout-Edit.png) · [html](html/W30-Workout-Edit.html) · [source](source/W30-Workout-Edit.dc.html) |
 | W31 | Workout › Edit workout · set removed, undo bar | W4 Edit or delete a workout | 390×844 | [png](screens/W31-Workout-Edit-Set-Removed.png) · [html](html/W31-Workout-Edit-Set-Removed.html) · [source](source/W31-Workout-Edit-Set-Removed.dc.html) |
 | W32 | Workout › Delete workout · confirm | W4 Edit or delete a workout | 390×844 | [png](screens/W32-Workout-Delete-Confirm.png) · [html](html/W32-Workout-Delete-Confirm.html) · [source](source/W32-Workout-Delete-Confirm.dc.html) |
-| W41 | Workout › Month · loading · full scroll | W5 Month | 390×1024 | [png](screens/W41-Workout-Month-Loading.png) · [html](html/W41-Workout-Month-Loading.html) · [source](source/W41-Workout-Month-Loading.dc.html) |
-| W40 | Workout › Month · full scroll | W5 Month | 390×1024 | [png](screens/W40-Workout-Month.png) · [html](html/W40-Workout-Month.html) · [source](source/W40-Workout-Month.dc.html) |
+| W41 | Workout › Month · loading · full scroll | W5 Month | 390×1048 | [png](screens/W41-Workout-Month-Loading.png) · [html](html/W41-Workout-Month-Loading.html) · [source](source/W41-Workout-Month-Loading.dc.html) |
+| W40 | Workout › Month · full scroll | W5 Month | 390×1048 | [png](screens/W40-Workout-Month.png) · [html](html/W40-Workout-Month.html) · [source](source/W40-Workout-Month.dc.html) |
 | W42 | Workout › Month › Day summary · sheet | W5 Month | 390×844 | [png](screens/W42-Workout-Month-Day-Sheet.png) · [html](html/W42-Workout-Month-Day-Sheet.html) · [source](source/W42-Workout-Month-Day-Sheet.dc.html) |
 | W43 | Workout › Month › Day summary · missed, sheet | W5 Month | 390×844 | [png](screens/W43-Workout-Month-Day-Missed.png) · [html](html/W43-Workout-Month-Day-Missed.html) · [source](source/W43-Workout-Month-Day-Missed.dc.html) |
 | W44 | Workout › Month › Day summary · skipped, sheet | W5 Month | 390×844 | [png](screens/W44-Workout-Month-Day-Skipped.png) · [html](html/W44-Workout-Month-Day-Skipped.html) · [source](source/W44-Workout-Month-Day-Skipped.dc.html) |
 | W45 | Workout › Month › Day summary · planned, sheet | W5 Month | 390×844 | [png](screens/W45-Workout-Month-Day-Planned.png) · [html](html/W45-Workout-Month-Day-Planned.html) · [source](source/W45-Workout-Month-Day-Planned.dc.html) |
 | W46 | Workout › Month › Day summary · rest day, sheet | W5 Month | 390×844 | [png](screens/W46-Workout-Month-Day-Rest.png) · [html](html/W46-Workout-Month-Day-Rest.html) · [source](source/W46-Workout-Month-Day-Rest.dc.html) |
-| W47 | Workout › Month · first month · full scroll | W5 Month | 390×1024 | [png](screens/W47-Workout-Month-First.png) · [html](html/W47-Workout-Month-First.html) · [source](source/W47-Workout-Month-First.dc.html) |
-| W48 | Workout › Month · another day selected · full scroll | W5 Month | 390×1024 | [png](screens/W48-Workout-Month-Day-Selected.png) · [html](html/W48-Workout-Month-Day-Selected.html) · [source](source/W48-Workout-Month-Day-Selected.dc.html) |
+| W47 | Workout › Month · first month · full scroll | W5 Month | 390×1048 | [png](screens/W47-Workout-Month-First.png) · [html](html/W47-Workout-Month-First.html) · [source](source/W47-Workout-Month-First.dc.html) |
+| W48 | Workout › Month · another day selected · full scroll | W5 Month | 390×1048 | [png](screens/W48-Workout-Month-Day-Selected.png) · [html](html/W48-Workout-Month-Day-Selected.html) · [source](source/W48-Workout-Month-Day-Selected.dc.html) |
 | W49 | Workout › Month · load failure | W5 Month | 390×844 | [png](screens/W49-Workout-Month-Load-Failure.png) · [html](html/W49-Workout-Month-Load-Failure.html) · [source](source/W49-Workout-Month-Load-Failure.dc.html) |
-| W12 | Workout › Today · logging comes later | W1 Today states | 390×844 | [png](screens/W12-Workout-Today-Logging-Later.png) · [html](html/W12-Workout-Today-Logging-Later.html) · [source](source/W12-Workout-Today-Logging-Later.dc.html) |
+| W12 | Workout › Today · another routine comes later | W1 Today states | 390×844 | [png](screens/W12-Workout-Today-Logging-Later.png) · [html](html/W12-Workout-Today-Logging-Later.html) · [source](source/W12-Workout-Today-Logging-Later.dc.html) |
 | W13 | Workout › Skip workout · skipping | W1 Today states | 390×844 | [png](screens/W13-Workout-Skip-Skipping.png) · [html](html/W13-Workout-Skip-Skipping.html) · [source](source/W13-Workout-Skip-Skipping.dc.html) |
 | W14 | Workout › Skip workout · couldn't skip | W1 Today states | 390×844 | [png](screens/W14-Workout-Skip-Failed.png) · [html](html/W14-Workout-Skip-Failed.html) · [source](source/W14-Workout-Skip-Failed.dc.html) |
 | W15 | Workout › Undo skip · undoing | W1 Today states | 390×844 | [png](screens/W15-Workout-Undo-Skip-Undoing.png) · [html](html/W15-Workout-Undo-Skip-Undoing.html) · [source](source/W15-Workout-Undo-Skip-Undoing.dc.html) |
@@ -114,10 +114,10 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W17 | Workout › Today · first week, no earlier weeks · full scroll | W3 Other days | 390×939 | [png](screens/W17-Workout-First-Week.png) · [html](html/W17-Workout-First-Week.html) · [source](source/W17-Workout-First-Week.dc.html) |
 | W18 | Workout › Upcoming day · last week, no later weeks | W3 Other days | 390×844 | [png](screens/W18-Workout-Last-Week.png) · [html](html/W18-Workout-Last-Week.html) · [source](source/W18-Workout-Last-Week.dc.html) |
 | W19 | Workout › Day in another year | W3 Other days | 390×844 | [png](screens/W19-Workout-Another-Year.png) · [html](html/W19-Workout-Another-Year.html) · [source](source/W19-Workout-Another-Year.dc.html) |
-| W50 | Workout › Month · another month · full scroll | W5 Month | 390×1024 | [png](screens/W50-Workout-Month-Another-Month.png) · [html](html/W50-Workout-Month-Another-Month.html) · [source](source/W50-Workout-Month-Another-Month.dc.html) |
+| W50 | Workout › Month · another month · full scroll | W5 Month | 390×1048 | [png](screens/W50-Workout-Month-Another-Month.png) · [html](html/W50-Workout-Month-Another-Month.html) · [source](source/W50-Workout-Month-Another-Month.dc.html) |
 | W51 | Workout › Month · last month, a later day says why | W5 Month | 390×844 | [png](screens/W51-Workout-Month-Last.png) · [html](html/W51-Workout-Month-Last.html) · [source](source/W51-Workout-Month-Last.dc.html) |
 | W52 | Workout › Month · first month, an earlier day says why | W5 Month | 390×844 | [png](screens/W52-Workout-Month-First-Says-Why.png) · [html](html/W52-Workout-Month-First-Says-Why.html) · [source](source/W52-Workout-Month-First-Says-Why.dc.html) |
-| W53 | Workout › Month · nothing planned yet · full scroll | W5 Month | 390×1024 | [png](screens/W53-Workout-Month-Nothing-Planned.png) · [html](html/W53-Workout-Month-Nothing-Planned.html) · [source](source/W53-Workout-Month-Nothing-Planned.dc.html) |
+| W53 | Workout › Month · nothing planned yet · full scroll | W5 Month | 390×1048 | [png](screens/W53-Workout-Month-Nothing-Planned.png) · [html](html/W53-Workout-Month-Nothing-Planned.html) · [source](source/W53-Workout-Month-Nothing-Planned.dc.html) |
 | W54 | Workout › Month › Day summary · today, sheet | W5 Month | 390×844 | [png](screens/W54-Workout-Month-Day-Today.png) · [html](html/W54-Workout-Month-Day-Today.html) · [source](source/W54-Workout-Month-Day-Today.dc.html) |
 | W55 | Workout › Month › Day summary · loading, sheet | W5 Month | 390×844 | [png](screens/W55-Workout-Month-Day-Loading.png) · [html](html/W55-Workout-Month-Day-Loading.html) · [source](source/W55-Workout-Month-Day-Loading.dc.html) |
 | W56 | Workout › Month › Day summary · load failure, sheet | W5 Month | 390×844 | [png](screens/W56-Workout-Month-Day-Load-Failure.png) · [html](html/W56-Workout-Month-Day-Load-Failure.html) · [source](source/W56-Workout-Month-Day-Load-Failure.dc.html) |
@@ -126,13 +126,12 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
-| L03 | Logging · loading | L1 Log sets | 390×844 | [png](screens/L03-Logging-Loading.png) · [html](html/L03-Logging-Loading.html) · [source](source/L03-Logging-Loading.dc.html) |
-| L01 | Logging · full scroll | L1 Log sets | 390×1140 | [png](screens/L01-Logging.png) · [html](html/L01-Logging.html) · [source](source/L01-Logging.dc.html) |
+| L03 | Logging › Loading | L1 Log sets | 390×844 | [png](screens/L03-Logging-Loading.png) · [html](html/L03-Logging-Loading.html) · [source](source/L03-Logging-Loading.dc.html) |
+| L05 | Logging › Load failure | L1 Log sets | 390×844 | [png](screens/L05-Logging-Load-Failure.png) · [html](html/L05-Logging-Load-Failure.html) · [source](source/L05-Logging-Load-Failure.dc.html) |
+| L01 | Logging · full scroll | L1 Log sets | 390×1056 | [png](screens/L01-Logging.png) · [html](html/L01-Logging.html) · [source](source/L01-Logging.dc.html) |
 | L10 | Logging › Edit weight · sheet | L1 Log sets | 390×844 | [png](screens/L10-Logging-Edit-Weight.png) · [html](html/L10-Logging-Edit-Weight.html) · [source](source/L10-Logging-Edit-Weight.dc.html) |
 | L11 | Logging › Edit reps · sheet | L1 Log sets | 390×844 | [png](screens/L11-Logging-Edit-Reps.png) · [html](html/L11-Logging-Edit-Reps.html) · [source](source/L11-Logging-Edit-Reps.dc.html) |
-| L12 | Logging › Set removed · undo bar | L1 Log sets | 390×844 | [png](screens/L12-Logging-Set-Removed.png) · [html](html/L12-Logging-Set-Removed.html) · [source](source/L12-Logging-Set-Removed.dc.html) |
-| L14 | Logging › Exercise history · sheet | L1 Log sets | 390×844 | [png](screens/L14-Logging-Exercise-History.png) · [html](html/L14-Logging-Exercise-History.html) · [source](source/L14-Logging-Exercise-History.dc.html) |
-| L15 | Logging › Exercise history · no sessions yet | L1 Log sets | 390×844 | [png](screens/L15-Logging-Exercise-History-Empty.png) · [html](html/L15-Logging-Exercise-History-Empty.html) · [source](source/L15-Logging-Exercise-History-Empty.dc.html) |
+| L12 | Logging › Set removed · undo bar · full scroll | L1 Log sets | 390×1006 | [png](screens/L12-Logging-Set-Removed.png) · [html](html/L12-Logging-Set-Removed.html) · [source](source/L12-Logging-Set-Removed.dc.html) |
 | L04 | Logging › Reorder exercises | L1 Log sets | 390×900 | [png](screens/L04-Logging-Reorder.png) · [html](html/L04-Logging-Reorder.html) · [source](source/L04-Logging-Reorder.dc.html) |
 | L13 | Logging › Remove exercise · confirm | L2 Exercises | 390×844 | [png](screens/L13-Logging-Remove-Exercise-Confirm.png) · [html](html/L13-Logging-Remove-Exercise-Confirm.html) · [source](source/L13-Logging-Remove-Exercise-Confirm.dc.html) |
 | L20 | Logging › Add exercise · full scroll | L2 Exercises | 390×1443 | [png](screens/L20-Logging-Add-Exercise.png) · [html](html/L20-Logging-Add-Exercise.html) · [source](source/L20-Logging-Add-Exercise.dc.html) |

@@ -29,12 +29,13 @@ internal sealed class GetMonthSummaryHandler(
         UserCalendar calendar = await userClock.GetCalendarAsync(cancellationToken);
         DayPlan plan = new(await dayReadRepository.ListPlanChangesAsync(cancellationToken), calendar);
 
-        // Every workout is a skip until logging exists.
-        List<DayWorkout> skipped = await dayReadRepository.ListWorkoutsAsync(first, last, cancellationToken);
-        HashSet<DateOnly> skippedDates = [.. skipped.Select(workout => workout.Date)];
+        // A workout in progress counts towards nothing until it's finished.
+        List<DayWorkout> workouts = await dayReadRepository.ListWorkoutsAsync(first, last, cancellationToken);
+        List<DayWorkout> skipped = [.. workouts.Where(workout => workout.Status == WorkoutStatus.Skipped)];
+        HashSet<DateOnly> workoutDates = [.. workouts.Select(workout => workout.Date)];
         List<PlanChange> missed = Enumerable.Range(0, last.DayNumber - first.DayNumber + 1)
             .Select(first.AddDays)
-            .Where(date => date < calendar.Today && !skippedDates.Contains(date))
+            .Where(date => date < calendar.Today && !workoutDates.Contains(date))
             .Select(plan.RoutineOn)
             .OfType<PlanChange>()
             .ToList();

@@ -8,3 +8,5 @@ Captures built screens from the running app into `screens/`, `html/` and `source
 Every built screen and state is listed in `screens.mjs`. Add a new one there, in the place it should have in the screen index.
 
 It runs the app's web version in Edge. Set `APP_URL` or `BROWSER` to use something else.
+
+Drawings of screens not built yet are rendered with `node render-drawing.mjs <file names>`, which prints each height.

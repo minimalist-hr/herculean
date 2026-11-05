@@ -1589,7 +1589,7 @@
           "Workouts"
         ],
         "summary": "Create a workout",
-        "description": "Adds a skipped workout to a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout takes the routine's name.",
+        "description": "Starts or skips a workout on a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout copies the routine's name, exercises and targets. A started workout's sets begin from last time.",
         "operationId": "CreateWorkout",
         "requestBody": {
           "content": {
@@ -1633,7 +1633,7 @@
             }
           },
           "409": {
-            "description": "The date already has a workout, is in the future, or has no routine planned.",
+            "description": "The date already has a workout, is in the future, or has no routine planned. Or, when starting, the routine has no exercises left or another workout is in progress.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1686,6 +1686,354 @@
           },
           "404": {
             "description": "The workout does not exist, is already deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get a workout",
+        "description": "Returns one of the signed-in user's workouts, with its exercises and sets in order, and each exercise's last time.",
+        "operationId": "GetWorkout",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutDetailsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}/exercises/{workoutExerciseId}/sets": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Add a set",
+        "description": "Adds a set to an exercise in a workout in progress. An empty object adds a copy of the last set. Sending a removed set puts it back where it was. An exercise has at most 20 sets.",
+        "operationId": "AddSet",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workoutExerciseId",
+            "in": "path",
+            "description": "The exercise's ID in the workout.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout or the exercise does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, or the exercise has 20 sets.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}/exercises/{workoutExerciseId}/sets/{setId}": {
+      "patch": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Change a set",
+        "description": "Changes a set's weight or reps, or checks or unchecks it, in a workout in progress. A changed value also changes later unchecked sets of the exercise, unless they were changed by hand. Returns all of the exercise's sets.",
+        "operationId": "UpdateSet",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workoutExerciseId",
+            "in": "path",
+            "description": "The exercise's ID in the workout.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "setId",
+            "in": "path",
+            "description": "The set's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "All of the exercise's sets, in order.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SetResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout, exercise or set does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Remove a set",
+        "description": "Removes a set from an exercise in a workout in progress, and closes the gap in the order. An exercise keeps at least one set.",
+        "operationId": "DeleteSet",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workoutExerciseId",
+            "in": "path",
+            "description": "The exercise's ID in the workout.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "setId",
+            "in": "path",
+            "description": "The set's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The set is removed."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout, exercise or set does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, or this is the exercise's last set.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -2109,6 +2457,23 @@
   },
   "components": {
     "schemas": {
+      "AddSetRequest": {
+        "type": "object",
+        "properties": {
+          "removed": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The removed set to put back, which is how a removal is undone. Left out, the new set copies the last set.",
+                "$ref": "#/components/schemas/RemovedSet"
+              }
+            ]
+          }
+        },
+        "description": "A set to add to an exercise."
+      },
       "BestSetResponse": {
         "required": [
           "weightKg",
@@ -2293,7 +2658,7 @@
             "format": "date"
           },
           "status": {
-            "description": "Where it stands. Only skipped for now.",
+            "description": "Where it starts: in progress to log it, or skipped.",
             "$ref": "#/components/schemas/WorkoutStatus"
           }
         },
@@ -2376,7 +2741,7 @@
               "null",
               "string"
             ],
-            "description": "The day's workout, which is how a skip is undone. Null when it has none.",
+            "description": "The day's workout, which is how a workout is resumed or a skip undone. Null when it has none.",
             "format": "uuid"
           },
           "routine": {
@@ -2385,7 +2750,7 @@
                 "type": "null"
               },
               {
-                "description": "The routine planned on this day, or the one a skipped workout came from. Null on a rest day.",
+                "description": "The routine planned on this day, or the one its workout came from. Null on a rest day.",
                 "$ref": "#/components/schemas/DayRoutineResponse"
               }
             ]
@@ -2429,7 +2794,9 @@
           "missed",
           "planned",
           "rest",
-          "skipped"
+          "skipped",
+          "inProgress",
+          "completed"
         ],
         "description": "How a day is shown."
       },
@@ -2669,6 +3036,48 @@
         },
         "description": "A muscle group. It orders the exercise list and the chips."
       },
+      "LastTimeResponse": {
+        "required": [
+          "date",
+          "sets"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The date it was done.",
+            "format": "date"
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LastTimeSetResponse"
+            },
+            "description": "Its sets in order."
+          }
+        },
+        "description": "An exercise's sets the last time it was done."
+      },
+      "LastTimeSetResponse": {
+        "required": [
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          }
+        },
+        "description": "A set from last time."
+      },
       "MonthSummaryResponse": {
         "required": [
           "done",
@@ -2813,6 +3222,37 @@
           }
         },
         "description": "The refresh token to swap for new tokens."
+      },
+      "RemovedSet": {
+        "required": [
+          "order",
+          "weightKg",
+          "reps",
+          "checked"
+        ],
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "integer",
+            "description": "Its place in the exercise, from 0.",
+            "format": "int32"
+          },
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps, 1 to 100.",
+            "format": "int32"
+          },
+          "checked": {
+            "type": "boolean",
+            "description": "Whether it was marked done."
+          }
+        },
+        "description": "A removed set to put back."
       },
       "RenameGroupRequest": {
         "required": [
@@ -3027,6 +3467,43 @@
         },
         "description": "A saved routine, and the days it took from other routines."
       },
+      "SetResponse": {
+        "required": [
+          "id",
+          "order",
+          "weightKg",
+          "reps",
+          "checked"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The set's ID.",
+            "format": "uuid"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Its place in the exercise, from 0.",
+            "format": "int32"
+          },
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          },
+          "checked": {
+            "type": "boolean",
+            "description": "Whether it is marked done."
+          }
+        },
+        "description": "A set in a workout."
+      },
       "TokenResponse": {
         "required": [
           "accessToken",
@@ -3166,6 +3643,35 @@
         },
         "description": "A routine's new name and exercises."
       },
+      "UpdateSetRequest": {
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "The reps, 1 to 100.",
+            "format": "int32"
+          },
+          "checked": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Whether it is marked done."
+          }
+        },
+        "description": "The fields to change. A field left out, or null, stays the same."
+      },
       "UpdateWorkoutSettingsRequest": {
         "type": "object",
         "properties": {
@@ -3289,6 +3795,127 @@
         },
         "description": "What a weekday holds in the week plan."
       },
+      "WorkoutDetailsResponse": {
+        "required": [
+          "id",
+          "date",
+          "status",
+          "name",
+          "startedAtUtc",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The workout's ID.",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "description": "The date it belongs to.",
+            "format": "date"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/WorkoutStatus"
+          },
+          "name": {
+            "type": "string",
+            "description": "Its name, from the routine when it was created."
+          },
+          "startedAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When logging started. Null when skipped, and on a past day, which has no elapsed time.",
+            "format": "date-time"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkoutExerciseResponse"
+            },
+            "description": "Its exercises in order."
+          }
+        },
+        "description": "A workout with its exercises and sets."
+      },
+      "WorkoutExerciseResponse": {
+        "required": [
+          "id",
+          "exerciseId",
+          "name",
+          "groupId",
+          "groupName",
+          "targetSets",
+          "targetRepsFrom",
+          "targetRepsTo",
+          "sets",
+          "lastTime"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "This exercise's ID in the workout.",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The ID of the group it belongs to.",
+            "format": "uuid"
+          },
+          "groupName": {
+            "type": "string",
+            "description": "The name of the group it belongs to."
+          },
+          "targetSets": {
+            "type": "integer",
+            "description": "The sets to do.",
+            "format": "int32"
+          },
+          "targetRepsFrom": {
+            "type": "integer",
+            "description": "The low end of the rep range.",
+            "format": "int32"
+          },
+          "targetRepsTo": {
+            "type": "integer",
+            "description": "The high end of the rep range.",
+            "format": "int32"
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetResponse"
+            },
+            "description": "Its sets in order."
+          },
+          "lastTime": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Its latest completed workout before this one. Null if never done.",
+                "$ref": "#/components/schemas/LastTimeResponse"
+              }
+            ]
+          }
+        },
+        "description": "An exercise in a workout."
+      },
       "WorkoutResponse": {
         "required": [
           "id",
@@ -3345,6 +3972,8 @@
       },
       "WorkoutStatus": {
         "enum": [
+          "inProgress",
+          "completed",
           "skipped"
         ],
         "description": "Where a workout stands."

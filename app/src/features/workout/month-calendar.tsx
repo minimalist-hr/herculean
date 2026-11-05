@@ -78,6 +78,11 @@ export function MonthCalendar({
     { label: 'Missed', color: colors.danger },
     { label: 'Skipped', color: colors.skipped },
     { label: 'Planned', color: colors.muted },
+    // A rest day has no marker, so its place stays empty.
+    { label: 'Rest', color: 'transparent' },
+    ...(days?.some((day) => day.status === 'inProgress')
+      ? [{ label: 'In progress', color: colors.primaryText }]
+      : []),
   ];
 
   return (
@@ -184,7 +189,6 @@ export function MonthCalendar({
         style={[
           styles.legend,
           {
-            gap: space.lg,
             marginTop: space.sm,
             marginHorizontal: -space.sm,
             paddingTop: space.md,
@@ -192,12 +196,17 @@ export function MonthCalendar({
           },
         ]}
       >
-        {legend.map((item) => (
-          <View key={item.label} style={[styles.legendItem, { gap: space.sm }]}>
-            <MarkerBar color={item.color} />
-            <Text style={text.meta}>{item.label}</Text>
-          </View>
-        ))}
+        <View style={[styles.legendGrid, { rowGap: space.sm }]}>
+          {legend.map((item) => (
+            <View
+              key={item.label}
+              style={[styles.legendItem, { gap: space.sm }]}
+            >
+              <MarkerBar color={item.color} />
+              <Text style={text.meta}>{item.label}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -207,6 +216,9 @@ const monthActions = [
   { name: 'previousMonth', label: 'Previous month' },
   { name: 'nextMonth', label: 'Next month' },
 ];
+
+/** Fits the longest label, and three of them fit the smallest phone. */
+const legendColumnWidth = 94;
 
 const styles = StyleSheet.create({
   card: {
@@ -231,11 +243,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   legend: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: 'center',
     borderTopWidth: 1,
   },
+  legendGrid: {
+    width: legendColumnWidth * 3,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
   legendItem: {
+    width: legendColumnWidth,
     flexDirection: 'row',
     alignItems: 'center',
   },

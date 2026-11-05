@@ -146,6 +146,37 @@ export const sampleDays = {
   '2026-10-25': sampleRestDay('2026-10-25', '2026-10-26', 'Chest and arms 1'),
 };
 
+const loggedSet = (exercise, order, weightKg, reps, checked) => ({ id: `${exercise}-set-${String(order)}`, order, weightKg, reps, checked });
+const doneSets = (exercise, sets) => sets.map(([weightKg, reps], order) => loggedSet(exercise, order, weightKg, reps, true));
+const emptySets = (exercise, count) => Array.from({ length: count }, (_, order) => loggedSet(exercise, order, 20, 10, false));
+const setsOfSample = {
+  'EZ bar bicep curl': (id) => doneSets(id, [[30, 12], [30, 11], [30, 10]]),
+  'Seated incline dumbbell curl': (id) => doneSets(id, [[12.5, 12], [12.5, 11], [12.5, 10]]),
+  'Flat barbell bench press': (id) => [loggedSet(id, 0, 80, 10, true), loggedSet(id, 1, 82.5, 10, false), loggedSet(id, 2, 82.5, 8, false)],
+};
+
+/** The design's sample workout in progress: 7 of 19 sets, six minutes in. */
+export const sampleWorkout = {
+  id: 'workout-in-progress',
+  date: '2026-10-23',
+  status: 'inProgress',
+  name: sampleDay.routine.name,
+  startedAtUtc: new Date('2026-10-23T17:53:20').toISOString(),
+  exercises: sampleDay.routine.exercises.map((exercise) => {
+    const id = `workout-${exercise.exerciseId}`;
+
+    return {
+      ...exercise,
+      id,
+      sets: setsOfSample[exercise.name]?.(id) ?? emptySets(id, exercise.targetSets),
+      lastTime:
+        exercise.name === 'Flat barbell bench press'
+          ? { date: '2026-10-16', sets: [{ weightKg: 80, reps: 10 }, { weightKg: 82.5, reps: 10 }, { weightKg: 82.5, reps: 8 }] }
+          : null,
+    };
+  }),
+};
+
 /** The design's sample week, with past days missed. */
 export function sampleWeek(today, skippedDate, from = '2026-10-19') {
   return weekdays.map((weekday, index) => {
@@ -259,6 +290,9 @@ export function createApi() {
     }
     if (method === 'GET' && path.startsWith('/api/v1/days/')) {
       return { status: 200, body: sampleDays[path.split('/')[4]] ?? { ...sampleDay, date: path.split('/')[4] } };
+    }
+    if (key === `GET /api/v1/workouts/${sampleWorkout.id}`) {
+      return { status: 200, body: sampleWorkout };
     }
     if (key === 'GET /api/v1/routines') {
       return { status: 200, body: routineList };

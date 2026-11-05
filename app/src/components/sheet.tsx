@@ -72,6 +72,10 @@ interface SheetProps {
   scrollEnabled?: boolean;
   /** What sits between the heading and the actions, for example a field. It scrolls if it doesn't fit. */
   body?: ReactNode;
+  /** The space between the heading and the body, when it isn't the usual one. */
+  bodyGap?: number;
+  /** Says how many points the content is over the room there is, so a body can shrink to fit. */
+  onOverflow?: (points: number) => void;
   /** The actions below the line: the main one first. The close button and a tap outside cancel. */
   children: ReactNode;
 }
@@ -85,6 +89,8 @@ export function Sheet({
   fill = false,
   scrollEnabled = true,
   body,
+  bodyGap,
+  onOverflow,
   children,
 }: SheetProps) {
   const { colors, motion, radius, size, space, text } = useTheme();
@@ -112,6 +118,7 @@ export function Sheet({
   // The actions wait behind the keyboard, so the fields keep the room.
   const actionsShown = keyboardHeight === 0;
   const parts = 1 + (body === undefined ? 0 : 1) + (actionsShown ? 1 : 0);
+  const bodyPull = bodyGap === undefined ? 0 : bodyGap - space.lg;
   const natural =
     borderTop +
     paddingTop +
@@ -119,7 +126,8 @@ export function Sheet({
     (bodyHeight ?? 0) +
     (actionsShown ? actionsHeight : 0) +
     paddingBottom +
-    space.lg * (parts - 1);
+    space.lg * (parts - 1) +
+    bodyPull;
   const measured =
     headingHeight > 0 &&
     (actionsHeight > 0 || !actionsShown) &&
@@ -128,6 +136,12 @@ export function Sheet({
   // It is as small as its content allows. Content that doesn't fit gets all the room there is, and scrolls.
   const shownHeight = fill ? full : Math.min(natural, full);
   const startingOffset = measured ? shownHeight : window.height;
+
+  useEffect(() => {
+    if (measured && natural > full) {
+      onOverflow?.(natural - full);
+    }
+  }, [measured, natural, full, onOverflow]);
 
   // Some notifications show above the sheet while it is open. One going down has made way already.
   const id = useId();
@@ -329,6 +343,7 @@ export function Sheet({
                   pulledDown={pulledDown}
                   height={shownHeight}
                   onClose={closeFromBody}
+                  marginTop={bodyPull}
                   onHeight={setBodyHeight}
                   scrollEnabled={scrollEnabled}
                 >
@@ -378,12 +393,14 @@ function SheetBody({
   pulledDown,
   height,
   onClose,
+  marginTop,
   onHeight,
   scrollEnabled,
   children,
 }: {
   pulledDown: SharedValue<number>;
   height: number;
+  marginTop: number;
   onClose: () => void;
   onHeight: (height: number) => void;
   scrollEnabled: boolean;
@@ -428,7 +445,7 @@ function SheetBody({
 
   return (
     <GestureDetector gesture={pull}>
-      <View collapsable={false} style={styles.body}>
+      <View collapsable={false} style={[styles.body, { marginTop }]}>
         <GestureDetector gesture={scroll}>
           <ScrollView
             scrollEnabled={scrollEnabled}

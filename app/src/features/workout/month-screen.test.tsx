@@ -551,6 +551,37 @@ describe('day sheet', () => {
   });
 });
 
+test('the legend names In progress only while a workout runs', async () => {
+  answer();
+  await renderMonth();
+
+  expect(
+    (await screen.findAllByText('Planned', { includeHiddenElements: true }))
+      .length,
+  ).toBeGreaterThan(0);
+  expect(
+    screen.getAllByText('Rest', { includeHiddenElements: true }).length,
+  ).toBeGreaterThan(0);
+  expect(
+    screen.queryByText('In progress', { includeHiddenElements: true }),
+  ).toBeNull();
+});
+
+test('a workout in progress adds In progress to the legend', async () => {
+  statuses['2026-11-06'] = { status: 'inProgress', routineName: 'Legs' };
+  answer();
+
+  try {
+    await renderMonth();
+
+    expect(
+      await screen.findByText('In progress', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
+  } finally {
+    statuses['2026-11-06'] = { status: 'planned', routineName: 'Legs' };
+  }
+});
+
 test('the back link goes to the Workout tab', async () => {
   answer();
   await renderMonth();

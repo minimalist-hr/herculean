@@ -21,6 +21,9 @@ internal sealed class WorkoutConfiguration : IEntityTypeConfiguration<Workout>
         // One workout per date. A deleted one leaves its date free.
         builder.HasIndex(workout => new { workout.UserId, workout.Date }).IsUnique().HasFilter("deleted_at_utc IS NULL");
 
+        // One workout in progress per user.
+        builder.HasIndex(workout => workout.UserId).IsUnique().HasFilter("status = 'InProgress' AND deleted_at_utc IS NULL");
+
         builder.HasMany(workout => workout.Exercises)
             .WithOne()
             .HasForeignKey(exercise => exercise.WorkoutId)

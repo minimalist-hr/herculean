@@ -10,6 +10,9 @@ test.each([
   [90, '1:30'],
   [400, '6:40'],
   [600, '10:00'],
+  [3599, '59:59'],
+  [3600, '1:00:00'],
+  [3990, '1:06:30'],
 ])('%i seconds on a clock read %s', (seconds, text) => {
   expect(formatClock(seconds)).toBe(text);
 });

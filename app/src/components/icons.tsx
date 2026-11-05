@@ -196,3 +196,35 @@ export function PlusIcon({ color, size }: IconProps) {
     </Icon>
   );
 }
+
+export function SwapIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M4 8h15M15 4l4 4-4 4M20 16H5M9 12l-4 4 4 4" />
+    </Icon>
+  );
+}
+
+export function ReorderIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M8 20V5M4 9l4-4 4 4M16 4v15M12 15l4 4 4-4" />
+    </Icon>
+  );
+}
+
+export function BackspaceIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M21 5H8l-5 7 5 7h13zM12 9l5 6M17 9l-5 6" />
+    </Icon>
+  );
+}
+
+export function OpenOutIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6" />
+    </Icon>
+  );
+}

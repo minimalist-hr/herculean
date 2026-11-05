@@ -23,13 +23,13 @@ internal sealed class ListDaysHandler(
         List<PlanChange> changes = await dayReadRepository.ListPlanChangesAsync(cancellationToken);
         DayPlan plan = new(changes, await userClock.GetCalendarAsync(cancellationToken));
         List<DayWorkout> workouts = await dayReadRepository.ListWorkoutsAsync(request.From, request.To, cancellationToken);
-        Dictionary<DateOnly, string> skipped = workouts.ToDictionary(workout => workout.Date, workout => workout.Name);
+        Dictionary<DateOnly, DayWorkout> byDate = workouts.ToDictionary(workout => workout.Date);
         int count = request.To.DayNumber - request.From.DayNumber + 1;
 
         return Enumerable.Range(0, count)
             .Select(offset => request.From.AddDays(offset))
-            .Select(date => skipped.TryGetValue(date, out string? name)
-                ? new DaySummaryResponse(date, DayStatus.Skipped, name)
+            .Select(date => byDate.TryGetValue(date, out DayWorkout? workout)
+                ? new DaySummaryResponse(date, workout.DayStatus, workout.Name)
                 : new DaySummaryResponse(date, plan.StatusOn(date), plan.RoutineOn(date)?.RoutineName))
             .ToList();
     }

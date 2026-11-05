@@ -20,6 +20,11 @@ internal sealed class WorkoutExerciseConfiguration : IEntityTypeConfiguration<Wo
         builder.Property(exercise => exercise.ExerciseId).HasConversion<TypedIdConverter<ExerciseId>>();
         builder.HasIndex(exercise => new { exercise.WorkoutId, exercise.ExerciseId }).IsUnique();
 
+        builder.HasMany(exercise => exercise.Sets)
+            .WithOne()
+            .HasForeignKey(set => set.WorkoutExerciseId)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
         builder.HasOne(exercise => exercise.Exercise)
             .WithMany()
             .HasForeignKey(exercise => exercise.ExerciseId)

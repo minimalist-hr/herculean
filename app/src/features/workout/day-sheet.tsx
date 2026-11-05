@@ -30,6 +30,8 @@ function DayDetails({ day, today }: { day: Day; today: string }) {
   }
 
   const status = {
+    completed: { label: `Done · ${date}`, color: colors.success },
+    inProgress: { label: `In progress · ${date}`, color: colors.primaryText },
     missed: { label: `Missed · ${date}`, color: colors.danger },
     planned: {
       label: `${day.date === today ? 'Today' : 'Planned'} · ${date}`,

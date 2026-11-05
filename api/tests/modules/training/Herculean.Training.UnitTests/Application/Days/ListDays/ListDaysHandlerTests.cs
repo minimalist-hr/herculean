@@ -4,6 +4,7 @@ using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.ListDays;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 
 using Microsoft.Extensions.Time.Testing;
 
@@ -50,11 +51,21 @@ public sealed class ListDaysHandlerTests
     public async Task ASkippedDayShowsAsSkippedWithTheWorkoutsName()
     {
         _dayReadRepository.Changes.Add(new PlanChange(Weekday.Tuesday, new DateOnly(2026, 1, 1), RoutineId.New(), "Renamed since", null));
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, WorkoutStatus.Skipped, "Legs", RoutineId.New()));
 
         Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today);
 
         result.Value.ShouldHaveSingleItem().ShouldBe(new DaySummaryResponse(Today, DayStatus.Skipped, "Legs"));
+    }
+
+    [Fact]
+    public async Task ADayInProgressShowsAsInProgress()
+    {
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, WorkoutStatus.InProgress, "Legs", RoutineId.New()));
+
+        Result<List<DaySummaryResponse>> result = await ListAsync(Today, Today);
+
+        result.Value.ShouldHaveSingleItem().ShouldBe(new DaySummaryResponse(Today, DayStatus.InProgress, "Legs"));
     }
 
     [Fact]

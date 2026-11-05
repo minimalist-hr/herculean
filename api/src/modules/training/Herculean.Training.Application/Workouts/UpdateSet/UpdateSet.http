@@ -1,0 +1,33 @@
+# Change a set. Start the API with Aspire first. Fill in the IDs from a workout in progress: start one with CreateWorkout.http.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+@setId = 00000000-0000-0000-0000-000000000000
+
+### Change the weight → 200 with all of the exercise's sets. Later unchecked sets follow.
+PATCH {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets/{{setId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "weightKg": 82.5
+}
+
+### Check it → 200.
+PATCH {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets/{{setId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "checked": true
+}
+
+### Too many reps → 400 validation.
+PATCH {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets/{{setId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "reps": 101
+}

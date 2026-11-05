@@ -1,0 +1,647 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react-native';
+import { Stack } from 'expo-router';
+import { renderRouter } from 'expo-router/testing-library';
+
+import { NotificationBar } from '@/components/notification-bar';
+import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { ThemeProvider } from '@/theme/theme-provider';
+
+import { LogScreen } from './log-screen';
+
+const mockFetch = jest.fn<Promise<Response>, [Request]>();
+
+jest.mock('@/api/client', () => {
+  const createClient =
+    jest.requireActual<typeof import('openapi-fetch')>('openapi-fetch').default;
+  return {
+    api: createClient({
+      baseUrl: 'http://api.test',
+      fetch: (request: Request) => mockFetch(request),
+    }),
+  };
+});
+
+function set(id: string, order: number, weightKg: number, checked = false) {
+  return { id, order, weightKg, reps: 8, checked };
+}
+
+function exercise(id: string, name: string, groupId: string, sets: unknown[]) {
+  return {
+    id,
+    exerciseId: `${id}-exercise`,
+    name,
+    groupId,
+    groupName: 'Legs',
+    targetSets: 2,
+    targetRepsFrom: 8,
+    targetRepsTo: 10,
+    sets,
+    lastTime: {
+      date: '2026-10-27',
+      sets: [{ weightKg: 80, reps: 10 }],
+    },
+  };
+}
+
+const workout = {
+  id: 'w1',
+  date: '2026-11-03',
+  status: 'inProgress',
+  name: 'Legs day',
+  startedAtUtc: '2026-11-03T10:00:00Z',
+  exercises: [
+    exercise('squat', 'Barbell squat', 'legs', [
+      set('s1', 0, 80),
+      set('s2', 1, 80),
+    ]),
+    exercise('press', 'Leg press', 'legs', [set('p1', 0, 120)]),
+  ],
+};
+
+let current: typeof workout | { status: number };
+let patched: (body: unknown) => unknown;
+
+function answerWith(request: Request) {
+  const { pathname } = new URL(request.url);
+  if (request.method === 'PATCH') {
+    return request
+      .clone()
+      .json()
+      .then((body: unknown) => Response.json(patched(body)));
+  }
+
+  if (request.method === 'DELETE') {
+    return Promise.resolve(new Response(null, { status: 204 }));
+  }
+
+  if (request.method === 'POST') {
+    return Promise.resolve(Response.json(set('s3', 2, 80), { status: 201 }));
+  }
+
+  if (pathname === '/api/v1/users/me') {
+    return Promise.resolve(Response.json({ units: 'metric' }));
+  }
+
+  return Promise.resolve(
+    'status' in current && typeof current.status === 'number'
+      ? Response.json(
+          { code: 'workout.not_found', status: 404 },
+          { status: 404 },
+        )
+      : Response.json(current),
+  );
+}
+
+function Layout() {
+  return (
+    <QueryClientProvider
+      client={
+        new QueryClient({
+          defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+        })
+      }
+    >
+      <ThemeProvider theme="dark">
+        <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
+
+async function renderLog() {
+  await renderRouter(
+    {
+      _layout: Layout,
+      index: () => <PlaceholderScreen title="Workout screen" />,
+      log: () => <LogScreen id="w1" />,
+      'workout/exercise/[id]': () => (
+        <PlaceholderScreen title="Exercise screen" />
+      ),
+    },
+    { initialUrl: '/log' },
+  );
+}
+
+beforeEach(() => {
+  current = workout;
+  patched = () => [];
+  mockFetch.mockReset();
+  mockFetch.mockImplementation(answerWith);
+  jest.useFakeTimers({
+    now: new Date('2026-11-03T10:06:40Z'),
+    doNotFake: ['nextTick', 'queueMicrotask', 'setImmediate'],
+  });
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
+
+test('shows the heading, with the date, the running time and the progress', async () => {
+  await renderLog();
+
+  expect(await screen.findByText('Legs day')).toBeOnTheScreen();
+  expect(screen.getByText('Tue, 3rd November · 6:40')).toBeOnTheScreen();
+  expect(screen.getByText(/of 3 sets/)).toBeOnTheScreen();
+
+  await act(async () => {
+    await jest.advanceTimersByTimeAsync(1000);
+  });
+
+  expect(screen.getByText('Tue, 3rd November · 6:41')).toBeOnTheScreen();
+});
+
+test('a past day has no running time', async () => {
+  current = { ...workout, startedAtUtc: null as unknown as string };
+  await renderLog();
+
+  expect(await screen.findByText('Tue, 3rd November')).toBeOnTheScreen();
+});
+
+test('opens the first unfinished exercise, with last time for its sets', async () => {
+  current = {
+    ...workout,
+    exercises: [
+      exercise('squat', 'Barbell squat', 'legs', [set('s1', 0, 80, true)]),
+      exercise('press', 'Leg press', 'legs', [set('p1', 0, 120)]),
+    ],
+  };
+  await renderLog();
+
+  await screen.findByText('Legs day');
+  const open = within(screen.getByTestId('open-exercise'));
+  expect(open.getByText('Leg press')).toBeOnTheScreen();
+  expect(open.getByRole('button', { name: 'Add set' })).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Open Barbell squat' }),
+  ).toBeTruthy();
+  expect(screen.getByText('1/1')).toBeOnTheScreen();
+  expect(open.getByText('80 × 10')).toBeOnTheScreen();
+});
+
+test('a set with nothing from last time shows a dash', async () => {
+  await renderLog();
+
+  await screen.findByText('Legs day');
+  expect(screen.getByText('–')).toBeOnTheScreen();
+});
+
+test('any exercise can be tapped open, and only one is open', async () => {
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Open Leg press' }),
+  );
+
+  const open = within(screen.getByTestId('open-exercise'));
+  expect(open.getByText('Leg press')).toBeOnTheScreen();
+  expect(open.queryByText('Barbell squat')).toBeNull();
+  expect(
+    screen.getByRole('button', { name: 'Open Barbell squat' }),
+  ).toBeTruthy();
+});
+
+test('checking a set saves it and stays on the exercise', async () => {
+  patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+  );
+
+  expect(
+    await screen.findByRole('checkbox', {
+      name: 'Set 1 done',
+      checked: true,
+    }),
+  ).toBeOnTheScreen();
+  const request = mockFetch.mock.calls.find(
+    ([sent]) => sent.method === 'PATCH',
+  )?.[0];
+  expect(new URL(request?.url ?? '').pathname).toBe(
+    '/api/v1/workouts/w1/exercises/squat/sets/s1',
+  );
+  expect(
+    within(screen.getByTestId('open-exercise')).getByText('Barbell squat'),
+  ).toBeOnTheScreen();
+});
+
+test('checking the last set opens the next exercise', async () => {
+  current = {
+    ...workout,
+    exercises: [
+      exercise('squat', 'Barbell squat', 'legs', [set('s1', 0, 80)]),
+      exercise('press', 'Leg press', 'legs', [set('p1', 0, 120)]),
+    ],
+  };
+  patched = () => [set('s1', 0, 80, true)];
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+  );
+
+  expect(
+    await screen.findByRole('button', { name: 'Open Barbell squat' }),
+  ).toBeOnTheScreen();
+  expect(
+    within(screen.getByTestId('open-exercise')).getByText('Leg press'),
+  ).toBeOnTheScreen();
+});
+
+test('a checked set can be unchecked', async () => {
+  current = {
+    ...workout,
+    exercises: [
+      exercise('squat', 'Barbell squat', 'legs', [
+        set('s1', 0, 80, true),
+        set('s2', 1, 80),
+      ]),
+    ],
+  };
+  patched = () => [set('s1', 0, 80), set('s2', 1, 80)];
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: 'Set 1 done', checked: true }),
+  );
+
+  expect(
+    await screen.findByRole('checkbox', { name: 'Set 1 done', checked: false }),
+  ).toBeOnTheScreen();
+});
+
+test('a failed save says so and leaves the set as it was', async () => {
+  mockFetch.mockImplementation((request) =>
+    request.method === 'PATCH'
+      ? Promise.resolve(
+          Response.json({ code: 'oops', status: 500 }, { status: 500 }),
+        )
+      : answerWith(request),
+  );
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+  );
+
+  expect(
+    await screen.findByText("Couldn't save the set. Try again."),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('checkbox', { name: 'Set 1 done', checked: false }),
+  ).toBeOnTheScreen();
+});
+
+test('Add set adds the new set to the exercise', async () => {
+  await renderLog();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Add set' }));
+
+  expect(
+    await screen.findByRole('checkbox', { name: 'Set 3 done' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByText(/of 4 sets/)).toBeOnTheScreen();
+});
+
+test('a failed Add set says so', async () => {
+  mockFetch.mockImplementation((request) =>
+    request.method === 'POST'
+      ? Promise.resolve(
+          Response.json({ code: 'oops', status: 500 }, { status: 500 }),
+        )
+      : answerWith(request),
+  );
+  await renderLog();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Add set' }));
+
+  expect(
+    await screen.findByText("Couldn't add the set. Try again."),
+  ).toBeOnTheScreen();
+});
+
+test.each([
+  ['Finish', 'Finishing a workout comes in a later update.'],
+  ['Add exercise', 'Adding an exercise comes in a later update.'],
+  ['Reorder', 'Reordering comes in a later update.'],
+  ['Swap Barbell squat', 'Swapping an exercise comes in a later update.'],
+  ['Remove Barbell squat', 'Removing an exercise comes in a later update.'],
+])('%s says it comes later', async (name, message) => {
+  await renderLog();
+
+  await fireEvent.press(await screen.findByRole('button', { name }));
+
+  expect(await screen.findByText(message)).toBeOnTheScreen();
+});
+
+test('the name opens the exercise, and there is no other way to it', async () => {
+  await renderLog();
+
+  await screen.findByText('Legs day');
+  expect(screen.queryByRole('button', { name: 'History' })).toBeNull();
+
+  await fireEvent.press(
+    screen.getByRole('link', { name: 'Barbell squat details' }),
+  );
+
+  expect(await screen.findByText('Exercise screen')).toBeOnTheScreen();
+});
+
+test('the Set label is gone, and the other columns stay', async () => {
+  await renderLog();
+
+  await screen.findByText('Legs day');
+  expect(
+    screen.getByText('Last time', { includeHiddenElements: true }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Set', { includeHiddenElements: true })).toBeNull();
+});
+
+test('checking the very last set closes its card', async () => {
+  current = {
+    ...workout,
+    exercises: [exercise('squat', 'Barbell squat', 'legs', [set('s1', 0, 80)])],
+  };
+  patched = () => [set('s1', 0, 80, true)];
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+  );
+
+  expect(
+    await screen.findByRole('button', { name: 'Open Barbell squat' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByTestId('open-exercise')).toBeNull();
+});
+
+test('a finished exercise can be opened again', async () => {
+  current = {
+    ...workout,
+    exercises: [
+      exercise('squat', 'Barbell squat', 'legs', [set('s1', 0, 80, true)]),
+    ],
+  };
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Open Barbell squat' }),
+  );
+
+  expect(screen.getByTestId('open-exercise')).toBeOnTheScreen();
+});
+
+describe('editing a set', () => {
+  function bodyOf(method: string) {
+    const request = mockFetch.mock.calls.find(
+      ([sent]) => sent.method === method,
+    )?.[0];
+
+    return request?.clone().json();
+  }
+
+  async function openWeight() {
+    await renderLog();
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Set 1 weight, 80 kilograms' }),
+    );
+    await screen.findByRole('button', { name: 'Save set' });
+  }
+
+  async function pressKeys(...names: string[]) {
+    for (const name of names) {
+      await fireEvent.press(screen.getByRole('button', { name }));
+    }
+  }
+
+  test('tapping the row opens the sheet on weight', async () => {
+    await renderLog();
+
+    await fireEvent.press(await screen.findByTestId('set-row-1'));
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Weight, 80 kilograms',
+        selected: true,
+      }),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Set 1 · Barbell squat')).toBeOnTheScreen();
+    expect(screen.getByText('Last time')).toBeOnTheScreen();
+    expect(screen.getByText('80 kg × 10')).toBeOnTheScreen();
+  });
+
+  test('tapping reps opens the sheet on reps', async () => {
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Set 1 reps, 8' }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Reps, 8', selected: true }),
+    ).toBeOnTheScreen();
+  });
+
+  test('the first key replaces the value, and Save set sends what changed', async () => {
+    patched = () => [set('s1', 0, 95), set('s2', 1, 95)];
+    await openWeight();
+
+    await pressKeys('9', '5');
+    expect(
+      screen.getByRole('button', { name: 'Weight, 95 kilograms' }),
+    ).toBeOnTheScreen();
+    await pressKeys('Save set');
+
+    expect(await bodyOf('PATCH')).toEqual({ weightKg: 95 });
+    expect(
+      await screen.findByRole('button', {
+        name: 'Set 2 weight, 95 kilograms',
+        includeHiddenElements: true,
+      }),
+    ).toBeOnTheScreen();
+  });
+
+  test('the steppers change the value by a step', async () => {
+    await openWeight();
+
+    await pressKeys('+ 2.5 kg');
+
+    expect(
+      screen.getByRole('button', { name: 'Weight, 82.5 kilograms' }),
+    ).toBeOnTheScreen();
+
+    await pressKeys('Reps, 8', '− 1 rep');
+
+    expect(screen.getByRole('button', { name: 'Reps, 7' })).toBeOnTheScreen();
+  });
+
+  test('closing without saving forgets the change', async () => {
+    await openWeight();
+
+    await pressKeys('9', 'Close');
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Save set' })).toBeNull();
+    });
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Set 1 weight, 80 kilograms' }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Weight, 80 kilograms' }),
+    ).toBeOnTheScreen();
+  });
+
+  test('the keys give way when the sheet does not fit, down to a least height', async () => {
+    await openWeight();
+    expect(screen.getByRole('button', { name: '5' })).toHaveStyle({
+      height: 52,
+    });
+
+    await fireEvent(screen.getByTestId('sheet-drag'), 'layout', {
+      nativeEvent: { layout: { height: 5000 } },
+    });
+    await fireEvent(screen.getByTestId('sheet-actions'), 'layout', {
+      nativeEvent: { layout: { height: 100 } },
+    });
+    // The event finds the sheet's scroll view from a key inside it.
+    await fireEvent(
+      screen.getByRole('button', { name: '5' }),
+      'contentSizeChange',
+      300,
+      400,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '5' })).toHaveStyle({
+        height: 40,
+      });
+    });
+  });
+
+  test('Save set with nothing changed sends nothing', async () => {
+    await openWeight();
+
+    await pressKeys('Save set');
+
+    expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'PATCH')).toBe(
+      false,
+    );
+  });
+
+  test('a value out of range says why, and stays open', async () => {
+    await openWeight();
+
+    await pressKeys('Reps, 8', 'Delete');
+    await pressKeys('Save set');
+
+    expect(await screen.findByText('Reps are 1 to 100.')).toBeOnTheScreen();
+    expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'PATCH')).toBe(
+      false,
+    );
+  });
+
+  test('reps have no decimal point, and say so', async () => {
+    await openWeight();
+
+    await pressKeys('Reps, 8', 'Decimal point');
+
+    expect(
+      await screen.findByText('Reps are whole numbers.'),
+    ).toBeOnTheScreen();
+  });
+
+  test('the trash removes the set, and Undo puts it back', async () => {
+    await openWeight();
+
+    await pressKeys('Remove set');
+
+    expect(await screen.findByText('Set 1 removed.')).toBeOnTheScreen();
+    expect(
+      await screen.findByText(/of 2 sets/, { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
+
+    await pressKeys('Undo');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/of 3 sets/, { includeHiddenElements: true }),
+      ).toBeOnTheScreen();
+    });
+    const undo = mockFetch.mock.calls.find(
+      ([sent]) => sent.method === 'POST',
+    )?.[0];
+    expect(await undo?.clone().json()).toEqual({
+      removed: { order: 0, weightKg: 80, reps: 8, checked: false },
+    });
+  });
+
+  test('the last set stays, and says why', async () => {
+    current = {
+      ...workout,
+      exercises: [
+        exercise('squat', 'Barbell squat', 'legs', [set('s1', 0, 80)]),
+      ],
+    };
+    await openWeight();
+
+    await pressKeys('Remove set');
+
+    expect(
+      await screen.findByText(
+        "An exercise keeps at least one set. Use the exercise's trash to remove it.",
+      ),
+    ).toBeOnTheScreen();
+    expect(
+      mockFetch.mock.calls.some(([sent]) => sent.method === 'DELETE'),
+    ).toBe(false);
+  });
+});
+
+test('Add set at 20 sets says why, and adds nothing', async () => {
+  current = {
+    ...workout,
+    exercises: [
+      exercise(
+        'squat',
+        'Barbell squat',
+        'legs',
+        Array.from({ length: 20 }, (_, order) =>
+          set(`s${String(order)}`, order, 80),
+        ),
+      ),
+    ],
+  };
+  await renderLog();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Add set' }));
+
+  expect(
+    await screen.findByText('An exercise can have at most 20 sets.'),
+  ).toBeOnTheScreen();
+  expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
+    false,
+  );
+});
+
+test('a failed load offers to try again', async () => {
+  current = { status: 404 };
+  await renderLog();
+
+  expect(
+    await screen.findByText("Couldn't load this workout."),
+  ).toBeOnTheScreen();
+
+  current = workout;
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(await screen.findByText('Legs day')).toBeOnTheScreen();
+});

@@ -73,8 +73,14 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A user has at most one workout per date, and at most one workout in progress.
 - A workout belongs to the user's local date when it started.
 - A workout can start from a routine. Its name and exercises are copied when it starts, so later routine changes do not affect it.
-- Each set of a new workout starts with the weight and reps of the same set last time. If there was no last time, it starts at 0 kg and the low end of the target reps.
-- Logging a past day (W21) gives the workout that date. The start time is when logging started.
+- Each set of a new workout starts with the weight and reps of the same set last time. If last time had fewer sets, it takes the last of them. If there was no last time, it starts at 0 kg and the low end of the target reps.
+- Last time is the exercise's latest completed workout before this workout's date.
+- Logging a past day (W21) gives the workout that date. It has no elapsed time, and its duration is entered on L30.
+- Changing a set's weight or reps also changes it on later unchecked sets of that exercise, unless they were changed by hand. A new set copies the last set. A set put back by Undo counts as changed by hand.
+- An exercise in a workout has 1 to 20 sets. Its last set can't be removed: the exercise is removed instead.
+- Sets can only change while the workout is in progress.
+- An exercise can be swapped in a workout only while none of its sets are checked. The new one keeps the set count and targets, and takes its values from its own last time. The routine doesn't change.
+- A set's weight is 0 to 1,000 kg, with up to two decimals, and 0 means bodyweight. Its reps are 1 to 100.
 - Skip workout creates a skipped workout with the routine's name, exercises and targets, and no sets, so later routine changes do not affect it. It works on today or a past day with a routine. Undo skip deletes it, and the day reads from the week plan again.
 - Save workout removes unchecked sets and marks the workout completed.
 - Discard workout deletes a workout in progress.
@@ -122,7 +128,7 @@ One workout per date, and a workout only happens on today or a past day.
 - The first day is the earlier of the first workout and the day the account was created, so imported workouts extend it. The week strip reaches from its week to 4 weeks ahead. A workout can't be added before it, except by an import.
 - A workout keeps its copy when its routine changes or is deleted. Exercise renames show everywhere.
 
-Skip workout and Undo skip are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
+Start workout, Log workout, Resume workout, Skip workout and Undo skip are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
 
 ### Exercises, routines and groups
 
@@ -154,5 +160,5 @@ Skip workout and Undo skip are built. The other actions come with [5. Logging](/
 - **Sets:** checked sets, out of the target sets of planned days so far.
 - **Volume:** volume of all sets.
 - **Consistency:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.
-- A skip counts as not done. A workout on a rest day counts as done.
+- A skip counts as not done. A workout on a rest day counts as done. A workout in progress counts towards nothing until it's finished.
 - Planned days so far are past days, plus today once its workout is done or skipped.

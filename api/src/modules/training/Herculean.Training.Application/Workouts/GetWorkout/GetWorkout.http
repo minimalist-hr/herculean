@@ -1,0 +1,13 @@
+# Get a workout. Start the API with Aspire first. Fill in the IDs from a workout in progress: start one with CreateWorkout.http.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+@setId = 00000000-0000-0000-0000-000000000000
+
+### A workout → 200, or 404 workout.not_found.
+GET {{host}}/api/v1/workouts/{{workoutId}}
+Authorization: Bearer {{accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/workouts/{{workoutId}}

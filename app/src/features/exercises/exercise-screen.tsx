@@ -20,7 +20,14 @@ import { useExercise } from './use-exercise';
 
 type Exercise = components['schemas']['ExerciseDetailsResponse'];
 
-export function ExerciseScreen({ id }: { id: string }) {
+export function ExerciseScreen({
+  id,
+  backLabel = 'Exercises',
+}: {
+  id: string;
+  /** The screen its back link returns to. */
+  backLabel?: string;
+}) {
   const { colors, size } = useTheme();
   const router = useRouter();
   const exercise = useExercise(id);
@@ -54,7 +61,7 @@ export function ExerciseScreen({ id }: { id: string }) {
       }}
     >
       <BackLink
-        label="Exercises"
+        label={backLabel}
         onPress={() => {
           router.back();
         }}

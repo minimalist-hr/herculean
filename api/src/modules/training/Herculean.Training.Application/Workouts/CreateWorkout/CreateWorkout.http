@@ -1,4 +1,4 @@
-# Skip a workout. Start the API with Aspire first, then send "Create an account" once.
+# Start or skip a workout. Start the API with Aspire first, then send "Create an account" once.
 @host = http://localhost:5279
 
 ### Create an account → 201. The requests below use its access token.
@@ -20,6 +20,16 @@ Content-Type: application/json
 {
   "date": "2026-01-05",
   "status": "skipped"
+}
+
+### Start today's workout → 201 with a routine planned on today, or 409 workout.another_in_progress.
+POST {{host}}/api/v1/workouts
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "date": "2026-01-05",
+  "status": "inProgress"
 }
 
 ### A day that hasn't come yet → 409 workout.date_in_the_future.

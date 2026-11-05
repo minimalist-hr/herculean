@@ -29,7 +29,7 @@ internal sealed class GetDayHandler(IDayReadRepository dayReadRepository, UserCl
 
         return new DayResponse(
             date,
-            workout is null ? plan.StatusOn(date) : DayStatus.Skipped,
+            workout?.DayStatus ?? plan.StatusOn(date),
             await dayReadRepository.HasRoutinesAsync(cancellationToken),
             workout?.Id,
             routine,

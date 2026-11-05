@@ -9,4 +9,6 @@ internal enum DayStatus
     Planned,
     Rest,
     Skipped,
+    InProgress,
+    Completed,
 }

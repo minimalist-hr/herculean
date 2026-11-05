@@ -348,6 +348,62 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.ToTable("week_plan_days", "training");
                 });
 
+            modelBuilder.Entity("Herculean.Training.Domain.Workouts.Set", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Checked")
+                        .HasColumnType("boolean")
+                        .HasColumnName("checked");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<int>("Reps")
+                        .HasColumnType("integer")
+                        .HasColumnName("reps");
+
+                    b.Property<bool>("RepsChanged")
+                        .HasColumnType("boolean")
+                        .HasColumnName("reps_changed");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<bool>("WeightChanged")
+                        .HasColumnType("boolean")
+                        .HasColumnName("weight_changed");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("weight_kg");
+
+                    b.Property<Guid>("WorkoutExerciseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("workout_exercise_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sets");
+
+                    b.HasIndex("WorkoutExerciseId")
+                        .HasDatabaseName("ix_sets_workout_exercise_id");
+
+                    b.ToTable("sets", "training");
+                });
+
             modelBuilder.Entity("Herculean.Training.Domain.Workouts.Workout", b =>
                 {
                     b.Property<Guid>("Id")
@@ -366,6 +422,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at_utc");
 
+                    b.Property<DateTimeOffset?>("FinishedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at_utc");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -375,6 +435,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.Property<Guid?>("RoutineId")
                         .HasColumnType("uuid")
                         .HasColumnName("routine_id");
+
+                    b.Property<DateTimeOffset?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at_utc");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -395,6 +459,11 @@ namespace Herculean.Training.Infrastructure.Migrations
 
                     b.HasIndex("RoutineId")
                         .HasDatabaseName("ix_workouts_routine_id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_workouts_user_id")
+                        .HasFilter("status = 'InProgress' AND deleted_at_utc IS NULL");
 
                     b.HasIndex("UserId", "Date")
                         .IsUnique()
@@ -520,6 +589,16 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.Navigation("Routine");
                 });
 
+            modelBuilder.Entity("Herculean.Training.Domain.Workouts.Set", b =>
+                {
+                    b.HasOne("Herculean.Training.Domain.Workouts.WorkoutExercise", null)
+                        .WithMany("Sets")
+                        .HasForeignKey("WorkoutExerciseId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sets_workout_exercises_workout_exercise_id");
+                });
+
             modelBuilder.Entity("Herculean.Training.Domain.Workouts.Workout", b =>
                 {
                     b.HasOne("Herculean.Training.Domain.Routines.Routine", null)
@@ -566,6 +645,11 @@ namespace Herculean.Training.Infrastructure.Migrations
             modelBuilder.Entity("Herculean.Training.Domain.Workouts.Workout", b =>
                 {
                     b.Navigation("Exercises");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Workouts.WorkoutExercise", b =>
+                {
+                    b.Navigation("Sets");
                 });
 #pragma warning restore 612, 618
         }

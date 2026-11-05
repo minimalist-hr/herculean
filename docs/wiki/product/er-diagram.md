@@ -172,7 +172,7 @@ erDiagram
 | Status | enum | `InProgress`, `Completed`, `Skipped` |
 | RoutineId | RoutineId? | → Routine |
 | Routine | Routine? | |
-| StartedAtUtc | DateTimeOffset? | Empty when skipped |
+| StartedAtUtc | DateTimeOffset? | Empty when skipped, and on a past day |
 | FinishedAtUtc | DateTimeOffset? | Empty while in progress and when skipped |
 | DeletedAtUtc | DateTimeOffset? | |
 | Exercises | list of WorkoutExercise | |
@@ -185,6 +185,9 @@ erDiagram
 | ExerciseId | ExerciseId | → Exercise |
 | Exercise | Exercise | |
 | Order | int | |
+| TargetSets | int | Copied from the routine |
+| TargetRepsFrom | int | Copied from the routine |
+| TargetRepsTo | int | Copied from the routine |
 | Sets | list of Set | |
 
 ### Set
@@ -193,6 +196,8 @@ erDiagram
 |---|---|---|
 | WorkoutExerciseId | WorkoutExerciseId | → WorkoutExercise |
 | Order | int | Shown as the set number |
-| WeightKg | decimal(9,3) | |
+| WeightKg | decimal(6,2) | |
 | Reps | int | |
 | Checked | bool | |
+| WeightChanged | bool | Changed by hand, so a change on an earlier set leaves it alone |
+| RepsChanged | bool | Changed by hand, so a change on an earlier set leaves them alone |

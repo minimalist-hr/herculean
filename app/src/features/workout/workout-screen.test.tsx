@@ -98,6 +98,7 @@ async function renderWorkout() {
       _layout: Layout,
       index: () => <WorkoutScreen />,
       'workout/month': () => <PlaceholderScreen title="Month screen" />,
+      'workout/log/[id]': () => <PlaceholderScreen title="Logging screen" />,
       'routine/new': () => <PlaceholderScreen title="New routine screen" />,
     },
     { initialUrl: '/' },
@@ -250,9 +251,151 @@ test('says the week and the day could not load, and tries again', async () => {
   ).toBeOnTheScreen();
 });
 
+function answerStart(status: number, body: unknown) {
+  mockFetch.mockImplementation((request) =>
+    Promise.resolve(
+      request.method === 'POST'
+        ? Response.json(body, { status })
+        : Response.json(
+            new URL(request.url).pathname === '/api/v1/days'
+              ? week
+              : plannedDay,
+          ),
+    ),
+  );
+}
+
+test('Start workout starts it and opens logging', async () => {
+  answerStart(201, { id: 'w1' });
+  await renderWorkout();
+  await screen.findByText('Legs');
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
+
+  expect(await screen.findByText('Logging screen')).toBeOnTheScreen();
+  const request = mockFetch.mock.calls.find(
+    ([sent]) => sent.method === 'POST',
+  )?.[0];
+  expect(await request?.clone().json()).toEqual({
+    date: '2026-11-03',
+    status: 'inProgress',
+  });
+});
+
+test('Start workout says what stands in its way', async () => {
+  answerStart(409, {
+    code: 'workout.another_in_progress',
+    status: 409,
+    detail: 'Another workout is in progress. Resume or finish it first.',
+  });
+  await renderWorkout();
+  await screen.findByText('Legs');
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
+
+  expect(
+    await screen.findByText(
+      'Another workout is in progress. Resume or finish it first.',
+    ),
+  ).toBeOnTheScreen();
+});
+
+test('a failed Start workout says so', async () => {
+  answerStart(500, { code: 'oops', status: 500 });
+  await renderWorkout();
+  await screen.findByText('Legs');
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
+
+  expect(
+    await screen.findByText("Couldn't start the workout. Try again."),
+  ).toBeOnTheScreen();
+});
+
+describe('a day in progress', () => {
+  const inProgressDay = {
+    ...plannedDay,
+    status: 'inProgress',
+    workoutId: 'w1',
+  };
+
+  function workoutOf(startedAtUtc: string | null) {
+    return {
+      id: 'w1',
+      date: '2026-11-03',
+      status: 'inProgress',
+      name: 'Legs',
+      startedAtUtc,
+      exercises: [
+        {
+          ...legs.exercises[0],
+          id: 'squat-in-workout',
+          lastTime: null,
+          sets: [
+            { id: 's1', order: 0, weightKg: 80, reps: 8, checked: true },
+            { id: 's2', order: 1, weightKg: 80, reps: 8, checked: false },
+          ],
+        },
+      ],
+    };
+  }
+
+  function answerInProgress(startedAtUtc: string | null) {
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      if (pathname === '/api/v1/workouts/w1') {
+        return Promise.resolve(Response.json(workoutOf(startedAtUtc)));
+      }
+
+      return Promise.resolve(
+        Response.json(pathname === '/api/v1/days' ? week : inProgressDay),
+      );
+    });
+  }
+
+  test('shows the progress and only Resume workout', async () => {
+    answerInProgress(null);
+    await renderWorkout();
+
+    expect(await screen.findByText('1 of 2 sets')).toBeOnTheScreen();
+    expect(screen.getByText('In progress')).toBeOnTheScreen();
+    expect(screen.getByText('1/2')).toBeOnTheScreen();
+    expect(screen.getByText('Up next')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Skip workout' })).toBeNull();
+  });
+
+  test('shows the running time when it has one', async () => {
+    answerInProgress(new Date(Date.now() - 400_000).toISOString());
+    await renderWorkout();
+
+    expect(await screen.findByText('1 of 2 sets · 6:40')).toBeOnTheScreen();
+  });
+
+  test('Resume workout opens logging', async () => {
+    answerInProgress(null);
+    await renderWorkout();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Resume workout' }),
+    );
+
+    expect(await screen.findByText('Logging screen')).toBeOnTheScreen();
+  });
+});
+
+test('a finished day shows as done, with nothing to do', async () => {
+  answer({ ...plannedDay, status: 'completed', workoutId: 'w1' });
+  await renderWorkout();
+
+  expect(
+    await screen.findByText('You finished this workout.'),
+  ).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: 'Undo skip' })).toBeNull();
+});
+
 test.each([
-  ['Start workout', 'Logging comes in a later update.'],
-  ['Other routine', 'Logging comes in a later update.'],
+  ['Other routine', 'Picking another routine comes in a later update.'],
 ])('%s says it comes later', async (name, message) => {
   answer(plannedDay);
   await renderWorkout();
@@ -334,17 +477,16 @@ describe('other days', () => {
     expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Month' })).toBeNull();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Log workout' }));
-    expect(
-      await screen.findByText('Logging comes in a later update.'),
-    ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Log workout' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Skip workout' })).toBeTruthy();
 
     await fireEvent.press(
       screen.getByRole('button', { name: 'Other routine' }),
     );
     expect(
-      await screen.findByText('Logging comes in a later update.'),
+      await screen.findByText(
+        'Picking another routine comes in a later update.',
+      ),
     ).toBeOnTheScreen();
   });
 

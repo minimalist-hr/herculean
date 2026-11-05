@@ -30,6 +30,8 @@ export function DayMarker({
 }) {
   const { colors } = useTheme();
   const color = {
+    completed: colors.success,
+    inProgress: colors.primaryText,
     missed: colors.danger,
     planned: colors.muted,
     skipped: colors.skipped,

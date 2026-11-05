@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleDays, sampleWeek } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleDays, sampleWeek, sampleWorkout } from './fixtures.mjs';
 
 const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails } = sample;
 
@@ -14,6 +14,12 @@ const friday = '2026-10-23T18:00:00';
 const sunday = '2026-10-25T18:00:00';
 const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', workoutId: 'workout-skipped' } });
 const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
+const logPath = `/workout/log/${sampleWorkout.id}`;
+const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
+const openLog = async (on) => {
+  await on.go(logPath);
+  await on.waitFor('Add set');
+};
 const restDay = (routineName) => ({ status: 200, body: { ...sampleDay, date: '2026-10-25', status: 'rest', routine: null, upNext: { date: '2026-10-26', routineName } } });
 
 const openMonth = async (on) => {
@@ -250,6 +256,10 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor('Start workout');
   } },
+  { id: 'W02', file: 'W02-Workout-Today-In-Progress', title: 'Workout › Today · in progress', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23').map((day) => (day.date === '2026-10-23' ? { ...day, status: 'inProgress' } : day)) } }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Resume workout');
+  } },
   { id: 'W06', file: 'W06-Workout-Today-Skipped', title: 'Workout › Today · skipped', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Undo skip');
@@ -344,10 +354,10 @@ export const screens = [
     await on.go('/workout/month');
     await on.waitFor("Couldn't load this month.");
   } },
-  { id: 'W12', file: 'W12-Workout-Today-Logging-Later', title: 'Workout › Today · logging comes later', row: 'W1 Today states', today: friday, full: false, steps: async (on) => {
+  { id: 'W12', file: 'W12-Workout-Today-Logging-Later', title: 'Workout › Today · another routine comes later', row: 'W1 Today states', today: friday, full: false, steps: async (on) => {
     await on.go('/workout');
-    await on.tap('Start workout');
-    await on.waitFor('Logging comes in a later update.');
+    await on.tap('Other routine');
+    await on.waitFor('Picking another routine comes in a later update.');
   } },
   { id: 'W13', file: 'W13-Workout-Skip-Skipping', title: 'Workout › Skip workout · skipping', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: skipFromToday },
   { id: 'W14', file: 'W14-Workout-Skip-Failed', title: "Workout › Skip workout · couldn't skip", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
@@ -613,6 +623,35 @@ export const screens = [
     await on.waitFor("Couldn't undo. Try again.");
   } },
   // L · Add exercise, reached from a routine
+  { id: 'L03', file: 'L03-Logging-Loading', title: 'Logging › Loading', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'hold' }, steps: async (on) => {
+    await on.go(logPath);
+    await on.waitFor('Loading this workout');
+  } },
+  { id: 'L05', file: 'L05-Logging-Load-Failure', title: 'Logging › Load failure', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'fail' }, steps: async (on) => {
+    await on.go(logPath);
+    await on.waitFor("Couldn't load this workout.");
+  } },
+  { id: 'L01', file: 'L01-Logging', title: 'Logging', row: 'L1 Log sets', today: friday, steps: openLog },
+  { id: 'L10', file: 'L10-Logging-Edit-Weight', title: 'Logging › Edit weight · sheet', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 2 weight, 82.5 kilograms');
+    await on.waitFor('Save set');
+    await on.sleep(400);
+  } },
+  { id: 'L11', file: 'L11-Logging-Edit-Reps', title: 'Logging › Edit reps · sheet', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 2 reps, 10');
+    await on.waitFor('Save set');
+    await on.sleep(400);
+  } },
+  { id: 'L12', file: 'L12-Logging-Set-Removed', title: 'Logging › Set removed · undo bar', row: 'L1 Log sets', today: friday, answers: { [`DELETE /api/v1/workouts/${sampleWorkout.id}/exercises/workout-${sampleWorkout.exercises.find((exercise) => exercise.name === 'Flat barbell bench press').exerciseId}/sets/workout-${sampleWorkout.exercises.find((exercise) => exercise.name === 'Flat barbell bench press').exerciseId}-set-2`]: { status: 204 } }, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 3 weight, 82.5 kilograms');
+    await on.waitFor('Save set');
+    await on.tap('Remove set');
+    await on.waitFor('Set 3 removed.');
+    await on.sleep(400);
+  } },
   { id: 'L20', file: 'L20-Logging-Add-Exercise', title: 'Logging › Add exercise', row: 'L2 Exercises', steps: async (on) => {
     await on.go('/routine/new/add-exercise');
     await on.waitFor(benchPress.name);

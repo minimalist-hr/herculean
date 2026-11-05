@@ -1,3 +1,7 @@
+export const workoutKeys = {
+  workout: (id: string) => ['workout', id] as const,
+};
+
 export const dayKeys = {
   allDay: ['day'] as const,
   allDays: ['days'] as const,

@@ -1,0 +1,31 @@
+# Add a set. Start the API with Aspire first. Fill in the IDs from a workout in progress: start one with CreateWorkout.http.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+@setId = 00000000-0000-0000-0000-000000000000
+
+### A copy of the last set → 201, or 409 workout.too_many_sets at 20 sets.
+POST {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### Put a removed set back → 201.
+POST {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "removed": { "order": 1, "weightKg": 82.5, "reps": 10, "checked": true }
+}
+
+### Too many decimals → 400 validation.
+POST {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "removed": { "order": 1, "weightKg": 2.255, "reps": 10, "checked": false }
+}

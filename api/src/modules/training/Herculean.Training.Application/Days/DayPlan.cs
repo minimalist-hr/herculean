@@ -1,6 +1,7 @@
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 
 namespace Herculean.Training.Application.Days;
 
@@ -8,7 +9,15 @@ namespace Herculean.Training.Application.Days;
 internal sealed record PlanChange(Weekday Weekday, DateOnly EffectiveFrom, RoutineId? RoutineId, string? RoutineName, DateTimeOffset? RoutineDeletedAtUtc);
 
 /// <summary>A workout on a date, which decides how the day is shown.</summary>
-internal sealed record DayWorkout(Guid Id, DateOnly Date, string Name, RoutineId? RoutineId);
+internal sealed record DayWorkout(Guid Id, DateOnly Date, WorkoutStatus Status, string Name, RoutineId? RoutineId)
+{
+    public DayStatus DayStatus => Status switch
+    {
+        WorkoutStatus.InProgress => DayStatus.InProgress,
+        WorkoutStatus.Completed => DayStatus.Completed,
+        _ => DayStatus.Skipped,
+    };
+}
 
 /// <summary>What the week plan held on any date.</summary>
 internal sealed class DayPlan(IReadOnlyCollection<PlanChange> changes, UserCalendar calendar)

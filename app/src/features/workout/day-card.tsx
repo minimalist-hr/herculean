@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -6,22 +6,28 @@ import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
+import { ProgressBar } from '@/components/progress-bar';
 import { Skeleton } from '@/components/skeleton';
 import { ExerciseTargets } from '@/features/routines/exercise-targets';
 import { counted } from '@/features/routines/formats';
 import { SectionTitle } from '@/components/section-title';
 import { StatusLabel } from '@/components/status-label';
+import { formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
+import { useElapsed } from './use-elapsed';
 import { useSkipWorkout } from './use-skip-workout';
+import { useStartWorkout } from './use-start-workout';
 import { useUndoSkip } from './use-undo-skip';
+import { useWorkout } from './use-workout';
+import { checkedSets, progressText, workoutProgress } from './workout-progress';
 
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
 
-function comesInLogging() {
-  notifyFailure('Logging comes in a later update.');
+function otherRoutineComesLater() {
+  notifyFailure('Picking another routine comes in a later update.');
 }
 
 function Card({ children }: { children: ReactNode }) {
@@ -79,6 +85,21 @@ function Actions({ children }: { children: ReactNode[] }) {
         </View>
       ))}
     </View>
+  );
+}
+
+function StartButton({ date, label }: { date: string; label: string }) {
+  const start = useStartWorkout();
+
+  return (
+    <Button
+      label={label}
+      waitingLabel="Starting workout"
+      waiting={start.isPending}
+      onPress={() => {
+        start.mutate(date);
+      }}
+    />
   );
 }
 
@@ -193,14 +214,14 @@ function MissedCard({ date, routine }: { date: string; routine: DayRoutine }) {
         meta="Planned, but nothing was logged."
       />
       <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
-      <Button label="Log workout" onPress={comesInLogging} />
+      <StartButton date={date} label="Log workout" />
       <Actions>
         {[
           <Button
             key="other"
             label="Other routine"
             variant="secondary"
-            onPress={comesInLogging}
+            onPress={otherRoutineComesLater}
           />,
           <SkipButton key="skip" date={date} routineName={routine.name} />,
         ]}
@@ -236,6 +257,78 @@ function SkippedCard({
       <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
       {isToday && <UpNext upNext={day.upNext} today={today} />}
       <UndoSkipButton workoutId={workoutId} />
+    </Card>
+  );
+}
+
+function InProgressCard({
+  day,
+  routine,
+  today,
+  workoutId,
+}: {
+  day: Day;
+  routine: DayRoutine;
+  today: string;
+  workoutId: string;
+}) {
+  const { colors, text } = useTheme();
+  const router = useRouter();
+  const workout = useWorkout(workoutId).data;
+  const elapsed = useElapsed(workout?.startedAtUtc);
+  const progress = workoutProgress(workout?.exercises ?? []);
+  const sets = progressText(progress);
+
+  return (
+    <Card>
+      <CardHeading
+        label="In progress"
+        labelColor={colors.primaryText}
+        title={routine.name}
+        meta={elapsed === null ? sets : `${sets} · ${formatClock(elapsed)}`}
+      />
+      <ProgressBar done={progress.done} total={progress.total} />
+      <ExerciseTargets
+        exercises={routine.exercises}
+        background={colors.bg}
+        trailing={(exerciseId) => {
+          const exercise = workout?.exercises.find(
+            (candidate) => candidate.exerciseId === exerciseId,
+          );
+
+          return (
+            exercise && (
+              <Text style={text.meta}>
+                {`${String(checkedSets(exercise))}/${String(exercise.sets.length)}`}
+              </Text>
+            )
+          );
+        }}
+      />
+      {day.date === today && <UpNext upNext={day.upNext} today={today} />}
+      <Button
+        label="Resume workout"
+        onPress={() => {
+          router.push(`/workout/log/${workoutId}` as Href);
+        }}
+      />
+    </Card>
+  );
+}
+
+/** A finished day's card, until its full design comes with finishing a workout. */
+function CompletedCard({ routine }: { routine: DayRoutine }) {
+  const { colors } = useTheme();
+
+  return (
+    <Card>
+      <CardHeading
+        label="Done"
+        labelColor={colors.success}
+        title={routine.name}
+        meta="You finished this workout."
+      />
+      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
     </Card>
   );
 }
@@ -297,7 +390,7 @@ function RestCard({
         <Button
           label="Other routine"
           variant="secondary"
-          onPress={comesInLogging}
+          onPress={otherRoutineComesLater}
         />
       )}
     </Card>
@@ -324,7 +417,7 @@ function NoRoutinesCard() {
   );
 }
 
-/** A day's card: what is planned, was missed or was skipped, a rest day, or the way to a first routine. */
+/** A day's card: what is planned, in progress, done, missed or skipped, a rest day, or the way to a first routine. */
 export function DayCard({ day, today }: { day: Day; today: string }) {
   const date = dateFromText(day.date);
 
@@ -334,6 +427,21 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
     ) : (
       <NoRoutinesCard />
     );
+  }
+
+  if (day.workoutId !== null && day.status === 'inProgress') {
+    return (
+      <InProgressCard
+        day={day}
+        routine={day.routine}
+        today={today}
+        workoutId={day.workoutId}
+      />
+    );
+  }
+
+  if (day.status === 'completed') {
+    return <CompletedCard routine={day.routine} />;
   }
 
   if (day.workoutId !== null) {
@@ -356,14 +464,14 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
       <PlannedContent date={date} routine={day.routine} />
       {day.date === today && (
         <>
-          <Button label="Start workout" onPress={comesInLogging} />
+          <StartButton date={day.date} label="Start workout" />
           <Actions>
             {[
               <Button
                 key="other"
                 label="Other routine"
                 variant="secondary"
-                onPress={comesInLogging}
+                onPress={otherRoutineComesLater}
               />,
               <SkipButton
                 key="skip"

@@ -14,6 +14,8 @@ using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.WeekPlan;
 using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
+using Herculean.Training.Application.Workouts;
+using Herculean.Training.Application.Workouts.GetWorkout;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
@@ -239,12 +241,35 @@ internal sealed class FakeDayReadRepository : IDayReadRepository
     public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) => Task.FromResult(HasRoutines);
 }
 
+internal sealed class FakeWorkoutReadRepository : IWorkoutReadRepository
+{
+    public WorkoutDetailsResponse? Workout { get; set; }
+
+    public List<RoutineExerciseValues> RoutineExercises { get; } = [];
+
+    public Dictionary<ExerciseId, LastTimeResponse> LastTime { get; } = [];
+
+    public Task<WorkoutDetailsResponse?> GetAsync(WorkoutId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Workout?.Id == id.Value ? Workout : null);
+
+    public Task<List<RoutineExerciseValues>> ListRoutineExercisesAsync(RoutineId routineId, CancellationToken cancellationToken) =>
+        Task.FromResult(RoutineExercises);
+
+    public Task<Dictionary<ExerciseId, LastTimeResponse>> ListLastTimeAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken) =>
+        Task.FromResult(LastTime);
+}
+
 internal sealed class FakeWorkoutRepository : IWorkoutRepository
 {
     public List<Workout> Workouts { get; } = [];
 
     public Task<Workout?> GetAsync(WorkoutId id, CancellationToken cancellationToken) =>
         Task.FromResult(Workouts.SingleOrDefault(workout => workout.Id == id && workout.DeletedAtUtc is null));
+
+    public Task<Workout?> GetWithSetsAsync(WorkoutId id, CancellationToken cancellationToken) => GetAsync(id, cancellationToken);
+
+    public Task<bool> InProgressExistsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.Any(workout => workout.Status == WorkoutStatus.InProgress && workout.DeletedAtUtc is null));
 
     public Task<bool> ExistsOnAsync(DateOnly date, CancellationToken cancellationToken) =>
         Task.FromResult(Workouts.Any(workout => workout.Date == date && workout.DeletedAtUtc is null));

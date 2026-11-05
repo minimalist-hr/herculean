@@ -20,11 +20,11 @@ internal static class CreateWorkoutEndpoint
     }
 
     [EndpointSummary("Create a workout")]
-    [EndpointDescription("Adds a skipped workout to a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout takes the routine's name.")]
+    [EndpointDescription("Starts or skips a workout on a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout copies the routine's name, exercises and targets. A started workout's sets begin from last time.")]
     [ProducesResponseType<WorkoutResponse>(StatusCodes.Status201Created, Description = "The new workout.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each one.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "The date already has a workout, is in the future, or has no routine planned.")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "The date already has a workout, is in the future, or has no routine planned. Or, when starting, the routine has no exercises left or another workout is in progress.")]
     private static async Task<Results<Created<WorkoutResponse>, ProblemHttpResult>> HandleAsync(
         [FromBody] CreateWorkoutRequest request,
         [FromServices] CreateWorkoutHandler handler,

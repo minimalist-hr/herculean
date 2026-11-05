@@ -6,6 +6,7 @@ using Herculean.SharedKernel.Validation;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
+using Herculean.Training.Application.Workouts.GetWorkout;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Routines;
@@ -16,10 +17,12 @@ namespace Herculean.Training.Application.Workouts.CreateWorkout;
 internal sealed class CreateWorkoutHandler(
     IValidator<CreateWorkoutRequest> validator,
     IWorkoutRepository workoutRepository,
+    IWorkoutReadRepository workoutReadRepository,
     IDayReadRepository dayReadRepository,
     UserClock userClock,
     CurrentUser currentUser,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider)
 {
     public async Task<Result<WorkoutResponse>> HandleAsync(CreateWorkoutRequest request, CancellationToken cancellationToken)
     {
@@ -46,16 +49,54 @@ internal sealed class CreateWorkoutHandler(
             return WorkoutErrors.NothingPlanned;
         }
 
-        List<DayExerciseResponse> exercises = await dayReadRepository.ListExercisesAsync(routineId, cancellationToken);
-        Workout workout = Workout.Skip(
+        Result<Workout> workout = request.Status == WorkoutStatus.InProgress
+            ? await StartAsync(request.Date, routineId, name, calendar, cancellationToken)
+            : await SkipAsync(request.Date, routineId, name, cancellationToken);
+        if (!workout.IsSuccess)
+        {
+            return workout.Error;
+        }
+
+        workoutRepository.Add(workout.Value);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new WorkoutResponse(workout.Value.Id.Value, workout.Value.Date, workout.Value.Status, workout.Value.Name);
+    }
+
+    private async Task<Result<Workout>> StartAsync(DateOnly date, RoutineId routineId, string name, UserCalendar calendar, CancellationToken cancellationToken)
+    {
+        if (await workoutRepository.InProgressExistsAsync(cancellationToken))
+        {
+            return WorkoutErrors.AnotherInProgress;
+        }
+
+        List<RoutineExerciseValues> exercises = await workoutReadRepository.ListRoutineExercisesAsync(routineId, cancellationToken);
+        if (exercises.Count == 0)
+        {
+            return WorkoutErrors.NoExercises;
+        }
+
+        Dictionary<ExerciseId, LastTimeResponse> lastTime = await workoutReadRepository.ListLastTimeAsync([.. exercises.Select(exercise => exercise.ExerciseId)], date, cancellationToken);
+
+        return Workout.Start(
             currentUser.UserId,
-            request.Date,
+            date,
+            routineId,
+            name,
+            exercises,
+            lastTime.ToDictionary(pair => pair.Key, pair => pair.Value.Sets.Select(set => new SetValues(set.WeightKg, set.Reps)).ToList()),
+            date == calendar.Today ? timeProvider.GetUtcNow() : null);
+    }
+
+    private async Task<Result<Workout>> SkipAsync(DateOnly date, RoutineId routineId, string name, CancellationToken cancellationToken)
+    {
+        List<DayExerciseResponse> exercises = await dayReadRepository.ListExercisesAsync(routineId, cancellationToken);
+
+        return Workout.Skip(
+            currentUser.UserId,
+            date,
             routineId,
             name,
             exercises.Select(exercise => new RoutineExerciseValues(ExerciseId.From(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo)));
-        workoutRepository.Add(workout);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return new WorkoutResponse(workout.Id.Value, workout.Date, workout.Status, workout.Name);
     }
 }

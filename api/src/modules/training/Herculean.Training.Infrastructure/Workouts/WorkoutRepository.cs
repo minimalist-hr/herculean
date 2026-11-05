@@ -9,6 +9,15 @@ internal sealed class WorkoutRepository(TrainingDbContext dbContext) : IWorkoutR
     public Task<Workout?> GetAsync(WorkoutId id, CancellationToken cancellationToken) =>
         dbContext.Workouts.SingleOrDefaultAsync(workout => workout.Id == id, cancellationToken);
 
+    public Task<Workout?> GetWithSetsAsync(WorkoutId id, CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .Include(workout => workout.Exercises)
+            .ThenInclude(exercise => exercise.Sets)
+            .SingleOrDefaultAsync(workout => workout.Id == id, cancellationToken);
+
+    public Task<bool> InProgressExistsAsync(CancellationToken cancellationToken) =>
+        dbContext.Workouts.AnyAsync(workout => workout.Status == WorkoutStatus.InProgress, cancellationToken);
+
     public Task<bool> ExistsOnAsync(DateOnly date, CancellationToken cancellationToken) =>
         dbContext.Workouts.AnyAsync(workout => workout.Date == date, cancellationToken);
 

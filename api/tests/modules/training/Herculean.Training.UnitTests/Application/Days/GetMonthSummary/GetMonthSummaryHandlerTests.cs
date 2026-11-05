@@ -5,6 +5,7 @@ using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Application.Days.GetMonthSummary;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 
 using Microsoft.Extensions.Time.Testing;
 
@@ -65,7 +66,7 @@ public sealed class GetMonthSummaryHandlerTests
 
         (await GetAsync("2026-11")).Value.PlannedDays.ShouldBe(0);
 
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, "Arms", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, WorkoutStatus.Skipped, "Arms", RoutineId.New()));
         _dayReadRepository.WorkoutExercises.Add(Exercise(4));
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-11");
@@ -77,12 +78,25 @@ public sealed class GetMonthSummaryHandlerTests
     public async Task ASkippedDayIsNotAlsoMissed()
     {
         _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today.AddDays(-1), "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today.AddDays(-1), WorkoutStatus.Skipped, "Legs", RoutineId.New()));
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-11");
 
         result.Value.Missed.ShouldBe(0);
         result.Value.Skipped.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task AWorkoutInProgressCountsTowardsNothing()
+    {
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today.AddDays(-1), WorkoutStatus.InProgress, "Legs", RoutineId.New()));
+
+        Result<MonthSummaryResponse> result = await GetAsync("2026-11");
+
+        result.Value.Missed.ShouldBe(0);
+        result.Value.Skipped.ShouldBe(0);
+        result.Value.PlannedDays.ShouldBe(0);
     }
 
     [Fact]

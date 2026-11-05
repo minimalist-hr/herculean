@@ -3,6 +3,7 @@ using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 
 using Microsoft.Extensions.Time.Testing;
 
@@ -139,7 +140,7 @@ public sealed class GetDayHandlerTests
         _dayReadRepository.WorkoutExercises.Add(squat);
         _dayReadRepository.Exercises.Add(addedSince);
         Guid workoutId = Guid.CreateVersion7();
-        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, Today, "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, Today, WorkoutStatus.Skipped, "Legs", RoutineId.New()));
 
         DayResponse day = await GetAsync(Today);
 
@@ -149,11 +150,25 @@ public sealed class GetDayHandlerTests
         day.Routine.Exercises.ShouldHaveSingleItem().ShouldBe(squat);
     }
 
+    [Theory]
+    [InlineData(WorkoutStatus.InProgress, DayStatus.InProgress)]
+    [InlineData(WorkoutStatus.Completed, DayStatus.Completed)]
+    internal async Task ADayShowsItsWorkoutsStatus(WorkoutStatus status, DayStatus expected)
+    {
+        Guid workoutId = Guid.CreateVersion7();
+        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, Today, status, "Legs", RoutineId.New()));
+
+        DayResponse day = await GetAsync(Today);
+
+        day.Status.ShouldBe(expected);
+        day.WorkoutId.ShouldBe(workoutId);
+    }
+
     [Fact]
     public async Task ASkippedDayStaysSkippedAfterItsRoutineLeavesThePlan()
     {
         Plan(Weekday.Tuesday, null);
-        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, "Legs", RoutineId.New()));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, WorkoutStatus.Skipped, "Legs", RoutineId.New()));
 
         DayResponse day = await GetAsync(Today);
 

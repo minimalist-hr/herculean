@@ -1,0 +1,10 @@
+# Remove a set. Start the API with Aspire first. Fill in the IDs from a workout in progress: start one with CreateWorkout.http.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+@setId = 00000000-0000-0000-0000-000000000000
+
+### Remove it → 204, or 409 workout.last_set on the exercise's last set.
+DELETE {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/sets/{{setId}}
+Authorization: Bearer {{accessToken}}
