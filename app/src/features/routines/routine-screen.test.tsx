@@ -154,7 +154,8 @@ test('shows the skeleton, then the routine for display', async () => {
   expect(await screen.findByRole('header', { name: 'Legs' })).toBeOnTheScreen();
   expect(screen.getByText('2 exercises · 5 sets')).toBeOnTheScreen();
   expect(screen.getByText('3 × 8–10')).toBeOnTheScreen();
-  expect(screen.getAllByText(/· Legs$/)).toHaveLength(2);
+  expect(screen.queryByText(/· Legs$/)).toBeNull();
+  expect(screen.getAllByText('Legs')).toHaveLength(2);
   expect(screen.getByText('2 × 6')).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: 'Squat' })).toBeNull();
 });

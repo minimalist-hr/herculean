@@ -117,7 +117,7 @@ One workout per date, and a workout only happens on today or a past day.
 | Today | Rest | Other routine |
 | Today | No routines at all | Create routine |
 | Today or past | In progress | Resume workout |
-| Today or past | Completed | Edit, Delete |
+| Today or past | Completed | View workout, Edit, Delete |
 | Today or past | Skipped | Undo skip |
 | Past | Missed | Log workout, Other routine, Skip workout |
 | Past | Rest | Other routine |
@@ -139,7 +139,7 @@ One workout per date, and a workout only happens on today or a past day.
 - The first day is the earlier of the first workout and the day the account was created, so imported workouts extend it. The week strip reaches from its week to 4 weeks ahead. A workout can't be added before it, except by an import, so Other routine looks muted there and says why.
 - A workout keeps its copy when its routine changes or is deleted. Exercise renames show everywhere.
 
-Start workout, Log workout, Other routine, Resume workout, Skip workout, Undo skip, Save workout and Discard workout are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
+Start workout, Log workout, Other routine, Resume workout, Skip workout, Undo skip, Save workout, Discard workout and View workout are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
 
 ### Exercises, routines and groups
 

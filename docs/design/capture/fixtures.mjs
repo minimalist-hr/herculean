@@ -191,6 +191,27 @@ export const sampleWorkout = {
   }),
 };
 
+/** The sample workout once saved: only checked sets, with what it came to. */
+export const savedWorkout = {
+  ...sampleWorkout,
+  status: 'completed',
+  finishedAtUtc: '2026-10-23T17:04:10Z',
+  exercises: sampleWorkout.exercises
+    .map((exercise) => ({ ...exercise, sets: exercise.sets.filter((set) => set.checked) }))
+    .filter((exercise) => exercise.sets.length > 0),
+};
+
+export const savedSummary = {
+  name: sampleWorkout.name,
+  date: '2026-10-23',
+  durationSeconds: 3850,
+  setsChecked: savedWorkout.exercises.reduce((sum, exercise) => sum + exercise.sets.length, 0),
+  setsTotal: savedWorkout.exercises.reduce((sum, exercise) => sum + exercise.sets.length, 0),
+  volumeKg: savedWorkout.exercises.reduce((sum, exercise) => sum + exercise.sets.reduce((total, set) => total + set.weightKg * set.reps, 0), 0),
+  uncheckedExercises: [],
+  records: [{ name: 'Flat barbell bench press', kind: 'heaviestWeight', weightKg: 80, reps: 10 }],
+};
+
 /** The design's sample week, with past days missed. */
 export function sampleWeek(today, skippedDate, from = '2026-10-19') {
   return weekdays.map((weekday, index) => {

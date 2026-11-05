@@ -4,10 +4,12 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
+import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 import { ProgressBar } from '@/components/progress-bar';
 import { Skeleton } from '@/components/skeleton';
+import { useCurrentUser } from '@/features/account/use-current-user';
 import { ExerciseTargets } from '@/features/routines/exercise-targets';
 import { counted } from '@/features/routines/formats';
 import { SectionTitle } from '@/components/section-title';
@@ -22,6 +24,8 @@ import { useSkipWorkout } from './use-skip-workout';
 import { useStartWorkout } from './use-start-workout';
 import { useUndoSkip } from './use-undo-skip';
 import { useWorkout } from './use-workout';
+import { useWorkoutSummary } from './use-workout-summary';
+import { savedExercises, savedMeta } from './saved-workout';
 import { checkedSets, progressText, workoutProgress } from './workout-progress';
 
 type Day = components['schemas']['DayResponse'];
@@ -333,8 +337,52 @@ function InProgressCard({
 }
 
 /** A finished day's card, until its full design comes with finishing a workout. */
-function CompletedCard({ routine }: { routine: DayRoutine }) {
-  const { colors } = useTheme();
+function CompletedCard({
+  day,
+  routine,
+  today,
+  workoutId,
+}: {
+  day: Day;
+  routine: DayRoutine;
+  today: string;
+  workoutId: string;
+}) {
+  const { colors, space } = useTheme();
+  const router = useRouter();
+  const user = useCurrentUser();
+  const workout = useWorkout(workoutId);
+  const summary = useWorkoutSummary(workoutId);
+
+  function renderExercises() {
+    if (workout.data !== undefined) {
+      return (
+        <ExerciseTargets
+          exercises={savedExercises(workout.data, user.data?.units ?? 'metric')}
+          background={colors.bg}
+        />
+      );
+    }
+
+    if (workout.isError) {
+      return (
+        <LoadFailure
+          message="Couldn't load this workout."
+          onRetry={() => {
+            void workout.refetch();
+            void summary.refetch();
+          }}
+        />
+      );
+    }
+
+    return (
+      <View style={{ gap: space.sm }}>
+        <Skeleton width={260} height={56} />
+        <Skeleton width={260} height={56} />
+      </View>
+    );
+  }
 
   return (
     <Card>
@@ -342,9 +390,39 @@ function CompletedCard({ routine }: { routine: DayRoutine }) {
         label="Done"
         labelColor={colors.success}
         title={routine.name}
-        meta="You finished this workout."
+        meta={savedMeta(routine.exercises.length, summary.data)}
       />
-      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      {renderExercises()}
+      <Button
+        label="View workout"
+        onPress={() => {
+          router.push({
+            pathname: '/workout/details/[id]',
+            params: { id: workoutId },
+          });
+        }}
+      />
+      <Actions>
+        {[
+          <Button
+            key="edit"
+            label="Edit"
+            variant="secondary"
+            onPress={() => {
+              notifyFailure('Editing a workout comes in a later update.');
+            }}
+          />,
+          <Button
+            key="delete"
+            label="Delete"
+            variant="dangerOutline"
+            onPress={() => {
+              notifyFailure('Deleting a workout comes in a later update.');
+            }}
+          />,
+        ]}
+      </Actions>
+      {day.date === today && <UpNext upNext={day.upNext} today={today} />}
     </Card>
   );
 }
@@ -401,7 +479,7 @@ function RestCard({
         title="Rest day"
         meta="Nothing planned. Recovery is part of the program."
       />
-      {daysAway >= -1 && <UpNext upNext={day.upNext} today={today} />}
+      {daysAway >= 0 && <UpNext upNext={day.upNext} today={today} />}
       {daysAway <= 0 && <OtherRoutineButton date={day.date} />}
     </Card>
   );
@@ -451,7 +529,14 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
   }
 
   if (day.status === 'completed') {
-    return <CompletedCard routine={day.routine} />;
+    return day.workoutId === null ? null : (
+      <CompletedCard
+        day={day}
+        routine={day.routine}
+        today={today}
+        workoutId={day.workoutId}
+      />
+    );
   }
 
   if (day.workoutId !== null) {

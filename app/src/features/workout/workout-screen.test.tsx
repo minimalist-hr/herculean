@@ -32,7 +32,7 @@ const legs = {
       exerciseId: 'squat',
       name: 'Barbell squat',
       groupId: 'legs-group',
-      groupName: 'Legs',
+      groupName: 'Lower body',
       targetSets: 3,
       targetRepsFrom: 8,
       targetRepsTo: 10,
@@ -41,7 +41,7 @@ const legs = {
       exerciseId: 'press',
       name: 'Leg press',
       groupId: 'legs-group',
-      groupName: 'Legs',
+      groupName: 'Lower body',
       targetSets: 2,
       targetRepsFrom: 10,
       targetRepsTo: 12,
@@ -98,6 +98,9 @@ async function renderWorkout() {
       _layout: Layout,
       index: () => <WorkoutScreen />,
       'workout/month': () => <PlaceholderScreen title="Month screen" />,
+      'workout/details/[id]': () => (
+        <PlaceholderScreen title="Details screen" />
+      ),
       'workout/choose/[date]': () => (
         <PlaceholderScreen title="Choose routine screen" />
       ),
@@ -387,14 +390,144 @@ describe('a day in progress', () => {
   });
 });
 
-test('a finished day shows as done, with nothing to do', async () => {
-  answer({ ...plannedDay, status: 'completed', workoutId: 'w1' });
-  await renderWorkout();
+describe('a saved day', () => {
+  const savedDay = {
+    ...plannedDay,
+    status: 'completed',
+    workoutId: 'w1',
+    upNext: { date: '2026-11-04', routineName: 'Arms' },
+  };
+  const savedWorkout = {
+    exercises: [
+      {
+        id: 'we1',
+        exerciseId: 'squat',
+        name: 'Barbell squat',
+        groupId: 'legs-group',
+        groupName: 'Legs',
+        targetSets: 3,
+        targetRepsFrom: 8,
+        targetRepsTo: 10,
+        sets: [
+          { id: 's1', weightKg: 100, reps: 5 },
+          { id: 's2', weightKg: 100, reps: 5 },
+        ],
+        lastTime: null,
+      },
+    ],
+  };
+  const savedSummary = {
+    name: 'Legs',
+    date: '2026-11-03',
+    durationSeconds: 3840,
+    setsChecked: 2,
+    setsTotal: 2,
+    volumeKg: 1000,
+    uncheckedExercises: [],
+    records: [],
+  };
 
-  expect(
-    await screen.findByText('You finished this workout.'),
-  ).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: 'Undo skip' })).toBeNull();
+  function answerSaved({
+    day = savedDay,
+    summary = savedSummary,
+    failing = false,
+  }: {
+    day?: unknown;
+    summary?: unknown;
+    failing?: boolean;
+  } = {}) {
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      if (pathname.startsWith('/api/v1/workouts/')) {
+        if (failing) {
+          return Promise.resolve(new Response(null, { status: 500 }));
+        }
+        return Promise.resolve(
+          Response.json(pathname.endsWith('/summary') ? summary : savedWorkout),
+        );
+      }
+      return Promise.resolve(
+        Response.json(pathname === '/api/v1/days' ? week : day),
+      );
+    });
+  }
+
+  test('says it is done, with the sets actually done', async () => {
+    answerSaved();
+    await renderWorkout();
+
+    expect(await screen.findByText('Done')).toBeOnTheScreen();
+    expect(
+      await screen.findByText('2 exercises · 2 sets · 64 min'),
+    ).toBeOnTheScreen();
+    expect(await screen.findByText('2 sets · 1,000 kg')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Undo skip' })).toBeNull();
+  });
+
+  test('a past day logged later has no time', async () => {
+    answerSaved({ summary: { ...savedSummary, durationSeconds: null } });
+    await renderWorkout();
+
+    expect(await screen.findByText('2 exercises · 2 sets')).toBeOnTheScreen();
+  });
+
+  test('today shows what is up next', async () => {
+    answerSaved();
+    await renderWorkout();
+
+    expect(await screen.findByText('Up next')).toBeOnTheScreen();
+    expect(screen.getByText('Arms')).toBeOnTheScreen();
+  });
+
+  test('a day before today has no up next', async () => {
+    answerSaved({ day: { ...savedDay, date: '2026-11-02' } });
+    jest.setSystemTime(new Date(2026, 10, 3, 18));
+    await renderWorkout();
+    await fireEvent.press(
+      await screen.findByLabelText('Monday 2, Arms, missed'),
+    );
+
+    expect(await screen.findByText('View workout')).toBeOnTheScreen();
+    expect(screen.queryByText('Up next')).toBeNull();
+  });
+
+  test('View workout opens the details', async () => {
+    answerSaved();
+    await renderWorkout();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'View workout' }),
+    );
+
+    expect(await screen.findByText('Details screen')).toBeOnTheScreen();
+  });
+
+  test.each([
+    ['Edit', 'Editing a workout comes in a later update.'],
+    ['Delete', 'Deleting a workout comes in a later update.'],
+  ])('%s says it comes later', async (name, message) => {
+    answerSaved();
+    await renderWorkout();
+
+    await fireEvent.press(await screen.findByRole('button', { name }));
+
+    expect(await screen.findByText(message)).toBeOnTheScreen();
+  });
+
+  test('details that fail to load can be tried again, and the actions stay', async () => {
+    answerSaved({ failing: true });
+    await renderWorkout();
+
+    expect(
+      await screen.findByText("Couldn't load this workout."),
+    ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'View workout' })).toBeTruthy();
+
+    answerSaved();
+    await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+    expect(await screen.findByText('2 sets · 1,000 kg')).toBeOnTheScreen();
+  });
 });
 
 test('Other routine opens the list for that day', async () => {
@@ -539,14 +672,14 @@ describe('other days', () => {
     expect(screen.queryByRole('button', { name: 'Other routine' })).toBeNull();
   });
 
-  test('yesterday as a rest day points to today', async () => {
+  test('yesterday as a rest day has no up next', async () => {
     answerByDate({ '2026-11-03': restDay, '2026-11-02': yesterdayRestDay });
     await renderWorkout();
     await open('Monday 2, Arms, missed');
 
-    expect(await screen.findByText('Up next')).toBeOnTheScreen();
+    expect(await screen.findByText('Rest day')).toBeOnTheScreen();
     expect(screen.getByText('Yesterday')).toBeOnTheScreen();
-    expect(screen.getByText('Today')).toBeOnTheScreen();
+    expect(screen.queryByText('Up next')).toBeNull();
     expect(screen.getByRole('button', { name: 'Other routine' })).toBeTruthy();
   });
 

@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { joinedCardStyle } from '@/components/joined-cards';
 import { useTheme } from '@/theme/theme-provider';
 
-import { sameGroup, targetText } from './formats';
+import { groupBlocks, targetText } from './formats';
+import { GroupStripe } from './group-stripe';
 
 interface ExerciseTarget {
   exerciseId: string;
@@ -14,16 +14,21 @@ interface ExerciseTarget {
   targetSets: number;
   targetRepsFrom: number;
   targetRepsTo: number;
+  /** What was actually done, shown instead of the target once a workout is saved. */
+  done?: string;
 }
 
-/** An exercise's name, and its targets and group below. */
+/** An exercise's name, and its targets and group below. In a block, the stripe names the group instead. */
 export function ExerciseTargetText({
   exercise,
+  showGroup = true,
 }: {
   exercise: Parameters<typeof targetText>[0] & {
     name: string;
     groupName: string;
+    done?: string;
   };
+  showGroup?: boolean;
 }) {
   const { colors, text } = useTheme();
 
@@ -32,7 +37,7 @@ export function ExerciseTargetText({
       <Text style={[text.listItemName, { color: colors.text }]}>
         {exercise.name}
       </Text>
-      <ExerciseTargetLine exercise={exercise} />
+      <ExerciseTargetLine exercise={exercise} showGroup={showGroup} />
     </View>
   );
 }
@@ -40,20 +45,27 @@ export function ExerciseTargetText({
 /** An exercise's targets and group, for example "3 × 8–10 · Chest". */
 export function ExerciseTargetLine({
   exercise,
+  showGroup = true,
 }: {
-  exercise: Parameters<typeof targetText>[0] & { groupName: string };
+  exercise: Parameters<typeof targetText>[0] & {
+    groupName: string;
+    done?: string;
+  };
+  showGroup?: boolean;
 }) {
   const { colors, text } = useTheme();
 
   return (
     <Text style={text.meta}>
-      <Text style={{ color: colors.primaryText }}>{targetText(exercise)}</Text>
-      {` · ${exercise.groupName}`}
+      <Text style={{ color: colors.primaryText }}>
+        {exercise.done ?? targetText(exercise)}
+      </Text>
+      {showGroup && ` · ${exercise.groupName}`}
     </Text>
   );
 }
 
-/** A routine's exercises with their targets. Neighbours in the same group join into one block. */
+/** A routine's exercises with their targets. Neighbours in the same group join into one block, with the group up its edge. */
 export function ExerciseTargets({
   exercises,
   background,
@@ -69,44 +81,66 @@ export function ExerciseTargets({
 
   return (
     <View style={{ gap: space.sm }}>
-      {exercises.map((exercise, index) => (
-        <View
-          key={exercise.exerciseId}
-          style={[
-            styles.exercise,
-            {
-              gap: space.md,
-              minHeight: size.listRowMin,
-              paddingVertical: space.sm,
-              paddingHorizontal: space.lg,
-              borderColor: colors.border,
-              backgroundColor: background ?? colors.card,
-            },
-            joinedCardStyle({
-              withPrevious:
-                index > 0 && sameGroup(exercises[index - 1], exercise),
-              withNext:
-                index < exercises.length - 1 &&
-                sameGroup(exercise, exercises[index + 1]),
-              gap: space.sm,
-              radius: radius.card,
-            }),
-          ]}
-        >
-          <ExerciseTargetText exercise={exercise} />
-          {trailing?.(exercise.exerciseId)}
-        </View>
-      ))}
+      {groupBlocks(exercises).map((block) => {
+        const connected = block.length > 1;
+
+        return (
+          <View
+            key={block[0].exerciseId}
+            style={[
+              styles.block,
+              {
+                borderRadius: radius.card,
+                borderColor: colors.border,
+                backgroundColor: background ?? colors.card,
+              },
+            ]}
+          >
+            <View style={styles.rows}>
+              {block.map((exercise, index) => (
+                <View
+                  key={exercise.exerciseId}
+                  style={[
+                    styles.exercise,
+                    {
+                      gap: space.md,
+                      minHeight: size.listRowMin,
+                      paddingVertical: space.sm,
+                      paddingHorizontal: space.lg,
+                      borderTopWidth: index === 0 ? 0 : 1,
+                      borderTopColor: colors.border,
+                    },
+                  ]}
+                >
+                  <ExerciseTargetText
+                    exercise={exercise}
+                    showGroup={!connected}
+                  />
+                  {trailing?.(exercise.exerciseId)}
+                </View>
+              ))}
+            </View>
+            {connected && <GroupStripe name={block[0].groupName} />}
+          </View>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  block: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  rows: {
+    flex: 1,
+  },
   exercise: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
   },
   text: {
     flex: 1,

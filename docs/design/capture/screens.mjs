@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout } from './fixtures.mjs';
 
 const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
@@ -26,6 +26,17 @@ const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
 const addPath = `${logPath}/add`;
 const newExercisePath = `${addPath}/new-exercise`;
 const inclineDumbbellPress = sampleWorkout.exercises.find((exercise) => exercise.name === 'Incline dumbbell bench press');
+const detailsPath = `/workout/details/${sampleWorkout.id}`;
+const savedAnswers = {
+  'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'completed', workoutId: sampleWorkout.id, routine: { ...sampleDay.routine, exercises: savedWorkout.exercises } } },
+  [workoutPath]: { status: 200, body: savedWorkout },
+  [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: { status: 200, body: savedSummary },
+};
+const pastSavedAnswers = {
+  ...savedAnswers,
+  'GET /api/v1/days/2026-10-20': { status: 200, body: { ...sampleDay, date: '2026-10-20', status: 'completed', workoutId: sampleWorkout.id, routine: { ...sampleDay.routine, name: 'Back and shoulders 1', exercises: savedWorkout.exercises } } },
+  [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: { status: 200, body: { ...savedSummary, name: 'Back and shoulders 1', date: '2026-10-20', durationSeconds: 3130 } },
+};
 const finishPath = `${logPath}/finish`;
 const summaryPath = `GET /api/v1/workouts/${sampleWorkout.id}/summary`;
 const openFinish = async (on) => {
@@ -448,6 +459,45 @@ export const screens = [
     await discardFromToday(on);
     await on.tap('Undo');
     await on.waitFor("Couldn't undo. Try again.");
+  } },
+  { id: 'W03', file: 'W03-Workout-Today-Completed', title: 'Workout › Today · completed', row: 'W1 Today states', today: friday, answers: savedAnswers, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('View workout');
+    await on.sleep(400);
+  } },
+  { id: 'W20', file: 'W20-Workout-Past-Day', title: 'Workout › Past day', row: 'W3 Other days', today: friday, answers: pastSavedAnswers, steps: async (on) => {
+    await on.go('/workout/day/2026-10-20');
+    await on.waitFor('View workout');
+    await on.sleep(400);
+  } },
+  { id: 'W42', file: 'W42-Workout-Month-Day-Sheet', title: 'Workout › Month › Day summary · sheet', row: 'W5 Month', today: friday, full: false, answers: pastSavedAnswers, steps: async (on) => {
+    await openMonth(on);
+    await on.tap('20 October, Back and shoulders 1, missed');
+    await on.waitFor('View workout');
+    await on.sleep(400);
+  } },
+  { id: 'W67', file: 'W67-Workout-Details', title: 'Workout › Workout details', row: 'W3 Other days', today: friday, answers: savedAnswers, steps: async (on) => {
+    await on.go(detailsPath);
+    await on.waitFor('Exercises');
+    await on.sleep(400);
+  } },
+  { id: 'W71', file: 'W71-Workout-Details-From-Month', title: 'Workout › Workout details · from the month', row: 'W3 Other days', today: friday, answers: savedAnswers, steps: async (on) => {
+    await on.go(`${detailsPath}?from=month`);
+    await on.waitFor('Exercises');
+    await on.sleep(400);
+  } },
+  { id: 'W68', file: 'W68-Workout-Details-Loading', title: 'Workout › Workout details · loading', row: 'W3 Other days', today: friday, answers: { ...savedAnswers, [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: 'hold', [workoutPath]: 'hold' }, steps: async (on) => {
+    await on.go(detailsPath);
+    await on.waitFor('Duration');
+    await on.sleep(400);
+  } },
+  { id: 'W69', file: 'W69-Workout-Details-Load-Failure', title: 'Workout › Workout details · load failure', row: 'W3 Other days', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
+    await on.go(detailsPath);
+    await on.waitFor("Couldn't load this workout.");
+  } },
+  { id: 'W70', file: 'W70-Workout-Today-Completed-Load-Failure', title: 'Workout › Today · completed, load failure', row: 'W1 Today states', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor("Couldn't load this workout.");
   } },
   { id: 'W13', file: 'W13-Workout-Skip-Skipping', title: 'Workout › Skip workout · skipping', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: skipFromToday },
   { id: 'W14', file: 'W14-Workout-Skip-Failed', title: "Workout › Skip workout · couldn't skip", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {

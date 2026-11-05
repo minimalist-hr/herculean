@@ -1,18 +1,105 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
+import { useCurrentUser } from '@/features/account/use-current-user';
 import { ExerciseTargets } from '@/features/routines/exercise-targets';
+import { formatVolume } from '@/formats/formats';
 import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, shortWeekdayDate } from './dates';
+import { minutesText, savedExercises } from './saved-workout';
 import { useDay } from './use-day';
+import { useWorkout } from './use-workout';
+import { useWorkoutSummary } from './use-workout-summary';
 
 type Day = components['schemas']['DayResponse'];
+
+function SheetTile({ label, value }: { label: string; value?: string }) {
+  const { colors, radius, size, space, text } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.tile,
+        {
+          gap: space.sm,
+          padding: size.statTilePadding,
+          borderRadius: radius.card,
+          borderColor: colors.border,
+          backgroundColor: colors.raised,
+        },
+      ]}
+    >
+      <Text style={text.eyebrow}>{label}</Text>
+      {value === undefined ? (
+        <Skeleton width={60} height={18} />
+      ) : (
+        <Text style={[text.statValue, { color: colors.text }]}>{value}</Text>
+      )}
+    </View>
+  );
+}
+
+function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
+  const { colors, space } = useTheme();
+  const user = useCurrentUser();
+  const units = user.data?.units ?? 'metric';
+  const workout = useWorkout(workoutId);
+  const summary = useWorkoutSummary(workoutId);
+  const data = summary.data;
+
+  function time() {
+    if (data === undefined) {
+      return undefined;
+    }
+
+    return data.durationSeconds === null
+      ? '—'
+      : minutesText(data.durationSeconds);
+  }
+
+  if (workout.isError || summary.isError) {
+    return (
+      <LoadFailure
+        message="Couldn't load this workout."
+        onRetry={() => {
+          void workout.refetch();
+          void summary.refetch();
+        }}
+      />
+    );
+  }
+
+  return (
+    <View style={{ gap: space.lg }}>
+      <StatusLabel
+        label={`Done · ${shortWeekdayDate(dateFromText(day.date))}`}
+        color={colors.success}
+      />
+      <View style={[styles.tiles, { gap: space.sm }]}>
+        <SheetTile label="Time" value={time()} />
+        <SheetTile label="Sets" value={data && String(data.setsChecked)} />
+        <SheetTile
+          label="Volume"
+          value={data && formatVolume(data.volumeKg, units)}
+        />
+      </View>
+      {workout.data === undefined ? (
+        <Skeleton width={300} height={56} />
+      ) : (
+        <ExerciseTargets
+          exercises={savedExercises(workout.data, units)}
+          background={colors.bg}
+        />
+      )}
+    </View>
+  );
+}
 
 function DayDetails({ day, today }: { day: Day; today: string }) {
   const { colors, space, text } = useTheme();
@@ -27,6 +114,10 @@ function DayDetails({ day, today }: { day: Day; today: string }) {
         </Text>
       </View>
     );
+  }
+
+  if (day.status === 'completed' && day.workoutId !== null) {
+    return <SavedWorkout day={day} workoutId={day.workoutId} />;
   }
 
   const status = {
@@ -59,15 +150,19 @@ export function DaySheet({
   today,
   onClose,
   onOpenDay,
+  onViewWorkout,
 }: {
   date: string;
   visible: boolean;
   today: string;
   onClose: () => void;
   onOpenDay: () => void;
+  onViewWorkout: (workoutId: string) => void;
 }) {
   const { space } = useTheme();
   const day = useDay(date);
+  const savedWorkoutId =
+    day.data?.status === 'completed' ? day.data.workoutId : null;
 
   function title() {
     if (day.data === undefined) {
@@ -108,7 +203,29 @@ export function DaySheet({
       onClose={onClose}
       body={renderBody()}
     >
-      <Button label="Open day" onPress={onOpenDay} />
+      {savedWorkoutId !== null && (
+        <Button
+          label="View workout"
+          onPress={() => {
+            onViewWorkout(savedWorkoutId);
+          }}
+        />
+      )}
+      <Button
+        label="Open day"
+        variant={savedWorkoutId === null ? 'primary' : 'secondary'}
+        onPress={onOpenDay}
+      />
     </Sheet>
   );
 }
+
+const styles = StyleSheet.create({
+  tiles: {
+    flexDirection: 'row',
+  },
+  tile: {
+    flex: 1,
+    borderWidth: 1,
+  },
+});

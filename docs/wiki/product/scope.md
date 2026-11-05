@@ -18,7 +18,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E36, L22 |
 | 3 | [Routines](#3-routines) | R01–R03, R05, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
-| 5 | [Logging](#5-logging) | W10, W11, W57–W66, L01–L04, L10–L13, L30, L31, W02, H02, W42 |
+| 5 | [Logging](#5-logging) | W10, W11, W57–W71, L01–L04, L10–L13, L30, L31, W02, H02, W42 |
 | 6 | [Edit workout and month](#6-edit-workout-and-month) | W29, W30–W32, W40, W41, W43–W49 |
 | 7 | [Settings](#7-settings) | H10–H19 |
 
@@ -159,7 +159,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 | Method | Route | Used by |
 |---|---|---|
-| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after. Up next doesn't show on days before yesterday |
+| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after. Up next doesn't show on past days |
 | GET | `/api/v1/days` | Week strip, with `from` and `to` filters |
 | GET | `/api/v1/days/first` | Week strip: how far back it reaches |
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
@@ -176,7 +176,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer to start after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 and W62 Confirm loading and failure, W63 Load failure, W64 Before the first day, W65 Workout discarded, W66 Couldn't undo, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, L32 Past day, L33 Discard, L34 and L35 Loading and failure, L36 to L39 Saving, discarding and failure, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
+**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 and W62 Confirm loading and failure, W63 Load failure, W64 Before the first day, W65 Workout discarded, W66 Couldn't undo, W67 Workout details, W68 and W69 Loading and failure, W70 Saved day failure, W71 From the month, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, L32 Past day, L33 Discard, L34 and L35 Loading and failure, L36 to L39 Saving, discarding and failure, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar. H02 and H03 wait for Home.
 
 **Flows**
 - **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → W57 → L03 → L01. The back link on L01 then returns to the day, not to W10.
@@ -184,6 +184,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 - **Exercises:** the trash → L13 → undo bar. Add exercise → the L20 flow from [3. Routines](#3-routines) → L01. The swap icon → the L20 flow, one pick → L01, with an undo bar. Reorder → L04, which saves each drop. Removing every exercise shows L02.
 - **History:** the exercise name → E10.
 - **Finish:** Finish → L34 → L30, or L31 if nothing is checked. The back link → L01. Save workout → the day, completed. Discard workout → L33 → the day on its plan, with an undo bar (W65). Undo → the day, in progress.
+- **Saved day:** W03 and W20 show a saved workout with the sets done, then View workout → W67, and Edit and Delete, which say they come in a later update. On the month, W42 → View workout → W67, or Open day → the day. The back link on W67 returns to where it opened from, and says Workout, or Month from W42.
 - **Resume:** Resume on W02, or the Resume bar on any tab → L01.
 - **Leave:** the back link on L01 → W02. Every change saves as you go.
 
@@ -195,7 +196,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 |---|---|---|
 | POST | `/api/v1/workouts` | Start: date and status. The routine comes with Other routine |
 | GET | `/api/v1/workouts` | Resume bar, H02, W02, with a `status` filter |
-| GET | `/api/v1/workouts/{id}` | L01, with last time per exercise |
+| GET | `/api/v1/workouts/{id}` | L01, W03, W20, W42, W67, with last time per exercise |
 | POST | `/api/v1/workouts/{id}/exercises` | L20 Add exercise, undo on L13 |
 | PATCH | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}` | Swap exercise, and its undo |
 | DELETE | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}` | L13 |
@@ -203,7 +204,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | POST | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}/sets` | Add set, undo on L12 |
 | PATCH | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}/sets/{setId}` | L10, L11, check a set |
 | DELETE | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}/sets/{setId}` | Remove set |
-| GET | `/api/v1/workouts/{id}/summary` | L30, L31: duration, sets, volume, unchecked exercises, records |
+| GET | `/api/v1/workouts/{id}/summary` | L30, L31, W03, W20, W42, W67: duration, sets, volume, unchecked exercises, records |
 | PATCH | `/api/v1/workouts/{id}` | Save workout: status completed |
 | DELETE | `/api/v1/workouts/{id}` | Discard workout |
 | POST | `/api/v1/workouts/{id}/restore` | Undo discard on W65 |

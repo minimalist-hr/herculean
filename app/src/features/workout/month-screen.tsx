@@ -160,6 +160,13 @@ export function MonthScreen() {
         onClose={() => {
           setSheetOpen(false);
         }}
+        onViewWorkout={(workoutId) => {
+          setSheetOpen(false);
+          router.push({
+            pathname: '/workout/details/[id]',
+            params: { id: workoutId, from: 'month' },
+          });
+        }}
         onOpenDay={() => {
           setSheetOpen(false);
           router.push({

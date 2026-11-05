@@ -56,6 +56,21 @@ export function sameGroup(
   return above.groupId === below.groupId;
 }
 
+/** Neighbouring exercises of the same group, as blocks. */
+export function groupBlocks<T extends { groupId: string }>(exercises: T[]) {
+  const blocks: T[][] = [];
+  for (const exercise of exercises) {
+    const block = blocks.at(-1);
+    if (block !== undefined && sameGroup(block[0], exercise)) {
+      block.push(exercise);
+    } else {
+      blocks.push([exercise]);
+    }
+  }
+
+  return blocks;
+}
+
 /** A target, for example "3 × 8–10", or "4 × 6" for a fixed rep count. */
 export function targetText({
   targetSets,
