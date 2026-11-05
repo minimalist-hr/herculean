@@ -1,0 +1,37 @@
+# Add exercises to a workout. Start the API with Aspire first, and fill in the IDs from a workout in progress.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@exerciseId = 00000000-0000-0000-0000-000000000000
+
+### Add an exercise → 200 with the workout, or 409 workout.exercise_already_in.
+POST {{host}}/api/v1/workouts/{{workoutId}}/exercises
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "exerciseIds": ["{{exerciseId}}"]
+}
+
+### Put a removed exercise back → 200.
+POST {{host}}/api/v1/workouts/{{workoutId}}/exercises
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "removed": {
+    "order": 0,
+    "exerciseId": "{{exerciseId}}",
+    "targetSets": 3,
+    "targetRepsFrom": 8,
+    "targetRepsTo": 10,
+    "sets": [{ "weightKg": 80, "reps": 10, "checked": true }]
+  }
+}
+
+### Neither → 400 validation.
+POST {{host}}/api/v1/workouts/{{workoutId}}/exercises
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}

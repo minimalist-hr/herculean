@@ -1,0 +1,15 @@
+# Reorder a workout's exercises. Start the API with Aspire first, and fill in the IDs from a workout in progress.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@first = 00000000-0000-0000-0000-000000000000
+@second = 00000000-0000-0000-0000-000000000000
+
+### Every exercise, in the new order → 204, or 409 workout.order_out_of_date.
+PUT {{host}}/api/v1/workouts/{{workoutId}}/exercise-order
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "workoutExerciseIds": ["{{first}}", "{{second}}"]
+}

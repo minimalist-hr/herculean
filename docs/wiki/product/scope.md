@@ -176,7 +176,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer to start after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
+**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
 
 **Flows**
 - **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → L03 → L01.
@@ -197,6 +197,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | GET | `/api/v1/workouts` | Resume bar, H02, W02, with a `status` filter |
 | GET | `/api/v1/workouts/{id}` | L01, with last time per exercise |
 | POST | `/api/v1/workouts/{id}/exercises` | L20 Add exercise, undo on L13 |
+| PATCH | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}` | Swap exercise, and its undo |
 | DELETE | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}` | L13 |
 | PUT | `/api/v1/workouts/{id}/exercise-order` | L04 |
 | POST | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}/sets` | Add set, undo on L12 |

@@ -1,6 +1,8 @@
 import type { Href } from 'expo-router';
 import { createContext, use, useMemo, useState, type ReactNode } from 'react';
 
+import type { PickedExercise } from '@/features/exercises/exercise-picker';
+
 export interface Targets {
   targetSets: number;
   targetRepsFrom: number;
@@ -16,13 +18,6 @@ export const startingTargets: Targets = {
 
 export interface RoutineExerciseDraft extends Targets {
   exerciseId: string;
-  name: string;
-  groupId: string;
-  groupName: string;
-}
-
-export interface PickedExercise {
-  id: string;
   name: string;
   groupId: string;
   groupName: string;

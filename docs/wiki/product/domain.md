@@ -79,7 +79,8 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Changing a set's weight or reps also changes it on later unchecked sets of that exercise, unless they were changed by hand. A new set copies the last set. A set put back by Undo counts as changed by hand.
 - An exercise in a workout has 1 to 20 sets. Its last set can't be removed: the exercise is removed instead.
 - Sets can only change while the workout is in progress.
-- An exercise can be swapped in a workout only while none of its sets are checked. The new one keeps the set count and targets, and takes its values from its own last time. The routine doesn't change.
+- An exercise can be swapped in a workout only while none of its sets are checked. The new one keeps the set count and targets, and takes its values from its own last time. The routine doesn't change. Undo brings back the exercise and the values it had.
+- A workout has at most 30 exercises, each once. An added exercise goes last, at 3 × 8–10, with sets from last time. Every exercise can be removed, which leaves the workout empty until one is added.
 - A set's weight is 0 to 1,000 kg, with up to two decimals, and 0 means bodyweight. Its reps are 1 to 100.
 - Skip workout creates a skipped workout with the routine's name, exercises and targets, and no sets, so later routine changes do not affect it. It works on today or a past day with a routine. Undo skip deletes it, and the day reads from the week plan again.
 - Save workout removes unchecked sets and marks the workout completed.

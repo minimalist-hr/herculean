@@ -16,6 +16,9 @@ const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', w
 const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
 const logPath = `/workout/log/${sampleWorkout.id}`;
 const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
+const addPath = `${logPath}/add`;
+const newExercisePath = `${addPath}/new-exercise`;
+const inclineDumbbellPress = sampleWorkout.exercises.find((exercise) => exercise.name === 'Incline dumbbell bench press');
 const openLog = async (on) => {
   await on.go(logPath);
   await on.waitFor('Add set');
@@ -679,25 +682,50 @@ export const screens = [
     await on.waitFor('Set 3 removed.');
     await on.sleep(400);
   } },
-  { id: 'L20', file: 'L20-Logging-Add-Exercise', title: 'Logging › Add exercise', row: 'L2 Exercises', steps: async (on) => {
-    await on.go('/routine/new/add-exercise');
-    await on.waitFor(benchPress.name);
-    await on.tap(benchPress.name);
+  { id: 'L04', file: 'L04-Logging-Reorder', title: 'Logging › Reorder exercises', row: 'L1 Log sets', today: friday, steps: async (on) => {
+    await on.go(`${logPath}/reorder`);
+    await on.waitFor('Reorder exercises');
   } },
-  { id: 'L24', file: 'L24-Logging-Add-Exercise-Loading', title: 'Logging › Add exercise · loading', row: 'L2 Exercises', full: false, answers: { ...lists('hold'), 'GET /api/v1/groups': 'hold' }, steps: (on) => on.go('/routine/new/add-exercise') },
+  { id: 'L13', file: 'L13-Logging-Remove-Exercise-Confirm', title: 'Logging › Remove exercise · confirm', row: 'L2 Exercises', today: friday, full: false, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Remove Flat barbell bench press');
+    await on.waitFor('Remove exercise');
+    await on.sleep(400);
+  } },
+  { id: 'L29', file: 'L29-Logging-Swap-Exercise', title: 'Logging › Swap exercise', row: 'L2 Exercises', today: friday, steps: async (on) => {
+    await on.go(`${addPath}?swap=${inclineDumbbellPress.id}`);
+    await on.waitFor('Swap exercise');
+    await on.sleep(600);
+    await on.tap('Shoulders');
+    await on.waitFor(lateralRaise.name);
+    await on.tap(lateralRaise.name);
+  } },
+  { id: 'L16', file: 'L16-Logging-Swap-Checked-Says-Why', title: 'Logging › Swap · checked sets say why', row: 'L2 Exercises', today: friday, full: false, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Swap Flat barbell bench press');
+    await on.waitFor("An exercise with checked sets can't be swapped. Uncheck them first.");
+  } },
+  { id: 'L20', file: 'L20-Logging-Add-Exercise', title: 'Logging › Add exercise', row: 'L2 Exercises', steps: async (on) => {
+    await on.go(addPath);
+    await on.waitFor(lateralRaise.name);
+    await on.tap(lateralRaise.name);
+  } },
+  { id: 'L24', file: 'L24-Logging-Add-Exercise-Loading', title: 'Logging › Add exercise · loading', row: 'L2 Exercises', full: false, answers: { ...lists('hold'), 'GET /api/v1/groups': 'hold' }, steps: (on) => on.go(addPath) },
   { id: 'L25', file: 'L25-Logging-Add-Exercise-Load-Failure', title: 'Logging › Add exercise · load failure', row: 'L2 Exercises', answers: lists('fail'), steps: async (on) => {
-    await on.go('/routine/new/add-exercise');
+    await on.go(addPath);
     await on.waitFor('Try again');
   } },
   { id: 'L21', file: 'L21-Logging-Add-Exercise-No-Matches', title: 'Logging › Add exercise · no matches', row: 'L2 Exercises', steps: async (on) => {
-    await on.go('/routine/new/add-exercise');
-    await on.waitFor(benchPress.name);
+    await on.go(addPath);
+    await on.waitFor(lateralRaise.name);
+    await on.sleep(1000);
     await on.type('Search exercises', 'Pistol squat');
     await on.sleep(600);
   } },
   { id: 'L23', file: 'L23-Logging-Add-Exercise-New-Selected', title: 'Logging › Add exercise · new one selected', row: 'L2 Exercises', steps: async (on) => {
-    await on.go('/routine/new/add-exercise');
-    await on.waitFor(benchPress.name);
+    await on.go(addPath);
+    await on.waitFor(lateralRaise.name);
+    await on.sleep(1000);
     await on.type('Search exercises', 'Pistol squat');
     await on.sleep(600);
     await on.tap('New exercise');
@@ -709,21 +737,25 @@ export const screens = [
     await on.tap('Legs');
     await on.waitFor('Pistol squat');
   } },
-  { id: 'L22', file: 'L22-Logging-New-Exercise', title: 'Logging › New exercise', row: 'L2 Exercises', steps: (on) => on.go('/routine/new/new-exercise') },
+  { id: 'L22', file: 'L22-Logging-New-Exercise', title: 'Logging › New exercise', row: 'L2 Exercises', steps: (on) => on.go(newExercisePath) },
   { id: 'L26', file: 'L26-Logging-New-Exercise-Errors', title: 'Logging › New exercise · fields missing', row: 'L2 Exercises', steps: async (on) => {
-    await on.go('/routine/new/new-exercise');
+    await on.go(newExercisePath);
     await on.tap('Save exercise');
   } },
   { id: 'L27', file: 'L27-Logging-Add-Exercise-No-Groups', title: 'Logging › Add exercise · no groups, New exercise says why', row: 'L2 Exercises', answers: { 'GET /api/v1/groups': noGroups, ...lists({ status: 200, body: [] }) }, steps: async (on) => {
-    await on.go('/routine/new/add-exercise');
+    await on.go(addPath);
     await on.tap('New exercise');
   } },
 
   { id: 'L28', file: 'L28-Logging-Add-Exercise-Pick-First', title: 'Logging › Add exercise · nothing picked says why', row: 'L2 Exercises', full: false, steps: async (on) => {
-    await on.go('/routine/new/add-exercise');
-    await on.waitFor(benchPress.name);
+    await on.go(addPath);
+    await on.waitFor(lateralRaise.name);
     await on.tap('Add exercise');
     await on.waitFor('Pick an exercise first.');
+  } },
+  { id: 'L02', file: 'L02-Logging-No-Exercises', title: 'Logging · no exercises left', row: 'L3 Finish', today: friday, answers: { [workoutPath]: { status: 200, body: { ...sampleWorkout, exercises: [] } } }, steps: async (on) => {
+    await on.go(logPath);
+    await on.waitFor('No exercises left');
   } },
   // R · Routines
   { id: 'R02', file: 'R02-Routines-Loading', title: 'Routines · loading', row: 'R1 Routines tab', answers: { 'GET /api/v1/routines': 'hold', 'GET /api/v1/week-plan-days': 'hold' }, steps: (on) => on.go('/routines') },

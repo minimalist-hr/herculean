@@ -2085,6 +2085,346 @@
         ]
       }
     },
+    "/api/v1/workouts/{id}/exercises": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Add exercises to a workout",
+        "description": "Adds exercises at the end of a workout in progress, at 3 × 8–10, with sets from last time. Sending a removed exercise instead puts it back where it was, with its sets. A workout has at most 30 exercises, each once.",
+        "operationId": "AddWorkoutExercises",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddWorkoutExercisesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout or an exercise does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, has no room, or already has one of the exercises.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}/exercises/{workoutExerciseId}": {
+      "delete": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Remove an exercise from a workout",
+        "description": "Removes an exercise and its sets from a workout in progress, and closes the gap in the order. The last one can go too.",
+        "operationId": "DeleteWorkoutExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workoutExerciseId",
+            "in": "path",
+            "description": "The exercise's ID in the workout.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The exercise is removed."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout or the exercise does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Swap an exercise in a workout",
+        "description": "Swaps an exercise with no checked sets for another, keeping the set count and targets. Its sets start from the new exercise's last time. Sending the sets' earlier values puts them back, which is how a swap is undone.",
+        "operationId": "SwapWorkoutExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workoutExerciseId",
+            "in": "path",
+            "description": "The exercise's ID in the workout.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwapWorkoutExerciseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout or an exercise does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, already has the new exercise, or the exercise has checked sets.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}/exercise-order": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Reorder a workout's exercises",
+        "description": "Puts the exercises of a workout in progress in this order. It has to name each of them once.",
+        "operationId": "UpdateWorkoutExerciseOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutExerciseOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The order is saved."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, or its exercises have changed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/groups/{id}": {
       "get": {
         "tags": [
@@ -2508,6 +2848,34 @@
           }
         },
         "description": "A set to add to an exercise."
+      },
+      "AddWorkoutExercisesRequest": {
+        "type": "object",
+        "properties": {
+          "exerciseIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The exercises to add at the end, with the starting targets. Their sets start from last time."
+          },
+          "removed": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The removed exercise to put back, which is how a removal is undone.",
+                "$ref": "#/components/schemas/RemovedExercise"
+              }
+            ]
+          }
+        },
+        "description": "Exercises to add to a workout: new ones, or a removed one to put back."
       },
       "BestSetResponse": {
         "required": [
@@ -3258,6 +3626,77 @@
         },
         "description": "The refresh token to swap for new tokens."
       },
+      "RemovedExercise": {
+        "required": [
+          "order",
+          "exerciseId",
+          "targetSets",
+          "targetRepsFrom",
+          "targetRepsTo",
+          "sets"
+        ],
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "integer",
+            "description": "Its place in the workout, from 0.",
+            "format": "int32"
+          },
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "targetSets": {
+            "type": "integer",
+            "description": "The sets to do, 1 to 20.",
+            "format": "int32"
+          },
+          "targetRepsFrom": {
+            "type": "integer",
+            "description": "The low end of the rep range, 1 to 100.",
+            "format": "int32"
+          },
+          "targetRepsTo": {
+            "type": "integer",
+            "description": "The high end of the rep range, 1 to 100.",
+            "format": "int32"
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemovedExerciseSet"
+            },
+            "description": "Its sets in order, 1 to 20."
+          }
+        },
+        "description": "A removed exercise to put back."
+      },
+      "RemovedExerciseSet": {
+        "required": [
+          "weightKg",
+          "reps",
+          "checked"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps, 1 to 100.",
+            "format": "int32"
+          },
+          "checked": {
+            "type": "boolean",
+            "description": "Whether it was marked done."
+          }
+        },
+        "description": "A set of a removed exercise."
+      },
       "RemovedSet": {
         "required": [
           "order",
@@ -3539,6 +3978,50 @@
         },
         "description": "A set in a workout."
       },
+      "SwappedSet": {
+        "required": [
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps, 1 to 100.",
+            "format": "int32"
+          }
+        },
+        "description": "The values a set had before a swap."
+      },
+      "SwapWorkoutExerciseRequest": {
+        "required": [
+          "exerciseId"
+        ],
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "sets": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/SwappedSet"
+            },
+            "description": "The values the sets had, which is how a swap is undone. Left out, they start from the new exercise's last time."
+          }
+        },
+        "description": "The exercise to swap to."
+      },
       "TokenResponse": {
         "required": [
           "accessToken",
@@ -3706,6 +4189,23 @@
           }
         },
         "description": "The fields to change. A field left out, or null, stays the same."
+      },
+      "UpdateWorkoutExerciseOrderRequest": {
+        "required": [
+          "workoutExerciseIds"
+        ],
+        "type": "object",
+        "properties": {
+          "workoutExerciseIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Every exercise in the workout, by its ID in the workout, once each, in the new order."
+          }
+        },
+        "description": "The order of a workout's exercises."
       },
       "UpdateWorkoutSettingsRequest": {
         "type": "object",

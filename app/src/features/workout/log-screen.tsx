@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -7,7 +7,9 @@ import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { PlusIcon, ReorderIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { notifyFailure } from '@/components/notifications';
 import { ProgressBar } from '@/components/progress-bar';
+import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { sameGroup } from '@/features/routines/formats';
@@ -18,14 +20,17 @@ import { dateFromText, shortWeekdayDate } from './dates';
 import { ClosedExercise, comesLater, OpenExercise } from './log-exercise';
 import { useAddSet } from './use-add-set';
 import { SetSheet, type SetEdit } from './set-sheet';
+import { maxExercisesPerWorkout } from './set-values';
 import { RestBar, restBarRoom } from './rest-bar';
 import { afterCheck, afterUncheck } from './rest-timer';
 import { useElapsed } from './use-elapsed';
+import { useRemoveExercise } from './use-remove-exercise';
 import { useRestTimer } from './use-rest-timer';
 import { useWorkoutSettings } from './use-workout-settings';
 import { useUpdateSet } from './use-update-set';
 import { useWorkout } from './use-workout';
 import {
+  checkedSets,
   isFinished,
   nextUnfinished,
   workoutProgress,
@@ -75,7 +80,15 @@ export function LogScreen({ id }: { id: string }) {
 
   function renderContent() {
     if (workout.data !== undefined) {
-      return <Logging workout={workout.data} onToggled={onToggled} />;
+      return (
+        <Logging
+          workout={workout.data}
+          onToggled={onToggled}
+          onEmptied={() => {
+            update(() => null);
+          }}
+        />
+      );
     }
 
     if (workout.isError) {
@@ -154,13 +167,17 @@ function Heading({ workout }: { workout: Workout }) {
       <Text style={text.meta}>
         {elapsed === null ? date : `${date} · ${formatClock(elapsed)}`}
       </Text>
-      <Text style={text.meta}>
-        <Text style={[styles.done, { color: colors.text }]}>
-          {String(done)}
-        </Text>
-        {` of ${String(total)} sets`}
-      </Text>
-      <ProgressBar done={done} total={total} />
+      {total > 0 && (
+        <>
+          <Text style={text.meta}>
+            <Text style={[styles.done, { color: colors.text }]}>
+              {String(done)}
+            </Text>
+            {` of ${String(total)} sets`}
+          </Text>
+          <ProgressBar done={done} total={total} />
+        </>
+      )}
     </View>
   );
 }
@@ -168,8 +185,11 @@ function Heading({ workout }: { workout: Workout }) {
 function Logging({
   workout,
   onToggled,
+  onEmptied,
 }: {
   workout: Workout;
+  /** The last exercise was removed. */
+  onEmptied: () => void;
   onToggled: (
     exerciseId: string,
     checked: boolean,
@@ -177,10 +197,14 @@ function Logging({
   ) => void;
 }) {
   const { space } = useTheme();
+  const router = useRouter();
   const user = useCurrentUser();
   const units = user.data?.units ?? 'metric';
   const updateSet = useUpdateSet(workout.id);
   const addSet = useAddSet(workout.id);
+  const removeExercise = useRemoveExercise(workout.id);
+  const [removing, setRemoving] = useState<WorkoutExercise | null>(null);
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
   // Undefined until something is picked: the first unfinished one opens. Null closes them all.
   const [chosenId, setChosenId] = useState<string | null>();
   const [edit, setEdit] = useState<SetEdit | null>(null);
@@ -188,6 +212,17 @@ function Logging({
   // Each opening starts the sheet again from the set.
   const [openings, setOpenings] = useState(0);
   const exercises = workout.exercises;
+  // An exercise that wasn't here before opens, so what was just added is ready to log.
+  const [knownIds, setKnownIds] = useState(() =>
+    exercises.map((exercise) => exercise.id),
+  );
+  const newOne = exercises.find((exercise) => !knownIds.includes(exercise.id));
+  if (exercises.length !== knownIds.length || newOne !== undefined) {
+    setKnownIds(exercises.map((exercise) => exercise.id));
+    if (newOne !== undefined) {
+      setChosenId(newOne.id);
+    }
+  }
   const openId =
     chosenId === undefined
       ? exercises.find((exercise) => !isFinished(exercise))?.id
@@ -230,12 +265,15 @@ function Logging({
     <View style={{ gap: space.lg, marginTop: 2 }}>
       <Heading workout={workout} />
 
+      {exercises.length === 0 && <NoExercises />}
+
       <View style={{ gap: space.sm }}>
         {exercises.map((exercise, index) => {
           if (exercise.id === openId) {
             return (
               <OpenExercise
                 key={exercise.id}
+                workoutId={workout.id}
                 exercise={exercise}
                 units={units}
                 adding={addSet.isPending}
@@ -254,6 +292,10 @@ function Logging({
                 }}
                 onAddSet={() => {
                   addSet.mutate({ workoutExerciseId: exercise.id });
+                }}
+                onRemove={() => {
+                  setRemoving(exercise);
+                  setConfirmingRemove(true);
                 }}
               />
             );
@@ -291,22 +333,64 @@ function Logging({
             label="Add exercise"
             variant="secondary"
             icon={PlusIcon}
+            muted={exercises.length >= maxExercisesPerWorkout}
             onPress={() => {
-              comesLater('Adding an exercise');
+              if (exercises.length >= maxExercisesPerWorkout) {
+                notifyFailure(
+                  `A workout can have at most ${String(maxExercisesPerWorkout)} exercises.`,
+                );
+                return;
+              }
+
+              router.push(`/workout/log/${workout.id}/add` as Href);
             }}
           />
         </View>
-        <View style={styles.action}>
-          <Button
-            label="Reorder"
-            variant="secondary"
-            icon={ReorderIcon}
-            onPress={() => {
-              comesLater('Reordering');
-            }}
-          />
-        </View>
+        {exercises.length > 0 && (
+          <View style={styles.action}>
+            <Button
+              label="Reorder"
+              variant="secondary"
+              icon={ReorderIcon}
+              onPress={() => {
+                router.push(`/workout/log/${workout.id}/reorder` as Href);
+              }}
+            />
+          </View>
+        )}
       </View>
+
+      {removing !== null && (
+        <Sheet
+          visible={confirmingRemove}
+          title={`Remove ${removing.name}?`}
+          message={removeMessageOf(removing)}
+          onClose={() => {
+            setConfirmingRemove(false);
+          }}
+        >
+          <Button
+            label="Remove exercise"
+            variant="danger"
+            waitingLabel="Removing exercise"
+            waiting={removeExercise.isPending}
+            onPress={() => {
+              removeExercise.mutate(
+                { exercise: removing, order: exercises.indexOf(removing) },
+                {
+                  onSuccess: () => {
+                    setConfirmingRemove(false);
+                    setChosenId(undefined);
+                    if (exercises.length === 1) {
+                      onEmptied();
+                    }
+                  },
+                },
+              );
+            }}
+          />
+        </Sheet>
+      )}
 
       {edit !== null && (
         <SetSheet
@@ -320,6 +404,34 @@ function Logging({
           }}
         />
       )}
+    </View>
+  );
+}
+
+/** What removing an exercise takes with it, for example "Its 3 sets, including the one you've logged, will be removed from this workout." */
+function removeMessageOf(exercise: WorkoutExercise) {
+  const logged = checkedSets(exercise);
+  const sets =
+    exercise.sets.length === 1
+      ? 'Its set'
+      : `Its ${String(exercise.sets.length)} sets`;
+  const including =
+    logged === 0
+      ? ''
+      : `, including ${logged === 1 ? 'the one' : `the ${String(logged)}`} you've logged,`;
+
+  return `${sets}${including} will be removed from this workout.`;
+}
+
+function NoExercises() {
+  const { colors, space, text } = useTheme();
+
+  return (
+    <View style={[styles.empty, { gap: space.xs, paddingVertical: space.xl }]}>
+      <Text style={[text.listItemName, { color: colors.text }]}>
+        No exercises left
+      </Text>
+      <Text style={text.meta}>Add an exercise to keep logging.</Text>
     </View>
   );
 }
@@ -375,6 +487,9 @@ const styles = StyleSheet.create({
   },
   done: {
     fontWeight: '700',
+  },
+  empty: {
+    alignItems: 'center',
   },
   actions: {
     flexDirection: 'row',

@@ -1,4 +1,5 @@
 using Herculean.SharedKernel.Results;
+using Herculean.Training.Domain.Routines;
 
 namespace Herculean.Training.Domain.Workouts;
 
@@ -21,6 +22,14 @@ internal static class WorkoutErrors
     public static readonly Error AnotherInProgress = Error.Conflict("workout.another_in_progress", "Another workout is in progress. Resume or finish it first.");
 
     public static readonly Error NotInProgress = Error.Conflict("workout.not_in_progress", "The workout is not in progress.");
+
+    public static readonly Error TooManyExercises = Error.Conflict("workout.too_many_exercises", $"A workout can have at most {Routine.MaxExercises} exercises.");
+
+    public static readonly Error ExerciseAlreadyIn = Error.Conflict("workout.exercise_already_in", "This exercise is already in the workout.");
+
+    public static readonly Error ExerciseHasCheckedSets = Error.Conflict("workout.exercise_has_checked_sets", "An exercise with checked sets can't be swapped. Uncheck them first.");
+
+    public static readonly Error OrderOutOfDate = Error.Conflict("workout.order_out_of_date", "The workout's exercises have changed. Try again.");
 
     public static readonly Error TooManySets = Error.Conflict("workout.too_many_sets", $"An exercise can have at most {WorkoutExercise.MaxSets} sets.");
 

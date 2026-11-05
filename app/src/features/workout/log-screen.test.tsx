@@ -149,6 +149,10 @@ async function renderLog() {
       _layout: Layout,
       index: () => <PlaceholderScreen title="Workout screen" />,
       log: () => <LogScreen id="w1" />,
+      'workout/log/[id]/add': () => <PlaceholderScreen title="Add screen" />,
+      'workout/log/[id]/reorder': () => (
+        <PlaceholderScreen title="Reorder screen" />
+      ),
       'workout/exercise/[id]': () => (
         <PlaceholderScreen title="Exercise screen" />
       ),
@@ -357,19 +361,16 @@ test('a failed Add set says so', async () => {
   ).toBeOnTheScreen();
 });
 
-test.each([
-  ['Finish', 'Finishing a workout comes in a later update.'],
-  ['Add exercise', 'Adding an exercise comes in a later update.'],
-  ['Reorder', 'Reordering comes in a later update.'],
-  ['Swap Barbell squat', 'Swapping an exercise comes in a later update.'],
-  ['Remove Barbell squat', 'Removing an exercise comes in a later update.'],
-])('%s says it comes later', async (name, message) => {
-  await renderLog();
+test.each([['Finish', 'Finishing a workout comes in a later update.']])(
+  '%s says it comes later',
+  async (name, message) => {
+    await renderLog();
 
-  await fireEvent.press(await screen.findByRole('button', { name }));
+    await fireEvent.press(await screen.findByRole('button', { name }));
 
-  expect(await screen.findByText(message)).toBeOnTheScreen();
-});
+    expect(await screen.findByText(message)).toBeOnTheScreen();
+  },
+);
 
 test('the name opens the exercise, and there is no other way to it', async () => {
   await renderLog();
@@ -883,6 +884,327 @@ describe('the rest timer', () => {
     await screen.findByText('Legs day');
     expect(screen.queryByText(/REST/)).toBeNull();
   });
+});
+
+describe('removing an exercise', () => {
+  const askToRemove = async (name = 'Barbell squat') => {
+    await fireEvent.press(
+      await screen.findByRole('button', { name: `Remove ${name}` }),
+    );
+    await screen.findByRole('button', { name: 'Remove exercise' });
+  };
+  const hidden = { includeHiddenElements: true };
+
+  test('asks first, and says what goes with it', async () => {
+    current = {
+      ...workout,
+      exercises: [
+        exercise('squat', 'Barbell squat', 'legs', [
+          set('s1', 0, 80, true),
+          set('s2', 1, 80),
+          set('s3', 2, 80),
+        ]),
+        exercise('press', 'Leg press', 'legs', [set('p1', 0, 120)]),
+      ],
+    };
+    await renderLog();
+
+    await askToRemove();
+
+    expect(screen.getByText('Remove Barbell squat?')).toBeOnTheScreen();
+    expect(
+      screen.getByText(
+        "Its 3 sets, including the one you've logged, will be removed from this workout.",
+      ),
+    ).toBeOnTheScreen();
+    expect(
+      mockFetch.mock.calls.some(([sent]) => sent.method === 'DELETE'),
+    ).toBe(false);
+  });
+
+  test.each([
+    [[set('s1', 0, 80)], 'Its set will be removed from this workout.'],
+    [
+      [set('s1', 0, 80), set('s2', 1, 80)],
+      'Its 2 sets will be removed from this workout.',
+    ],
+    [
+      [set('s1', 0, 80, true), set('s2', 1, 80, true), set('s3', 2, 80)],
+      "Its 3 sets, including the 2 you've logged, will be removed from this workout.",
+    ],
+  ])('says it plainly for %#', async (sets, message) => {
+    current = {
+      ...workout,
+      exercises: [exercise('squat', 'Barbell squat', 'legs', sets)],
+    };
+    await renderLog();
+
+    await askToRemove();
+
+    expect(screen.getByText(message)).toBeOnTheScreen();
+  });
+
+  test('removes it, opens the next one, and Undo sends it back with its sets', async () => {
+    mockFetch.mockImplementation((request) =>
+      request.method === 'POST'
+        ? Promise.resolve(Response.json(workout))
+        : answerWith(request),
+    );
+    await renderLog();
+
+    await askToRemove();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Remove exercise' }),
+    );
+
+    expect(await screen.findByText('Barbell squat removed.')).toBeOnTheScreen();
+    await waitFor(() => {
+      expect(
+        within(screen.getByTestId('open-exercise', hidden)).getByText(
+          'Leg press',
+          hidden,
+        ),
+      ).toBeOnTheScreen();
+    });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Remove Barbell squat',
+        ...hidden,
+      }),
+    ).toBeOnTheScreen();
+    const undo = mockFetch.mock.calls.find(
+      ([sent]) => sent.method === 'POST',
+    )?.[0];
+    expect(new URL(undo?.url ?? '').pathname).toBe(
+      '/api/v1/workouts/w1/exercises',
+    );
+    expect(await undo?.clone().json()).toEqual({
+      removed: {
+        order: 0,
+        exerciseId: 'squat-exercise',
+        targetSets: 2,
+        targetRepsFrom: 8,
+        targetRepsTo: 10,
+        sets: [
+          { weightKg: 80, reps: 8, checked: false },
+          { weightKg: 80, reps: 8, checked: false },
+        ],
+      },
+    });
+  });
+
+  test('a failed removal says so and keeps it', async () => {
+    mockFetch.mockImplementation((request) =>
+      request.method === 'DELETE'
+        ? Promise.resolve(
+            Response.json({ code: 'oops', status: 500 }, { status: 500 }),
+          )
+        : answerWith(request),
+    );
+    await renderLog();
+
+    await askToRemove();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Remove exercise' }),
+    );
+
+    expect(
+      await screen.findByText("Couldn't remove the exercise. Try again."),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Barbell squat', hidden)).toBeOnTheScreen();
+  });
+
+  test('a failed Undo says so', async () => {
+    mockFetch.mockImplementation((request) =>
+      request.method === 'POST'
+        ? Promise.resolve(
+            Response.json({ code: 'oops', status: 500 }, { status: 500 }),
+          )
+        : answerWith(request),
+    );
+    await renderLog();
+
+    await askToRemove();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Remove exercise' }),
+    );
+    await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
+
+    expect(
+      await screen.findByText("Couldn't bring the exercise back. Try again."),
+    ).toBeOnTheScreen();
+  });
+
+  describe('the last one', () => {
+    beforeEach(() => {
+      current = {
+        ...workout,
+        exercises: [
+          exercise('squat', 'Barbell squat', 'legs', [
+            set('s1', 0, 80),
+            set('s2', 1, 80),
+          ]),
+        ],
+      };
+    });
+
+    test('leaves a workout with no exercises', async () => {
+      await renderLog();
+
+      await askToRemove();
+      await fireEvent.press(
+        screen.getByRole('button', { name: 'Remove exercise' }),
+      );
+
+      expect(
+        await screen.findByText('No exercises left', hidden),
+      ).toBeOnTheScreen();
+      expect(
+        screen.getByText('Add an exercise to keep logging.', hidden),
+      ).toBeOnTheScreen();
+      expect(
+        screen.getByRole('button', { name: 'Add exercise', ...hidden }),
+      ).toBeOnTheScreen();
+      expect(
+        screen.queryByRole('button', { name: 'Reorder', ...hidden }),
+      ).toBeNull();
+      expect(screen.queryByText(/of \d+ sets/, hidden)).toBeNull();
+      expect(
+        screen.getByRole('button', { name: 'Finish', ...hidden }),
+      ).toBeOnTheScreen();
+    });
+
+    test('takes a running rest timer with it', async () => {
+      patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+      await renderLog();
+      await fireEvent.press(
+        await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+      );
+      await fireEvent.press(
+        await screen.findByRole('button', { name: 'Start' }),
+      );
+
+      await askToRemove();
+      await fireEvent.press(
+        screen.getByRole('button', { name: 'Remove exercise' }),
+      );
+
+      await screen.findByText('No exercises left', hidden);
+      expect(screen.queryByText(/REST/, hidden)).toBeNull();
+    });
+  });
+});
+
+test('an exercise that was just added opens', async () => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+  });
+  await renderRouter(
+    {
+      _layout: () => (
+        <QueryClientProvider client={client}>
+          <ThemeProvider theme="dark">
+            <Stack screenOptions={{ headerShown: false }} />
+          </ThemeProvider>
+        </QueryClientProvider>
+      ),
+      log: () => <LogScreen id="w1" />,
+    },
+    { initialUrl: '/log' },
+  );
+  await screen.findByRole('button', { name: 'Open Leg press' });
+
+  await act(() => {
+    client.setQueryData(['workout', 'w1'], {
+      ...workout,
+      exercises: [
+        ...workout.exercises,
+        exercise('curl', 'Curl', 'arms', [set('c1', 0, 20)]),
+      ],
+    });
+  });
+
+  await waitFor(() => {
+    expect(
+      within(screen.getByTestId('open-exercise')).getByText('Curl'),
+    ).toBeOnTheScreen();
+  });
+});
+
+test('the swap icon opens the picker for that exercise', async () => {
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Swap Barbell squat' }),
+  );
+
+  expect(await screen.findByText('Add screen')).toBeOnTheScreen();
+});
+
+test('with a checked set, the swap icon says why, and stays', async () => {
+  current = {
+    ...workout,
+    exercises: [
+      exercise('squat', 'Barbell squat', 'legs', [
+        set('s1', 0, 80, true),
+        set('s2', 1, 80),
+      ]),
+    ],
+  };
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Swap Barbell squat' }),
+  );
+
+  expect(
+    await screen.findByText(
+      "An exercise with checked sets can't be swapped. Uncheck them first.",
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Add screen')).toBeNull();
+});
+
+test('Add exercise opens its page', async () => {
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Add exercise' }),
+  );
+
+  expect(await screen.findByText('Add screen')).toBeOnTheScreen();
+});
+
+test('Add exercise at 30 exercises says why, and stays', async () => {
+  current = {
+    ...workout,
+    exercises: Array.from({ length: 30 }, (_, index) =>
+      exercise(`e${String(index)}`, `Exercise ${String(index)}`, 'legs', [
+        set(`s${String(index)}`, 0, 80),
+      ]),
+    ),
+  };
+  await renderLog();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Add exercise' }),
+  );
+
+  expect(
+    await screen.findByText('A workout can have at most 30 exercises.'),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Add screen')).toBeNull();
+});
+
+test('Reorder opens its page', async () => {
+  await renderLog();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Reorder' }));
+
+  expect(await screen.findByText('Reorder screen')).toBeOnTheScreen();
 });
 
 test('a failed load offers to try again', async () => {

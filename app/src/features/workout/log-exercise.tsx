@@ -85,14 +85,17 @@ export function ClosedExercise({
 
 function ExerciseAction({
   label,
+  muted = false,
   onPress,
   children,
 }: {
   label: string;
+  /** It isn't available now, but a press can say why. */
+  muted?: boolean;
   onPress: () => void;
   children: React.ReactNode;
 }) {
-  const { size } = useTheme();
+  const { opacity, size } = useTheme();
 
   return (
     <Tappable
@@ -101,7 +104,11 @@ function ExerciseAction({
       onPress={onPress}
       style={[
         styles.action,
-        { width: size.touchTargetMin, height: size.touchTargetMin },
+        {
+          width: size.touchTargetMin,
+          height: size.touchTargetMin,
+          opacity: muted ? opacity.dimmed : undefined,
+        },
       ]}
     >
       {children}
@@ -242,19 +249,23 @@ function SetRow({
 
 /** The open exercise: its actions, its sets and Add set. */
 export function OpenExercise({
+  workoutId,
   exercise,
   units,
   adding,
   onEdit,
   onToggle,
   onAddSet,
+  onRemove,
 }: {
+  workoutId: string;
   exercise: WorkoutExercise;
   units: Units;
   adding: boolean;
   onEdit: (set: WorkoutSet, field: SetField) => void;
   onToggle: (set: WorkoutSet) => void;
   onAddSet: () => void;
+  onRemove: () => void;
 }) {
   const { colors, radius, space, text } = useTheme();
   const router = useRouter();
@@ -296,18 +307,23 @@ export function OpenExercise({
         </View>
         <ExerciseAction
           label={`Swap ${exercise.name}`}
+          muted={checkedSets(exercise) > 0}
           onPress={() => {
-            comesLater('Swapping an exercise');
+            if (checkedSets(exercise) > 0) {
+              notifyFailure(
+                "An exercise with checked sets can't be swapped. Uncheck them first.",
+              );
+              return;
+            }
+
+            router.push(
+              `/workout/log/${workoutId}/add?swap=${exercise.id}` as Href,
+            );
           }}
         >
           <SwapIcon color={colors.muted} size={20} />
         </ExerciseAction>
-        <ExerciseAction
-          label={`Remove ${exercise.name}`}
-          onPress={() => {
-            comesLater('Removing an exercise');
-          }}
-        >
+        <ExerciseAction label={`Remove ${exercise.name}`} onPress={onRemove}>
           <TrashIcon color={colors.dangerFill} size={20} />
         </ExerciseAction>
       </View>

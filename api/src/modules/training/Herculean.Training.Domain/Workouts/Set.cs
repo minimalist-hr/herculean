@@ -54,6 +54,15 @@ internal sealed class Set : Entity<SetId>
         return set;
     }
 
+    /// <summary>Takes new values, when its exercise is swapped.</summary>
+    internal void Replace(SetValues values, bool changedByHand)
+    {
+        WeightKg = values.WeightKg;
+        Reps = values.Reps;
+        WeightChanged = changedByHand;
+        RepsChanged = changedByHand;
+    }
+
     internal void MoveTo(int order)
     {
         Order = order;

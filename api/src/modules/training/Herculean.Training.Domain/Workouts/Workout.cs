@@ -67,6 +67,101 @@ internal sealed class Workout : Entity<WorkoutId>
         return workout;
     }
 
+    /// <summary>Adds exercises at the end, with the starting targets. Their sets start from last time.</summary>
+    public Result AddExercises(IReadOnlyList<ExerciseId> exerciseIds, IReadOnlyDictionary<ExerciseId, List<SetValues>> lastTime)
+    {
+        Result room = CheckRoomFor(exerciseIds);
+        if (!room.IsSuccess)
+        {
+            return room;
+        }
+
+        int order = _exercises.Count == 0 ? 0 : _exercises.Max(exercise => exercise.Order) + 1;
+        foreach (ExerciseId exerciseId in exerciseIds)
+        {
+            RoutineExerciseValues values = new(exerciseId, WorkoutExercise.StartingTargetSets, WorkoutExercise.StartingTargetRepsFrom, WorkoutExercise.StartingTargetRepsTo);
+            _exercises.Add(WorkoutExercise.Start(UserId, Id, order, values, lastTime.GetValueOrDefault(exerciseId) ?? []));
+            order++;
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>Puts a removed exercise back where it was, with its sets.</summary>
+    public Result RestoreExercise(int order, RoutineExerciseValues values, IReadOnlyList<LoggedSetValues> sets)
+    {
+        Result room = CheckRoomFor([values.ExerciseId]);
+        if (!room.IsSuccess)
+        {
+            return room;
+        }
+
+        int position = Math.Min(order, _exercises.Count);
+        foreach (WorkoutExercise later in _exercises.Where(exercise => exercise.Order >= position))
+        {
+            later.MoveTo(later.Order + 1);
+        }
+
+        _exercises.Add(WorkoutExercise.Restore(UserId, Id, position, values, sets));
+
+        return Result.Success();
+    }
+
+    /// <summary>Removes an exercise with its sets, and closes the gap.</summary>
+    public Result RemoveExercise(WorkoutExerciseId exerciseId)
+    {
+        Result<WorkoutExercise> exercise = FindExerciseToLog(exerciseId);
+        if (!exercise.IsSuccess)
+        {
+            return exercise;
+        }
+
+        _exercises.Remove(exercise.Value);
+        foreach (WorkoutExercise later in _exercises.Where(other => other.Order > exercise.Value.Order))
+        {
+            later.MoveTo(later.Order - 1);
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>Swaps an exercise for another, whose last time its sets start from.</summary>
+    public Result SwapExercise(WorkoutExerciseId id, ExerciseId exerciseId, IReadOnlyList<SetValues> lastTime)
+    {
+        Result<WorkoutExercise> exercise = FindExerciseToSwap(id, exerciseId);
+
+        return exercise.IsSuccess ? exercise.Value.Swap(exerciseId, lastTime) : exercise;
+    }
+
+    /// <summary>Undoes a swap.</summary>
+    public Result SwapExerciseBack(WorkoutExerciseId id, ExerciseId exerciseId, IReadOnlyList<SetValues> values)
+    {
+        Result<WorkoutExercise> exercise = FindExerciseToSwap(id, exerciseId);
+
+        return exercise.IsSuccess ? exercise.Value.SwapBack(exerciseId, values) : exercise;
+    }
+
+    /// <summary>Puts the exercises in this order, which has to name each of them once.</summary>
+    public Result ReorderExercises(List<WorkoutExerciseId> order)
+    {
+        if (Status != WorkoutStatus.InProgress)
+        {
+            return WorkoutErrors.NotInProgress;
+        }
+
+        if (order.Count != _exercises.Count || !_exercises.TrueForAll(exercise => order.Contains(exercise.Id)))
+        {
+            return WorkoutErrors.OrderOutOfDate;
+        }
+
+        foreach (WorkoutExercise exercise in _exercises)
+        {
+            exercise.MoveTo(order.IndexOf(exercise.Id));
+        }
+
+        return Result.Success();
+    }
+
     public Result<Set> AddSet(WorkoutExerciseId exerciseId)
     {
         Result<WorkoutExercise> exercise = FindExerciseToLog(exerciseId);
@@ -105,6 +200,34 @@ internal sealed class Workout : Entity<WorkoutId>
     public void Delete(DateTimeOffset deletedAtUtc)
     {
         DeletedAtUtc = deletedAtUtc;
+    }
+
+    private Result CheckRoomFor(IReadOnlyCollection<ExerciseId> exerciseIds)
+    {
+        if (Status != WorkoutStatus.InProgress)
+        {
+            return WorkoutErrors.NotInProgress;
+        }
+
+        if (_exercises.Count + exerciseIds.Count > Routine.MaxExercises)
+        {
+            return WorkoutErrors.TooManyExercises;
+        }
+
+        return _exercises.Exists(exercise => exerciseIds.Contains(exercise.ExerciseId))
+            ? WorkoutErrors.ExerciseAlreadyIn
+            : Result.Success();
+    }
+
+    private Result<WorkoutExercise> FindExerciseToSwap(WorkoutExerciseId id, ExerciseId exerciseId)
+    {
+        Result<WorkoutExercise> exercise = FindExerciseToLog(id);
+        if (!exercise.IsSuccess)
+        {
+            return exercise;
+        }
+
+        return _exercises.Exists(other => other.ExerciseId == exerciseId) ? WorkoutErrors.ExerciseAlreadyIn : exercise;
     }
 
     private Result<WorkoutExercise> FindExerciseToLog(WorkoutExerciseId exerciseId)

@@ -84,7 +84,7 @@ internal sealed class CreateWorkoutHandler(
             routineId,
             name,
             exercises,
-            lastTime.ToDictionary(pair => pair.Key, pair => pair.Value.Sets.Select(set => new SetValues(set.WeightKg, set.Reps)).ToList()),
+            lastTime.ToSetValues(),
             date == calendar.Today ? timeProvider.GetUtcNow() : null);
     }
 

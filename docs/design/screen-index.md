@@ -1,6 +1,6 @@
 # Screen index
 
-210 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+212 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -136,9 +136,11 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | L10 | Logging › Edit weight · sheet | L1 Log sets | 390×844 | [png](screens/L10-Logging-Edit-Weight.png) · [html](html/L10-Logging-Edit-Weight.html) · [source](source/L10-Logging-Edit-Weight.dc.html) |
 | L11 | Logging › Edit reps · sheet | L1 Log sets | 390×844 | [png](screens/L11-Logging-Edit-Reps.png) · [html](html/L11-Logging-Edit-Reps.html) · [source](source/L11-Logging-Edit-Reps.dc.html) |
 | L12 | Logging › Set removed · undo bar · full scroll | L1 Log sets | 390×1006 | [png](screens/L12-Logging-Set-Removed.png) · [html](html/L12-Logging-Set-Removed.html) · [source](source/L12-Logging-Set-Removed.dc.html) |
-| L04 | Logging › Reorder exercises | L1 Log sets | 390×900 | [png](screens/L04-Logging-Reorder.png) · [html](html/L04-Logging-Reorder.html) · [source](source/L04-Logging-Reorder.dc.html) |
+| L04 | Logging › Reorder exercises | L1 Log sets | 390×844 | [png](screens/L04-Logging-Reorder.png) · [html](html/L04-Logging-Reorder.html) · [source](source/L04-Logging-Reorder.dc.html) |
 | L13 | Logging › Remove exercise · confirm | L2 Exercises | 390×844 | [png](screens/L13-Logging-Remove-Exercise-Confirm.png) · [html](html/L13-Logging-Remove-Exercise-Confirm.html) · [source](source/L13-Logging-Remove-Exercise-Confirm.dc.html) |
-| L20 | Logging › Add exercise · full scroll | L2 Exercises | 390×1443 | [png](screens/L20-Logging-Add-Exercise.png) · [html](html/L20-Logging-Add-Exercise.html) · [source](source/L20-Logging-Add-Exercise.dc.html) |
+| L29 | Logging › Swap exercise | L2 Exercises | 390×844 | [png](screens/L29-Logging-Swap-Exercise.png) · [html](html/L29-Logging-Swap-Exercise.html) · [source](source/L29-Logging-Swap-Exercise.dc.html) |
+| L16 | Logging › Swap · checked sets say why | L2 Exercises | 390×844 | [png](screens/L16-Logging-Swap-Checked-Says-Why.png) · [html](html/L16-Logging-Swap-Checked-Says-Why.html) · [source](source/L16-Logging-Swap-Checked-Says-Why.dc.html) |
+| L20 | Logging › Add exercise · full scroll | L2 Exercises | 390×981 | [png](screens/L20-Logging-Add-Exercise.png) · [html](html/L20-Logging-Add-Exercise.html) · [source](source/L20-Logging-Add-Exercise.dc.html) |
 | L24 | Logging › Add exercise · loading | L2 Exercises | 390×844 | [png](screens/L24-Logging-Add-Exercise-Loading.png) · [html](html/L24-Logging-Add-Exercise-Loading.html) · [source](source/L24-Logging-Add-Exercise-Loading.dc.html) |
 | L25 | Logging › Add exercise · load failure | L2 Exercises | 390×844 | [png](screens/L25-Logging-Add-Exercise-Load-Failure.png) · [html](html/L25-Logging-Add-Exercise-Load-Failure.html) · [source](source/L25-Logging-Add-Exercise-Load-Failure.dc.html) |
 | L21 | Logging › Add exercise · no matches | L2 Exercises | 390×844 | [png](screens/L21-Logging-Add-Exercise-No-Matches.png) · [html](html/L21-Logging-Add-Exercise-No-Matches.html) · [source](source/L21-Logging-Add-Exercise-No-Matches.dc.html) |

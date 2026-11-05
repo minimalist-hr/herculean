@@ -10,6 +10,12 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
 {
     internal const int MaxSets = 20;
 
+    internal const int StartingTargetSets = 3;
+
+    internal const int StartingTargetRepsFrom = 8;
+
+    internal const int StartingTargetRepsTo = 10;
+
     private readonly List<Set> _sets = [];
 
     private WorkoutExercise(WorkoutExerciseId id, UserId userId, WorkoutId workoutId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo) : base(id)
@@ -50,13 +56,61 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
     {
         WorkoutExercise exercise = Create(userId, workoutId, order, values);
         exercise._sets.AddRange(Enumerable.Range(0, values.TargetSets).Select(index =>
-        {
-            SetValues start = lastTime.Count == 0 ? new SetValues(0, values.TargetRepsFrom) : lastTime[Math.Min(index, lastTime.Count - 1)];
-
-            return Set.Create(userId, exercise.Id, index, start);
-        }));
+            Set.Create(userId, exercise.Id, index, StartingValues(index, values.TargetRepsFrom, lastTime))));
 
         return exercise;
+    }
+
+    /// <summary>A removed exercise coming back with its sets.</summary>
+    internal static WorkoutExercise Restore(UserId userId, WorkoutId workoutId, int order, RoutineExerciseValues values, IEnumerable<LoggedSetValues> sets)
+    {
+        WorkoutExercise exercise = Create(userId, workoutId, order, values);
+        exercise._sets.AddRange(sets.Select((set, index) =>
+            Set.Restore(userId, exercise.Id, index, new SetValues(set.WeightKg, set.Reps), set.Checked)));
+
+        return exercise;
+    }
+
+    private static SetValues StartingValues(int index, int targetRepsFrom, IReadOnlyList<SetValues> lastTime) =>
+        lastTime.Count == 0 ? new SetValues(0, targetRepsFrom) : lastTime[Math.Min(index, lastTime.Count - 1)];
+
+    internal void MoveTo(int order)
+    {
+        Order = order;
+    }
+
+    /// <summary>Becomes another exercise, keeping its set count and targets. Its sets start from that exercise's last time.</summary>
+    internal Result Swap(ExerciseId exerciseId, IReadOnlyList<SetValues> lastTime)
+    {
+        if (_sets.Exists(set => set.Checked))
+        {
+            return WorkoutErrors.ExerciseHasCheckedSets;
+        }
+
+        ExerciseId = exerciseId;
+        foreach ((Set set, int index) in Sets.Select((set, index) => (set, index)))
+        {
+            set.Replace(StartingValues(index, TargetRepsFrom, lastTime), changedByHand: false);
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>Undoes a swap: it becomes the exercise it was, with the values it had.</summary>
+    internal Result SwapBack(ExerciseId exerciseId, IReadOnlyList<SetValues> values)
+    {
+        if (_sets.Exists(set => set.Checked))
+        {
+            return WorkoutErrors.ExerciseHasCheckedSets;
+        }
+
+        ExerciseId = exerciseId;
+        foreach ((Set set, int index) in Sets.Select((set, index) => (set, index)))
+        {
+            set.Replace(values[Math.Min(index, values.Count - 1)], changedByHand: true);
+        }
+
+        return Result.Success();
     }
 
     /// <summary>Adds a copy of the last set.</summary>

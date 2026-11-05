@@ -1,0 +1,9 @@
+# Remove an exercise from a workout. Start the API with Aspire first, and fill in the IDs from a workout in progress.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+
+### Remove it → 204, or 404 workout.exercise_not_found.
+DELETE {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}
+Authorization: Bearer {{accessToken}}

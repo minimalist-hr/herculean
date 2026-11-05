@@ -12,6 +12,9 @@ const maxReps = 100;
 /** An exercise's limit, the same as the API's. */
 export const maxSetsPerExercise = 20;
 
+/** A workout's limit, the same as the API's. */
+export const maxExercisesPerWorkout = 30;
+
 const decimalsOf = (field: SetField, units: Units) => {
   if (field === 'reps') {
     return 0;
