@@ -15,6 +15,11 @@ internal sealed class WorkoutRepository(TrainingDbContext dbContext) : IWorkoutR
             .ThenInclude(exercise => exercise.Sets)
             .SingleOrDefaultAsync(workout => workout.Id == id, cancellationToken);
 
+    public Task<Workout?> GetDeletedAsync(WorkoutId id, CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .IgnoreQueryFilters([TrainingDbContext.SoftDeleteFilter])
+            .SingleOrDefaultAsync(workout => workout.Id == id && workout.DeletedAtUtc != null, cancellationToken);
+
     public Task<bool> InProgressExistsAsync(CancellationToken cancellationToken) =>
         dbContext.Workouts.AnyAsync(workout => workout.Status == WorkoutStatus.InProgress, cancellationToken);
 

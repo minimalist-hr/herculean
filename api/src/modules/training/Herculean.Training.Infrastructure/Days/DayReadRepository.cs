@@ -78,6 +78,19 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
             .Select(workout => new DayWorkout(workout.Id.Value, workout.Date, workout.Status, workout.Name, workout.RoutineId))
             .ToListAsync(cancellationToken);
 
+    public Task<List<DoneWorkoutTotals>> ListDoneWorkoutTotalsAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .AsNoTracking()
+            .Where(workout => workout.Status == WorkoutStatus.Completed && workout.Date >= from && workout.Date <= to)
+            .Select(workout => new DoneWorkoutTotals(
+                workout.Date,
+                workout.StartedAtUtc,
+                workout.FinishedAtUtc,
+                workout.Exercises.Sum(exercise => exercise.TargetSets),
+                workout.Exercises.SelectMany(exercise => exercise.Sets).Count(set => set.Checked),
+                workout.Exercises.SelectMany(exercise => exercise.Sets).Where(set => set.Checked).Sum(set => set.WeightKg * set.Reps)))
+            .ToListAsync(cancellationToken);
+
     public Task<DateOnly?> GetFirstWorkoutDateAsync(CancellationToken cancellationToken) =>
         dbContext.Workouts
             .AsNoTracking()

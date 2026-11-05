@@ -23,6 +23,8 @@ internal static class WorkoutErrors
 
     public static readonly Error AnotherInProgress = Error.Conflict("workout.another_in_progress", "Another workout is in progress. Resume or finish it first.");
 
+    public static readonly Error NothingChecked = Error.Conflict("workout.nothing_checked", "No sets are checked off, so there's nothing to save.");
+
     public static readonly Error NotInProgress = Error.Conflict("workout.not_in_progress", "The workout is not in progress.");
 
     public static readonly Error TooManyExercises = Error.Conflict("workout.too_many_exercises", $"A workout can have at most {Routine.MaxExercises} exercises.");

@@ -1,0 +1,344 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { renderRouter } from 'expo-router/testing-library';
+import { Text } from 'react-native';
+
+import { NotificationBar } from '@/components/notification-bar';
+import { ThemeProvider } from '@/theme/theme-provider';
+
+import { FinishScreen } from './finish-screen';
+import { dismissNotification } from '@/components/notifications';
+
+const mockFetch = jest.fn<Promise<Response>, [Request]>();
+
+jest.mock('@/api/client', () => {
+  const createClient =
+    jest.requireActual<typeof import('openapi-fetch')>('openapi-fetch').default;
+  return {
+    api: createClient({
+      baseUrl: 'http://api.test',
+      fetch: (request: Request) => mockFetch(request),
+    }),
+  };
+});
+
+const summary = {
+  name: 'Legs',
+  date: '2026-11-03',
+  durationSeconds: 3850,
+  setsChecked: 17,
+  setsTotal: 19,
+  volumeKg: 9840,
+  uncheckedExercises: [{ name: 'Leg curl', uncheckedSets: 2, sets: 2 }],
+  records: [
+    { name: 'Barbell squat', kind: 'heaviestWeight', weightKg: 85, reps: 8 },
+    { name: 'Leg press', kind: 'mostReps', weightKg: 30, reps: 12 },
+  ],
+};
+
+interface Answers {
+  answer?: unknown;
+  summaryStatus?: number;
+  patch?: () => Response;
+  remove?: () => Response;
+  restore?: () => Response;
+}
+
+function answerWith({
+  answer = summary,
+  summaryStatus = 200,
+  patch = () => Response.json({ id: 'w1', status: 'completed' }),
+  remove = () => new Response(null, { status: 204 }),
+  restore = () => Response.json({ id: 'w1', status: 'inProgress' }),
+}: Answers = {}) {
+  mockFetch.mockImplementation((request) => {
+    const { pathname } = new URL(request.url);
+    if (request.method === 'PATCH') {
+      return Promise.resolve(patch());
+    }
+    if (request.method === 'DELETE') {
+      return Promise.resolve(remove());
+    }
+    if (request.method === 'POST') {
+      return Promise.resolve(restore());
+    }
+    if (pathname.endsWith('/summary')) {
+      return Promise.resolve(
+        summaryStatus === 200
+          ? Response.json(answer)
+          : new Response(null, { status: summaryStatus }),
+      );
+    }
+    return Promise.resolve(Response.json({ units: 'metric' }));
+  });
+}
+
+function requests(method: string) {
+  return mockFetch.mock.calls.filter(([request]) => request.method === method);
+}
+
+function Layout() {
+  return (
+    <QueryClientProvider
+      client={
+        new QueryClient({
+          defaultOptions: {
+            queries: { retry: false },
+            mutations: { gcTime: 0 },
+          },
+        })
+      }
+    >
+      <ThemeProvider theme="dark">
+        <Stack screenOptions={{ headerShown: false }} />
+        <NotificationBar />
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
+
+function Opens({ title, href }: { title: string; href: `./${string}` }) {
+  const router = useRouter();
+
+  return (
+    <Text
+      accessibilityRole="button"
+      onPress={() => {
+        router.push(href);
+      }}
+    >
+      {title}
+    </Text>
+  );
+}
+
+function FinishRoute() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  return <FinishScreen id={id} />;
+}
+
+/** The day, then logging, then the finish page, as a real workout gets there. */
+async function renderFinish() {
+  await renderRouter(
+    {
+      _layout: Layout,
+      index: () => <Opens title="Day screen" href="./log" />,
+      log: () => <Opens title="Logging screen" href="./finish/w1" />,
+      'finish/[id]': FinishRoute,
+    },
+    { initialUrl: '/' },
+  );
+  await fireEvent.press(screen.getByText('Day screen'));
+  await fireEvent.press(await screen.findByText('Logging screen'));
+  await screen.findByText('Finish workout');
+}
+
+async function openDiscard() {
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Discard workout' }),
+  );
+  await screen.findByText('Discard this workout?');
+}
+
+/** The sheet's button, which is on top of the page's. */
+async function confirmDiscard() {
+  const buttons = screen.getAllByRole('button', { name: 'Discard workout' });
+  await fireEvent.press(buttons[buttons.length - 1]);
+}
+
+beforeEach(() => {
+  mockFetch.mockReset();
+  dismissNotification();
+});
+
+test('shows what the workout comes to', async () => {
+  answerWith();
+  await renderFinish();
+
+  expect(await screen.findByText('1:04:10')).toBeOnTheScreen();
+  expect(screen.getByText('Legs · Tue, 3rd November')).toBeOnTheScreen();
+  expect(screen.getByText('17 / 19')).toBeOnTheScreen();
+  expect(screen.getByText('9,840 kg')).toBeOnTheScreen();
+  expect(screen.getByText('2')).toBeOnTheScreen();
+});
+
+test('warns about unchecked sets', async () => {
+  answerWith();
+  await renderFinish();
+
+  expect(await screen.findByText('2 sets not checked off')).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      "Leg curl, both sets. They won't be saved unless you go back and log them.",
+    ),
+  ).toBeOnTheScreen();
+});
+
+test('lists new records with what they beat', async () => {
+  answerWith();
+  await renderFinish();
+
+  expect(await screen.findByText('Barbell squat')).toBeOnTheScreen();
+  expect(screen.getByText('Heaviest weight')).toBeOnTheScreen();
+  expect(screen.getByText('85 kg × 8')).toBeOnTheScreen();
+  expect(screen.getByText('Most reps at 30 kg')).toBeOnTheScreen();
+  expect(screen.getByText('30 kg × 12')).toBeOnTheScreen();
+});
+
+test('a past day with every set checked has a dash, no warning and no records', async () => {
+  answerWith({
+    answer: {
+      ...summary,
+      durationSeconds: null,
+      setsChecked: 19,
+      uncheckedExercises: [],
+      records: [],
+    },
+  });
+  await renderFinish();
+
+  expect(await screen.findByText('—')).toBeOnTheScreen();
+  expect(screen.queryByText(/not checked off/)).toBeNull();
+  expect(screen.queryByText('New records')).toBeNull();
+  expect(screen.getByRole('button', { name: 'Save workout' })).toBeTruthy();
+});
+
+test('with nothing checked it says so, and only offers to discard', async () => {
+  answerWith({
+    answer: {
+      ...summary,
+      setsChecked: 0,
+      volumeKg: 0,
+      records: [],
+    },
+  });
+  await renderFinish();
+
+  expect(await screen.findByText('No sets checked off')).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: 'Save workout' })).toBeNull();
+  await openDiscard();
+  expect(
+    screen.getByText('No sets are checked off. You can undo this right after.'),
+  ).toBeOnTheScreen();
+});
+
+test('a load failure can be tried again', async () => {
+  answerWith({ summaryStatus: 500 });
+  await renderFinish();
+
+  expect(
+    await screen.findByText("Couldn't load this workout."),
+  ).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: 'Discard workout' })).toBeNull();
+
+  answerWith();
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(await screen.findByText('1:04:10')).toBeOnTheScreen();
+});
+
+test('the back link returns to logging', async () => {
+  answerWith();
+  await renderFinish();
+
+  await fireEvent.press(screen.getByRole('link', { name: 'Logging' }));
+
+  expect(await screen.findByText('Logging screen')).toBeOnTheScreen();
+});
+
+test('saving completes the workout and returns to the day', async () => {
+  answerWith();
+  await renderFinish();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Save workout' }),
+  );
+
+  expect(await screen.findByText('Day screen')).toBeOnTheScreen();
+  await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
+    status: 'completed',
+  });
+});
+
+test('a save that fails says so and stays', async () => {
+  answerWith({ patch: () => new Response(null, { status: 500 }) });
+  await renderFinish();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Save workout' }),
+  );
+
+  expect(
+    await screen.findByText("Couldn't save the workout. Try again."),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Finish workout')).toBeOnTheScreen();
+});
+
+test('discarding asks first, and closing the sheet changes nothing', async () => {
+  answerWith();
+  await renderFinish();
+
+  await openDiscard();
+
+  expect(
+    screen.getByText(
+      "Its 17 checked sets won't be saved. You can undo this right after.",
+    ),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
+
+  await waitFor(() => {
+    expect(screen.queryByText('Discard this workout?')).toBeNull();
+  });
+  expect(requests('DELETE')).toHaveLength(0);
+});
+
+test('discarding returns to the day and offers an undo, which stays there', async () => {
+  answerWith();
+  await renderFinish();
+
+  await openDiscard();
+  await confirmDiscard();
+
+  expect(await screen.findByText('Day screen')).toBeOnTheScreen();
+  expect(await screen.findByText('Workout discarded.')).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+
+  await waitFor(() => {
+    expect(requests('POST')).toHaveLength(1);
+  });
+  expect(new URL(requests('POST')[0][0].url).pathname).toBe(
+    '/api/v1/workouts/w1/restore',
+  );
+  expect(screen.getByText('Day screen')).toBeOnTheScreen();
+});
+
+test('an undo that fails says so', async () => {
+  answerWith({ restore: () => new Response(null, { status: 500 }) });
+  await renderFinish();
+
+  await openDiscard();
+  await confirmDiscard();
+  await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
+
+  expect(
+    await screen.findByText("Couldn't undo. Try again."),
+  ).toBeOnTheScreen();
+});
+
+test('a discard that fails says so and stays', async () => {
+  answerWith({ remove: () => new Response(null, { status: 500 }) });
+  await renderFinish();
+
+  await openDiscard();
+  await confirmDiscard();
+
+  expect(
+    await screen.findByText("Couldn't discard the workout. Try again."),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Discard this workout?')).toBeOnTheScreen();
+});

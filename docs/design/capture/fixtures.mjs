@@ -70,6 +70,20 @@ const routineList = [
 
 const sampleToday = '2026-10-23';
 
+export const sampleSummary = {
+  name: 'Chest and arms 2',
+  date: '2026-10-23',
+  durationSeconds: 3850,
+  setsChecked: 17,
+  setsTotal: 19,
+  volumeKg: 9840,
+  uncheckedExercises: [{ name: 'Cable crossover', uncheckedSets: 2, sets: 2 }],
+  records: [
+    { name: 'Flat barbell bench press', kind: 'heaviestWeight', weightKg: 85, reps: 8 },
+    { name: 'EZ bar bicep curl', kind: 'mostReps', weightKg: 30, reps: 12 },
+  ],
+};
+
 const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 function weekPlan(routines) {
@@ -298,6 +312,9 @@ export function createApi() {
       const exercise = sampleWorkout.exercises.find((item) => item.id === path.split('/')[6]);
 
       return { status: 200, body: exercise.sets.map((set) => (set.id === path.split('/')[8] ? { ...set, ...body } : set)) };
+    }
+    if (key === `GET /api/v1/workouts/${sampleWorkout.id}/summary`) {
+      return { status: 200, body: sampleSummary };
     }
     if (key === `GET /api/v1/workouts/${sampleWorkout.id}`) {
       return { status: 200, body: sampleWorkout };

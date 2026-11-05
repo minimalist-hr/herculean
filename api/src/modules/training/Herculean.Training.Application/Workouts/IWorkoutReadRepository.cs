@@ -14,5 +14,7 @@ internal interface IWorkoutReadRepository
     Task<List<RoutineExerciseValues>> ListRoutineExercisesAsync(RoutineId routineId, CancellationToken cancellationToken);
 
     /// <summary>Each exercise's sets in its latest completed workout before a date. An exercise never done has no entry.</summary>
+    Task<List<EarlierMostReps>> ListEarlierMostRepsAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken);
+
     Task<Dictionary<ExerciseId, LastTimeResponse>> ListLastTimeAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken);
 }

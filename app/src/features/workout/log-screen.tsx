@@ -17,7 +17,7 @@ import { formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, shortWeekdayDate } from './dates';
-import { ClosedExercise, comesLater, OpenExercise } from './log-exercise';
+import { ClosedExercise, OpenExercise } from './log-exercise';
 import { useAddSet } from './use-add-set';
 import { SetSheet, type SetEdit } from './set-sheet';
 import { maxExercisesPerWorkout } from './set-values';
@@ -144,6 +144,7 @@ export function LogScreen({ id }: { id: string }) {
 
 function Heading({ workout }: { workout: Workout }) {
   const { colors, space, text } = useTheme();
+  const router = useRouter();
   const elapsed = useElapsed(workout.startedAtUtc);
   const { done, total } = workoutProgress(workout.exercises);
   const date = shortWeekdayDate(dateFromText(workout.date));
@@ -160,7 +161,7 @@ function Heading({ workout }: { workout: Workout }) {
         <Button
           label="Finish"
           onPress={() => {
-            comesLater('Finishing a workout');
+            router.push(`/workout/log/${workout.id}/finish` as Href);
           }}
         />
       </View>

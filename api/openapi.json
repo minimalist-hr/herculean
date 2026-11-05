@@ -1746,6 +1746,93 @@
           }
         ]
       },
+      "patch": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Update a workout",
+        "description": "Saves a workout in progress as completed. Unchecked sets are removed, and so is any exercise left with no sets.",
+        "operationId": "UpdateWorkout",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The saved workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, or none of its sets are checked.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
       "get": {
         "tags": [
           "Workouts"
@@ -1772,6 +1859,134 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkoutDetailsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}/restore": {
+      "post": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Restore a workout",
+        "description": "Brings a deleted workout back on its date, as it was.",
+        "operationId": "RestoreWorkout",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The restored workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout does not exist, is not deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Its date has another workout now, or another workout is in progress.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/workouts/{id}/summary": {
+      "get": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get a workout's summary",
+        "description": "Returns what one of the signed-in user's workouts comes to: its duration, sets, volume, unchecked exercises and new records.",
+        "operationId": "GetWorkoutSummary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutSummaryResponse"
                 }
               }
             }
@@ -3631,6 +3846,13 @@
         },
         "description": "An error, as Problem Details (RFC 9457). Every error has the same fields."
       },
+      "RecordKind": {
+        "enum": [
+          "heaviestWeight",
+          "mostReps"
+        ],
+        "description": "What a record beat: the heaviest weight, or the most reps at a weight."
+      },
       "RefreshSessionRequest": {
         "required": [
           "refreshToken"
@@ -4073,6 +4295,31 @@
         },
         "description": "The OAuth 2.0 token response (RFC 6749), in camelCase."
       },
+      "UncheckedExerciseResponse": {
+        "required": [
+          "name",
+          "uncheckedSets",
+          "sets"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "uncheckedSets": {
+            "type": "integer",
+            "description": "Its unchecked sets.",
+            "format": "int32"
+          },
+          "sets": {
+            "type": "integer",
+            "description": "All its sets.",
+            "format": "int32"
+          }
+        },
+        "description": "An exercise with sets that aren't checked."
+      },
       "Units": {
         "enum": [
           "metric",
@@ -4233,6 +4480,19 @@
           }
         },
         "description": "The order of a workout's exercises."
+      },
+      "UpdateWorkoutRequest": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Where it stands now. Only completed can be set, which saves it.",
+            "$ref": "#/components/schemas/WorkoutStatus"
+          }
+        },
+        "description": "What changes on a workout."
       },
       "UpdateWorkoutSettingsRequest": {
         "type": "object",
@@ -4400,6 +4660,14 @@
               "$ref": "#/components/schemas/WorkoutExerciseResponse"
             },
             "description": "Its exercises in order."
+          },
+          "finishedAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When logging finished. Null until it's saved.",
+            "format": "date-time"
           }
         },
         "description": "A workout with its exercises and sets."
@@ -4478,6 +4746,36 @@
         },
         "description": "An exercise in a workout."
       },
+      "WorkoutRecordResponse": {
+        "required": [
+          "name",
+          "kind",
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "kind": {
+            "description": "What it beat.",
+            "$ref": "#/components/schemas/RecordKind"
+          },
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          }
+        },
+        "description": "A set that beat every earlier set of its exercise."
+      },
       "WorkoutResponse": {
         "required": [
           "id",
@@ -4539,6 +4837,68 @@
           "skipped"
         ],
         "description": "Where a workout stands."
+      },
+      "WorkoutSummaryResponse": {
+        "required": [
+          "name",
+          "date",
+          "durationSeconds",
+          "setsChecked",
+          "setsTotal",
+          "volumeKg",
+          "uncheckedExercises",
+          "records"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Its name, from the routine when it was created."
+          },
+          "date": {
+            "type": "string",
+            "description": "The date it belongs to.",
+            "format": "date"
+          },
+          "durationSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "How long it took so far, in seconds. Null on a past day, which has no elapsed time.",
+            "format": "int32"
+          },
+          "setsChecked": {
+            "type": "integer",
+            "description": "Checked sets.",
+            "format": "int32"
+          },
+          "setsTotal": {
+            "type": "integer",
+            "description": "All its sets.",
+            "format": "int32"
+          },
+          "volumeKg": {
+            "type": "number",
+            "description": "Weight times reps over checked sets, in kilograms.",
+            "format": "double"
+          },
+          "uncheckedExercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UncheckedExerciseResponse"
+            },
+            "description": "The exercises with unchecked sets, in order."
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkoutRecordResponse"
+            },
+            "description": "Its new records, at most one per exercise, in order."
+          }
+        },
+        "description": "What a workout comes to."
       }
     },
     "securitySchemes": {

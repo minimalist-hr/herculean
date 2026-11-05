@@ -21,7 +21,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | Checked set | A set marked done while logging. |
 | Workout settings | Default rest time, rest sound and rest vibrate. |
 | Best set | The heaviest weight for an exercise, then the most reps at that weight. |
-| Record | A set that beats every earlier set of that exercise, by heaviest weight or by most reps at a weight. |
+| Record | A set that beats every set of that exercise on earlier dates, by heaviest weight or by most reps at a weight done before. An exercise's first session has none, and a workout shows at most one per exercise, heaviest weight first. |
 | Volume | Weight × reps, summed over sets. |
 
 ## Modules and aggregates
@@ -56,7 +56,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 ### Units and time
 
-- Weight is stored in kg. Imperial users see pounds, rounded to 0.1.
+- Weight is stored in kg. Imperial users see pounds, rounded to 0.1. Every weight and volume the app shows follows the units setting.
 - The weight steppers (L10) change by 2.5 kg, or by 5 lb for imperial users.
 - The default rest time moves in 15 second steps, from 0:15 to 10:00. It starts at 3:00. Setup (A30) and Settings (H15) also offer quick picks: 1, 2, 3, 4 and 5 minutes.
 - Times are stored in UTC. Dates and day logic use the user's time zone.
@@ -129,8 +129,8 @@ One workout per date, and a workout only happens on today or a past day.
 | Other routine | Starts from a routine picked on W10, which lists the week plan's routines and the day's planned one. W57 asks first. It counts for that date only, and the week plan does not change. | In progress |
 | Skip workout | Asks first, then copies the routine | Skipped |
 | Undo skip | Asks first, then deletes the skip | Its plan |
-| Save workout | Finishes logging | Completed |
-| Discard workout | Deletes the workout in progress | Its plan |
+| Save workout | Finishes logging. Unchecked sets are removed, and so is any exercise left with no sets. It needs a checked set. | Completed |
+| Discard workout | Asks first, then deletes the workout in progress and offers an undo, which puts it back in progress | Its plan |
 | Delete | Asks first, then offers an undo | Its plan |
 
 - "Its plan" is planned, missed or rest, from the week plan on that date.
@@ -139,7 +139,7 @@ One workout per date, and a workout only happens on today or a past day.
 - The first day is the earlier of the first workout and the day the account was created, so imported workouts extend it. The week strip reaches from its week to 4 weeks ahead. A workout can't be added before it, except by an import, so Other routine looks muted there and says why.
 - A workout keeps its copy when its routine changes or is deleted. Exercise renames show everywhere.
 
-Start workout, Log workout, Other routine, Resume workout, Skip workout and Undo skip are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
+Start workout, Log workout, Other routine, Resume workout, Skip workout, Undo skip, Save workout and Discard workout are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
 
 ### Exercises, routines and groups
 
@@ -167,9 +167,9 @@ Start workout, Log workout, Other routine, Resume workout, Skip workout and Undo
 
 ### Month totals (W40)
 
-- **Time trained:** the sum of workout durations.
+- **Time trained:** the sum of workout durations. A past day logged later has no duration, so it adds nothing.
 - **Sets:** checked sets, out of the target sets of planned days so far.
-- **Volume:** volume of all sets.
+- **Volume:** volume of checked sets.
 - **Consistency:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.
 - A skip counts as not done. A workout on a rest day counts as done. A workout in progress counts towards nothing until it's finished.
 - Planned days so far are past days, plus today once its workout is done or skipped.

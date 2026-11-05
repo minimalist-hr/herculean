@@ -1,0 +1,31 @@
+# Save a workout. Start the API with Aspire first, then send "Create an account" once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### An unknown workout → 404 workout.not_found. Use the ID of a workout in progress with a checked set to get a 200.
+PATCH {{host}}/api/v1/workouts/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+### Any other status → 400 validation_failed.
+PATCH {{host}}/api/v1/workouts/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "skipped"
+}

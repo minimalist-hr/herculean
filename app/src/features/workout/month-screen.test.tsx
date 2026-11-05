@@ -86,7 +86,13 @@ function answer({
   monthSummary = summary,
   first = '2026-01-01',
   failing = '',
-}: { monthSummary?: unknown; first?: string; failing?: string } = {}) {
+  units = 'metric',
+}: {
+  monthSummary?: unknown;
+  first?: string;
+  failing?: string;
+  units?: string;
+} = {}) {
   mockFetch.mockImplementation((request) => {
     const url = new URL(request.url);
     const path = url.pathname;
@@ -104,6 +110,9 @@ function answer({
             .map(([date, day]) => ({ date, ...day })),
         ),
       );
+    }
+    if (path === '/api/v1/users/me') {
+      return Promise.resolve(Response.json({ units }));
     }
     if (path === '/api/v1/days/first') {
       return Promise.resolve(Response.json({ date: first }));
@@ -206,6 +215,13 @@ describe('totals', () => {
     expect(screen.getByText('98,400 kg')).toBeOnTheScreen();
     expect(screen.getByText('87%')).toBeOnTheScreen();
     expect(screen.getByText('13 of 15 planned workouts')).toBeOnTheScreen();
+  });
+
+  test('volume follows the units setting', async () => {
+    answer({ units: 'imperial' });
+    await renderMonth();
+
+    expect(await screen.findByText('216,935 lb')).toBeOnTheScreen();
   });
 
   test('with nothing planned yet, consistency shows a dash', async () => {

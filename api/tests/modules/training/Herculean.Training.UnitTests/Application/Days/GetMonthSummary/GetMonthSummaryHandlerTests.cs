@@ -35,6 +35,52 @@ public sealed class GetMonthSummaryHandlerTests
     private static DayExerciseResponse Exercise(int targetSets) =>
         new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", targetSets, 8, 10);
 
+    private static DoneWorkoutTotals Done(DateOnly date, int targetSets = 5, int setsDone = 4, decimal volumeKg = 1000, int minutes = 60) =>
+        new(
+            date,
+            new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero),
+            new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero).AddMinutes(minutes),
+            targetSets,
+            setsDone,
+            volumeKg);
+
+    [Fact]
+    public async Task ACompletedPlannedDayCountsTowardsEverything()
+    {
+        DateOnly monday = new(2026, 11, 2);
+        _dayReadRepository.Changes.Add(new PlanChange(Weekday.Monday, LongAgo, RoutineId.New(), "Legs", null));
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), monday, WorkoutStatus.Completed, "Legs", RoutineId.New()));
+        _dayReadRepository.DoneWorkouts.Add(Done(monday));
+
+        Result<MonthSummaryResponse> result = await GetAsync("2026-11");
+
+        result.Value.ShouldBe(new MonthSummaryResponse(1, 0, 0, 60, 4, 5, 1000, 1, 100));
+    }
+
+    [Fact]
+    public async Task AWorkoutOnARestDayIsDoneButNotPlanned()
+    {
+        DateOnly monday = new(2026, 11, 2);
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), monday, WorkoutStatus.Completed, "Legs", RoutineId.New()));
+        _dayReadRepository.DoneWorkouts.Add(Done(monday));
+
+        Result<MonthSummaryResponse> result = await GetAsync("2026-11");
+
+        result.Value.ShouldBe(new MonthSummaryResponse(1, 0, 0, 60, 4, 0, 1000, 0, null));
+    }
+
+    [Fact]
+    public async Task APastDayLoggedLaterAddsNoTime()
+    {
+        DateOnly monday = new(2026, 11, 2);
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), monday, WorkoutStatus.Completed, "Legs", RoutineId.New()));
+        _dayReadRepository.DoneWorkouts.Add(Done(monday) with { StartedAtUtc = null });
+
+        Result<MonthSummaryResponse> result = await GetAsync("2026-11");
+
+        result.Value.MinutesTrained.ShouldBe(0);
+    }
+
     [Fact]
     public async Task CountsPastPlannedDaysAsMissed()
     {

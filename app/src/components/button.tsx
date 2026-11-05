@@ -9,8 +9,8 @@ import { Tappable } from './tappable';
 interface ButtonProps {
   label: string;
   onPress: () => void;
-  /** Primary is the screen's main action. Secondary is outlined, for example Cancel. Danger confirms a delete. */
-  variant?: 'primary' | 'secondary' | 'danger';
+  /** Primary is the screen's main action. Secondary is outlined, for example Cancel. Danger confirms a delete, and danger outline leads to that confirmation. */
+  variant?: 'primary' | 'secondary' | 'danger' | 'dangerOutline';
   /** While true, the button shows a spinner and its -ing label, for example "Creating account". */
   waitingLabel?: string;
   waiting?: boolean;
@@ -38,6 +38,7 @@ export function Button({
     primary: colors.onPrimary,
     secondary: colors.text,
     danger: colors.onDanger,
+    dangerOutline: colors.danger,
   }[variant];
 
   return (

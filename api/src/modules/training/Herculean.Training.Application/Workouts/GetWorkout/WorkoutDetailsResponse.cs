@@ -11,7 +11,8 @@ internal sealed record WorkoutDetailsResponse(
     [property: Description("Where it stands.")] WorkoutStatus Status,
     [property: Description("Its name, from the routine when it was created.")] string Name,
     [property: Description("When logging started. Null when skipped, and on a past day, which has no elapsed time.")] DateTimeOffset? StartedAtUtc,
-    [property: Description("Its exercises in order.")] List<WorkoutExerciseResponse> Exercises);
+    [property: Description("Its exercises in order.")] List<WorkoutExerciseResponse> Exercises,
+    [property: Description("When logging finished. Null until it's saved.")] DateTimeOffset? FinishedAtUtc = null);
 
 [Description("An exercise in a workout.")]
 internal sealed record WorkoutExerciseResponse(

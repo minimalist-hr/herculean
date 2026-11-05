@@ -8,6 +8,10 @@ internal static class WorkoutRoutes
 
     public const string Workout = $"{Workouts}/{{id:guid}}";
 
+    public const string RestoreWorkout = $"{Workout}/restore";
+
+    public const string Summary = $"{Workout}/summary";
+
     public const string Exercises = $"{Workout}/exercises";
 
     public const string Exercise = $"{Exercises}/{{workoutExerciseId:guid}}";

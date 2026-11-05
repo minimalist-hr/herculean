@@ -22,6 +22,8 @@ internal interface IDayReadRepository
     Task<List<DayWorkout>> ListWorkoutsAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken);
 
     /// <summary>The date of the current user's first workout, or null if there is none.</summary>
+    Task<List<DoneWorkoutTotals>> ListDoneWorkoutTotalsAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken);
+
     Task<DateOnly?> GetFirstWorkoutDateAsync(CancellationToken cancellationToken);
 
     /// <summary>Whether the current user has a routine that isn't deleted.</summary>

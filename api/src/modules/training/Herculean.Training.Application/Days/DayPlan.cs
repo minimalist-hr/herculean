@@ -9,6 +9,9 @@ namespace Herculean.Training.Application.Days;
 internal sealed record PlanChange(Weekday Weekday, DateOnly EffectiveFrom, RoutineId? RoutineId, string? RoutineName, DateTimeOffset? RoutineDeletedAtUtc);
 
 /// <summary>A workout on a date, which decides how the day is shown.</summary>
+/// <summary>What a completed workout adds to its month.</summary>
+internal sealed record DoneWorkoutTotals(DateOnly Date, DateTimeOffset? StartedAtUtc, DateTimeOffset? FinishedAtUtc, int TargetSets, int SetsDone, decimal VolumeKg);
+
 internal sealed record DayWorkout(Guid Id, DateOnly Date, WorkoutStatus Status, string Name, RoutineId? RoutineId)
 {
     public DayStatus DayStatus => Status switch

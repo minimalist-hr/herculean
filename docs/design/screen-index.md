@@ -1,6 +1,6 @@
 # Screen index
 
-219 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+229 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -93,6 +93,8 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W62 | Workout › Choose a routine · confirm, couldn't load | W2 Choose a routine | 390×844 | [png](screens/W62-Workout-Choose-Routine-Confirm-Failed.png) · [html](html/W62-Workout-Choose-Routine-Confirm-Failed.html) · [source](source/W62-Workout-Choose-Routine-Confirm-Failed.dc.html) |
 | W63 | Workout › Choose a routine · load failure | W2 Choose a routine | 390×844 | [png](screens/W63-Workout-Choose-Routine-Load-Failure.png) · [html](html/W63-Workout-Choose-Routine-Load-Failure.html) · [source](source/W63-Workout-Choose-Routine-Load-Failure.dc.html) |
 | W64 | Workout › Other routine · before the first day | W3 Other days | 390×844 | [png](screens/W64-Workout-Other-Routine-Before-First-Day.png) · [html](html/W64-Workout-Other-Routine-Before-First-Day.html) · [source](source/W64-Workout-Other-Routine-Before-First-Day.dc.html) |
+| W65 | Workout › Workout discarded, with Undo | W1 Today states | 390×844 | [png](screens/W65-Workout-Discarded-Undo.png) · [html](html/W65-Workout-Discarded-Undo.html) · [source](source/W65-Workout-Discarded-Undo.dc.html) |
+| W66 | Workout › Undo discard · couldn't undo | W1 Today states | 390×844 | [png](screens/W66-Workout-Undo-Discard-Failed.png) · [html](html/W66-Workout-Undo-Discard-Failed.html) · [source](source/W66-Workout-Undo-Discard-Failed.dc.html) |
 | W20 | Workout › Past day | W3 Other days | 390×844 | [png](screens/W20-Workout-Past-Day.png) · [html](html/W20-Workout-Past-Day.html) · [source](source/W20-Workout-Past-Day.dc.html) |
 | W23 | Workout › Yesterday · rest day | W3 Other days | 390×844 | [png](screens/W23-Workout-Yesterday-Rest-Day.png) · [html](html/W23-Workout-Yesterday-Rest-Day.html) · [source](source/W23-Workout-Yesterday-Rest-Day.dc.html) |
 | W21 | Workout › Missed day | W3 Other days | 390×844 | [png](screens/W21-Workout-Missed-Day.png) · [html](html/W21-Workout-Missed-Day.html) · [source](source/W21-Workout-Missed-Day.dc.html) |
@@ -156,9 +158,17 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | L27 | Logging › Add exercise · no groups, New exercise says why | L2 Exercises | 390×844 | [png](screens/L27-Logging-Add-Exercise-No-Groups.png) · [html](html/L27-Logging-Add-Exercise-No-Groups.html) · [source](source/L27-Logging-Add-Exercise-No-Groups.dc.html) |
 | L28 | Logging › Add exercise · nothing picked says why | L2 Exercises | 390×844 | [png](screens/L28-Logging-Add-Exercise-Pick-First.png) · [html](html/L28-Logging-Add-Exercise-Pick-First.html) · [source](source/L28-Logging-Add-Exercise-Pick-First.dc.html) |
 | L23 | Logging › Add exercise · new one selected | L2 Exercises | 390×844 | [png](screens/L23-Logging-Add-Exercise-New-Selected.png) · [html](html/L23-Logging-Add-Exercise-New-Selected.html) · [source](source/L23-Logging-Add-Exercise-New-Selected.dc.html) |
-| L30 | Logging › Finish workout | L3 Finish | 390×844 | [png](screens/L30-Logging-Finish.png) · [html](html/L30-Logging-Finish.html) · [source](source/L30-Logging-Finish.dc.html) |
+| L30 | Logging › Finish workout · full scroll | L3 Finish | 390×846 | [png](screens/L30-Logging-Finish.png) · [html](html/L30-Logging-Finish.html) · [source](source/L30-Logging-Finish.dc.html) |
 | L02 | Logging · no exercises left | L3 Finish | 390×844 | [png](screens/L02-Logging-No-Exercises.png) · [html](html/L02-Logging-No-Exercises.html) · [source](source/L02-Logging-No-Exercises.dc.html) |
 | L31 | Logging › Finish workout · nothing logged | L3 Finish | 390×844 | [png](screens/L31-Logging-Finish-Nothing-Logged.png) · [html](html/L31-Logging-Finish-Nothing-Logged.html) · [source](source/L31-Logging-Finish-Nothing-Logged.dc.html) |
+| L32 | Logging › Finish workout · past day, every set checked | L3 Finish | 390×844 | [png](screens/L32-Logging-Finish-Past-Day.png) · [html](html/L32-Logging-Finish-Past-Day.html) · [source](source/L32-Logging-Finish-Past-Day.dc.html) |
+| L33 | Logging › Discard workout · confirm | L3 Finish | 390×844 | [png](screens/L33-Logging-Discard-Confirm.png) · [html](html/L33-Logging-Discard-Confirm.html) · [source](source/L33-Logging-Discard-Confirm.dc.html) |
+| L34 | Logging › Finish workout · loading | L3 Finish | 390×844 | [png](screens/L34-Logging-Finish-Loading.png) · [html](html/L34-Logging-Finish-Loading.html) · [source](source/L34-Logging-Finish-Loading.dc.html) |
+| L35 | Logging › Finish workout · load failure | L3 Finish | 390×844 | [png](screens/L35-Logging-Finish-Load-Failure.png) · [html](html/L35-Logging-Finish-Load-Failure.html) · [source](source/L35-Logging-Finish-Load-Failure.dc.html) |
+| L36 | Logging › Finish workout · saving · full scroll | L3 Finish | 390×846 | [png](screens/L36-Logging-Finish-Saving.png) · [html](html/L36-Logging-Finish-Saving.html) · [source](source/L36-Logging-Finish-Saving.dc.html) |
+| L37 | Logging › Finish workout · couldn't save · full scroll | L3 Finish | 390×846 | [png](screens/L37-Logging-Finish-Failed.png) · [html](html/L37-Logging-Finish-Failed.html) · [source](source/L37-Logging-Finish-Failed.dc.html) |
+| L38 | Logging › Discard workout · discarding | L3 Finish | 390×844 | [png](screens/L38-Logging-Discard-Discarding.png) · [html](html/L38-Logging-Discard-Discarding.html) · [source](source/L38-Logging-Discard-Discarding.dc.html) |
+| L39 | Logging › Discard workout · couldn't discard | L3 Finish | 390×844 | [png](screens/L39-Logging-Discard-Failed.png) · [html](html/L39-Logging-Discard-Failed.html) · [source](source/L39-Logging-Discard-Failed.dc.html) |
 
 ## R · Routines
 

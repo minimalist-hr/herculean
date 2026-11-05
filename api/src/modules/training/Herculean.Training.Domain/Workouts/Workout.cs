@@ -197,9 +197,40 @@ internal sealed class Workout : Entity<WorkoutId>
         return exercise.IsSuccess ? exercise.Value.DeleteSet(setId) : exercise.Error;
     }
 
+    /// <summary>Completes it with only what was done: unchecked sets go, and so does any exercise left with no sets.</summary>
+    public Result Finish(DateTimeOffset finishedAtUtc)
+    {
+        if (Status != WorkoutStatus.InProgress)
+        {
+            return WorkoutErrors.NotInProgress;
+        }
+
+        if (!_exercises.Exists(exercise => exercise.Sets.Any(set => set.Checked)))
+        {
+            return WorkoutErrors.NothingChecked;
+        }
+
+        _exercises.ForEach(exercise => exercise.RemoveUncheckedSets());
+        _exercises.RemoveAll(exercise => exercise.Sets.Count == 0);
+        foreach ((WorkoutExercise exercise, int order) in _exercises.OrderBy(exercise => exercise.Order).Select((exercise, order) => (exercise, order)))
+        {
+            exercise.MoveTo(order);
+        }
+
+        Status = WorkoutStatus.Completed;
+        FinishedAtUtc = finishedAtUtc;
+
+        return Result.Success();
+    }
+
     public void Delete(DateTimeOffset deletedAtUtc)
     {
         DeletedAtUtc = deletedAtUtc;
+    }
+
+    public void Restore()
+    {
+        DeletedAtUtc = null;
     }
 
     private Result CheckRoomFor(IReadOnlyCollection<ExerciseId> exerciseIds)

@@ -32,10 +32,6 @@ type Units = components['schemas']['Units'];
 /** A checked row's tint: the accent at 16%, as a hex alpha. */
 const checkedRowAlpha = '29';
 
-export function comesLater(what: string) {
-  notifyFailure(`${what} comes in a later update.`);
-}
-
 /** A closed exercise: its targets and progress. Tapping it opens it. */
 export function ClosedExercise({
   exercise,

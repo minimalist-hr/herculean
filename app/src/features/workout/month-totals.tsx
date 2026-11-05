@@ -4,6 +4,8 @@ import type { components } from '@/api/schema';
 import { Skeleton } from '@/components/skeleton';
 import { counted } from '@/features/routines/formats';
 import { SectionTitle } from '@/components/section-title';
+import { useCurrentUser } from '@/features/account/use-current-user';
+import { formatVolume } from '@/formats/formats';
 import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -144,6 +146,8 @@ export function MonthTotals({
   summary?: MonthSummary;
 }) {
   const { space } = useTheme();
+  const user = useCurrentUser();
+  const units = user.data?.units ?? 'metric';
   const averageMinutes =
     summary !== undefined && summary.done > 0
       ? Math.round(summary.minutesTrained / summary.done)
@@ -171,7 +175,7 @@ export function MonthTotals({
       <View style={[styles.row, { gap: space.sm }]}>
         <TotalTile
           label="Volume"
-          value={summary && `${summary.volumeKg.toLocaleString('en-US')} kg`}
+          value={summary && formatVolume(summary.volumeKg, units)}
           hint="Weight × reps, all sets"
         />
         <TotalTile

@@ -461,6 +461,50 @@ export interface paths {
         delete: operations["DeleteWorkout"];
         options?: never;
         head?: never;
+        /**
+         * Update a workout
+         * @description Saves a workout in progress as completed. Unchecked sets are removed, and so is any exercise left with no sets.
+         */
+        patch: operations["UpdateWorkout"];
+        trace?: never;
+    };
+    "/api/v1/workouts/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore a workout
+         * @description Brings a deleted workout back on its date, as it was.
+         */
+        post: operations["RestoreWorkout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workouts/{id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a workout's summary
+         * @description Returns what one of the signed-in user's workouts comes to: its duration, sets, volume, unchecked exercises and new records.
+         */
+        get: operations["GetWorkoutSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -1040,6 +1084,11 @@ export interface components {
             /** @description Finds the request in the logs. */
             traceId: string;
         };
+        /**
+         * @description What a record beat: the heaviest weight, or the most reps at a weight.
+         * @enum {unknown}
+         */
+        RecordKind: "heaviestWeight" | "mostReps";
         /** @description The refresh token to swap for new tokens. */
         RefreshSessionRequest: {
             /** @description The refreshToken from signing in, creating the account or the last refresh. It works once. */
@@ -1293,6 +1342,21 @@ export interface components {
             /** @description Gets new tokens when the access token expires. Keep it in secure storage. */
             refreshToken: string;
         };
+        /** @description An exercise with sets that aren't checked. */
+        UncheckedExerciseResponse: {
+            /** @description The exercise's name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description Its unchecked sets.
+             */
+            uncheckedSets: number;
+            /**
+             * Format: int32
+             * @description All its sets.
+             */
+            sets: number;
+        };
         /**
          * @description The units the app shows and takes: metric in kg and cm, imperial in lb and in. The app converts; the API keeps weights in kg.
          * @enum {unknown}
@@ -1351,6 +1415,11 @@ export interface components {
         UpdateWorkoutExerciseOrderRequest: {
             /** @description Every exercise in the workout, by its ID in the workout, once each, in the new order. */
             workoutExerciseIds: string[];
+        };
+        /** @description What changes on a workout. */
+        UpdateWorkoutRequest: {
+            /** @description Where it stands now. Only completed can be set, which saves it. */
+            status: components["schemas"]["WorkoutStatus"];
         };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateWorkoutSettingsRequest: {
@@ -1425,6 +1494,11 @@ export interface components {
             startedAtUtc: null | string;
             /** @description Its exercises in order. */
             exercises: components["schemas"]["WorkoutExerciseResponse"][];
+            /**
+             * Format: date-time
+             * @description When logging finished. Null until it's saved.
+             */
+            finishedAtUtc?: null | string;
         };
         /** @description An exercise in a workout. */
         WorkoutExerciseResponse: {
@@ -1466,6 +1540,23 @@ export interface components {
             sets: components["schemas"]["SetResponse"][];
             lastTime: null | components["schemas"]["LastTimeResponse"];
         };
+        /** @description A set that beat every earlier set of its exercise. */
+        WorkoutRecordResponse: {
+            /** @description The exercise's name. */
+            name: string;
+            /** @description What it beat. */
+            kind: components["schemas"]["RecordKind"];
+            /**
+             * Format: double
+             * @description The weight in kg.
+             */
+            weightKg: number;
+            /**
+             * Format: int32
+             * @description The reps.
+             */
+            reps: number;
+        };
         /** @description A workout. */
         WorkoutResponse: {
             /**
@@ -1500,6 +1591,40 @@ export interface components {
          * @enum {unknown}
          */
         WorkoutStatus: "inProgress" | "completed" | "skipped";
+        /** @description What a workout comes to. */
+        WorkoutSummaryResponse: {
+            /** @description Its name, from the routine when it was created. */
+            name: string;
+            /**
+             * Format: date
+             * @description The date it belongs to.
+             */
+            date: string;
+            /**
+             * Format: int32
+             * @description How long it took so far, in seconds. Null on a past day, which has no elapsed time.
+             */
+            durationSeconds: null | number;
+            /**
+             * Format: int32
+             * @description Checked sets.
+             */
+            setsChecked: number;
+            /**
+             * Format: int32
+             * @description All its sets.
+             */
+            setsTotal: number;
+            /**
+             * Format: double
+             * @description Weight times reps over checked sets, in kilograms.
+             */
+            volumeKg: number;
+            /** @description The exercises with unchecked sets, in order. */
+            uncheckedExercises: components["schemas"]["UncheckedExerciseResponse"][];
+            /** @description Its new records, at most one per exercise, in order. */
+            records: components["schemas"]["WorkoutRecordResponse"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -2854,6 +2979,160 @@ export interface operations {
                 };
             };
             /** @description The workout does not exist, is already deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateWorkout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkoutRequest"];
+            };
+        };
+        responses: {
+            /** @description The saved workout. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout is not in progress, or none of its sets are checked. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RestoreWorkout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The restored workout. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout does not exist, is not deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Its date has another workout now, or another workout is in progress. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetWorkoutSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The summary. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutSummaryResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout does not exist, is deleted, or belongs to another user. */
             404: {
                 headers: {
                     [name: string]: unknown;

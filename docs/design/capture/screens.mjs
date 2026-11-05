@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleDays, sampleWeek, sampleWorkout } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout } from './fixtures.mjs';
 
 const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
@@ -26,6 +26,30 @@ const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
 const addPath = `${logPath}/add`;
 const newExercisePath = `${addPath}/new-exercise`;
 const inclineDumbbellPress = sampleWorkout.exercises.find((exercise) => exercise.name === 'Incline dumbbell bench press');
+const finishPath = `${logPath}/finish`;
+const summaryPath = `GET /api/v1/workouts/${sampleWorkout.id}/summary`;
+const openFinish = async (on) => {
+  await on.go(finishPath);
+  await on.waitFor('Discard workout');
+};
+const openDiscard = async (on) => {
+  await openFinish(on);
+  await on.tap('Discard workout');
+  await on.waitFor('Discard this workout?');
+  await on.sleep(400);
+};
+const startSample = { 'POST /api/v1/workouts': { status: 201, body: { id: sampleWorkout.id, date: '2026-10-23', status: 'inProgress', name: sampleWorkout.name } } };
+const discardFromToday = async (on) => {
+  await on.go('/workout');
+  await on.tap('Start workout');
+  await on.tap('Finish');
+  await on.waitFor('Discard workout');
+  await on.tap('Discard workout');
+  await on.waitFor('Discard this workout?');
+  await on.sleep(400);
+  await on.tap('Discard workout');
+  await on.waitFor('Workout discarded.');
+};
 const openLog = async (on) => {
   await on.go(logPath);
   await on.waitFor('Add set');
@@ -419,6 +443,12 @@ export const screens = [
     await on.tap('Other routine');
     await on.waitFor("A workout can't be added before your first day.");
   } },
+  { id: 'W65', file: 'W65-Workout-Discarded-Undo', title: 'Workout › Workout discarded, with Undo', row: 'W1 Today states', today: friday, full: false, answers: startSample, steps: discardFromToday },
+  { id: 'W66', file: 'W66-Workout-Undo-Discard-Failed', title: "Workout › Undo discard · couldn't undo", row: 'W1 Today states', today: friday, full: false, answers: { ...startSample, [`POST /api/v1/workouts/${sampleWorkout.id}/restore`]: 'fail' }, steps: async (on) => {
+    await discardFromToday(on);
+    await on.tap('Undo');
+    await on.waitFor("Couldn't undo. Try again.");
+  } },
   { id: 'W13', file: 'W13-Workout-Skip-Skipping', title: 'Workout › Skip workout · skipping', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: skipFromToday },
   { id: 'W14', file: 'W14-Workout-Skip-Failed', title: "Workout › Skip workout · couldn't skip", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
     await skipFromToday(on);
@@ -737,6 +767,39 @@ export const screens = [
     await on.tap('Remove Flat barbell bench press');
     await on.waitFor('Remove exercise');
     await on.sleep(400);
+  } },
+  { id: 'L30', file: 'L30-Logging-Finish', title: 'Logging › Finish workout', row: 'L3 Finish', today: friday, steps: openFinish },
+  { id: 'L31', file: 'L31-Logging-Finish-Nothing-Logged', title: 'Logging › Finish workout · nothing logged', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, durationSeconds: 400, setsChecked: 0, setsTotal: 19, volumeKg: 0, uncheckedExercises: [], records: [] } } }, steps: openFinish },
+  { id: 'L32', file: 'L32-Logging-Finish-Past-Day', title: 'Logging › Finish workout · past day, every set checked', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, date: '2026-10-20', durationSeconds: null, setsChecked: 19, setsTotal: 19, volumeKg: 10260, uncheckedExercises: [], records: [] } } }, steps: openFinish },
+  { id: 'L33', file: 'L33-Logging-Discard-Confirm', title: 'Logging › Discard workout · confirm', row: 'L3 Finish', today: friday, full: false, steps: openDiscard },
+  { id: 'L34', file: 'L34-Logging-Finish-Loading', title: 'Logging › Finish workout · loading', row: 'L3 Finish', today: friday, answers: { [summaryPath]: 'hold' }, steps: async (on) => {
+    await on.go(finishPath);
+    await on.waitFor('Finish workout');
+    await on.sleep(400);
+  } },
+  { id: 'L35', file: 'L35-Logging-Finish-Load-Failure', title: 'Logging › Finish workout · load failure', row: 'L3 Finish', today: friday, answers: { [summaryPath]: 'fail' }, steps: async (on) => {
+    await on.go(finishPath);
+    await on.waitFor("Couldn't load this workout.");
+  } },
+  { id: 'L36', file: 'L36-Logging-Finish-Saving', title: 'Logging › Finish workout · saving', row: 'L3 Finish', today: friday, answers: { [`PATCH /api/v1/workouts/${sampleWorkout.id}`]: 'hold' }, steps: async (on) => {
+    await openFinish(on);
+    await on.tap('Save workout');
+    await on.waitFor('Saving workout');
+  } },
+  { id: 'L37', file: 'L37-Logging-Finish-Failed', title: "Logging › Finish workout · couldn't save", row: 'L3 Finish', today: friday, answers: { [`PATCH /api/v1/workouts/${sampleWorkout.id}`]: 'fail' }, steps: async (on) => {
+    await openFinish(on);
+    await on.tap('Save workout');
+    await on.waitFor("Couldn't save the workout. Try again.");
+  } },
+  { id: 'L38', file: 'L38-Logging-Discard-Discarding', title: 'Logging › Discard workout · discarding', row: 'L3 Finish', today: friday, full: false, answers: { [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: 'hold' }, steps: async (on) => {
+    await openDiscard(on);
+    await on.tap('Discard workout');
+    await on.waitFor('Discarding workout');
+  } },
+  { id: 'L39', file: 'L39-Logging-Discard-Failed', title: "Logging › Discard workout · couldn't discard", row: 'L3 Finish', today: friday, full: false, answers: { [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: 'fail' }, steps: async (on) => {
+    await openDiscard(on);
+    await on.tap('Discard workout');
+    await on.waitFor("Couldn't discard the workout. Try again.");
   } },
   { id: 'L29', file: 'L29-Logging-Swap-Exercise', title: 'Logging › Swap exercise', row: 'L2 Exercises', today: friday, steps: async (on) => {
     await on.go(`${addPath}?swap=${inclineDumbbellPress.id}`);

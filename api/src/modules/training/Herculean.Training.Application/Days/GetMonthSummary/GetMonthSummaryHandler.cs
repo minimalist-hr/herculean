@@ -29,7 +29,7 @@ internal sealed class GetMonthSummaryHandler(
         UserCalendar calendar = await userClock.GetCalendarAsync(cancellationToken);
         DayPlan plan = new(await dayReadRepository.ListPlanChangesAsync(cancellationToken), calendar);
 
-        // A workout in progress counts towards nothing until it's finished.
+        // A workout in progress counts towards nothing until it's finished. A workout on a rest day counts as done, but its day wasn't planned.
         List<DayWorkout> workouts = await dayReadRepository.ListWorkoutsAsync(first, last, cancellationToken);
         List<DayWorkout> skipped = [.. workouts.Where(workout => workout.Status == WorkoutStatus.Skipped)];
         HashSet<DateOnly> workoutDates = [.. workouts.Select(workout => workout.Date)];
@@ -40,20 +40,31 @@ internal sealed class GetMonthSummaryHandler(
             .OfType<PlanChange>()
             .ToList();
 
-        int setsPlanned = await CountSkippedSetsAsync(skipped, cancellationToken) + await CountMissedSetsAsync(missed, cancellationToken);
-        int plannedDays = skipped.Count + missed.Count;
+        List<DoneWorkoutTotals> done = await dayReadRepository.ListDoneWorkoutTotalsAsync(first, last, cancellationToken);
+        List<DoneWorkoutTotals> donePlanned = [.. done.Where(workout => plan.RoutineOn(workout.Date) is not null)];
+
+        int setsPlanned = donePlanned.Sum(workout => workout.TargetSets)
+            + await CountSkippedSetsAsync(skipped, cancellationToken)
+            + await CountMissedSetsAsync(missed, cancellationToken);
+        int plannedDays = donePlanned.Count + skipped.Count + missed.Count;
 
         return new MonthSummaryResponse(
-            Done: 0,
+            Done: done.Count,
             Missed: missed.Count,
             Skipped: skipped.Count,
-            MinutesTrained: 0,
-            SetsDone: 0,
+            MinutesTrained: MinutesTrained(done),
+            SetsDone: done.Sum(workout => workout.SetsDone),
             SetsPlanned: setsPlanned,
-            VolumeKg: 0,
+            VolumeKg: done.Sum(workout => workout.VolumeKg),
             PlannedDays: plannedDays,
-            ConsistencyPercent: Consistency.Percent(0, plannedDays));
+            ConsistencyPercent: Consistency.Percent(done.Count, plannedDays));
     }
+
+    /// <summary>A workout logged for a past day has no elapsed time, so it adds none.</summary>
+    private static int MinutesTrained(List<DoneWorkoutTotals> done) =>
+        (int)Math.Round(done
+            .Where(workout => workout.StartedAtUtc is not null && workout.FinishedAtUtc is not null)
+            .Sum(workout => (workout.FinishedAtUtc!.Value - workout.StartedAtUtc!.Value).TotalMinutes), MidpointRounding.AwayFromZero);
 
     private async Task<int> CountSkippedSetsAsync(List<DayWorkout> skipped, CancellationToken cancellationToken)
     {

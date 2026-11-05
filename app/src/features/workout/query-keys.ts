@@ -1,6 +1,7 @@
 export const workoutKeys = {
   settings: ['workout-settings'] as const,
   workout: (id: string) => ['workout', id] as const,
+  summary: (id: string) => ['workout', id, 'summary'] as const,
 };
 
 export const dayKeys = {

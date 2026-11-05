@@ -150,6 +150,9 @@ async function renderLog() {
       index: () => <PlaceholderScreen title="Workout screen" />,
       log: () => <LogScreen id="w1" />,
       'workout/log/[id]/add': () => <PlaceholderScreen title="Add screen" />,
+      'workout/log/[id]/finish': () => (
+        <PlaceholderScreen title="Finish screen" />
+      ),
       'workout/log/[id]/reorder': () => (
         <PlaceholderScreen title="Reorder screen" />
       ),
@@ -361,16 +364,13 @@ test('a failed Add set says so', async () => {
   ).toBeOnTheScreen();
 });
 
-test.each([['Finish', 'Finishing a workout comes in a later update.']])(
-  '%s says it comes later',
-  async (name, message) => {
-    await renderLog();
+test('Finish opens the finish page', async () => {
+  await renderLog();
 
-    await fireEvent.press(await screen.findByRole('button', { name }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Finish' }));
 
-    expect(await screen.findByText(message)).toBeOnTheScreen();
-  },
-);
+  expect(await screen.findByText('Finish screen')).toBeOnTheScreen();
+});
 
 test('the name opens the exercise, and there is no other way to it', async () => {
   await renderLog();

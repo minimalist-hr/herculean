@@ -15,7 +15,7 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
         var workout = await dbContext.Workouts
             .AsNoTracking()
             .Where(workout => workout.Id == id)
-            .Select(workout => new { workout.Date, workout.Status, workout.Name, workout.StartedAtUtc })
+            .Select(workout => new { workout.Date, workout.Status, workout.Name, workout.StartedAtUtc, workout.FinishedAtUtc })
             .SingleOrDefaultAsync(cancellationToken);
         if (workout is null)
         {
@@ -63,7 +63,8 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                     exercise.TargetRepsTo,
                     exercise.Sets,
                     lastTime.GetValueOrDefault(exercise.ExerciseId))),
-            ]);
+            ],
+            workout.FinishedAtUtc);
     }
 
     public Task<List<RoutineExerciseValues>> ListRoutineExercisesAsync(RoutineId routineId, CancellationToken cancellationToken) =>
@@ -73,6 +74,20 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
             .Where(exercise => exercise.RoutineId == routineId && exercise.Exercise.DeletedAtUtc == null)
             .OrderBy(exercise => exercise.Order)
             .Select(exercise => new RoutineExerciseValues(exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo))
+            .ToListAsync(cancellationToken);
+
+    public Task<List<EarlierMostReps>> ListEarlierMostRepsAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken) =>
+        dbContext.Set<WorkoutExercise>()
+            .AsNoTracking()
+            .Where(exercise => exerciseIds.Contains(exercise.ExerciseId))
+            .Join(
+                dbContext.Workouts.Where(workout => workout.Status == WorkoutStatus.Completed && workout.Date < before),
+                exercise => exercise.WorkoutId,
+                workout => workout.Id,
+                (exercise, workout) => exercise)
+            .SelectMany(exercise => exercise.Sets.Where(set => set.Checked), (exercise, set) => new { exercise.ExerciseId, set.WeightKg, set.Reps })
+            .GroupBy(set => new { set.ExerciseId, set.WeightKg })
+            .Select(sets => new EarlierMostReps(sets.Key.ExerciseId, sets.Key.WeightKg, sets.Max(set => set.Reps)))
             .ToListAsync(cancellationToken);
 
     public async Task<Dictionary<ExerciseId, LastTimeResponse>> ListLastTimeAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken)

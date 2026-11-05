@@ -68,6 +68,11 @@ export function weightUnitOf(units: Units) {
   return units === 'metric' ? 'kg' : 'lb';
 }
 
+/** A total weight, for example "9,840 kg". */
+export function formatVolume(weightKg: number, units: Units) {
+  return `${Math.round(weightIn(weightKg, units)).toLocaleString('en-US')} ${weightUnitOf(units)}`;
+}
+
 /** A date from the API, for example "2026-10-16" → "Fri, 16 Oct". */
 export function formatShortDate(date: string) {
   const [year, month, day] = date.split('-').map(Number);
@@ -75,7 +80,7 @@ export function formatShortDate(date: string) {
   return `${weekdays[(utc.getUTCDay() + 6) % 7]}, ${String(day)} ${months[month - 1]}`;
 }
 
-function formatWeight(weightKg: number, units: Units) {
+export function formatWeight(weightKg: number, units: Units) {
   return `${String(weightIn(weightKg, units))} ${weightUnitOf(units)}`;
 }
 

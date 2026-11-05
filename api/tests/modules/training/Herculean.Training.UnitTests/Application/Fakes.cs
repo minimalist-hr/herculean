@@ -228,6 +228,11 @@ internal sealed class FakeDayReadRepository : IDayReadRepository
 
     public List<DayWorkout> Workouts { get; } = [];
 
+    public List<DoneWorkoutTotals> DoneWorkouts { get; } = [];
+
+    public Task<List<DoneWorkoutTotals>> ListDoneWorkoutTotalsAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
+        Task.FromResult(DoneWorkouts.Where(workout => workout.Date >= from && workout.Date <= to).ToList());
+
     public DateOnly? FirstWorkoutDate { get; set; }
 
     public Task<DateOnly?> GetFirstWorkoutDateAsync(CancellationToken cancellationToken) => Task.FromResult(FirstWorkoutDate);
@@ -257,6 +262,11 @@ internal sealed class FakeWorkoutReadRepository : IWorkoutReadRepository
 
     public Dictionary<ExerciseId, LastTimeResponse> LastTime { get; } = [];
 
+    public List<EarlierMostReps> EarlierMostReps { get; } = [];
+
+    public Task<List<EarlierMostReps>> ListEarlierMostRepsAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken) =>
+        Task.FromResult(EarlierMostReps);
+
     public Task<WorkoutDetailsResponse?> GetAsync(WorkoutId id, CancellationToken cancellationToken) =>
         Task.FromResult(Workout?.Id == id.Value ? Workout : null);
 
@@ -275,6 +285,9 @@ internal sealed class FakeWorkoutRepository : IWorkoutRepository
         Task.FromResult(Workouts.SingleOrDefault(workout => workout.Id == id && workout.DeletedAtUtc is null));
 
     public Task<Workout?> GetWithSetsAsync(WorkoutId id, CancellationToken cancellationToken) => GetAsync(id, cancellationToken);
+
+    public Task<Workout?> GetDeletedAsync(WorkoutId id, CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.SingleOrDefault(workout => workout.Id == id && workout.DeletedAtUtc is not null));
 
     public Task<bool> InProgressExistsAsync(CancellationToken cancellationToken) =>
         Task.FromResult(Workouts.Any(workout => workout.Status == WorkoutStatus.InProgress && workout.DeletedAtUtc is null));

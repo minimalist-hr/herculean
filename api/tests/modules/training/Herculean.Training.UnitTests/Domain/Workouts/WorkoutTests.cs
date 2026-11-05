@@ -32,6 +32,80 @@ public sealed class WorkoutTests
 
     private int[] Reps() => [.. Exercise.Sets.Select(set => set.Reps)];
 
+    private static readonly DateTimeOffset Now = new(2026, 11, 3, 18, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void FinishingCompletesItAtThatTime()
+    {
+        Update(0, isChecked: true);
+
+        _workout.Finish(Now).IsSuccess.ShouldBeTrue();
+
+        _workout.Status.ShouldBe(WorkoutStatus.Completed);
+        _workout.FinishedAtUtc.ShouldBe(Now);
+    }
+
+    [Fact]
+    public void FinishingRemovesUncheckedSetsAndClosesTheGaps()
+    {
+        Update(1, reps: 6, isChecked: true);
+        Update(3, reps: 5, isChecked: true);
+
+        _workout.Finish(Now);
+
+        Exercise.Sets.Select(set => (set.Order, set.Reps)).ShouldBe([(0, 6), (1, 5)]);
+    }
+
+    [Fact]
+    public void FinishingRemovesAnExerciseLeftWithNoSetsAndClosesTheGap()
+    {
+        Workout workout = Workout.Start(
+            UserId.From(Guid.CreateVersion7()),
+            Date,
+            RoutineId.New(),
+            "Legs",
+            [new RoutineExerciseValues(ExerciseId.New(), 1, 8, 10), new RoutineExerciseValues(ExerciseId.New(), 1, 8, 10), new RoutineExerciseValues(ExerciseId.New(), 1, 8, 10)],
+            new Dictionary<ExerciseId, List<SetValues>>(),
+            null);
+        WorkoutExercise last = workout.Exercises[2];
+        workout.UpdateSet(workout.Exercises[0].Id, workout.Exercises[0].Sets[0].Id, null, null, true);
+        workout.UpdateSet(last.Id, last.Sets[0].Id, null, null, true);
+
+        workout.Finish(Now);
+
+        workout.Exercises.Count.ShouldBe(2);
+        last.Order.ShouldBe(1);
+    }
+
+    [Fact]
+    public void FinishingWithNothingCheckedChangesNothing()
+    {
+        _workout.Finish(Now).Error.ShouldBe(WorkoutErrors.NothingChecked);
+
+        _workout.Status.ShouldBe(WorkoutStatus.InProgress);
+        Exercise.Sets.Count.ShouldBe(4);
+    }
+
+    [Fact]
+    public void FinishingTwiceFails()
+    {
+        Update(0, isChecked: true);
+        _workout.Finish(Now);
+
+        _workout.Finish(Now).Error.ShouldBe(WorkoutErrors.NotInProgress);
+    }
+
+    [Fact]
+    public void RestoringBringsItBackAsItWas()
+    {
+        _workout.Delete(Now);
+
+        _workout.Restore();
+
+        _workout.DeletedAtUtc.ShouldBeNull();
+        _workout.Status.ShouldBe(WorkoutStatus.InProgress);
+    }
+
     [Fact]
     public void AChangedWeightCarriesDownToLaterSets()
     {

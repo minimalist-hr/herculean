@@ -8,6 +8,9 @@ internal interface IWorkoutRepository
     /// <summary>One of the current user's workouts with its exercises and sets, or null if there is none.</summary>
     Task<Workout?> GetWithSetsAsync(WorkoutId id, CancellationToken cancellationToken);
 
+    /// <summary>One of the current user's deleted workouts, or null if there is none.</summary>
+    Task<Workout?> GetDeletedAsync(WorkoutId id, CancellationToken cancellationToken);
+
     /// <summary>Checks whether the current user has a workout in progress.</summary>
     Task<bool> InProgressExistsAsync(CancellationToken cancellationToken);
 

@@ -113,6 +113,16 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         return Result.Success();
     }
 
+    /// <summary>Removes the sets that weren't checked, and closes the gaps.</summary>
+    internal void RemoveUncheckedSets()
+    {
+        _sets.RemoveAll(set => !set.Checked);
+        foreach ((Set set, int order) in Sets.Select((set, order) => (set, order)))
+        {
+            set.MoveTo(order);
+        }
+    }
+
     /// <summary>Adds a copy of the last set.</summary>
     internal Result<Set> AddSet()
     {
