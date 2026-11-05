@@ -12,6 +12,7 @@ using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Application.Routines;
 using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
+using Herculean.Training.Application.Settings;
 using Herculean.Training.Application.WeekPlan;
 using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
 using Herculean.Training.Application.Workouts;
@@ -29,6 +30,13 @@ namespace Herculean.Training.UnitTests.Application;
 internal sealed class FakeCurrentUserAccessor : ICurrentUserAccessor
 {
     public Guid UserId { get; set; } = Guid.CreateVersion7();
+}
+
+internal sealed class FakeWorkoutSettingsReadRepository : IWorkoutSettingsReadRepository
+{
+    public WorkoutSettingsResponse? Settings { get; set; }
+
+    public Task<WorkoutSettingsResponse?> GetAsync(CancellationToken cancellationToken) => Task.FromResult(Settings);
 }
 
 internal sealed class FakeWorkoutSettingsRepository : IWorkoutSettingsRepository

@@ -20,6 +20,17 @@ const openLog = async (on) => {
   await on.go(logPath);
   await on.waitFor('Add set');
 };
+const openRest = async (on) => {
+  await openLog(on);
+  await on.tap('Set 2 done');
+  await on.waitFor('Start');
+};
+const startRest = async (on) => {
+  await openRest(on);
+  await on.tap('Start');
+  await on.waitFor('Skip');
+  await on.sleep(6000);
+};
 const restDay = (routineName) => ({ status: 200, body: { ...sampleDay, date: '2026-10-25', status: 'rest', routine: null, upNext: { date: '2026-10-26', routineName } } });
 
 const openMonth = async (on) => {
@@ -632,6 +643,22 @@ export const screens = [
     await on.waitFor("Couldn't load this workout.");
   } },
   { id: 'L01', file: 'L01-Logging', title: 'Logging', row: 'L1 Log sets', today: friday, steps: openLog },
+  { id: 'L06', file: 'L06-Logging-Rest-Ready', title: 'Logging › Rest · ready', row: 'L1 Log sets', today: friday, full: false, steps: openRest },
+  { id: 'L07', file: 'L07-Logging-Rest-Running', title: 'Logging › Rest · running', row: 'L1 Log sets', today: friday, full: false, steps: startRest },
+  { id: 'L08', file: 'L08-Logging-Rest-Hidden', title: 'Logging › Rest · hidden', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await startRest(on);
+    await on.tap('Hide rest timer');
+    await on.sleep(300);
+  } },
+  { id: 'L09', file: 'L09-Logging-Rest-Over', title: 'Logging › Rest · over', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await openRest(on);
+    await on.tap('Start');
+    for (let tap = 0; tap < 12; tap += 1) {
+      await on.tap('Subtract 15 seconds');
+    }
+    await on.waitFor('Done');
+    await on.sleep(3000);
+  } },
   { id: 'L10', file: 'L10-Logging-Edit-Weight', title: 'Logging › Edit weight · sheet', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
     await openLog(on);
     await on.tap('Set 2 weight, 82.5 kilograms');

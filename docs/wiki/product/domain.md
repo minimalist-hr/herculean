@@ -85,6 +85,16 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Save workout removes unchecked sets and marks the workout completed.
 - Discard workout deletes a workout in progress.
 
+### Rest timer
+
+- It never starts by itself. A checked set opens it, ready to start, with the default rest time.
+- It doesn't appear after the last set of a workout, or on a past day.
+- Checking another set stops it and makes it ready again. A time changed before starting stays for that exercise, within 0:15 to 10:00, and the next exercise goes back to the default. While running, −15 and +15 change only that rest.
+- Past zero it counts up, until Done.
+- Hidden, it keeps running, and checking a set doesn't open it again until it is opened by hand. Skip and Done tuck it away, and the next checked set opens it.
+- Unchecking a set hides a timer that hasn't started, and leaves a running one alone.
+- It lives on the phone, and survives closing the app.
+
 ### How a day is shown
 
 | Day has | Shown as |

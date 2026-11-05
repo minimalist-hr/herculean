@@ -6,7 +6,7 @@ namespace Herculean.Training.Application.Settings;
 
 [Description("The signed-in user's workout settings.")]
 internal sealed record WorkoutSettingsResponse(
-    [property: Description("The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.")] int DefaultRestSeconds,
+    [property: Description("The rest time offered after a checked set, in seconds: a multiple of 15, from 15 to 600.")] int DefaultRestSeconds,
     [property: Description("Play a sound when the rest ends.")] bool RestSound,
     [property: Description("Vibrate when the rest ends.")] bool RestVibrate)
 {

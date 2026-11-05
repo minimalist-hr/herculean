@@ -1,6 +1,6 @@
 # Screen index
 
-206 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+210 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -129,6 +129,10 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | L03 | Logging › Loading | L1 Log sets | 390×844 | [png](screens/L03-Logging-Loading.png) · [html](html/L03-Logging-Loading.html) · [source](source/L03-Logging-Loading.dc.html) |
 | L05 | Logging › Load failure | L1 Log sets | 390×844 | [png](screens/L05-Logging-Load-Failure.png) · [html](html/L05-Logging-Load-Failure.html) · [source](source/L05-Logging-Load-Failure.dc.html) |
 | L01 | Logging · full scroll | L1 Log sets | 390×1056 | [png](screens/L01-Logging.png) · [html](html/L01-Logging.html) · [source](source/L01-Logging.dc.html) |
+| L06 | Logging › Rest · ready | L1 Log sets | 390×844 | [png](screens/L06-Logging-Rest-Ready.png) · [html](html/L06-Logging-Rest-Ready.html) · [source](source/L06-Logging-Rest-Ready.dc.html) |
+| L07 | Logging › Rest · running | L1 Log sets | 390×844 | [png](screens/L07-Logging-Rest-Running.png) · [html](html/L07-Logging-Rest-Running.html) · [source](source/L07-Logging-Rest-Running.dc.html) |
+| L08 | Logging › Rest · hidden | L1 Log sets | 390×844 | [png](screens/L08-Logging-Rest-Hidden.png) · [html](html/L08-Logging-Rest-Hidden.html) · [source](source/L08-Logging-Rest-Hidden.dc.html) |
+| L09 | Logging › Rest · over | L1 Log sets | 390×844 | [png](screens/L09-Logging-Rest-Over.png) · [html](html/L09-Logging-Rest-Over.html) · [source](source/L09-Logging-Rest-Over.dc.html) |
 | L10 | Logging › Edit weight · sheet | L1 Log sets | 390×844 | [png](screens/L10-Logging-Edit-Weight.png) · [html](html/L10-Logging-Edit-Weight.html) · [source](source/L10-Logging-Edit-Weight.dc.html) |
 | L11 | Logging › Edit reps · sheet | L1 Log sets | 390×844 | [png](screens/L11-Logging-Edit-Reps.png) · [html](html/L11-Logging-Edit-Reps.html) · [source](source/L11-Logging-Edit-Reps.dc.html) |
 | L12 | Logging › Set removed · undo bar · full scroll | L1 Log sets | 390×1006 | [png](screens/L12-Logging-Set-Removed.png) · [html](html/L12-Logging-Set-Removed.html) · [source](source/L12-Logging-Set-Removed.dc.html) |

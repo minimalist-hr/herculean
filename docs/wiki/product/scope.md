@@ -174,13 +174,13 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 ## 5. Logging
 
-**What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
+**What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer to start after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, L01 Logging, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
+**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
 
 **Flows**
 - **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → L03 → L01.
-- **Sets:** tap a weight or reps → L10 or L11 → Save set. Check a set → rest timer with −15, +15 and Skip. Add set adds a row with the last set's values. The trash in L10 or L11 → L12 undo bar.
+- **Sets:** tap a weight or reps → L10 or L11 → Save set. Check a set → rest bar, ready to start, with −15, +15 and Start, then Skip. It can be hidden and opened again. Add set adds a row with the last set's values. The trash in L10 or L11 → L12 undo bar.
 - **Exercises:** the trash → L13 → undo bar. Add exercise → the L20 flow from [3. Routines](#3-routines) → L01. The swap icon → the L20 flow, one pick → L01, with an undo bar. Reorder → L04, which saves each drop. Removing every exercise shows L02.
 - **History:** the exercise name → E10.
 - **Finish:** Finish → L30, or L31 if nothing is checked. Save workout → W03. Keep logging → L01. Discard workout → W01, with an undo bar.
@@ -210,7 +210,6 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **Done when**
 - Closing the app mid-workout and opening it again resumes the workout as it was.
-- The rest timer alerts when it ends, even with the screen locked.
 
 ---
 

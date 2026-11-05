@@ -291,6 +291,14 @@ export function createApi() {
     if (method === 'GET' && path.startsWith('/api/v1/days/')) {
       return { status: 200, body: sampleDays[path.split('/')[4]] ?? { ...sampleDay, date: path.split('/')[4] } };
     }
+    if (key === 'GET /api/v1/workout-settings') {
+      return { status: 200, body: { defaultRestSeconds: 180, restSound: true, restVibrate: true } };
+    }
+    if (method === 'PATCH' && path.startsWith(`/api/v1/workouts/${sampleWorkout.id}/`)) {
+      const exercise = sampleWorkout.exercises.find((item) => item.id === path.split('/')[6]);
+
+      return { status: 200, body: exercise.sets.map((set) => (set.id === path.split('/')[8] ? { ...set, ...body } : set)) };
+    }
     if (key === `GET /api/v1/workouts/${sampleWorkout.id}`) {
       return { status: 200, body: sampleWorkout };
     }

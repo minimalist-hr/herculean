@@ -18,7 +18,11 @@ import { dateFromText, shortWeekdayDate } from './dates';
 import { ClosedExercise, comesLater, OpenExercise } from './log-exercise';
 import { useAddSet } from './use-add-set';
 import { SetSheet, type SetEdit } from './set-sheet';
+import { RestBar, restBarRoom } from './rest-bar';
+import { afterCheck, afterUncheck } from './rest-timer';
 import { useElapsed } from './use-elapsed';
+import { useRestTimer } from './use-rest-timer';
+import { useWorkoutSettings } from './use-workout-settings';
 import { useUpdateSet } from './use-update-set';
 import { useWorkout } from './use-workout';
 import {
@@ -31,15 +35,47 @@ type Workout = components['schemas']['WorkoutDetailsResponse'];
 type WorkoutExercise = components['schemas']['WorkoutExerciseResponse'];
 type WorkoutSet = components['schemas']['SetResponse'];
 
+/** Until the settings load. A new account starts with the same. */
+const startingRestSeconds = 180;
+
 /** Logging a workout. Every change saves as it happens, so the back link just leaves. */
 export function LogScreen({ id }: { id: string }) {
   const { colors, size } = useTheme();
   const router = useRouter();
   const workout = useWorkout(id);
+  const settings = useWorkoutSettings();
+  const { rest, update } = useRestTimer(id);
+  // A past day is logged after the fact, so nothing is timed.
+  const timed = Boolean(workout.data?.startedAtUtc);
+
+  function onToggled(
+    exerciseId: string,
+    checked: boolean,
+    exercises: WorkoutExercise[],
+  ) {
+    if (!timed) {
+      return;
+    }
+
+    const { done, total } = workoutProgress(exercises);
+    update((current) => {
+      if (!checked) {
+        return afterUncheck(current, done > 0);
+      }
+
+      return done === total
+        ? null
+        : afterCheck(
+            current,
+            exerciseId,
+            settings.data?.defaultRestSeconds ?? startingRestSeconds,
+          );
+    });
+  }
 
   function renderContent() {
     if (workout.data !== undefined) {
-      return <Logging workout={workout.data} />;
+      return <Logging workout={workout.data} onToggled={onToggled} />;
     }
 
     if (workout.isError) {
@@ -56,23 +92,40 @@ export function LogScreen({ id }: { id: string }) {
     return <LoggingSkeleton />;
   }
 
+  const shownRest = timed ? rest : null;
+  const barRoom =
+    shownRest === null
+      ? 0
+      : shownRest.open
+        ? restBarRoom.open
+        : restBarRoom.hidden;
+
   return (
-    <ScrollView
-      style={{ backgroundColor: colors.bg }}
-      contentContainerStyle={{
-        paddingTop: size.topPaddingSubPage,
-        paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax,
-      }}
-    >
-      <BackLink
-        label="Workout"
-        onPress={() => {
-          router.back();
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: size.topPaddingSubPage,
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: size.gap.sectionMax + barRoom,
         }}
-      />
-      {renderContent()}
-    </ScrollView>
+      >
+        <BackLink
+          label="Workout"
+          onPress={() => {
+            router.back();
+          }}
+        />
+        {renderContent()}
+      </ScrollView>
+      {shownRest !== null && (
+        <RestBar
+          rest={shownRest}
+          onChange={(next) => {
+            update(() => next);
+          }}
+        />
+      )}
+    </View>
   );
 }
 
@@ -112,7 +165,17 @@ function Heading({ workout }: { workout: Workout }) {
   );
 }
 
-function Logging({ workout }: { workout: Workout }) {
+function Logging({
+  workout,
+  onToggled,
+}: {
+  workout: Workout;
+  onToggled: (
+    exerciseId: string,
+    checked: boolean,
+    exercises: WorkoutExercise[],
+  ) => void;
+}) {
   const { space } = useTheme();
   const user = useCurrentUser();
   const units = user.data?.units ?? 'metric';
@@ -143,6 +206,13 @@ function Logging({ workout }: { workout: Workout }) {
       },
       {
         onSuccess: (sets) => {
+          onToggled(
+            exercise.id,
+            !set.checked,
+            exercises.map((other) =>
+              other.id === exercise.id ? { ...other, sets } : other,
+            ),
+          );
           if (sets.every((updated) => updated.checked)) {
             const updated = exercises.map((other) =>
               other.id === exercise.id ? { ...other, sets } : other,
@@ -292,6 +362,9 @@ function LoggingSkeleton() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',

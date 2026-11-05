@@ -8,14 +8,31 @@ import {
 } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
+import { StyleSheet } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { LogScreen } from './log-screen';
+import { restTextSize } from './rest-bar';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
+const mockStored = new Map<string, string>();
+
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: (key: string) => Promise.resolve(mockStored.get(key) ?? null),
+  setItemAsync: (key: string, value: string) => {
+    mockStored.set(key, value);
+
+    return Promise.resolve();
+  },
+  deleteItemAsync: (key: string) => {
+    mockStored.delete(key);
+
+    return Promise.resolve();
+  },
+}));
 
 jest.mock('@/api/client', () => {
   const createClient =
@@ -85,6 +102,16 @@ function answerWith(request: Request) {
     return Promise.resolve(Response.json(set('s3', 2, 80), { status: 201 }));
   }
 
+  if (pathname === '/api/v1/workout-settings') {
+    return Promise.resolve(
+      Response.json({
+        defaultRestSeconds: 180,
+        restSound: true,
+        restVibrate: true,
+      }),
+    );
+  }
+
   if (pathname === '/api/v1/users/me') {
     return Promise.resolve(Response.json({ units: 'metric' }));
   }
@@ -131,6 +158,7 @@ async function renderLog() {
 }
 
 beforeEach(() => {
+  mockStored.clear();
   current = workout;
   patched = () => [];
   mockFetch.mockReset();
@@ -630,6 +658,231 @@ test('Add set at 20 sets says why, and adds nothing', async () => {
   expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
     false,
   );
+});
+
+describe('the size of the rest text', () => {
+  test.each([
+    [390, 1, 22],
+    [430, 1, 22],
+    [360, 1, 19],
+    [360, 1.3, 14],
+  ])('on a %i wide screen at font scale %d is %i', (width, scale, size) => {
+    expect(restTextSize(width, scale)).toBe(size);
+  });
+});
+
+describe('the rest timer', () => {
+  const checkFirst = async () => {
+    await fireEvent.press(
+      await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+    );
+  };
+
+  beforeEach(() => {
+    patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+  });
+
+  test('has nothing to show before a set is checked', async () => {
+    await renderLog();
+
+    await screen.findByText('Legs day');
+    expect(screen.queryByText(/REST/)).toBeNull();
+  });
+
+  test('appears after a checked set, and does not start by itself', async () => {
+    await renderLog();
+
+    await checkFirst();
+
+    expect(
+      await screen.findByRole('button', { name: 'Start' }),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('3:00')).toBeOnTheScreen();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(5000);
+    });
+
+    expect(screen.getByText('3:00')).toBeOnTheScreen();
+  });
+
+  test('takes the default rest time from the settings', async () => {
+    mockFetch.mockImplementation((request) =>
+      new URL(request.url).pathname === '/api/v1/workout-settings'
+        ? Promise.resolve(Response.json({ defaultRestSeconds: 90 }))
+        : answerWith(request),
+    );
+    await renderLog();
+
+    await waitFor(() => {
+      expect(
+        mockFetch.mock.calls.some(([sent]) =>
+          sent.url.endsWith('/workout-settings'),
+        ),
+      ).toBe(true);
+    });
+    await checkFirst();
+
+    expect(await screen.findByText('1:30')).toBeOnTheScreen();
+  });
+
+  test('counts down once started, with Skip', async () => {
+    await renderLog();
+    await checkFirst();
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Start' }));
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(6000);
+    });
+
+    expect(screen.getByText('2:54')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Skip' })).toBeOnTheScreen();
+  });
+
+  test('the text keeps its size when the time changes', async () => {
+    await renderLog();
+    await checkFirst();
+    await screen.findByRole('button', { name: 'Start' });
+    const size = () => screen.getByText(/REST/).props.style as object;
+    const before = StyleSheet.flatten(size());
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Add 15 seconds' }),
+    );
+
+    expect(StyleSheet.flatten(size())).toEqual(before);
+    expect(screen.getByText(/REST/).props.adjustsFontSizeToFit).toBeUndefined();
+  });
+
+  test('−15 and +15 change the time', async () => {
+    await renderLog();
+    await checkFirst();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Add 15 seconds' }),
+    );
+    expect(screen.getByText('3:15')).toBeOnTheScreen();
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Subtract 15 seconds' }),
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Subtract 15 seconds' }),
+    );
+    expect(screen.getByText('2:45')).toBeOnTheScreen();
+  });
+
+  test('counts up past zero in the over state, and Done tucks it away', async () => {
+    await renderLog();
+    await checkFirst();
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Start' }));
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(222_000);
+    });
+
+    expect(screen.getByText('+0:42')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Add 15 seconds' })).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
+
+    expect(
+      await screen.findByRole('button', { name: 'Show rest timer, 3:00' }),
+    ).toBeOnTheScreen();
+  });
+
+  test('can be hidden and opened again, still running', async () => {
+    await renderLog();
+    await checkFirst();
+    await fireEvent.press(await screen.findByRole('button', { name: 'Start' }));
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Hide rest timer' }),
+    );
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(6000);
+    });
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Show rest timer, 2:54' }),
+    );
+
+    expect(screen.getByRole('button', { name: 'Skip' })).toBeOnTheScreen();
+  });
+
+  test('the last set of the workout has no timer', async () => {
+    current = {
+      ...workout,
+      exercises: [
+        exercise('squat', 'Barbell squat', 'legs', [set('s1', 0, 80)]),
+      ],
+    };
+    patched = () => [set('s1', 0, 80, true)];
+    await renderLog();
+
+    await checkFirst();
+
+    await screen.findByRole('button', { name: 'Open Barbell squat' });
+    expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
+  });
+
+  test('a past day has no timer', async () => {
+    current = { ...workout, startedAtUtc: null as unknown as string };
+    await renderLog();
+
+    await checkFirst();
+
+    await screen.findByRole('checkbox', { name: 'Set 1 done', checked: true });
+    expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
+  });
+
+  test('unchecking the only checked set removes a timer not started', async () => {
+    await renderLog();
+    await checkFirst();
+    await screen.findByRole('button', { name: 'Start' });
+
+    patched = () => [set('s1', 0, 80), set('s2', 1, 80)];
+    await fireEvent.press(
+      screen.getByRole('checkbox', { name: 'Set 1 done', checked: true }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
+    });
+    expect(
+      screen.queryByRole('button', { name: /Show rest timer/ }),
+    ).toBeNull();
+  });
+
+  test('comes back as it was after leaving and returning', async () => {
+    mockStored.set(
+      'restTimer',
+      JSON.stringify({
+        workoutId: 'w1',
+        rest: {
+          exerciseId: 'squat',
+          seconds: 180,
+          endsAt: Date.now() + 100_000,
+          open: true,
+          hiddenByUser: false,
+        },
+      }),
+    );
+    await renderLog();
+
+    expect(await screen.findByText('1:40')).toBeOnTheScreen();
+  });
+
+  test("ignores another workout's timer", async () => {
+    mockStored.set(
+      'restTimer',
+      JSON.stringify({ workoutId: 'other', rest: { seconds: 180 } }),
+    );
+    await renderLog();
+
+    await screen.findByText('Legs day');
+    expect(screen.queryByText(/REST/)).toBeNull();
+  });
 });
 
 test('a failed load offers to try again', async () => {

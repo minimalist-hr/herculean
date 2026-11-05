@@ -228,3 +228,19 @@ export function OpenOutIcon({ color, size }: IconProps) {
     </Icon>
   );
 }
+
+export function ChevronDownIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M6 9l6 6 6-6" />
+    </Icon>
+  );
+}
+
+export function ClockIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size} strokeWidth={2}>
+      <Path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 7v5l3 2" />
+    </Icon>
+  );
+}

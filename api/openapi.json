@@ -427,6 +427,41 @@
       }
     },
     "/api/v1/workout-settings": {
+      "get": {
+        "tags": [
+          "Workout settings"
+        ],
+        "summary": "Get the workout settings",
+        "description": "Returns the signed-in user's default rest time, rest sound and rest vibrate.",
+        "operationId": "GetWorkoutSettings",
+        "responses": {
+          "200": {
+            "description": "The workout settings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
       "patch": {
         "tags": [
           "Workout settings"
@@ -3680,7 +3715,7 @@
               "null",
               "integer"
             ],
-            "description": "The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.",
+            "description": "The rest time offered after a checked set, in seconds: a multiple of 15, from 15 to 600.",
             "format": "int32"
           },
           "restSound": {
@@ -3956,7 +3991,7 @@
         "properties": {
           "defaultRestSeconds": {
             "type": "integer",
-            "description": "The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.",
+            "description": "The rest time offered after a checked set, in seconds: a multiple of 15, from 15 to 600.",
             "format": "int32"
           },
           "restSound": {

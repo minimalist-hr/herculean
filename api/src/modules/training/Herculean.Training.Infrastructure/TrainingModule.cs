@@ -33,6 +33,8 @@ using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.Routines.RestoreRoutine;
 using Herculean.Training.Application.Routines.UpdateRoutine;
+using Herculean.Training.Application.Settings;
+using Herculean.Training.Application.Settings.GetWorkoutSettings;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
 using Herculean.Training.Application.WeekPlan;
 using Herculean.Training.Application.WeekPlan.ListWeekPlanDays;
@@ -90,6 +92,7 @@ public static class TrainingModule
         builder.Services.AddScoped<IRoutineReadRepository, RoutineReadRepository>();
         builder.Services.AddScoped<IWeekPlanReadRepository, WeekPlanReadRepository>();
         builder.Services.AddScoped<IDayReadRepository, DayReadRepository>();
+        builder.Services.AddScoped<IWorkoutSettingsReadRepository, WorkoutSettingsReadRepository>();
         builder.Services.AddScoped<IWorkoutReadRepository, WorkoutReadRepository>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
@@ -97,6 +100,7 @@ public static class TrainingModule
         builder.Services.AddScoped<IValidator<UpdateWorkoutSettingsRequest>, UpdateWorkoutSettingsValidator>();
         builder.Services.AddScoped<UpdateWorkoutSettingsHandler>();
         builder.Services.AddScoped<IValidator<ListExercisesRequest>, ListExercisesValidator>();
+        builder.Services.AddScoped<GetWorkoutSettingsHandler>();
         builder.Services.AddScoped<ListExercisesHandler>();
         builder.Services.AddScoped<GetExerciseHandler>();
         builder.Services.AddScoped<ListGroupsHandler>();
@@ -145,6 +149,7 @@ public static class TrainingModule
     /// <param name="endpoints">The API's endpoints.</param>
     public static void MapTrainingModuleEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        GetWorkoutSettingsEndpoint.Map(endpoints);
         UpdateWorkoutSettingsEndpoint.Map(endpoints);
         ListExercisesEndpoint.Map(endpoints);
         GetExerciseEndpoint.Map(endpoints);

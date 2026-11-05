@@ -155,7 +155,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get the workout settings
+         * @description Returns the signed-in user's default rest time, rest sound and rest vibrate.
+         */
+        get: operations["GetWorkoutSettings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1199,7 +1203,7 @@ export interface components {
         UpdateWorkoutSettingsRequest: {
             /**
              * Format: int32
-             * @description The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.
+             * @description The rest time offered after a checked set, in seconds: a multiple of 15, from 15 to 600.
              */
             defaultRestSeconds?: null | number;
             /** @description Play a sound when the rest ends. */
@@ -1330,7 +1334,7 @@ export interface components {
         WorkoutSettingsResponse: {
             /**
              * Format: int32
-             * @description The rest time that starts after every checked set, in seconds: a multiple of 15, from 15 to 600.
+             * @description The rest time offered after a checked set, in seconds: a multiple of 15, from 15 to 600.
              */
             defaultRestSeconds: number;
             /** @description Play a sound when the rest ends. */
@@ -1688,6 +1692,35 @@ export interface operations {
             };
             /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetWorkoutSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workout settings. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutSettingsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
