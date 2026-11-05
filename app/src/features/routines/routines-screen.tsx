@@ -6,24 +6,23 @@ import type { components } from '@/api/schema';
 import { EmptyCard } from '@/components/empty-card';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { ChevronRightIcon, PlusIcon } from '@/components/icons';
+import { PlusIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { dismissNotification } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
-import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
 import { counted, dayNames } from './formats';
+import { RoutineRow, RoutineRowSkeleton } from './routine-row';
 import { useRoutines } from './use-routines';
 import { useWeekPlan } from './use-week-plan';
 import { WeekPlanCard } from './week-plan-card';
-import { Tappable } from '@/components/tappable';
 
 type Routine = components['schemas']['RoutineListItemResponse'];
 
 export function RoutinesScreen() {
-  const { colors, dayColors, radius, size, space, text } = useTheme();
+  const { colors, dayColors, size, space, text } = useTheme();
   const router = useRouter();
   const routines = useRoutines();
   const weekPlan = useWeekPlan();
@@ -32,52 +31,32 @@ export function RoutinesScreen() {
   const noRoutines = routines.data?.length === 0;
 
   function renderRoutine(routine: Routine) {
-    const summary = `${counted(routine.exerciseCount, 'exercise', 'exercises')} · ${counted(routine.setCount, 'set', 'sets')}`;
     return (
-      <Tappable
-        feedback="fill"
+      <RoutineRow
         key={routine.id}
-        accessibilityRole="button"
-        accessibilityLabel={`${routine.name}, ${summary}`}
+        name={routine.name}
+        summary={`${counted(routine.exerciseCount, 'exercise', 'exercises')} · ${counted(routine.setCount, 'set', 'sets')}`}
+        trailing={
+          routine.weekdays.length > 0 && (
+            <Text style={[text.chip, { color: colors.muted }]}>
+              {routine.weekdays.map((weekday, index) => (
+                <Text key={weekday}>
+                  {index > 0 && ', '}
+                  <Text style={{ color: dayColors[weekday] }}>
+                    {dayNames[weekday].short}
+                  </Text>
+                </Text>
+              ))}
+            </Text>
+          )
+        }
         onPress={() => {
           router.push({
             pathname: '/routines/[id]',
             params: { id: routine.id },
           });
         }}
-        style={[
-          styles.routine,
-          {
-            gap: space.md,
-            minHeight: size.listRowMin,
-            paddingVertical: space.md,
-            paddingHorizontal: space.lg,
-            borderRadius: radius.card,
-            borderColor: colors.border,
-            backgroundColor: colors.card,
-          },
-        ]}
-      >
-        <View style={styles.routineText}>
-          <Text style={[text.listItemName, { color: colors.text }]}>
-            {routine.name}
-          </Text>
-          <Text style={text.meta}>{summary}</Text>
-        </View>
-        {routine.weekdays.length > 0 && (
-          <Text style={[text.chip, { color: colors.muted }]}>
-            {routine.weekdays.map((weekday, index) => (
-              <Text key={weekday}>
-                {index > 0 && ', '}
-                <Text style={{ color: dayColors[weekday] }}>
-                  {dayNames[weekday].short}
-                </Text>
-              </Text>
-            ))}
-          </Text>
-        )}
-        <ChevronRightIcon color={colors.muted} size={16} />
-      </Tappable>
+      />
     );
   }
 
@@ -140,24 +119,8 @@ export function RoutinesScreen() {
       >
         <WeekPlanCard />
         <View style={{ gap: space.sm }}>
-          {[120, 100, 130, 90].map((width, index) => (
-            <View
-              key={index}
-              style={[
-                styles.skeletonRow,
-                {
-                  gap: space.sm,
-                  minHeight: size.listRowMin,
-                  paddingHorizontal: space.lg,
-                  borderRadius: radius.card,
-                  borderColor: colors.border,
-                  backgroundColor: colors.card,
-                },
-              ]}
-            >
-              <Skeleton width={width} height={14} />
-              <Skeleton width={110} height={10} />
-            </View>
+          {[120, 100, 130, 90].map((width) => (
+            <RoutineRowSkeleton key={width} width={width} />
           ))}
         </View>
       </View>
@@ -219,23 +182,10 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  routine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-  },
-  routineText: {
-    flex: 1,
-    gap: 2,
-  },
   message: {
     alignItems: 'center',
   },
   centered: {
     textAlign: 'center',
-  },
-  skeletonRow: {
-    justifyContent: 'center',
-    borderWidth: 1,
   },
 });

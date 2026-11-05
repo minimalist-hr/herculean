@@ -3,6 +3,7 @@ using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure.WeekPlan;
 
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,14 @@ internal sealed class RoutineReadRepository(TrainingDbContext dbContext) : IRout
 
         Dictionary<Weekday, PlannedRoutine?> plan = await CurrentWeekPlan.ReadAsync(dbContext, cancellationToken);
 
+        var lastDone = await dbContext.Workouts
+            .AsNoTracking()
+            .Where(workout => workout.Status == WorkoutStatus.Completed && workout.RoutineId != null)
+            .GroupBy(workout => workout.RoutineId)
+            .Select(workouts => new { RoutineId = workouts.Key, Date = workouts.Max(workout => workout.Date) })
+            .ToListAsync(cancellationToken);
+        Dictionary<Guid, DateOnly> lastDoneOn = lastDone.ToDictionary(done => done.RoutineId!.Value.Value, done => done.Date);
+
         return
         [
             .. routines
@@ -34,7 +43,8 @@ internal sealed class RoutineReadRepository(TrainingDbContext dbContext) : IRout
                     routine.Name,
                     routine.ExerciseCount,
                     routine.SetCount,
-                    WeekdaysOf(routine.Id, plan)))
+                    WeekdaysOf(routine.Id, plan),
+                    lastDoneOn.TryGetValue(routine.Id, out DateOnly date) ? date : null))
                 .OrderBy(routine => routine.Weekdays.Count == 0)
                 .ThenBy(routine => routine.Weekdays.FirstOrDefault())
                 .ThenBy(routine => routine.Name, StringComparer.CurrentCultureIgnoreCase),

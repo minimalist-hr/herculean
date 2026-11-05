@@ -1,6 +1,6 @@
 # Screen index
 
-212 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+219 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -83,8 +83,16 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W04 | Workout › Today · rest day | W1 Today states | 390×844 | [png](screens/W04-Workout-Today-Rest-Day.png) · [html](html/W04-Workout-Today-Rest-Day.html) · [source](source/W04-Workout-Today-Rest-Day.dc.html) |
 | W09 | Workout › Today · rest tomorrow | W1 Today states | 390×844 | [png](screens/W09-Workout-Today-Rest-Tomorrow.png) · [html](html/W09-Workout-Today-Rest-Tomorrow.html) · [source](source/W09-Workout-Today-Rest-Tomorrow.dc.html) |
 | W05 | Workout › Today · no routines yet | W1 Today states | 390×844 | [png](screens/W05-Workout-Today-No-Routines.png) · [html](html/W05-Workout-Today-No-Routines.html) · [source](source/W05-Workout-Today-No-Routines.dc.html) |
-| W10 | Workout › Choose a routine · sheet | W2 Choose a routine | 390×844 | [png](screens/W10-Workout-Choose-Routine.png) · [html](html/W10-Workout-Choose-Routine.html) · [source](source/W10-Workout-Choose-Routine.dc.html) |
+| W10 | Workout › Choose a routine | W2 Choose a routine | 390×844 | [png](screens/W10-Workout-Choose-Routine.png) · [html](html/W10-Workout-Choose-Routine.html) · [source](source/W10-Workout-Choose-Routine.dc.html) |
 | W11 | Workout › Choose a routine · loading | W2 Choose a routine | 390×844 | [png](screens/W11-Workout-Choose-Routine-Loading.png) · [html](html/W11-Workout-Choose-Routine-Loading.html) · [source](source/W11-Workout-Choose-Routine-Loading.dc.html) |
+| W57 | Workout › Choose a routine · confirm | W2 Choose a routine | 390×844 | [png](screens/W57-Workout-Choose-Routine-Confirm.png) · [html](html/W57-Workout-Choose-Routine-Confirm.html) · [source](source/W57-Workout-Choose-Routine-Confirm.dc.html) |
+| W58 | Workout › Choose a routine · starting | W2 Choose a routine | 390×844 | [png](screens/W58-Workout-Choose-Routine-Starting.png) · [html](html/W58-Workout-Choose-Routine-Starting.html) · [source](source/W58-Workout-Choose-Routine-Starting.dc.html) |
+| W59 | Workout › Choose a routine · couldn't start | W2 Choose a routine | 390×844 | [png](screens/W59-Workout-Choose-Routine-Failed.png) · [html](html/W59-Workout-Choose-Routine-Failed.html) · [source](source/W59-Workout-Choose-Routine-Failed.dc.html) |
+| W60 | Workout › Choose a routine · nothing in the week plan | W2 Choose a routine | 390×844 | [png](screens/W60-Workout-Choose-Routine-Empty.png) · [html](html/W60-Workout-Choose-Routine-Empty.html) · [source](source/W60-Workout-Choose-Routine-Empty.dc.html) |
+| W61 | Workout › Choose a routine · confirm, loading | W2 Choose a routine | 390×844 | [png](screens/W61-Workout-Choose-Routine-Confirm-Loading.png) · [html](html/W61-Workout-Choose-Routine-Confirm-Loading.html) · [source](source/W61-Workout-Choose-Routine-Confirm-Loading.dc.html) |
+| W62 | Workout › Choose a routine · confirm, couldn't load | W2 Choose a routine | 390×844 | [png](screens/W62-Workout-Choose-Routine-Confirm-Failed.png) · [html](html/W62-Workout-Choose-Routine-Confirm-Failed.html) · [source](source/W62-Workout-Choose-Routine-Confirm-Failed.dc.html) |
+| W63 | Workout › Choose a routine · load failure | W2 Choose a routine | 390×844 | [png](screens/W63-Workout-Choose-Routine-Load-Failure.png) · [html](html/W63-Workout-Choose-Routine-Load-Failure.html) · [source](source/W63-Workout-Choose-Routine-Load-Failure.dc.html) |
+| W64 | Workout › Other routine · before the first day | W3 Other days | 390×844 | [png](screens/W64-Workout-Other-Routine-Before-First-Day.png) · [html](html/W64-Workout-Other-Routine-Before-First-Day.html) · [source](source/W64-Workout-Other-Routine-Before-First-Day.dc.html) |
 | W20 | Workout › Past day | W3 Other days | 390×844 | [png](screens/W20-Workout-Past-Day.png) · [html](html/W20-Workout-Past-Day.html) · [source](source/W20-Workout-Past-Day.dc.html) |
 | W23 | Workout › Yesterday · rest day | W3 Other days | 390×844 | [png](screens/W23-Workout-Yesterday-Rest-Day.png) · [html](html/W23-Workout-Yesterday-Rest-Day.html) · [source](source/W23-Workout-Yesterday-Rest-Day.dc.html) |
 | W21 | Workout › Missed day | W3 Other days | 390×844 | [png](screens/W21-Workout-Missed-Day.png) · [html](html/W21-Workout-Missed-Day.html) · [source](source/W21-Workout-Missed-Day.dc.html) |
@@ -106,7 +114,6 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W47 | Workout › Month · first month · full scroll | W5 Month | 390×1048 | [png](screens/W47-Workout-Month-First.png) · [html](html/W47-Workout-Month-First.html) · [source](source/W47-Workout-Month-First.dc.html) |
 | W48 | Workout › Month · another day selected · full scroll | W5 Month | 390×1048 | [png](screens/W48-Workout-Month-Day-Selected.png) · [html](html/W48-Workout-Month-Day-Selected.html) · [source](source/W48-Workout-Month-Day-Selected.dc.html) |
 | W49 | Workout › Month · load failure | W5 Month | 390×844 | [png](screens/W49-Workout-Month-Load-Failure.png) · [html](html/W49-Workout-Month-Load-Failure.html) · [source](source/W49-Workout-Month-Load-Failure.dc.html) |
-| W12 | Workout › Today · another routine comes later | W1 Today states | 390×844 | [png](screens/W12-Workout-Today-Logging-Later.png) · [html](html/W12-Workout-Today-Logging-Later.html) · [source](source/W12-Workout-Today-Logging-Later.dc.html) |
 | W13 | Workout › Skip workout · skipping | W1 Today states | 390×844 | [png](screens/W13-Workout-Skip-Skipping.png) · [html](html/W13-Workout-Skip-Skipping.html) · [source](source/W13-Workout-Skip-Skipping.dc.html) |
 | W14 | Workout › Skip workout · couldn't skip | W1 Today states | 390×844 | [png](screens/W14-Workout-Skip-Failed.png) · [html](html/W14-Workout-Skip-Failed.html) · [source](source/W14-Workout-Skip-Failed.dc.html) |
 | W15 | Workout › Undo skip · undoing | W1 Today states | 390×844 | [png](screens/W15-Workout-Undo-Skip-Undoing.png) · [html](html/W15-Workout-Undo-Skip-Undoing.html) · [source](source/W15-Workout-Undo-Skip-Undoing.dc.html) |

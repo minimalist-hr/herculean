@@ -1624,7 +1624,7 @@
           "Workouts"
         ],
         "summary": "Create a workout",
-        "description": "Starts or skips a workout on a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout copies the routine's name, exercises and targets. A started workout's sets begin from last time.",
+        "description": "Starts or skips a workout on a date for the signed-in user. The date is today or a past day, in the user's time zone. It uses the day's planned routine, or when starting, a routine picked for this date only, which leaves the week plan as it is. The workout copies the routine's name, exercises and targets. A started workout's sets begin from last time.",
         "operationId": "CreateWorkout",
         "requestBody": {
           "content": {
@@ -1667,8 +1667,18 @@
               }
             }
           },
+          "404": {
+            "description": "The picked routine does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "409": {
-            "description": "The date already has a workout, is in the future, or has no routine planned. Or, when starting, the routine has no exercises left or another workout is in progress.",
+            "description": "The date already has a workout, is in the future, is before the first day when picking a routine, or has no routine planned. Or, when starting, the routine has no exercises left or another workout is in progress.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -3063,6 +3073,14 @@
           "status": {
             "description": "Where it starts: in progress to log it, or skipped.",
             "$ref": "#/components/schemas/WorkoutStatus"
+          },
+          "routineId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The routine to start instead of the day's plan, for this date only. Only when starting. Without it, the day's planned routine is used.",
+            "format": "uuid"
           }
         },
         "description": "A workout to add to a date."
@@ -3862,7 +3880,8 @@
           "name",
           "exerciseCount",
           "setCount",
-          "weekdays"
+          "weekdays",
+          "lastDoneOn"
         ],
         "type": "object",
         "properties": {
@@ -3891,6 +3910,14 @@
               "$ref": "#/components/schemas/Weekday"
             },
             "description": "The weekdays it is planned on now, from Monday."
+          },
+          "lastDoneOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The date of its latest completed workout, or null if it has none.",
+            "format": "date"
           }
         },
         "description": "A routine in the list."

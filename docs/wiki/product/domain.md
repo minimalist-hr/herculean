@@ -126,7 +126,7 @@ One workout per date, and a workout only happens on today or a past day.
 | Action | What it does | The day then shows |
 |---|---|---|
 | Start workout, Log workout | Starts from the day's routine, copying its name, exercises and targets. Exercises deleted since are left out. If none are left, only Other routine and Skip workout are offered. | In progress |
-| Other routine | Starts from any routine picked on W10, for that date only. The week plan does not change. | In progress |
+| Other routine | Starts from a routine picked on W10, which lists the week plan's routines and the day's planned one. W57 asks first. It counts for that date only, and the week plan does not change. | In progress |
 | Skip workout | Asks first, then copies the routine | Skipped |
 | Undo skip | Asks first, then deletes the skip | Its plan |
 | Save workout | Finishes logging | Completed |
@@ -136,10 +136,10 @@ One workout per date, and a workout only happens on today or a past day.
 - "Its plan" is planned, missed or rest, from the week plan on that date.
 - Only one workout can be in progress. While one runs on another day, Start workout, Log workout and Other routine look muted, and tapping one says to resume or finish it first.
 - A workout that runs past midnight stays on the date it started.
-- The first day is the earlier of the first workout and the day the account was created, so imported workouts extend it. The week strip reaches from its week to 4 weeks ahead. A workout can't be added before it, except by an import.
+- The first day is the earlier of the first workout and the day the account was created, so imported workouts extend it. The week strip reaches from its week to 4 weeks ahead. A workout can't be added before it, except by an import, so Other routine looks muted there and says why.
 - A workout keeps its copy when its routine changes or is deleted. Exercise renames show everywhere.
 
-Start workout, Log workout, Resume workout, Skip workout and Undo skip are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
+Start workout, Log workout, Other routine, Resume workout, Skip workout and Undo skip are built. The other actions come with [5. Logging](/product/scope#5-logging) and [6. Edit workout and month](/product/scope#6-edit-workout-and-month).
 
 ### Exercises, routines and groups
 

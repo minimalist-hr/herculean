@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { AccessibilityInfo, AppState } from 'react-native';
@@ -98,6 +98,9 @@ async function renderWorkout() {
       _layout: Layout,
       index: () => <WorkoutScreen />,
       'workout/month': () => <PlaceholderScreen title="Month screen" />,
+      'workout/choose/[date]': () => (
+        <PlaceholderScreen title="Choose routine screen" />
+      ),
       'workout/log/[id]': () => <PlaceholderScreen title="Logging screen" />,
       'routine/new': () => <PlaceholderScreen title="New routine screen" />,
     },
@@ -394,16 +397,39 @@ test('a finished day shows as done, with nothing to do', async () => {
   expect(screen.queryByRole('button', { name: 'Undo skip' })).toBeNull();
 });
 
-test.each([
-  ['Other routine', 'Picking another routine comes in a later update.'],
-])('%s says it comes later', async (name, message) => {
+test('Other routine opens the list for that day', async () => {
   answer(plannedDay);
   await renderWorkout();
   await screen.findByText('Legs');
 
-  await fireEvent.press(screen.getByRole('button', { name }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Other routine' }));
 
-  expect(await screen.findByText(message)).toBeOnTheScreen();
+  expect(await screen.findByText('Choose routine screen')).toBeOnTheScreen();
+});
+
+test('Other routine before the first day looks muted and says why', async () => {
+  mockFetch.mockImplementation((request) => {
+    const { pathname } = new URL(request.url);
+    if (pathname === '/api/v1/days/first') {
+      return Promise.resolve(Response.json({ date: '2026-11-04' }));
+    }
+    return Promise.resolve(
+      Response.json(pathname === '/api/v1/days' ? week : restDay),
+    );
+  });
+  await renderWorkout();
+  await screen.findByText('Rest day');
+  const other = screen.getByRole('button', { name: 'Other routine' });
+  await waitFor(() => {
+    expect(other).not.toHaveStyle({ opacity: 1 });
+  });
+
+  await fireEvent.press(other);
+
+  expect(
+    await screen.findByText("A workout can't be added before your first day."),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Choose routine screen')).toBeNull();
 });
 
 test('the calendar opens the month', async () => {
@@ -483,11 +509,7 @@ describe('other days', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'Other routine' }),
     );
-    expect(
-      await screen.findByText(
-        'Picking another routine comes in a later update.',
-      ),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText('Choose routine screen')).toBeOnTheScreen();
   });
 
   test('tomorrow shows the plan, with nothing to do yet', async () => {

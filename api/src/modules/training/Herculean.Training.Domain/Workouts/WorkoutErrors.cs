@@ -15,6 +15,8 @@ internal static class WorkoutErrors
 
     public static readonly Error DateInTheFuture = Error.Conflict("workout.date_in_the_future", "A day that hasn't come yet can't have a workout.");
 
+    public static readonly Error BeforeFirstDay = Error.Conflict("workout.before_first_day", "A workout can't be added before your first day.");
+
     public static readonly Error NothingPlanned = Error.Conflict("workout.nothing_planned", "This day has no routine.");
 
     public static readonly Error NoExercises = Error.Conflict("workout.no_exercises", "The routine has no exercises left.");

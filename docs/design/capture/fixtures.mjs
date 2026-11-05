@@ -61,11 +61,11 @@ const chestAndArms = {
 };
 
 const routineList = [
-  { id: chestAndArms.id, name: chestAndArms.name, exerciseCount: 7, setCount: 19, weekdays: ['monday'] },
-  { id: 'routine-back-and-shoulders-1', name: 'Back and shoulders 1', exerciseCount: 6, setCount: 14, weekdays: ['tuesday'] },
-  { id: 'routine-legs', name: 'Legs', exerciseCount: 4, setCount: 10, weekdays: ['wednesday'] },
-  { id: 'routine-chest-and-arms-2', name: 'Chest and arms 2', exerciseCount: 7, setCount: 19, weekdays: ['friday'] },
-  { id: 'routine-back-and-shoulders-2', name: 'Back and shoulders 2', exerciseCount: 6, setCount: 14, weekdays: ['saturday'] },
+  { id: chestAndArms.id, name: chestAndArms.name, exerciseCount: 7, setCount: 19, weekdays: ['monday'], lastDoneOn: '2026-10-19' },
+  { id: 'routine-back-and-shoulders-1', name: 'Back and shoulders 1', exerciseCount: 6, setCount: 14, weekdays: ['tuesday'], lastDoneOn: '2026-10-20' },
+  { id: 'routine-legs', name: 'Legs', exerciseCount: 4, setCount: 10, weekdays: ['wednesday'], lastDoneOn: '2026-10-14' },
+  { id: 'routine-chest-and-arms-2', name: 'Chest and arms 2', exerciseCount: 7, setCount: 19, weekdays: ['friday'], lastDoneOn: '2026-10-16' },
+  { id: 'routine-back-and-shoulders-2', name: 'Back and shoulders 2', exerciseCount: 6, setCount: 14, weekdays: ['saturday'], lastDoneOn: null },
 ];
 
 const sampleToday = '2026-10-23';
@@ -353,4 +353,5 @@ export const sample = {
   back,
   chestAndArms,
   exerciseDetails,
+  routineList,
 };

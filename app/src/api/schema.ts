@@ -431,7 +431,7 @@ export interface paths {
         put?: never;
         /**
          * Create a workout
-         * @description Starts or skips a workout on a date for the signed-in user. The date is today or a past day with a routine planned, in the user's time zone. The workout copies the routine's name, exercises and targets. A started workout's sets begin from last time.
+         * @description Starts or skips a workout on a date for the signed-in user. The date is today or a past day, in the user's time zone. It uses the day's planned routine, or when starting, a routine picked for this date only, which leaves the week plan as it is. The workout copies the routine's name, exercises and targets. A started workout's sets begin from last time.
          */
         post: operations["CreateWorkout"];
         delete?: never;
@@ -755,6 +755,11 @@ export interface components {
             date: string;
             /** @description Where it starts: in progress to log it, or skipped. */
             status: components["schemas"]["WorkoutStatus"];
+            /**
+             * Format: uuid
+             * @description The routine to start instead of the day's plan, for this date only. Only when starting. Without it, the day's planned routine is used.
+             */
+            routineId?: null | string;
         };
         /** @description An exercise in a day's routine and its targets. */
         DayExerciseResponse: {
@@ -1200,6 +1205,11 @@ export interface components {
             setCount: number;
             /** @description The weekdays it is planned on now, from Monday. */
             weekdays: components["schemas"]["Weekday"][];
+            /**
+             * Format: date
+             * @description The date of its latest completed workout, or null if it has none.
+             */
+            lastDoneOn: null | string;
         };
         /** @description A routine. */
         RoutineResponse: {
@@ -2754,7 +2764,16 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description The date already has a workout, is in the future, or has no routine planned. Or, when starting, the routine has no exercises left or another workout is in progress. */
+            /** @description The picked routine does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The date already has a workout, is in the future, is before the first day when picking a routine, or has no routine planned. Or, when starting, the routine has no exercises left or another workout is in progress. */
             409: {
                 headers: {
                     [name: string]: unknown;

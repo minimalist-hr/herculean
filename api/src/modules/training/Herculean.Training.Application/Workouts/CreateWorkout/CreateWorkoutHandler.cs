@@ -6,6 +6,7 @@ using Herculean.SharedKernel.Validation;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
+using Herculean.Training.Application.Days.GetFirstDay;
 using Herculean.Training.Application.Workouts.GetWorkout;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
@@ -19,6 +20,8 @@ internal sealed class CreateWorkoutHandler(
     IWorkoutRepository workoutRepository,
     IWorkoutReadRepository workoutReadRepository,
     IDayReadRepository dayReadRepository,
+    IRoutineRepository routineRepository,
+    GetFirstDayHandler getFirstDay,
     UserClock userClock,
     CurrentUser currentUser,
     IUnitOfWork unitOfWork,
@@ -43,15 +46,17 @@ internal sealed class CreateWorkoutHandler(
             return WorkoutErrors.DateTaken;
         }
 
-        List<PlanChange> changes = await dayReadRepository.ListPlanChangesAsync(cancellationToken);
-        if (new DayPlan(changes, calendar).RoutineOn(request.Date) is not { RoutineId: RoutineId routineId, RoutineName: string name })
+        Result<WorkoutRoutine> routine = request.RoutineId is Guid pickedId
+            ? await PickedRoutineAsync(RoutineId.From(pickedId), request.Date, cancellationToken)
+            : await PlannedRoutineAsync(request.Date, calendar, cancellationToken);
+        if (!routine.IsSuccess)
         {
-            return WorkoutErrors.NothingPlanned;
+            return routine.Error;
         }
 
         Result<Workout> workout = request.Status == WorkoutStatus.InProgress
-            ? await StartAsync(request.Date, routineId, name, calendar, cancellationToken)
-            : await SkipAsync(request.Date, routineId, name, cancellationToken);
+            ? await StartAsync(request.Date, routine.Value.Id, routine.Value.Name, calendar, cancellationToken)
+            : await SkipAsync(request.Date, routine.Value.Id, routine.Value.Name, cancellationToken);
         if (!workout.IsSuccess)
         {
             return workout.Error;
@@ -61,6 +66,28 @@ internal sealed class CreateWorkoutHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new WorkoutResponse(workout.Value.Id.Value, workout.Value.Date, workout.Value.Status, workout.Value.Name);
+    }
+
+    private async Task<Result<WorkoutRoutine>> PickedRoutineAsync(RoutineId id, DateOnly date, CancellationToken cancellationToken)
+    {
+        FirstDayResponse firstDay = await getFirstDay.HandleAsync(cancellationToken);
+        if (date < firstDay.Date)
+        {
+            return WorkoutErrors.BeforeFirstDay;
+        }
+
+        return await routineRepository.GetAsync(id, cancellationToken) is Routine routine
+            ? new WorkoutRoutine(routine.Id, routine.Name)
+            : RoutineErrors.NotFound;
+    }
+
+    private async Task<Result<WorkoutRoutine>> PlannedRoutineAsync(DateOnly date, UserCalendar calendar, CancellationToken cancellationToken)
+    {
+        List<PlanChange> changes = await dayReadRepository.ListPlanChangesAsync(cancellationToken);
+
+        return new DayPlan(changes, calendar).RoutineOn(date) is { RoutineId: RoutineId id, RoutineName: string name }
+            ? new WorkoutRoutine(id, name)
+            : WorkoutErrors.NothingPlanned;
     }
 
     private async Task<Result<Workout>> StartAsync(DateOnly date, RoutineId routineId, string name, UserCalendar calendar, CancellationToken cancellationToken)
@@ -99,4 +126,6 @@ internal sealed class CreateWorkoutHandler(
             name,
             exercises.Select(exercise => new RoutineExerciseValues(ExerciseId.From(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo)));
     }
+
+    private sealed record WorkoutRoutine(RoutineId Id, string Name);
 }

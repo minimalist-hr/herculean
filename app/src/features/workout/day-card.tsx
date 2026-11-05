@@ -17,6 +17,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
 import { useElapsed } from './use-elapsed';
+import { useFirstDay } from './use-first-day';
 import { useSkipWorkout } from './use-skip-workout';
 import { useStartWorkout } from './use-start-workout';
 import { useUndoSkip } from './use-undo-skip';
@@ -25,10 +26,6 @@ import { checkedSets, progressText, workoutProgress } from './workout-progress';
 
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
-
-function otherRoutineComesLater() {
-  notifyFailure('Picking another routine comes in a later update.');
-}
 
 function Card({ children }: { children: ReactNode }) {
   const { colors, radius, space } = useTheme();
@@ -97,7 +94,31 @@ function StartButton({ date, label }: { date: string; label: string }) {
       waitingLabel="Starting workout"
       waiting={start.isPending}
       onPress={() => {
-        start.mutate(date);
+        start.mutate({ date });
+      }}
+    />
+  );
+}
+
+function OtherRoutineButton({ date }: { date: string }) {
+  const router = useRouter();
+  const firstDay = useFirstDay();
+  const beforeFirstDay = firstDay.data !== undefined && date < firstDay.data;
+
+  return (
+    <Button
+      label="Other routine"
+      variant="secondary"
+      muted={beforeFirstDay}
+      onPress={() => {
+        if (beforeFirstDay) {
+          notifyFailure("A workout can't be added before your first day.");
+        } else {
+          router.push({
+            pathname: '/workout/choose/[date]',
+            params: { date },
+          });
+        }
       }}
     />
   );
@@ -217,12 +238,7 @@ function MissedCard({ date, routine }: { date: string; routine: DayRoutine }) {
       <StartButton date={date} label="Log workout" />
       <Actions>
         {[
-          <Button
-            key="other"
-            label="Other routine"
-            variant="secondary"
-            onPress={otherRoutineComesLater}
-          />,
+          <OtherRoutineButton key="other" date={date} />,
           <SkipButton key="skip" date={date} routineName={routine.name} />,
         ]}
       </Actions>
@@ -386,13 +402,7 @@ function RestCard({
         meta="Nothing planned. Recovery is part of the program."
       />
       {daysAway >= -1 && <UpNext upNext={day.upNext} today={today} />}
-      {daysAway <= 0 && (
-        <Button
-          label="Other routine"
-          variant="secondary"
-          onPress={otherRoutineComesLater}
-        />
-      )}
+      {daysAway <= 0 && <OtherRoutineButton date={day.date} />}
     </Card>
   );
 }
@@ -467,12 +477,7 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
           <StartButton date={day.date} label="Start workout" />
           <Actions>
             {[
-              <Button
-                key="other"
-                label="Other routine"
-                variant="secondary"
-                onPress={otherRoutineComesLater}
-              />,
+              <OtherRoutineButton key="other" date={day.date} />,
               <SkipButton
                 key="skip"
                 date={day.date}

@@ -8,6 +8,7 @@ using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
+using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Routines;
@@ -54,6 +55,34 @@ public sealed class RoutineReadRepositoryTests : IDisposable
 
         routine.ExerciseCount.ShouldBe(0);
         routine.SetCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task ARoutineWithNoCompletedWorkoutHasNoLastDoneDate()
+    {
+        Routine legs = await SaveRoutineAsync("Legs");
+        await SaveWorkoutAsync(legs, new DateOnly(2026, 10, 1), WorkoutStatus.InProgress);
+        await SaveWorkoutAsync(legs, new DateOnly(2026, 10, 2), WorkoutStatus.Skipped);
+
+        RoutineListItemResponse routine = (await ListRoutinesAsync()).ShouldHaveSingleItem();
+
+        routine.LastDoneOn.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ARoutineWasLastDoneOnItsLatestCompletedWorkout()
+    {
+        Routine legs = await SaveRoutineAsync("Legs");
+        Routine push = await SaveRoutineAsync("Push");
+        await SaveWorkoutAsync(legs, new DateOnly(2026, 10, 1), WorkoutStatus.Completed);
+        await SaveWorkoutAsync(legs, new DateOnly(2026, 10, 8), WorkoutStatus.Completed);
+        await SaveWorkoutAsync(legs, new DateOnly(2026, 10, 15), WorkoutStatus.Skipped);
+        await SaveWorkoutAsync(push, new DateOnly(2026, 10, 3), WorkoutStatus.Completed);
+
+        List<RoutineListItemResponse> routines = await ListRoutinesAsync();
+
+        routines.Single(routine => routine.Name == "Legs").LastDoneOn.ShouldBe(new DateOnly(2026, 10, 8));
+        routines.Single(routine => routine.Name == "Push").LastDoneOn.ShouldBe(new DateOnly(2026, 10, 3));
     }
 
     [Fact]
@@ -220,6 +249,14 @@ public sealed class RoutineReadRepositoryTests : IDisposable
 
     private Task<List<WeekPlanDayResponse>> ListDaysAsync() =>
         new WeekPlanReadRepository(_dbContext).ListAsync(Token);
+
+    private async Task SaveWorkoutAsync(Routine routine, DateOnly date, WorkoutStatus status)
+    {
+        Workout workout = Workout.Skip(_userId, date, routine.Id, routine.Name, []);
+        _dbContext.Workouts.Add(workout);
+        _dbContext.Entry(workout).Property(saved => saved.Status).CurrentValue = status;
+        await _dbContext.SaveChangesAsync(Token);
+    }
 
     private async Task<Routine> SaveRoutineAsync(string name, params (int Sets, int From, int To)[] targets)
     {

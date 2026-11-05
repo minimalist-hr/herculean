@@ -9,7 +9,7 @@ public sealed class ListRoutinesHandlerTests
     public async Task ReadsThemFromTheRepository()
     {
         FakeRoutineReadRepository repository = new();
-        RoutineListItemResponse item = new(Guid.CreateVersion7(), "Legs", 4, 10, [Weekday.Wednesday]);
+        RoutineListItemResponse item = new(Guid.CreateVersion7(), "Legs", 4, 10, [Weekday.Wednesday], null);
         repository.Items.Add(item);
 
         List<RoutineListItemResponse> items = await new ListRoutinesHandler(repository).HandleAsync(TestContext.Current.CancellationToken);

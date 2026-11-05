@@ -18,7 +18,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E36, L22 |
 | 3 | [Routines](#3-routines) | R01–R03, R05, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
-| 5 | [Logging](#5-logging) | W10, W11, L01–L04, L10–L13, L30, L31, W02, H02, W42 |
+| 5 | [Logging](#5-logging) | W10, W11, W57–W64, L01–L04, L10–L13, L30, L31, W02, H02, W42 |
 | 6 | [Edit workout and month](#6-edit-workout-and-month) | W29, W30–W32, W40, W41, W43–W49 |
 | 7 | [Settings](#7-settings) | H10–H19 |
 
@@ -176,10 +176,10 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer to start after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
+**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 and W62 Confirm loading and failure, W63 Load failure, W64 Before the first day, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar and a workout details page. H02 and H03 wait for Home.
 
 **Flows**
-- **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → L03 → L01.
+- **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → W57 → L03 → L01. The back link on L01 then returns to the day, not to W10.
 - **Sets:** tap a weight or reps → L10 or L11 → Save set. Check a set → rest bar, ready to start, with −15, +15 and Start, then Skip. It can be hidden and opened again. Add set adds a row with the last set's values. The trash in L10 or L11 → L12 undo bar.
 - **Exercises:** the trash → L13 → undo bar. Add exercise → the L20 flow from [3. Routines](#3-routines) → L01. The swap icon → the L20 flow, one pick → L01, with an undo bar. Reorder → L04, which saves each drop. Removing every exercise shows L02.
 - **History:** the exercise name → E10.

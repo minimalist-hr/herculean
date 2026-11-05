@@ -2,7 +2,7 @@
 
 import { legsDay, problem, sample, sampleDay, sampleDays, sampleWeek, sampleWorkout } from './fixtures.mjs';
 
-const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails } = sample;
+const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
 const exercisePath = `/exercises/${lateralRaise.id}`;
 const routinePath = `/routines/${chestAndArms.id}`;
@@ -14,6 +14,13 @@ const friday = '2026-10-23T18:00:00';
 const sunday = '2026-10-25T18:00:00';
 const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', workoutId: 'workout-skipped' } });
 const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
+const choosePath = '/workout/choose/2026-10-23';
+const confirmRoutine = async (on) => {
+  await on.go(choosePath);
+  await on.tap('Chest and arms 1');
+  await on.waitFor('Start Chest and arms 1?');
+  await on.waitFor('Cable crossover');
+};
 const logPath = `/workout/log/${sampleWorkout.id}`;
 const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
 const addPath = `${logPath}/add`;
@@ -368,10 +375,49 @@ export const screens = [
     await on.go('/workout/month');
     await on.waitFor("Couldn't load this month.");
   } },
-  { id: 'W12', file: 'W12-Workout-Today-Logging-Later', title: 'Workout › Today · another routine comes later', row: 'W1 Today states', today: friday, full: false, steps: async (on) => {
+  { id: 'W10', file: 'W10-Workout-Choose-Routine', title: 'Workout › Choose a routine', row: 'W2 Choose a routine', today: friday, steps: async (on) => {
+    await on.go(choosePath);
+    await on.waitFor('Chest and arms 1');
+  } },
+  { id: 'W11', file: 'W11-Workout-Choose-Routine-Loading', title: 'Workout › Choose a routine · loading', row: 'W2 Choose a routine', today: friday, answers: { 'GET /api/v1/routines': 'hold' }, steps: async (on) => {
+    await on.go(choosePath);
+    await on.waitFor('Loading your routines');
+  } },
+  { id: 'W57', file: 'W57-Workout-Choose-Routine-Confirm', title: 'Workout › Choose a routine · confirm', row: 'W2 Choose a routine', today: friday, full: false, steps: confirmRoutine },
+  { id: 'W58', file: 'W58-Workout-Choose-Routine-Starting', title: 'Workout › Choose a routine · starting', row: 'W2 Choose a routine', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: async (on) => {
+    await confirmRoutine(on);
+    await on.tap('Start workout');
+    await on.waitFor('Starting workout');
+  } },
+  { id: 'W59', file: 'W59-Workout-Choose-Routine-Failed', title: "Workout › Choose a routine · couldn't start", row: 'W2 Choose a routine', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
+    await confirmRoutine(on);
+    await on.tap('Start workout');
+    await on.waitFor("Couldn't start the workout. Try again.");
+  } },
+  { id: 'W60', file: 'W60-Workout-Choose-Routine-Empty', title: 'Workout › Choose a routine · nothing in the week plan', row: 'W2 Choose a routine', today: sunday, answers: { 'GET /api/v1/routines': { status: 200, body: routineList.map((routine) => ({ ...routine, weekdays: [] })) }, 'GET /api/v1/days/2026-10-25': restDay(null) }, steps: async (on) => {
+    await on.go('/workout/choose/2026-10-25');
+    await on.waitFor('No routines in your week plan');
+  } },
+  { id: 'W61', file: 'W61-Workout-Choose-Routine-Confirm-Loading', title: 'Workout › Choose a routine · confirm, loading', row: 'W2 Choose a routine', today: friday, full: false, answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: 'hold' }, steps: async (on) => {
+    await on.go(choosePath);
+    await on.tap('Chest and arms 1');
+    await on.waitFor('Start Chest and arms 1?');
+  } },
+  { id: 'W62', file: 'W62-Workout-Choose-Routine-Confirm-Failed', title: "Workout › Choose a routine · confirm, couldn't load", row: 'W2 Choose a routine', today: friday, full: false, answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: 'fail' }, steps: async (on) => {
+    await on.go(choosePath);
+    await on.tap('Chest and arms 1');
+    await on.waitFor("Couldn't load this routine.");
+  } },
+  { id: 'W63', file: 'W63-Workout-Choose-Routine-Load-Failure', title: 'Workout › Choose a routine · load failure', row: 'W2 Choose a routine', today: friday, answers: { 'GET /api/v1/routines': 'fail' }, steps: async (on) => {
+    await on.go(choosePath);
+    await on.waitFor("Couldn't load your routines.");
+  } },
+  { id: 'W64', file: 'W64-Workout-Other-Routine-Before-First-Day', title: 'Workout › Other routine · before the first day', row: 'W3 Other days', today: sunday, full: false, answers: { 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1'), 'GET /api/v1/days/first': { status: 200, body: { date: '2026-10-26' } } }, steps: async (on) => {
     await on.go('/workout');
+    await on.waitFor('Rest day');
+    await on.sleep(500);
     await on.tap('Other routine');
-    await on.waitFor('Picking another routine comes in a later update.');
+    await on.waitFor("A workout can't be added before your first day.");
   } },
   { id: 'W13', file: 'W13-Workout-Skip-Skipping', title: 'Workout › Skip workout · skipping', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: skipFromToday },
   { id: 'W14', file: 'W14-Workout-Skip-Failed', title: "Workout › Skip workout · couldn't skip", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {

@@ -7,15 +7,21 @@ import { notifyFailure } from '@/components/notifications';
 
 import { dayKeys } from './query-keys';
 
-/** Starts a day's workout from its routine, then opens logging. */
-export function useStartWorkout() {
+/** Starts a day's workout from its routine, or one picked for that day, then opens logging. With replace, logging takes the place of the current page. */
+export function useStartWorkout({ replace = false } = {}) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (date: string) => {
+    mutationFn: async ({
+      date,
+      routineId,
+    }: {
+      date: string;
+      routineId?: string;
+    }) => {
       const { data, error } = await api.POST('/api/v1/workouts', {
-        body: { date, status: 'inProgress' },
+        body: { date, status: 'inProgress', routineId },
       });
       if (data === undefined) {
         throw toApiError(error);
@@ -24,7 +30,12 @@ export function useStartWorkout() {
       return data;
     },
     onSuccess: async (workout) => {
-      router.push(`/workout/log/${workout.id}` as Href);
+      const logging = `/workout/log/${workout.id}` as Href;
+      if (replace) {
+        router.replace(logging);
+      } else {
+        router.push(logging);
+      }
       await Promise.all(
         [dayKeys.allDay, dayKeys.allDays, dayKeys.allMonths].map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),

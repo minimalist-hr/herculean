@@ -2,9 +2,11 @@ using Herculean.SharedKernel.Results;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
+using Herculean.Training.Application.Days.GetFirstDay;
 using Herculean.Training.Application.Workouts;
 using Herculean.Training.Application.Workouts.CreateWorkout;
 using Herculean.Training.Application.Workouts.GetWorkout;
+using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
@@ -24,19 +26,25 @@ public sealed class CreateWorkoutHandlerTests
     private readonly FakeDayReadRepository _dayReadRepository = new();
     private readonly FakeWorkoutRepository _workoutRepository = new();
     private readonly FakeWorkoutReadRepository _workoutReadRepository = new();
+    private readonly FakeRoutineRepository _routineRepository = new();
+    private readonly FakeGetUserCreatedAt _getUserCreatedAt = new();
     private readonly FakeTimeProvider _time = new(new DateTimeOffset(2026, 11, 3, 11, 0, 0, TimeSpan.Zero));
     private readonly FakeUnitOfWork _unitOfWork = new();
     private readonly CreateWorkoutHandler _handler;
 
     public CreateWorkoutHandlerTests()
     {
+        CurrentUser currentUser = new(new FakeCurrentUserAccessor());
+        UserClock userClock = new(currentUser, new FakeGetUserTimeZone(), _time);
         _handler = new CreateWorkoutHandler(
             new CreateWorkoutValidator(),
             _workoutRepository,
             _workoutReadRepository,
             _dayReadRepository,
-            new UserClock(new CurrentUser(new FakeCurrentUserAccessor()), new FakeGetUserTimeZone(), _time),
-            new CurrentUser(new FakeCurrentUserAccessor()),
+            _routineRepository,
+            new GetFirstDayHandler(_dayReadRepository, _getUserCreatedAt, userClock, currentUser),
+            userClock,
+            currentUser,
             _unitOfWork,
             _time);
     }
@@ -51,6 +59,99 @@ public sealed class CreateWorkoutHandlerTests
 
     private Task<Result<WorkoutResponse>> StartAsync(DateOnly date) =>
         _handler.HandleAsync(new CreateWorkoutRequest(date, WorkoutStatus.InProgress), TestContext.Current.CancellationToken);
+
+    private Task<Result<WorkoutResponse>> StartPickedAsync(DateOnly date, Guid routineId) =>
+        _handler.HandleAsync(new CreateWorkoutRequest(date, WorkoutStatus.InProgress, routineId), TestContext.Current.CancellationToken);
+
+    private Routine AddRoutine(string name)
+    {
+        Routine routine = Routine.Create(UserId.From(Guid.CreateVersion7()), name, []);
+        _routineRepository.Add(routine);
+
+        return routine;
+    }
+
+    [Fact]
+    public async Task PickingARoutineOnAPlannedDayStartsItInsteadOfThePlan()
+    {
+        Plan(Weekday.Tuesday);
+        AddExercise();
+        Routine push = AddRoutine("Push");
+
+        Result<WorkoutResponse> result = await StartPickedAsync(Today, push.Id.Value);
+
+        result.Value.Name.ShouldBe("Push");
+        result.Value.Status.ShouldBe(WorkoutStatus.InProgress);
+        _workoutRepository.Workouts.ShouldHaveSingleItem().RoutineId.ShouldBe(push.Id);
+    }
+
+    [Fact]
+    public async Task PickingARoutineOnARestDayStartsIt()
+    {
+        AddExercise();
+        Routine push = AddRoutine("Push");
+
+        Result<WorkoutResponse> result = await StartPickedAsync(Today, push.Id.Value);
+
+        result.Value.Name.ShouldBe("Push");
+        _unitOfWork.Saved.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task PickingARoutineOnThePastHasNoElapsedTime()
+    {
+        AddExercise();
+        Routine push = AddRoutine("Push");
+
+        await StartPickedAsync(Today.AddDays(-1), push.Id.Value);
+
+        _workoutRepository.Workouts.ShouldHaveSingleItem().StartedAtUtc.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task PickingARoutineThatDoesNotExistFails()
+    {
+        AddExercise();
+
+        Result<WorkoutResponse> result = await StartPickedAsync(Today, Guid.CreateVersion7());
+
+        result.Error.ShouldBe(RoutineErrors.NotFound);
+        _workoutRepository.Workouts.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task PickingARoutineBeforeTheFirstDayFails()
+    {
+        AddExercise();
+        Routine push = AddRoutine("Push");
+        _getUserCreatedAt.CreatedAtUtc = new DateTimeOffset(2026, 11, 2, 12, 0, 0, TimeSpan.Zero);
+
+        Result<WorkoutResponse> result = await StartPickedAsync(new DateOnly(2026, 11, 1), push.Id.Value);
+
+        result.Error.ShouldBe(WorkoutErrors.BeforeFirstDay);
+        _workoutRepository.Workouts.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task PickingARoutineWithNoExercisesLeftFails()
+    {
+        Routine push = AddRoutine("Push");
+
+        Result<WorkoutResponse> result = await StartPickedAsync(Today, push.Id.Value);
+
+        result.Error.ShouldBe(WorkoutErrors.NoExercises);
+    }
+
+    [Fact]
+    public async Task PickingARoutineWhileSkippingIsNotValid()
+    {
+        Routine push = AddRoutine("Push");
+
+        Result<WorkoutResponse> result = await _handler.HandleAsync(new CreateWorkoutRequest(Today, WorkoutStatus.Skipped, push.Id.Value), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeFalse();
+        _workoutRepository.Workouts.ShouldBeEmpty();
+    }
 
     private ExerciseId AddExercise(int targetSets = 3, int targetRepsFrom = 8)
     {
