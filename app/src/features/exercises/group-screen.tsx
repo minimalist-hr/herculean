@@ -80,6 +80,9 @@ function Details({ group }: { group: Group }) {
     group.exercises.length + group.alsoWorksExercises.length;
   const count = countOf({ exerciseCount });
   const inUse = exerciseCount > 0;
+  const done = [...group.exercises, ...group.alsoWorksExercises].some(
+    (exercise) => exercise.bestSet !== null,
+  );
 
   function renderRows(exercises: Exercise[]) {
     return exercises.map((exercise, index) => (
@@ -139,7 +142,9 @@ function Details({ group }: { group: Group }) {
         <Text style={[text.body, { color: colors.muted }]}>{count}</Text>
       </View>
 
-      <NoSessionsCard message="Finish a workout with an exercise in this group and its progress shows up here." />
+      {!done && (
+        <NoSessionsCard message="Finish a workout with an exercise in this group and its progress shows up here." />
+      )}
 
       <View style={{ gap: space.sm }}>
         <SectionTitle>Exercises</SectionTitle>

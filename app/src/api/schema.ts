@@ -732,7 +732,7 @@ export interface components {
             reps: number;
             /**
              * Format: date
-             * @description The date of the workout, in the user's time zone.
+             * @description The date of the first workout that did it, in the user's time zone.
              */
             date: string;
         };
@@ -886,7 +886,7 @@ export interface components {
             /** @description The name of the routine planned on it. Null on a rest day. */
             routineName: null | string;
         };
-        /** @description An exercise and its groups. */
+        /** @description An exercise, its groups and its progress. */
         ExerciseDetailsResponse: {
             /**
              * Format: uuid
@@ -901,6 +901,17 @@ export interface components {
             alsoWorksGroups: components["schemas"]["GroupResponse"][];
             /** @description The routines that have it, by name. It can't be deleted while there are any. */
             routines: components["schemas"]["RoutineResponse"][];
+            bestSet: null | components["schemas"]["BestSetResponse"];
+            /**
+             * Format: int32
+             * @description The number of completed workouts with a checked set of it.
+             */
+            timesDone: number;
+            /**
+             * Format: date
+             * @description The date of the first of those workouts, in the user's time zone. Null until the exercise has been done.
+             */
+            firstDoneOn: null | string;
         };
         /** @description An exercise in the list. */
         ExerciseListItemResponse: {

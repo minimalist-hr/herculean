@@ -1,4 +1,5 @@
 import { dayNames, weekdays } from '@/features/routines/formats';
+import { ordinal } from '@/formats/formats';
 
 const months = [
   'January',
@@ -99,17 +100,6 @@ export function monthTitle(month: string) {
   const first = dateFromText(`${month}-01`);
 
   return `${monthName(first)} ${String(first.getFullYear())}`;
-}
-
-function ordinal(day: number) {
-  const lastTwo = day % 100;
-  if (lastTwo >= 11 && lastTwo <= 13) {
-    return `${String(day)}th`;
-  }
-
-  const suffix = { 1: 'st', 2: 'nd', 3: 'rd' }[day % 10] ?? 'th';
-
-  return `${String(day)}${suffix}`;
 }
 
 /** A date with a short weekday, for example "Sun, 25th October". */

@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { SectionTitle } from '@/components/section-title';
-import { Skeleton } from '@/components/skeleton';
+import { StatTile } from '@/components/stat-tile';
 import {
   formatClock,
   formatSet,
@@ -15,32 +15,6 @@ import { recordReason } from './finish-text';
 
 type Summary = components['schemas']['WorkoutSummaryResponse'];
 type Units = components['schemas']['Units'];
-
-function Tile({ label, value }: { label: string; value?: string }) {
-  const { colors, radius, size, space, text } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.tile,
-        {
-          gap: space.sm,
-          padding: size.statTilePadding,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-      ]}
-    >
-      <Text style={text.eyebrow}>{label}</Text>
-      {value === undefined ? (
-        <Skeleton width={90} height={24} />
-      ) : (
-        <Text style={[text.bigStat, { color: colors.text }]}>{value}</Text>
-      )}
-    </View>
-  );
-}
 
 /** The four tiles. Once saved, every set counts, so Sets is a single number. */
 export function SummaryTiles({
@@ -67,8 +41,8 @@ export function SummaryTiles({
   return (
     <View style={{ gap: space.sm }}>
       <View style={[styles.row, { gap: space.sm }]}>
-        <Tile label="Duration" value={duration()} />
-        <Tile
+        <StatTile label="Duration" value={duration()} />
+        <StatTile
           label="Sets"
           value={
             summary &&
@@ -79,11 +53,11 @@ export function SummaryTiles({
         />
       </View>
       <View style={[styles.row, { gap: space.sm }]}>
-        <Tile
+        <StatTile
           label="Volume"
           value={summary && formatVolume(summary.volumeKg, units)}
         />
-        <Tile
+        <StatTile
           label="Records"
           value={summary && String(summary.records.length)}
         />
@@ -148,10 +122,6 @@ export function NewRecords({
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-  },
-  tile: {
-    flex: 1,
-    borderWidth: 1,
   },
   records: {
     borderWidth: 1,

@@ -20,7 +20,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | Set | Weight and reps for one exercise in a workout. A bodyweight set has weight 0. |
 | Checked set | A set marked done while logging. |
 | Workout settings | Default rest time, rest sound and rest vibrate. |
-| Best set | The heaviest weight for an exercise, then the most reps at that weight. |
+| Best set | The heaviest weight for an exercise, then the most reps at that weight, from checked sets in completed workouts. Its date is the first workout that did it. |
 | Record | A set that beats every set of that exercise on earlier dates, by heaviest weight or by most reps at a weight done before. An exercise's first session has none, and a workout shows at most one per exercise, heaviest weight first. |
 | Volume | Weight × reps, summed over sets. |
 

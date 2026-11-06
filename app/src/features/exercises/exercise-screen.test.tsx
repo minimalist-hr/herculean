@@ -31,6 +31,9 @@ function exercise(group: string, alsoWorks: string[] = []) {
     group: { id: group, name: group },
     alsoWorksGroups: alsoWorks.map((name) => ({ id: name, name })),
     routines: [] as { id: string; name: string }[],
+    bestSet: null as { weightKg: number; reps: number; date: string } | null,
+    timesDone: 0,
+    firstDoneOn: null as string | null,
   };
 }
 
@@ -125,6 +128,22 @@ test('shows that it has no sessions and is in no routine', async () => {
   expect(
     screen.getByText('Add it when you create or edit a routine.'),
   ).toBeOnTheScreen();
+});
+
+test('a done exercise shows its best set and how often it was done', async () => {
+  answer({
+    ...exercise('Chest'),
+    bestSet: { weightKg: 82.5, reps: 10, date: '2023-10-16' },
+    timesDone: 11,
+    firstDoneOn: '2023-08-07',
+  });
+  await renderExercise();
+
+  expect(await screen.findByText('82.5 kg × 10')).toBeOnTheScreen();
+  expect(screen.getByText('Mon, 16th Oct 2023')).toBeOnTheScreen();
+  expect(screen.getByText('11 times')).toBeOnTheScreen();
+  expect(screen.getByText('Since 7th Aug 2023')).toBeOnTheScreen();
+  expect(screen.queryByText('No sessions yet')).toBeNull();
 });
 
 test('a failed read says so, and Try again reads it again', async () => {

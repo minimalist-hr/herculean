@@ -1,5 +1,9 @@
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
+using Herculean.Training.Application.Exercises;
+using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.ListExercises;
+using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Workouts;
 using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
@@ -8,6 +12,8 @@ using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure;
 using Herculean.Training.Infrastructure.Days;
+using Herculean.Training.Infrastructure.Exercises;
+using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Workouts;
 using Herculean.Training.UnitTests.Application;
 
@@ -122,6 +128,50 @@ public sealed class WorkoutTotalsReadTests : IDisposable
         await SaveWorkoutAsync(exercise, Date.AddDays(-7), finish: false, (100, 5));
 
         (await ListEarlierAsync(exercise, Date)).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task AnExerciseHasItsBestSetTimesDoneAndFirstDate()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        await SaveWorkoutAsync(exercise, Date.AddDays(-14), finish: true, (80, 10));
+        await SaveWorkoutAsync(exercise, Date.AddDays(-7), finish: true, (100, 5), (100, 8));
+        await SaveWorkoutAsync(exercise, Date, finish: true, (100, 8), (90, 12));
+
+        ExerciseDetailsResponse read = (await new ExerciseReadRepository(_dbContext).GetAsync(exercise.Id, Token)).ShouldNotBeNull();
+
+        read.BestSet.ShouldBe(new BestSetResponse(100, 8, Date.AddDays(-7)));
+        read.TimesDone.ShouldBe(3);
+        read.FirstDoneOn.ShouldBe(Date.AddDays(-14));
+    }
+
+    [Fact]
+    public async Task UncheckedSetsAndWorkoutsInProgressDontCount()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        await SaveWorkoutAsync(exercise, Date.AddDays(-7), finish: false, (100, 5));
+        await SaveWorkoutAsync(exercise, Date, finish: true);
+
+        ExerciseDetailsResponse read = (await new ExerciseReadRepository(_dbContext).GetAsync(exercise.Id, Token)).ShouldNotBeNull();
+
+        read.BestSet.ShouldBeNull();
+        read.TimesDone.ShouldBe(0);
+        read.FirstDoneOn.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ListedExercisesAndAGroupsExercisesHaveTheirBestSets()
+    {
+        Exercise done = await SaveExerciseAsync();
+        Exercise notDone = await SaveExerciseAsync();
+        await SaveWorkoutAsync(done, Date, finish: true, (60, 10));
+
+        List<ExerciseListItemResponse> listed = await new ExerciseReadRepository(_dbContext).ListAsync(null, null, Token);
+        GroupDetailsResponse group = (await new GroupReadRepository(_dbContext).GetAsync(done.GroupId, Token)).ShouldNotBeNull();
+
+        listed.Single(exercise => exercise.Id == done.Id.Value).BestSet.ShouldBe(new BestSetResponse(60, 10, Date));
+        listed.Single(exercise => exercise.Id == notDone.Id.Value).BestSet.ShouldBeNull();
+        group.Exercises.ShouldHaveSingleItem().BestSet.ShouldBe(new BestSetResponse(60, 10, Date));
     }
 
     [Fact]

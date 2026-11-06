@@ -3122,7 +3122,7 @@
           },
           "date": {
             "type": "string",
-            "description": "The date of the workout, in the user's time zone.",
+            "description": "The date of the first workout that did it, in the user's time zone.",
             "format": "date"
           }
         },
@@ -3469,7 +3469,10 @@
           "name",
           "group",
           "alsoWorksGroups",
-          "routines"
+          "routines",
+          "bestSet",
+          "timesDone",
+          "firstDoneOn"
         ],
         "type": "object",
         "properties": {
@@ -3499,9 +3502,33 @@
               "$ref": "#/components/schemas/RoutineResponse"
             },
             "description": "The routines that have it, by name. It can't be deleted while there are any."
+          },
+          "bestSet": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The heaviest weight, then the most reps at that weight, from checked sets in completed workouts. Null until the exercise has been done.",
+                "$ref": "#/components/schemas/BestSetResponse"
+              }
+            ]
+          },
+          "timesDone": {
+            "type": "integer",
+            "description": "The number of completed workouts with a checked set of it.",
+            "format": "int32"
+          },
+          "firstDoneOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The date of the first of those workouts, in the user's time zone. Null until the exercise has been done.",
+            "format": "date"
           }
         },
-        "description": "An exercise and its groups."
+        "description": "An exercise, its groups and its progress."
       },
       "ExerciseListItemResponse": {
         "required": [
@@ -3537,7 +3564,7 @@
                 "type": "null"
               },
               {
-                "description": "The heaviest weight, then the most reps at that weight. Null until the exercise has been done.",
+                "description": "The heaviest weight, then the most reps at that weight, from checked sets in completed workouts. Null until the exercise has been done.",
                 "$ref": "#/components/schemas/BestSetResponse"
               }
             ]

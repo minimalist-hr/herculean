@@ -1,0 +1,40 @@
+using Herculean.Training.Application.Auth;
+using Herculean.Training.Domain.Exercises;
+using Herculean.Training.Infrastructure;
+using Herculean.Training.Infrastructure.Exercises;
+using Herculean.Training.UnitTests.Application;
+
+using Microsoft.EntityFrameworkCore;
+
+namespace Herculean.Training.UnitTests.Infrastructure;
+
+/// <summary>
+/// Reads that the in-memory database runs but Postgres might not. Each one runs against a server that isn't there:
+/// a query Postgres can't run fails before connecting, so failing to connect means it translated.
+/// </summary>
+public sealed class PostgresTranslationTests
+{
+    private static CancellationToken Token => TestContext.Current.CancellationToken;
+
+    [Fact]
+    public Task BestSetsTranslate() =>
+        ShouldTranslateAsync(dbContext => DoneSets.ListBestAsync(dbContext, [ExerciseId.New()], Token));
+
+    [Fact]
+    public Task WorkoutDatesTranslate() =>
+        ShouldTranslateAsync(dbContext => DoneSets.ListWorkoutDatesAsync(dbContext, ExerciseId.New(), Token));
+
+    private static async Task ShouldTranslateAsync(Func<TrainingDbContext, Task> read)
+    {
+        using TrainingDbContext dbContext = new(
+            new DbContextOptionsBuilder<TrainingDbContext>()
+                .UseNpgsql("Host=127.0.0.1;Port=1;Timeout=1;Database=none;Username=none;Password=none")
+                .UseSnakeCaseNamingConvention()
+                .Options,
+            new CurrentUser(new FakeCurrentUserAccessor { UserId = Guid.CreateVersion7() }));
+
+        Exception error = await Should.ThrowAsync<Exception>(() => read(dbContext));
+
+        error.ToString().ShouldNotContain("could not be translated");
+    }
+}

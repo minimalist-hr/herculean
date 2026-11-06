@@ -124,7 +124,7 @@ test('a row shows the best set in the user’s units', async () => {
       exercise('Bench press', chest, {
         weightKg: 82.5,
         reps: 10,
-        date: '2026-10-16',
+        date: '2023-10-16',
       }),
     ],
     'imperial',
@@ -132,7 +132,7 @@ test('a row shows the best set in the user’s units', async () => {
   await renderExercises();
 
   expect(
-    await screen.findByText('181.9 lb × 10 · Fri, 16 Oct'),
+    await screen.findByText('181.9 lb × 10 · Mon, 16th Oct 2023'),
   ).toBeOnTheScreen();
 });
 

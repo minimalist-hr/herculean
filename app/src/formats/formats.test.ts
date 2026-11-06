@@ -3,6 +3,7 @@ import {
   formatSpokenDuration,
   formatSet,
   formatShortDate,
+  formatSince,
 } from './formats';
 
 test.each([
@@ -40,10 +41,29 @@ test.each([
   },
 );
 
-test.each([
-  ['2026-10-16', 'Fri, 16 Oct'],
-  ['2026-10-19', 'Mon, 19 Oct'],
-  ['2026-01-04', 'Sun, 4 Jan'],
-])('the date %s reads %s', (date, text) => {
-  expect(formatShortDate(date)).toBe(text);
+describe('in 2026', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({ now: new Date(2026, 10, 6) });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test.each([
+    ['2026-10-16', 'Fri, 16th Oct'],
+    ['2026-10-22', 'Thu, 22nd Oct'],
+    ['2026-01-01', 'Thu, 1st Jan'],
+    ['2026-01-13', 'Tue, 13th Jan'],
+    ['2023-10-16', 'Mon, 16th Oct 2023'],
+  ])('the date %s reads %s', (date, text) => {
+    expect(formatShortDate(date)).toBe(text);
+  });
+
+  test.each([
+    ['2026-08-07', 'Since 7th Aug'],
+    ['2021-03-03', 'Since 3rd Mar 2021'],
+  ])('a run starting %s reads %s', (date, text) => {
+    expect(formatSince(date)).toBe(text);
+  });
 });

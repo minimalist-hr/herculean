@@ -122,6 +122,9 @@ function answer({
       group: nameOf(stored.groupId),
       routines: [],
       alsoWorksGroups: stored.alsoWorksGroupIds.map(nameOf),
+      bestSet: null,
+      timesDone: 0,
+      firstDoneOn: null,
     });
   });
 }

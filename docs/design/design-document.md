@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.40 · 5 November 2026 · Minimalist
+Version 0.41 · 6 November 2026 · Minimalist
+
+> Changes since 0.40: E10 shows the Best set and Done tiles once the exercise has been done, each with a date line, and Done says since when. E11 stays for an exercise never done. E35 drops its "No sessions yet" card once one of its exercises has been done, and its rows show their best sets. Short dates follow the app's standard, Fri, 16th Oct, and a date in another year adds it.
 
 > Changes since 0.39: a completed day (W03, W20) says Done, with its exercises and the sets actually done in the same cards as W42, View workout as the main button, then Edit and Delete. Today's card also shows Up next. W42 has tiles for time, sets and volume, with View workout and Open day. W67 is a new page with a workout's details: tiles, new records, then each exercise's total and a table of last time, weight and reps, with the record set in the accent color. W68 to W70 are its loading and failure states, and those of the cards. Its back link says Workout, or Month when it opened from W42 (W71). A dashed line divides an exercise's name from its table. Up next shows on today and future days, and never on a past day. Where exercises are only shown (W01, W02, W03, W06, W20 to W24, W42 to W46, W57, W67, R05), connected exercises have a stripe up the block's right edge with their group, and it leaves their rows. A name too long for the block ends in "…". A solo exercise keeps its group below its name, and logging, R20 and R30 stay as they were. On a saved day, an exercise's line adds its total, for example "3 sets · 990 kg". View workout is a primary button.
 
@@ -406,7 +408,8 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | What | Format |
 |---|---|
-| Short date | Fri, 16 Oct |
+| Short date | Fri, 16th Oct, or Fri, 16th Oct 2023 in another year |
+| Since | Since 7th Aug, or Since 7th Aug 2023 in another year |
 | Set | 82.5 kg × 10 |
 | Bodyweight set | 10 reps |
 | Target | 3 × 8–10 (sets × rep range); a fixed count uses the same number twice |
@@ -471,7 +474,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises, E05 Load failure, E06 Exercise deleted, with Undo, E07 No exercises in this group, E08 New exercise, E09 Exercise created, E29 Couldn't undo a delete | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title and its description, search and the chips stay pinned, with Groups (→ E30) as a link chip before All, and New exercise is pinned at the bottom,, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." |
 | **E2 Exercise details** | E10 Exercise, E11 Never done, E12 In routines, trash says why, E13 Loading, E14 Load failure | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines by name with a line between them, which only show and open nothing, and every session by month. Edit icon in the header. |
 | **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm, E22 Name taken, E23 Confirm, E15 Loading, E16 Load failure, E24 Saving, E25 Couldn't save, E26 Saved, E27 Deleting, E28 Couldn't delete | A page with name, group and "Also works", then Save exercise. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20, and the trash icon opens E21. Only an exercise in no routine can be deleted, and logged workouts keep it. Then a notification says "Bench press deleted." with Undo. |
-| **E4 Groups** | E31 Loading, E30 Groups, E36 No groups, E35 Group, E33 Edit group, E32 New group, E34 Delete, E37 Load failure, E38 Name taken, E39 Group deleted, with Undo, E40 Trash says why, E41 No exercises, E42 No search matches, E43 Dragging a group, E44 Couldn't save the order, E45 Saving, E46 Couldn't save, E47 Group created, E48 Saved, E49 Loading, E50 Load failure, E51 Loading, E52 Load failure, E53 Deleting, E54 Couldn't delete, E55 Couldn't undo a delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title, its short description and search stay pinned, New group is pinned at the bottom, and the sorting hint sits below the list. While searching, the groups can't be dragged and New group starts from what was typed. New group and Edit group are pages. A row opens E35: the exercises in the group and those that also work it, which only show and open nothing, with Edit and Delete in the header; only an empty group can be deleted. |
+| **E4 Groups** | E31 Loading, E30 Groups, E36 No groups, E35 Group, E33 Edit group, E32 New group, E34 Delete, E37 Load failure, E38 Name taken, E39 Group deleted, with Undo, E40 Trash says why, E41 No exercises, E42 No search matches, E43 Dragging a group, E44 Couldn't save the order, E45 Saving, E46 Couldn't save, E47 Group created, E48 Saved, E49 Loading, E50 Load failure, E51 Loading, E52 Load failure, E53 Deleting, E54 Couldn't delete, E55 Couldn't undo a delete | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title, its short description and search stay pinned, New group is pinned at the bottom, and the sorting hint sits below the list. While searching, the groups can't be dragged and New group starts from what was typed. New group and Edit group are pages. A row opens E35: the exercises in the group and those that also work it, with their best sets, which only show and open nothing, with Edit and Delete in the header; only an empty group can be deleted. Its "No sessions yet" card shows until one of its exercises has been done. |
 
 ---
 
@@ -490,7 +493,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 - **October:** 13 done, 1 missed, 1 skipped.
 - **Exercises:** 35 in E01: Filip's 26, six preloaded ones and Cable lateral raise, which is created in L22.
 - **Groups:** Chest, Back, Shoulders, Biceps, Triceps, Legs.
-- **Reference exercise:** Smith machine incline bench press. Best set 82.5 kg × 10 (Fri, 16 Oct), done 11 times since 7 Aug. L01 and E10 agree.
+- **Reference exercise:** Smith machine incline bench press. Best set 82.5 kg × 10 (Fri, 16th Oct), done 11 times since 7th Aug. L01 and E10 agree.
 
 ---
 

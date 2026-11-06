@@ -11,6 +11,9 @@ import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { joined } from '@/features/routines/formats';
 import { SectionTitle } from '@/components/section-title';
+import { StatTile } from '@/components/stat-tile';
+import { useCurrentUser } from '@/features/account/use-current-user';
+import { formatSet, formatShortDate, formatSince } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
@@ -125,7 +128,7 @@ function Details({ exercise }: { exercise: Exercise }) {
         </Text>
       </View>
 
-      <NoSessionsCard message="Finish a workout with this exercise and its sets, best set and progress show up here." />
+      <Progress exercise={exercise} />
 
       <View style={{ gap: space.sm }}>
         <SectionTitle>Used in</SectionTitle>
@@ -180,6 +183,35 @@ function Details({ exercise }: { exercise: Exercise }) {
   );
 }
 
+/** The best set and how often it was done, or a card until it has been done. */
+function Progress({ exercise }: { exercise: Exercise }) {
+  const { space } = useTheme();
+  const user = useCurrentUser();
+  const units = user.data?.units ?? 'metric';
+  const { bestSet, timesDone, firstDoneOn } = exercise;
+
+  if (bestSet === null || firstDoneOn === null) {
+    return (
+      <NoSessionsCard message="Finish a workout with this exercise and its sets, best set and progress show up here." />
+    );
+  }
+
+  return (
+    <View style={[styles.tiles, { gap: space.sm }]}>
+      <StatTile
+        label="Best set"
+        value={formatSet(bestSet.weightKg, bestSet.reps, units)}
+        detail={formatShortDate(bestSet.date)}
+      />
+      <StatTile
+        label="Done"
+        value={timesDone === 1 ? '1 time' : `${String(timesDone)} times`}
+        detail={formatSince(firstDoneOn)}
+      />
+    </View>
+  );
+}
+
 /** Names up to three routines. More would make the message too long to read. */
 function inRoutinesMessage(routines: Exercise['routines']) {
   if (routines.length > 3) {
@@ -213,5 +245,8 @@ const styles = StyleSheet.create({
   },
   usedIn: {
     borderWidth: 1,
+  },
+  tiles: {
+    flexDirection: 'row',
   },
 });

@@ -5,30 +5,31 @@ const groups = ['Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Legs'].map(
 );
 const [chest, back, shoulders, biceps, triceps, legs] = groups;
 
-function exercise(name, group) {
+/** An exercise in the list, with its best set as weight, reps and date, or none if it was never done. */
+function exercise(name, group, best) {
   return {
     id: `exercise-${name.toLowerCase().replaceAll(' ', '-')}`,
     name,
     groupId: group.id,
     groupName: group.name,
-    bestSet: null,
+    bestSet: best === undefined ? null : { weightKg: best[0], reps: best[1], date: best[2] },
   };
 }
 
 const exercises = [
-  exercise('Flat barbell bench press', chest),
-  exercise('Incline dumbbell bench press', chest),
-  exercise('Cable crossover', chest),
-  exercise('Barbell row', back),
-  exercise('Lat pulldown', back),
-  exercise('Dumbbell shoulder press', shoulders),
+  exercise('Flat barbell bench press', chest, [82.5, 10, '2026-10-16']),
+  exercise('Incline dumbbell bench press', chest, [32.5, 10, '2026-10-19']),
+  exercise('Cable crossover', chest, [20, 12, '2026-10-12']),
+  exercise('Barbell row', back, [80, 8, '2026-10-17']),
+  exercise('Lat pulldown', back, [65, 10, '2026-10-17']),
+  exercise('Dumbbell shoulder press', shoulders, [26, 8, '2026-10-17']),
   exercise('Cable lateral raise', shoulders),
-  exercise('EZ bar bicep curl', biceps),
-  exercise('Seated incline dumbbell curl', biceps),
-  exercise('EZ bar skullcrusher', triceps),
-  exercise('Straight bar pushdown', triceps),
-  exercise('Barbell squat', legs),
-  exercise('Leg press', legs),
+  exercise('EZ bar bicep curl', biceps, [35, 10, '2026-10-19']),
+  exercise('Seated incline dumbbell curl', biceps, [14, 10, '2026-10-12']),
+  exercise('EZ bar skullcrusher', triceps, [35, 12, '2026-10-19']),
+  exercise('Straight bar pushdown', triceps, [30, 12, '2026-10-05']),
+  exercise('Barbell squat', legs, [120, 5, '2026-10-21']),
+  exercise('Leg press', legs, [200, 10, '2026-10-21']),
 ];
 
 function target(name, targetSets, targetRepsFrom, targetRepsTo) {
@@ -101,6 +102,9 @@ function exerciseDetails(item, routines) {
     group: groups.find((group) => group.id === item.groupId),
     alsoWorksGroups: item.name === 'Flat barbell bench press' ? [triceps] : [],
     routines,
+    bestSet: null,
+    timesDone: 0,
+    firstDoneOn: null,
   };
 }
 

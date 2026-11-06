@@ -3,6 +3,7 @@ using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
 using Herculean.Training.Domain.Groups;
+using Herculean.Training.Infrastructure.Exercises;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -21,8 +22,22 @@ internal sealed class GroupReadRepository(TrainingDbContext dbContext) : IGroupR
                 dbContext.Exercises.Count(exercise => exercise.GroupId == group.Id || exercise.AlsoWorks.Any(alsoWorks => alsoWorks.GroupId == group.Id))))
             .ToListAsync(cancellationToken);
 
-    // The best set comes with workouts, which don't exist yet.
-    public Task<GroupDetailsResponse?> GetAsync(GroupId id, CancellationToken cancellationToken) =>
+    public async Task<GroupDetailsResponse?> GetAsync(GroupId id, CancellationToken cancellationToken)
+    {
+        GroupDetailsResponse? group = await GetWithoutBestSetsAsync(id, cancellationToken);
+        if (group is null)
+        {
+            return null;
+        }
+
+        return group with
+        {
+            Exercises = await DoneSets.WithBestSetsAsync(dbContext, group.Exercises, cancellationToken),
+            AlsoWorksExercises = await DoneSets.WithBestSetsAsync(dbContext, group.AlsoWorksExercises, cancellationToken),
+        };
+    }
+
+    private Task<GroupDetailsResponse?> GetWithoutBestSetsAsync(GroupId id, CancellationToken cancellationToken) =>
         dbContext.Groups
             .AsNoTracking()
             .Where(group => group.Id == id)

@@ -44,8 +44,11 @@ function problem(status: number, code: string, detail: string) {
   );
 }
 
+/** Squat is the only exercise that has been done. */
 function row(name: string) {
-  return { id: name, name, groupId: 'x', groupName: 'X', bestSet: null };
+  const bestSet =
+    name === 'Squat' ? { weightKg: 100, reps: 5, date: '2023-10-16' } : null;
+  return { id: name, name, groupId: 'x', groupName: 'X', bestSet };
 }
 
 /** Answers from the stored groups. A write with an override answers with that instead. */
@@ -58,6 +61,7 @@ function answer(overrides: Partial<Record<string, () => Response>> = {}) {
       alsoWorks: ['Shoulder press'],
     },
     { id: 'core', name: 'Core', exercises: [], alsoWorks: [] },
+    { id: 'legs', name: 'Legs', exercises: ['Squat'], alsoWorks: [] },
   ];
   let deleted: StoredGroup[] = [];
 
@@ -177,6 +181,16 @@ test('a row opens the group, with its count and both lists', async () => {
   expect(screen.getByText('Also works')).toBeOnTheScreen();
   expect(screen.getByText('Bench press')).toBeOnTheScreen();
   expect(screen.getByText('Shoulder press')).toBeOnTheScreen();
+});
+
+test('once an exercise is done, its row shows the best set and the card goes', async () => {
+  answer();
+  await openGroup(/^Legs/);
+
+  expect(
+    await screen.findByText('100 kg × 5 · Mon, 16th Oct 2023'),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('No sessions yet')).toBeNull();
 });
 
 test('an empty group says how to fill it, without Also works', async () => {

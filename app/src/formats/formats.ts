@@ -73,15 +73,45 @@ export function formatVolume(weightKg: number, units: Units) {
   return `${Math.round(weightIn(weightKg, units)).toLocaleString('en-US')} ${weightUnitOf(units)}`;
 }
 
-/** A date from the API, for example "2026-10-16" → "Fri, 16 Oct". */
+/** A date from the API, for example "2026-10-16" → "Fri, 16th Oct". Another year says which: "Fri, 16th Oct 2023". */
 export function formatShortDate(date: string) {
-  const [year, month, day] = date.split('-').map(Number);
-  const utc = new Date(Date.UTC(year, month - 1, day));
-  return `${weekdays[(utc.getUTCDay() + 6) % 7]}, ${String(day)} ${months[month - 1]}`;
+  const utc = utcDateOf(date);
+  return `${weekdays[(utc.getUTCDay() + 6) % 7]}, ${dayAndMonth(utc)}`;
+}
+
+/** Where a run of dates starts, for example "Since 7th Aug". Another year says which. */
+export function formatSince(date: string) {
+  return `Since ${dayAndMonth(utcDateOf(date))}`;
+}
+
+/** A day of the month, for example "16th". */
+export function ordinal(day: number) {
+  const lastTwo = day % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) {
+    return `${String(day)}th`;
+  }
+
+  const suffix = { 1: 'st', 2: 'nd', 3: 'rd' }[day % 10] ?? 'th';
+
+  return `${String(day)}${suffix}`;
 }
 
 export function formatWeight(weightKg: number, units: Units) {
   return `${String(weightIn(weightKg, units))} ${weightUnitOf(units)}`;
+}
+
+function utcDateOf(date: string) {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function dayAndMonth(utc: Date) {
+  const year = utc.getUTCFullYear();
+  return [
+    ordinal(utc.getUTCDate()),
+    months[utc.getUTCMonth()],
+    ...(year === new Date().getFullYear() ? [] : [String(year)]),
+  ].join(' ');
 }
 
 function plural(count: number, unit: string) {

@@ -18,7 +18,7 @@ public sealed class GetExerciseHandlerTests
     [Fact]
     public async Task ReadsTheExercise()
     {
-        ExerciseDetailsResponse exercise = new(Guid.CreateVersion7(), "Bench press", new GroupResponse(Guid.CreateVersion7(), "Chest"), [], []);
+        ExerciseDetailsResponse exercise = new(Guid.CreateVersion7(), "Bench press", new GroupResponse(Guid.CreateVersion7(), "Chest"), [], [], null, 0, null);
         _exerciseReadRepository.Details.Add(exercise);
 
         Result<ExerciseDetailsResponse> result = await _handler.HandleAsync(exercise.Id, TestContext.Current.CancellationToken);

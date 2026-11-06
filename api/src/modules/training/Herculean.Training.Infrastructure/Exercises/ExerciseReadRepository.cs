@@ -27,15 +27,35 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
             exercises = exercises.Where(exercise => exercise.GroupId == id);
         }
 
-        // The best set comes with workouts, which don't exist yet.
-        return await exercises
+        List<ExerciseListItemResponse> read = await exercises
             .OrderBy(exercise => exercise.Group.Order)
             .ThenBy(exercise => exercise.Name)
             .Select(exercise => new ExerciseListItemResponse(exercise.Id.Value, exercise.Name, exercise.GroupId.Value, exercise.Group.Name, null))
             .ToListAsync(cancellationToken);
+
+        return await DoneSets.WithBestSetsAsync(dbContext, read, cancellationToken);
     }
 
-    public Task<ExerciseDetailsResponse?> GetAsync(ExerciseId id, CancellationToken cancellationToken) =>
+    public async Task<ExerciseDetailsResponse?> GetAsync(ExerciseId id, CancellationToken cancellationToken)
+    {
+        ExerciseDetailsResponse? exercise = await GetWithoutProgressAsync(id, cancellationToken);
+        if (exercise is null)
+        {
+            return null;
+        }
+
+        List<DateOnly> times = await DoneSets.ListWorkoutDatesAsync(dbContext, id, cancellationToken);
+        Dictionary<ExerciseId, BestSetResponse> best = await DoneSets.ListBestAsync(dbContext, [id], cancellationToken);
+
+        return exercise with
+        {
+            BestSet = best.GetValueOrDefault(id),
+            TimesDone = times.Count,
+            FirstDoneOn = times.Count == 0 ? null : times.Min(),
+        };
+    }
+
+    private Task<ExerciseDetailsResponse?> GetWithoutProgressAsync(ExerciseId id, CancellationToken cancellationToken) =>
         dbContext.Exercises
             .AsNoTracking()
             .Where(exercise => exercise.Id == id)
@@ -51,6 +71,9 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
                     .Where(routine => routine.Exercises.Any(routineExercise => routineExercise.ExerciseId == id))
                     .OrderBy(routine => routine.Name)
                     .Select(routine => new RoutineResponse(routine.Id.Value, routine.Name))
-                    .ToList()))
+                    .ToList(),
+                null,
+                0,
+                null))
             .SingleOrDefaultAsync(cancellationToken);
 }

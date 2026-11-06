@@ -173,4 +173,5 @@ Herculean.Training.Application/
   6. Every Training entity has a `UserId`, and the query filters for its `UserId` and `DeletedAtUtc`.
   7. Every endpoint, response, schema and field in `openapi.json` has a description.
 - **Endpoint tests:** HTTP behaviour, like status codes, auth and rate limits, through an in-memory server (TestHost) with the module's own wiring and fake stores.
+- **Postgres translation tests:** a read the in-memory database runs but Postgres might not, such as grouping, runs against the Npgsql provider with no server. Failing to connect means the query translated. Each new read like that gets one.
 - **Integration tests:** the API against a real PostgreSQL in Testcontainers. Written last.
