@@ -196,7 +196,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | Method | Route | Used by |
 |---|---|---|
 | POST | `/api/v1/workouts` | Start: date and status. The routine comes with Other routine |
-| GET | `/api/v1/workouts` | Resume bar, H02, W02, with a `status` filter |
+| GET | `/api/v1/workouts` | Resume bar, H02 and muted start buttons, with `status=inProgress`, the only status for now |
 | GET | `/api/v1/workouts/{id}` | L01, W03, W20, W42, W67, with last time per exercise |
 | POST | `/api/v1/workouts/{id}/exercises` | L20 Add exercise, undo on L13 |
 | PATCH | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}` | Swap exercise, and its undo |

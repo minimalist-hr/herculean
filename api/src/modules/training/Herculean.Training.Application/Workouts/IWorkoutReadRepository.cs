@@ -7,6 +7,9 @@ namespace Herculean.Training.Application.Workouts;
 
 internal interface IWorkoutReadRepository
 {
+    /// <summary>The current user's workouts with a status, newest first.</summary>
+    Task<List<WorkoutResponse>> ListAsync(WorkoutStatus status, CancellationToken cancellationToken);
+
     /// <summary>One of the current user's workouts with its exercises, sets and last time, or null if there is none.</summary>
     Task<WorkoutDetailsResponse?> GetAsync(WorkoutId id, CancellationToken cancellationToken);
 

@@ -1848,6 +1848,64 @@
             "Bearer": [ ]
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "List the workouts",
+        "description": "Returns the signed-in user's workouts with a status, newest first. Deleted workouts are left out. Only one workout can be in progress, so inProgress returns at most one.",
+        "operationId": "ListWorkouts",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Only workouts that stand here. Only inProgress for now.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workouts. Empty when none match.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkoutResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The status is missing or not inProgress.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/api/v1/workouts/{id}": {

@@ -292,6 +292,11 @@ internal sealed class FakeWorkoutReadRepository : IWorkoutReadRepository
 {
     public WorkoutDetailsResponse? Workout { get; set; }
 
+    public List<WorkoutResponse> Workouts { get; } = [];
+
+    public Task<List<WorkoutResponse>> ListAsync(WorkoutStatus status, CancellationToken cancellationToken) =>
+        Task.FromResult(Workouts.Where(workout => workout.Status == status).ToList());
+
     public List<RoutineExerciseValues> RoutineExercises { get; } = [];
 
     public Dictionary<ExerciseId, LastTimeResponse> LastTime { get; } = [];

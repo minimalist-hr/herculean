@@ -239,6 +239,21 @@ public sealed class WorkoutTotalsReadTests : IDisposable
     }
 
     [Fact]
+    public async Task OnlyTheWorkoutInProgressIsListedAsInProgress()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        await SaveWorkoutAsync(exercise, Date.AddDays(-2), finish: true, (100, 5));
+        Workout deleted = await SaveWorkoutAsync(exercise, Date.AddDays(-1), finish: false);
+        deleted.Delete(Now);
+        await _dbContext.SaveChangesAsync(Token);
+        Workout inProgress = await SaveWorkoutAsync(exercise, Date, finish: false);
+
+        List<WorkoutResponse> workouts = await new WorkoutReadRepository(_dbContext).ListAsync(WorkoutStatus.InProgress, Token);
+
+        workouts.ShouldHaveSingleItem().ShouldBe(new WorkoutResponse(inProgress.Id.Value, Date, WorkoutStatus.InProgress, "Legs"));
+    }
+
+    [Fact]
     public async Task OnlyADeletedWorkoutCanBeFoundToRestore()
     {
         Exercise exercise = await SaveExerciseAsync();

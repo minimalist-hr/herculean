@@ -467,7 +467,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List the workouts
+         * @description Returns the signed-in user's workouts with a status, newest first. Deleted workouts are left out. Only one workout can be in progress, so inProgress returns at most one.
+         */
+        get: operations["ListWorkouts"];
         put?: never;
         /**
          * Create a workout
@@ -3061,6 +3065,47 @@ export interface operations {
                 };
             };
             /** @description The month is not a valid month. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListWorkouts: {
+        parameters: {
+            query?: {
+                /** @description Only workouts that stand here. Only inProgress for now. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workouts. Empty when none match. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutResponse"][];
+                };
+            };
+            /** @description The status is missing or not inProgress. */
             400: {
                 headers: {
                     [name: string]: unknown;

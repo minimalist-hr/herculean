@@ -10,6 +10,14 @@ namespace Herculean.Training.Infrastructure.Workouts;
 
 internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWorkoutReadRepository
 {
+    public Task<List<WorkoutResponse>> ListAsync(WorkoutStatus status, CancellationToken cancellationToken) =>
+        dbContext.Workouts
+            .AsNoTracking()
+            .Where(workout => workout.Status == status)
+            .OrderByDescending(workout => workout.Date)
+            .Select(workout => new WorkoutResponse(workout.Id.Value, workout.Date, workout.Status, workout.Name))
+            .ToListAsync(cancellationToken);
+
     public async Task<WorkoutDetailsResponse?> GetAsync(WorkoutId id, CancellationToken cancellationToken)
     {
         var workout = await dbContext.Workouts
