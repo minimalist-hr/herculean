@@ -36,6 +36,33 @@ const savedAnswers = {
   [workoutPath]: { status: 200, body: savedWorkout },
   [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: { status: 200, body: savedSummary },
 };
+// A saved day whose workout can be deleted and put back, so the day then shows its plan.
+const deletableAnswers = ({ restore } = {}) => {
+  let deleted = false;
+
+  return {
+    ...savedAnswers,
+    [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: () => {
+      deleted = true;
+      return { status: 204 };
+    },
+    [`POST /api/v1/workouts/${sampleWorkout.id}/restore`]: () => {
+      if (restore === 'fail') {
+        return 'fail';
+      }
+      deleted = false;
+      return { status: 200, body: { id: sampleWorkout.id, date: '2026-10-23', status: 'completed', name: sampleWorkout.name } };
+    },
+    'GET /api/v1/days/2026-10-23': () => (deleted ? { status: 200, body: sampleDay } : savedAnswers['GET /api/v1/days/2026-10-23']),
+  };
+};
+const deleteFromToday = async (on) => {
+  await on.go('/workout');
+  await on.waitFor('View workout');
+  await on.tap('Delete');
+  await on.waitFor('Delete workout');
+  await on.sleep(400);
+};
 const pastSavedAnswers = {
   ...savedAnswers,
   'GET /api/v1/days/2026-10-20': { status: 200, body: { ...sampleDay, date: '2026-10-20', status: 'completed', workoutId: sampleWorkout.id, routine: { ...sampleDay.routine, name: 'Back and shoulders 1', exercises: savedWorkout.exercises } } },
@@ -569,6 +596,25 @@ export const screens = [
   { id: 'W65', file: 'W65-Workout-Discarded-Undo', title: 'Workout › Workout discarded, with Undo', row: 'W1 Today states', today: friday, full: false, answers: startSample, steps: discardFromToday },
   { id: 'W66', file: 'W66-Workout-Undo-Discard-Failed', title: "Workout › Undo discard · couldn't undo", row: 'W1 Today states', today: friday, full: false, answers: { ...startSample, [`POST /api/v1/workouts/${sampleWorkout.id}/restore`]: 'fail' }, steps: async (on) => {
     await discardFromToday(on);
+    await on.tap('Undo');
+    await on.waitFor("Couldn't undo. Try again.");
+  } },
+  { id: 'W32', file: 'W32-Workout-Delete-Confirm', title: 'Workout › Delete workout · confirm', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: deleteFromToday },
+  { id: 'W83', file: 'W83-Workout-Deleted-Undo', title: 'Workout › Workout deleted, with Undo', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: deletableAnswers(), steps: async (on) => {
+    await deleteFromToday(on);
+    await on.tap('Delete workout');
+    await on.waitFor('Workout deleted.');
+    await on.waitFor('Start workout');
+  } },
+  { id: 'W84', file: 'W84-Workout-Delete-Failed', title: "Workout › Delete workout · couldn't delete", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: { status: 500 } }, steps: async (on) => {
+    await deleteFromToday(on);
+    await on.tap('Delete workout');
+    await on.waitFor("Couldn't delete the workout. Try again.");
+  } },
+  { id: 'W85', file: 'W85-Workout-Undo-Delete-Failed', title: "Workout › Undo delete · couldn't undo", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: deletableAnswers({ restore: 'fail' }), steps: async (on) => {
+    await deleteFromToday(on);
+    await on.tap('Delete workout');
+    await on.waitFor('Workout deleted.');
     await on.tap('Undo');
     await on.waitFor("Couldn't undo. Try again.");
   } },

@@ -64,19 +64,21 @@ export function useSaveWorkout(id: string) {
   });
 }
 
-/** Discards a workout, goes back to its day, and offers to undo it. The undo leaves you on the day. */
-export function useDiscardWorkout(id: string) {
+/** Refreshes everything a workout's change shows in. */
+function useRefreshAfterWorkout() {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
-  function refreshDays() {
-    return Promise.all(
+  return () =>
+    Promise.all(
       changedByAWorkout.map((queryKey) =>
         queryClient.invalidateQueries({ queryKey }),
       ),
     );
-  }
+}
 
+/** Puts back a deleted or discarded workout, and offers it as Undo on a notification. */
+function useUndoRemoval(id: string) {
+  const refresh = useRefreshAfterWorkout();
   const restore = useMutation({
     mutationFn: async () => {
       const { data, error } = await api.POST('/api/v1/workouts/{id}/restore', {
@@ -86,34 +88,64 @@ export function useDiscardWorkout(id: string) {
         throw toApiError(error);
       }
     },
-    onSuccess: refreshDays,
+    onSuccess: refresh,
     onError: (error) => {
       notifyFailure(failureMessage(error, "Couldn't undo. Try again."));
     },
   });
 
+  return (message: string) => {
+    notifySuccess(message, {
+      label: 'Undo',
+      onPress: () => {
+        dismissNotification();
+        restore.mutate();
+      },
+    });
+  };
+}
+
+async function deleteWorkout(id: string) {
+  const { response, error } = await api.DELETE('/api/v1/workouts/{id}', {
+    params: { path: { id } },
+  });
+  if (!response.ok) {
+    throw toApiError(error);
+  }
+}
+
+/** Discards a workout, goes back to its day, and offers to undo it. The undo leaves you on the day. */
+export function useDiscardWorkout(id: string) {
+  const router = useRouter();
+  const refresh = useRefreshAfterWorkout();
+  const offerUndo = useUndoRemoval(id);
+
   return useMutation({
-    mutationFn: async () => {
-      const { response, error } = await api.DELETE('/api/v1/workouts/{id}', {
-        params: { path: { id } },
-      });
-      if (!response.ok) {
-        throw toApiError(error);
-      }
-    },
+    mutationFn: () => deleteWorkout(id),
     onSuccess: async () => {
       router.dismiss(pagesBackToDay);
-      notifySuccess('Workout discarded.', {
-        label: 'Undo',
-        onPress: () => {
-          dismissNotification();
-          restore.mutate();
-        },
-      });
-      await refreshDays();
+      offerUndo('Workout discarded.');
+      await refresh();
     },
     onError: () => {
       notifyFailure("Couldn't discard the workout. Try again.");
+    },
+  });
+}
+
+/** Deletes a saved workout, so its day shows its plan again, and offers to undo it. */
+export function useDeleteWorkout(id: string) {
+  const refresh = useRefreshAfterWorkout();
+  const offerUndo = useUndoRemoval(id);
+
+  return useMutation({
+    mutationFn: () => deleteWorkout(id),
+    onSuccess: async () => {
+      offerUndo('Workout deleted.');
+      await refresh();
+    },
+    onError: () => {
+      notifyFailure("Couldn't delete the workout. Try again.");
     },
   });
 }

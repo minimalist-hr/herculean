@@ -21,6 +21,7 @@ import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
 import { useElapsed } from './use-elapsed';
 import { useFirstDay } from './use-first-day';
 import { useSkipWorkout } from './use-skip-workout';
+import { useDeleteWorkout } from './use-finish-workout';
 import { useStartWorkout } from './use-start-workout';
 import { useUndoSkip } from './use-undo-skip';
 import { useWorkout } from './use-workout';
@@ -214,6 +215,48 @@ function SkipButton({
           waiting={skip.isPending}
           onPress={() => {
             skip.mutate(date);
+          }}
+        />
+      </Sheet>
+    </>
+  );
+}
+
+function DeleteButton({
+  workoutId,
+  name,
+}: {
+  workoutId: string;
+  name: string;
+}) {
+  const remove = useDeleteWorkout(workoutId);
+  const [confirming, setConfirming] = useState(false);
+
+  return (
+    <>
+      <Button
+        label="Delete"
+        variant="dangerOutline"
+        onPress={() => {
+          setConfirming(true);
+        }}
+      />
+      <Sheet
+        visible={confirming}
+        title={`Delete ${name}?`}
+        message="Its sets come out of your history, best sets and month totals. You can undo this right after."
+        onClose={() => {
+          setConfirming(false);
+        }}
+      >
+        <Button
+          label="Delete workout"
+          variant="danger"
+          waitingLabel="Deleting workout"
+          waiting={remove.isPending}
+          onPress={() => {
+            // On success the day shows its plan, so this card and its sheet go.
+            remove.mutate();
           }}
         />
       </Sheet>
@@ -465,13 +508,10 @@ function CompletedCard({
               notifyFailure('Editing a workout comes in a later update.');
             }}
           />,
-          <Button
+          <DeleteButton
             key="delete"
-            label="Delete"
-            variant="dangerOutline"
-            onPress={() => {
-              notifyFailure('Deleting a workout comes in a later update.');
-            }}
+            workoutId={workoutId}
+            name={routine.name}
           />,
         ]}
       </Actions>

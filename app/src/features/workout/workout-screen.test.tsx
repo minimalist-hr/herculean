@@ -563,16 +563,88 @@ describe('a saved day', () => {
     expect(await screen.findByText('Details screen')).toBeOnTheScreen();
   });
 
-  test.each([
-    ['Edit', 'Editing a workout comes in a later update.'],
-    ['Delete', 'Deleting a workout comes in a later update.'],
-  ])('%s says it comes later', async (name, message) => {
+  test('Edit says it comes later', async () => {
     answerSaved();
     await renderWorkout();
 
-    await fireEvent.press(await screen.findByRole('button', { name }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Edit' }));
 
-    expect(await screen.findByText(message)).toBeOnTheScreen();
+    expect(
+      await screen.findByText('Editing a workout comes in a later update.'),
+    ).toBeOnTheScreen();
+  });
+
+  /** A saved day whose workout can be deleted and restored, like the server. */
+  function answerDeletable({ deleteStatus = 204 } = {}) {
+    let deleted = false;
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      if (request.method === 'DELETE') {
+        deleted = deleteStatus === 204;
+        return Promise.resolve(new Response(null, { status: deleteStatus }));
+      }
+      if (request.method === 'POST' && pathname.endsWith('/restore')) {
+        deleted = false;
+        return Promise.resolve(
+          Response.json({ id: 'w1', status: 'completed' }),
+        );
+      }
+      if (pathname.startsWith('/api/v1/workouts/')) {
+        return Promise.resolve(
+          Response.json(
+            pathname.endsWith('/summary') ? savedSummary : savedWorkout,
+          ),
+        );
+      }
+      return Promise.resolve(
+        Response.json(
+          pathname === '/api/v1/days' ? week : deleted ? plannedDay : savedDay,
+        ),
+      );
+    });
+  }
+
+  test('Delete asks first, then the day shows its plan, with Undo', async () => {
+    answerDeletable();
+    await renderWorkout();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Delete' }),
+    );
+    expect(
+      await screen.findByText(
+        'Its sets come out of your history, best sets and month totals. You can undo this right after.',
+      ),
+    ).toBeOnTheScreen();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Delete workout' }),
+    );
+
+    expect(await screen.findByText('Workout deleted.')).toBeOnTheScreen();
+    expect(
+      await screen.findByRole('button', { name: 'Start workout' }),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+
+    expect(await screen.findByText('Done')).toBeOnTheScreen();
+  });
+
+  test('a failed delete says so and keeps the workout', async () => {
+    answerDeletable({ deleteStatus: 500 });
+    await renderWorkout();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Delete' }),
+    );
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Delete workout' }),
+    );
+
+    expect(
+      await screen.findByText("Couldn't delete the workout. Try again."),
+    ).toBeOnTheScreen();
+    expect(screen.getByText('Done')).toBeOnTheScreen();
   });
 
   test('details that fail to load can be tried again, and the actions stay', async () => {

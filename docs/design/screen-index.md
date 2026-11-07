@@ -1,6 +1,6 @@
 # Screen index
 
-294 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+297 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -110,6 +110,9 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W30 | Workout › Edit workout · full scroll | W4 Edit or delete a workout | 390×1900 | [png](screens/workout/W30-Workout-Edit.png) · [html](html/workout/W30-Workout-Edit.html) · [source](source/workout/W30-Workout-Edit.dc.html) |
 | W31 | Workout › Edit workout · set removed, undo bar | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W31-Workout-Edit-Set-Removed.png) · [html](html/workout/W31-Workout-Edit-Set-Removed.html) · [source](source/workout/W31-Workout-Edit-Set-Removed.dc.html) |
 | W32 | Workout › Delete workout · confirm | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W32-Workout-Delete-Confirm.png) · [html](html/workout/W32-Workout-Delete-Confirm.html) · [source](source/workout/W32-Workout-Delete-Confirm.dc.html) |
+| W83 | Workout › Workout deleted, with Undo | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W83-Workout-Deleted-Undo.png) · [html](html/workout/W83-Workout-Deleted-Undo.html) · [source](source/workout/W83-Workout-Deleted-Undo.dc.html) |
+| W84 | Workout › Delete workout · couldn't delete | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W84-Workout-Delete-Failed.png) · [html](html/workout/W84-Workout-Delete-Failed.html) · [source](source/workout/W84-Workout-Delete-Failed.dc.html) |
+| W85 | Workout › Undo delete · couldn't undo | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W85-Workout-Undo-Delete-Failed.png) · [html](html/workout/W85-Workout-Undo-Delete-Failed.html) · [source](source/workout/W85-Workout-Undo-Delete-Failed.dc.html) |
 | W41 | Workout › Month · loading · full scroll | W5 Month | 390×1048 | [png](screens/workout/W41-Workout-Month-Loading.png) · [html](html/workout/W41-Workout-Month-Loading.html) · [source](source/workout/W41-Workout-Month-Loading.dc.html) |
 | W40 | Workout › Month · full scroll | W5 Month | 390×1048 | [png](screens/workout/W40-Workout-Month.png) · [html](html/workout/W40-Workout-Month.html) · [source](source/workout/W40-Workout-Month.dc.html) |
 | W42 | Workout › Month › Day summary · sheet | W5 Month | 390×844 | [png](screens/workout/W42-Workout-Month-Day-Sheet.png) · [html](html/workout/W42-Workout-Month-Day-Sheet.html) · [source](source/workout/W42-Workout-Month-Day-Sheet.dc.html) |
