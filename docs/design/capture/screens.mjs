@@ -603,9 +603,9 @@ export const screens = [
     await on.waitFor('Duration');
     await on.sleep(400);
   } },
-  { id: 'W69', file: 'W69-Workout-Details-Load-Failure', title: 'Workout › Workout details · load failure', row: 'W3 Other days', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
+  { id: 'W69', file: 'W69-Workout-Details-Load-Failure', title: 'Workout › Workout details · load failure', row: 'W3 Other days', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail', [summaryPath]: 'fail' }, steps: async (on) => {
     await on.go(detailsPath);
-    await on.waitFor("Couldn't load this workout.");
+    await on.waitFor("Couldn't load the exercises.");
   } },
   { id: 'W70', file: 'W70-Workout-Today-Completed-Load-Failure', title: 'Workout › Today · completed, load failure', row: 'W1 Today states', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
     await on.go('/workout');

@@ -1,4 +1,5 @@
 export const workoutKeys = {
+  all: ['workout'] as const,
   settings: ['workout-settings'] as const,
   inProgress: ['workouts', 'inProgress'] as const,
   workout: (id: string) => ['workout', id] as const,

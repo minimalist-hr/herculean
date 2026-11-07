@@ -63,6 +63,10 @@ function answerWith({
     if (request.method === 'POST') {
       return Promise.resolve(restore());
     }
+    // Logging would hold the workout; here the summary alone says what it comes to.
+    if (pathname === '/api/v1/workouts/w1') {
+      return new Promise<Response>(() => undefined);
+    }
     if (pathname.endsWith('/summary')) {
       return Promise.resolve(
         summaryStatus === 200
@@ -205,7 +209,7 @@ test('a past day with every set checked has a dash, no warning and no records', 
   expect(screen.getByRole('button', { name: 'Save workout' })).toBeTruthy();
 });
 
-test('with nothing checked it says so, and only offers to discard', async () => {
+test('with nothing checked it says so, and Save workout says why', async () => {
   answerWith({
     answer: {
       ...summary,
@@ -217,7 +221,13 @@ test('with nothing checked it says so, and only offers to discard', async () => 
   await renderFinish();
 
   expect(await screen.findByText('No sets checked off')).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: 'Save workout' })).toBeNull();
+  const save = screen.getByRole('button', { name: 'Save workout' });
+  expect(save).not.toHaveStyle({ opacity: 1 });
+  await fireEvent.press(save);
+  expect(
+    await screen.findByText('Check off a set to save, or discard the workout.'),
+  ).toBeOnTheScreen();
+  expect(requests('PATCH')).toHaveLength(0);
   await openDiscard();
   expect(
     screen.getByText('No sets are checked off. You can undo this right after.'),

@@ -38,14 +38,18 @@ internal sealed class Workout : Entity<WorkoutId>
 
     public DateTimeOffset? DeletedAtUtc { get; private set; }
 
+    /// <summary>The routine's target sets when this was created. Saving removes exercises left with no sets, so this keeps what was planned.</summary>
+    public int PlannedSets { get; private set; }
+
     /// <summary>Its exercises and their targets, copied when it was created, so later routine changes leave it alone.</summary>
     public IReadOnlyList<WorkoutExercise> Exercises => _exercises;
 
     /// <summary>A skipped workout. Its exercises keep the order they come in.</summary>
     public static Workout Skip(UserId userId, DateOnly date, RoutineId routineId, string name, IEnumerable<RoutineExerciseValues> exercises)
     {
-        Workout workout = new(WorkoutId.New(), userId, date, WorkoutStatus.Skipped, routineId, name);
-        workout._exercises.AddRange(exercises.Select((values, order) => WorkoutExercise.Create(userId, workout.Id, order, values)));
+        List<RoutineExerciseValues> copied = [.. exercises];
+        Workout workout = new(WorkoutId.New(), userId, date, WorkoutStatus.Skipped, routineId, name) { PlannedSets = copied.Sum(values => values.TargetSets) };
+        workout._exercises.AddRange(copied.Select((values, order) => WorkoutExercise.Create(userId, workout.Id, order, values)));
 
         return workout;
     }
@@ -60,8 +64,13 @@ internal sealed class Workout : Entity<WorkoutId>
         IReadOnlyDictionary<ExerciseId, List<SetValues>> lastTime,
         DateTimeOffset? startedAtUtc)
     {
-        Workout workout = new(WorkoutId.New(), userId, date, WorkoutStatus.InProgress, routineId, name) { StartedAtUtc = startedAtUtc };
-        workout._exercises.AddRange(exercises.Select((values, order) =>
+        List<RoutineExerciseValues> copied = [.. exercises];
+        Workout workout = new(WorkoutId.New(), userId, date, WorkoutStatus.InProgress, routineId, name)
+        {
+            StartedAtUtc = startedAtUtc,
+            PlannedSets = copied.Sum(values => values.TargetSets),
+        };
+        workout._exercises.AddRange(copied.Select((values, order) =>
             WorkoutExercise.Start(userId, workout.Id, order, values, lastTime.GetValueOrDefault(values.ExerciseId) ?? [])));
 
         return workout;

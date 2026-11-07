@@ -86,7 +86,7 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
                 workout.Date,
                 workout.StartedAtUtc,
                 workout.FinishedAtUtc,
-                workout.Exercises.Sum(exercise => exercise.TargetSets),
+                workout.PlannedSets,
                 workout.Exercises.SelectMany(exercise => exercise.Sets).Count(set => set.Checked),
                 workout.Exercises.SelectMany(exercise => exercise.Sets).Where(set => set.Checked).Sum(set => set.WeightKg * set.Reps)))
             .ToListAsync(cancellationToken);

@@ -1069,9 +1069,9 @@ describe('removing an exercise', () => {
         screen.getByRole('button', { name: 'Add exercise', ...hidden }),
       ).toBeOnTheScreen();
       expect(
-        screen.queryByRole('button', { name: 'Reorder', ...hidden }),
-      ).toBeNull();
-      expect(screen.queryByText(/of \d+ sets/, hidden)).toBeNull();
+        screen.getByRole('button', { name: 'Reorder', ...hidden }),
+      ).not.toHaveStyle({ opacity: 1 });
+      expect(screen.getByText(/0 of 0 sets/, hidden)).toBeOnTheScreen();
       expect(
         screen.getByRole('button', { name: 'Finish', ...hidden }),
       ).toBeOnTheScreen();

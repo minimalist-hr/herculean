@@ -6,7 +6,14 @@ import { useTheme } from '@/theme/theme-provider';
 import { useReduceMotion } from './use-reduce-motion';
 
 /** A block in the shape of content that is loading. It pulses gently, and stands still when the phone asks for reduced motion. */
-export function Skeleton({ width, height }: { width: number; height: number }) {
+export function Skeleton({
+  width,
+  height,
+}: {
+  /** A number, or the full width it sits in. */
+  width: number | '100%';
+  height: number;
+}) {
   const { colors, motion, opacity, radius } = useTheme();
   const reduceMotion = useReduceMotion();
   const [pulse] = useState(() => new Animated.Value(1));

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
 import { groupBlocks, targetText } from './formats';
@@ -66,6 +67,13 @@ export function ExerciseTargetLine({
 }
 
 /** A routine's exercises with their targets. Neighbours in the same group join into one block, with the group up its edge. */
+/** Exercise targets while they load in a sheet: one row, as wide as the sheet. A sheet is short, so it needn't match the list's height. */
+export function ExerciseTargetsSkeleton() {
+  const { size } = useTheme();
+
+  return <Skeleton width="100%" height={size.listRowMin} />;
+}
+
 export function ExerciseTargets({
   exercises,
   background,

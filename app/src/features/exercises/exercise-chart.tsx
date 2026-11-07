@@ -3,10 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 
 import type { components } from '@/api/schema';
-import { LoadFailure } from '@/components/load-failure';
 import { QuickPicks } from '@/components/quick-picks';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
+import { TextLink } from '@/components/text-link';
 import { formatShortDate, formatWeight, weightIn } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -58,12 +58,13 @@ export function ExerciseChart({
     }
     if (progress.data === undefined) {
       return progress.isError ? (
-        <LoadFailure
-          message="Couldn't load the chart."
+        <BoxMessage
           onRetry={() => {
             void progress.refetch();
           }}
-        />
+        >
+          Couldn&apos;t load the chart.
+        </BoxMessage>
       ) : (
         <View accessible accessibilityLabel="Loading the chart">
           {width > 0 && <Skeleton width={width} height={chartHeight} />}
@@ -121,13 +122,26 @@ export function ExerciseChart({
   );
 }
 
-function BoxMessage({ children }: { children: string }) {
-  const { colors, text } = useTheme();
+/** A line inside the chart's box, which already frames it, with Try again after a failure. */
+function BoxMessage({
+  children,
+  onRetry,
+}: {
+  children: string;
+  onRetry?: () => void;
+}) {
+  const { colors, space, text } = useTheme();
 
   return (
-    <Text style={[text.body, styles.message, { color: colors.muted }]}>
-      {children}
-    </Text>
+    <View style={[styles.messageBox, { gap: space.xs }]}>
+      <Text
+        accessibilityRole={onRetry ? 'alert' : undefined}
+        style={[text.body, styles.message, { color: colors.muted }]}
+      >
+        {children}
+      </Text>
+      {onRetry && <TextLink label="Try again" onPress={onRetry} />}
+    </View>
   );
 }
 
@@ -277,6 +291,9 @@ const styles = StyleSheet.create({
   box: {
     justifyContent: 'center',
     borderWidth: 1,
+  },
+  messageBox: {
+    alignItems: 'center',
   },
   message: {
     textAlign: 'center',

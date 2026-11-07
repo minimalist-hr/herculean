@@ -4,6 +4,29 @@ import { counted, joined } from '@/features/routines/formats';
 type Summary = components['schemas']['WorkoutSummaryResponse'];
 type UncheckedExercise = components['schemas']['UncheckedExerciseResponse'];
 type WorkoutRecord = components['schemas']['WorkoutRecordResponse'];
+type FinishCounts = Pick<
+  Summary,
+  'setsChecked' | 'setsTotal' | 'uncheckedExercises'
+>;
+
+/** The counts behind the warning, from a workout's exercises, as the summary would give them. */
+export function finishCounts(
+  exercises: { name: string; sets: { checked: boolean }[] }[],
+): FinishCounts {
+  const sets = exercises.flatMap((exercise) => exercise.sets);
+
+  return {
+    setsChecked: sets.filter((set) => set.checked).length,
+    setsTotal: sets.length,
+    uncheckedExercises: exercises
+      .map((exercise) => ({
+        name: exercise.name,
+        uncheckedSets: exercise.sets.filter((set) => !set.checked).length,
+        sets: exercise.sets.length,
+      }))
+      .filter((exercise) => exercise.uncheckedSets > 0),
+  };
+}
 
 /** Which of one exercise's sets aren't checked, for example "both sets". */
 function whichSets({ uncheckedSets, sets }: UncheckedExercise) {
@@ -30,7 +53,7 @@ export function finishWarning({
   setsChecked,
   setsTotal,
   uncheckedExercises,
-}: Summary) {
+}: FinishCounts) {
   if (setsChecked === 0) {
     return {
       title: 'No sets checked off',

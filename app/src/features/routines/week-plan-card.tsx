@@ -35,11 +35,7 @@ export function WeekPlanCard({
       {onRetry === undefined ? (
         renderCard()
       ) : (
-        <LoadFailure
-          inline
-          message="Couldn't load the week plan."
-          onRetry={onRetry}
-        />
+        <LoadFailure message="Couldn't load the week plan." onRetry={onRetry} />
       )}
     </View>
   );

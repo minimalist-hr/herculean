@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { SectionTitle } from '@/components/section-title';
+import { Skeleton } from '@/components/skeleton';
 import { StatTile } from '@/components/stat-tile';
 import {
   formatClock,
@@ -70,7 +71,8 @@ export function NewRecords({
   records,
   units,
 }: {
-  records: Summary['records'];
+  /** Undefined while they load: a row in the shape of one record. */
+  records?: Summary['records'];
   units: Units;
 }) {
   const { colors, radius, space, text } = useTheme();
@@ -88,12 +90,18 @@ export function NewRecords({
           },
         ]}
       >
-        {records.length === 0 && (
+        {records === undefined && (
+          <View style={[styles.recordText, { gap: 2, padding: space.lg }]}>
+            <Skeleton width={160} height={21} />
+            <Skeleton width={120} height={17} />
+          </View>
+        )}
+        {records?.length === 0 && (
           <Text style={[text.body, { color: colors.muted, padding: space.lg }]}>
             No new records this time.
           </Text>
         )}
-        {records.map((record, index) => (
+        {records?.map((record, index) => (
           <View
             key={record.name}
             style={[

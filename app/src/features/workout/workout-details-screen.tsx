@@ -6,6 +6,7 @@ import { BackLink } from '@/components/back-link';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SectionTitle } from '@/components/section-title';
+import { Skeleton } from '@/components/skeleton';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { groupBlocks } from '@/features/routines/formats';
 import { GroupStripe } from '@/features/routines/group-stripe';
@@ -30,6 +31,35 @@ function DashedLine() {
   return (
     <View style={styles.dashedLine}>
       <View style={[styles.dashes, { borderColor: colors.border }]} />
+    </View>
+  );
+}
+
+/** One exercise's card while the workout loads, as tall as an exercise with three sets. */
+function SavedExercisesSkeleton() {
+  const { colors, radius, space } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.block,
+        {
+          borderRadius: radius.card,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+        },
+      ]}
+    >
+      <View style={[styles.rows, { gap: space.sm, padding: space.lg }]}>
+        <Skeleton width={180} height={21} />
+        <Skeleton width={90} height={17} />
+        <DashedLine />
+        {[0, 1, 2].map((row) => (
+          <View key={row} style={{ paddingVertical: space.sm }}>
+            <Skeleton width={260} height={18} />
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -112,14 +142,15 @@ export function WorkoutDetailsScreen({
   const units = user.data?.units ?? 'metric';
   const workout = useWorkout(id);
   const summary = useWorkoutSummary(id);
+  // Either call names the workout, so the heading shows with whichever comes first.
+  const named = summary.data ?? workout.data;
 
-  function renderContent() {
-    if (workout.isError || summary.isError) {
+  function renderSummary() {
+    if (summary.isError) {
       return (
         <LoadFailure
-          message="Couldn't load this workout."
+          message="Couldn't load the summary."
           onRetry={() => {
-            void workout.refetch();
             void summary.refetch();
           }}
         />
@@ -129,78 +160,86 @@ export function WorkoutDetailsScreen({
     return (
       <>
         <SummaryTiles summary={summary.data} units={units} saved />
-        {summary.data !== undefined && (
-          <NewRecords records={summary.data.records} units={units} />
-        )}
-        {workout.data !== undefined && summary.data !== undefined && (
-          <View style={{ gap: space.sm }}>
-            <SectionTitle>Exercises</SectionTitle>
-            <View style={{ gap: space.sm }}>
-              {groupBlocks(workout.data.exercises).map((block) => {
-                const connected = block.length > 1;
-
-                return (
-                  <View
-                    key={block[0].id}
-                    style={[
-                      styles.block,
-                      {
-                        borderRadius: radius.card,
-                        borderColor: colors.border,
-                        backgroundColor: colors.card,
-                      },
-                    ]}
-                  >
-                    <View style={styles.rows}>
-                      {block.map((exercise, index) => (
-                        <View
-                          key={exercise.id}
-                          style={{
-                            gap: space.sm,
-                            padding: space.lg,
-                            borderTopWidth: index === 0 ? 0 : 1,
-                            borderTopColor: colors.border,
-                          }}
-                        >
-                          <View style={[styles.heading, { gap: space.md }]}>
-                            <View style={styles.name}>
-                              <Text
-                                style={[
-                                  text.listItemName,
-                                  { color: colors.text },
-                                ]}
-                              >
-                                {exercise.name}
-                              </Text>
-                              {!connected && (
-                                <Text style={text.meta}>
-                                  {exercise.groupName}
-                                </Text>
-                              )}
-                            </View>
-                            <Text style={text.meta}>
-                              {exerciseTotal(exercise, units)}
-                            </Text>
-                          </View>
-                          <DashedLine />
-                          <SetTable
-                            exercise={exercise}
-                            record={summary.data.records.find(
-                              (record) => record.name === exercise.name,
-                            )}
-                            units={units}
-                          />
-                        </View>
-                      ))}
-                    </View>
-                    {connected && <GroupStripe name={block[0].groupName} />}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
+        <NewRecords records={summary.data?.records} units={units} />
       </>
+    );
+  }
+
+  function renderExercises() {
+    if (workout.isError) {
+      return (
+        <LoadFailure
+          message="Couldn't load the exercises."
+          onRetry={() => {
+            void workout.refetch();
+          }}
+        />
+      );
+    }
+
+    if (workout.data === undefined) {
+      return <SavedExercisesSkeleton />;
+    }
+
+    return (
+      <View style={{ gap: space.sm }}>
+        {groupBlocks(workout.data.exercises).map((block) => {
+          const connected = block.length > 1;
+
+          return (
+            <View
+              key={block[0].id}
+              style={[
+                styles.block,
+                {
+                  borderRadius: radius.card,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                },
+              ]}
+            >
+              <View style={styles.rows}>
+                {block.map((exercise, index) => (
+                  <View
+                    key={exercise.id}
+                    style={{
+                      gap: space.sm,
+                      padding: space.lg,
+                      borderTopWidth: index === 0 ? 0 : 1,
+                      borderTopColor: colors.border,
+                    }}
+                  >
+                    <View style={[styles.heading, { gap: space.md }]}>
+                      <View style={styles.name}>
+                        <Text
+                          style={[text.listItemName, { color: colors.text }]}
+                        >
+                          {exercise.name}
+                        </Text>
+                        {!connected && (
+                          <Text style={text.meta}>{exercise.groupName}</Text>
+                        )}
+                      </View>
+                      <Text style={text.meta}>
+                        {exerciseTotal(exercise, units)}
+                      </Text>
+                    </View>
+                    <DashedLine />
+                    <SetTable
+                      exercise={exercise}
+                      record={summary.data?.records.find(
+                        (record) => record.name === exercise.name,
+                      )}
+                      units={units}
+                    />
+                  </View>
+                ))}
+              </View>
+              {connected && <GroupStripe name={block[0].groupName} />}
+            </View>
+          );
+        })}
+      </View>
     );
   }
 
@@ -223,13 +262,17 @@ export function WorkoutDetailsScreen({
         />
         <ScreenHeading
           label={
-            summary.data &&
-            `Done · ${shortWeekdayDate(dateFromText(summary.data.date))}`
+            // A blank line keeps the room while it loads, so the page doesn't move.
+            named ? `Done · ${shortWeekdayDate(dateFromText(named.date))}` : ' '
           }
-          title={summary.data?.name ?? 'Workout'}
+          title={named?.name ?? 'Workout'}
         />
       </View>
-      {renderContent()}
+      {renderSummary()}
+      <View style={{ gap: space.sm }}>
+        <SectionTitle>Exercises</SectionTitle>
+        {renderExercises()}
+      </View>
     </ScrollView>
   );
 }

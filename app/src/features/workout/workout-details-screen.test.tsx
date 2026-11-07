@@ -158,17 +158,17 @@ test('lists new records', async () => {
   answer();
   await renderDetails();
 
-  expect(await screen.findByText('New records')).toBeOnTheScreen();
-  expect(screen.getByText('70 kg × 8')).toBeOnTheScreen();
+  expect(await screen.findByText('70 kg × 8')).toBeOnTheScreen();
+  expect(screen.getByText('New records')).toBeOnTheScreen();
 });
 
 test('with no records the records section says so', async () => {
   answer({ summaryAnswer: { ...summary, records: [] } });
   await renderDetails();
-  await screen.findByText('Exercises');
-
+  expect(
+    await screen.findByText('No new records this time.'),
+  ).toBeOnTheScreen();
   expect(screen.getByText('New records')).toBeOnTheScreen();
-  expect(screen.getByText('No new records this time.')).toBeOnTheScreen();
 });
 
 test('each set shows last time, weight and reps', async () => {
@@ -234,11 +234,15 @@ test('a load failure can be tried again', async () => {
   await renderDetails();
 
   expect(
-    await screen.findByText("Couldn't load this workout."),
+    await screen.findByText("Couldn't load the summary."),
   ).toBeOnTheScreen();
+  expect(screen.getByText("Couldn't load the exercises.")).toBeOnTheScreen();
 
   answer();
-  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+  for (const retry of screen.getAllByRole('link', { name: 'Try again' })) {
+    await fireEvent.press(retry);
+  }
 
-  expect(await screen.findByText('Exercises')).toBeOnTheScreen();
+  expect(await screen.findByText('70 kg × 8')).toBeOnTheScreen();
+  expect(screen.queryByText(/Couldn't load/)).toBeNull();
 });

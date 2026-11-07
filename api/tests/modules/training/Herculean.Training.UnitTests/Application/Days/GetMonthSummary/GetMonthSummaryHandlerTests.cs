@@ -35,12 +35,12 @@ public sealed class GetMonthSummaryHandlerTests
     private static DayExerciseResponse Exercise(int targetSets) =>
         new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", targetSets, 8, 10);
 
-    private static DoneWorkoutTotals Done(DateOnly date, int targetSets = 5, int setsDone = 4, decimal volumeKg = 1000, int minutes = 60) =>
+    private static DoneWorkoutTotals Done(DateOnly date, int plannedSets = 5, int setsDone = 4, decimal volumeKg = 1000, int minutes = 60) =>
         new(
             date,
             new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero).AddMinutes(minutes),
-            targetSets,
+            plannedSets,
             setsDone,
             volumeKg);
 
@@ -58,7 +58,7 @@ public sealed class GetMonthSummaryHandlerTests
     }
 
     [Fact]
-    public async Task AWorkoutOnARestDayIsDoneButNotPlanned()
+    public async Task AWorkoutOnARestDayIsDoneAndPlansItsSetsButNotItsDay()
     {
         DateOnly monday = new(2026, 11, 2);
         _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), monday, WorkoutStatus.Completed, "Legs", RoutineId.New()));
@@ -66,7 +66,7 @@ public sealed class GetMonthSummaryHandlerTests
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-11");
 
-        result.Value.ShouldBe(new MonthSummaryResponse(1, 0, 0, 60, 4, 0, 1000, 0, null));
+        result.Value.ShouldBe(new MonthSummaryResponse(1, 0, 0, 60, 4, 5, 1000, 0, null));
     }
 
     [Fact]

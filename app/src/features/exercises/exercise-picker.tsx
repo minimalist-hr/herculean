@@ -9,6 +9,7 @@ import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { CheckIcon, PlusIcon } from '@/components/icons';
+import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
@@ -213,12 +214,14 @@ export function ExercisePicker({
   function renderEmpty() {
     if (found.isError) {
       return (
-        <LoadFailure
-          message="Couldn't load your exercises."
-          onRetry={() => {
-            void found.refetch();
-          }}
-        />
+        <View style={{ paddingHorizontal: size.sidePadding }}>
+          <LoadFailure
+            message="Couldn't load your exercises."
+            onRetry={() => {
+              void found.refetch();
+            }}
+          />
+        </View>
       );
     }
 
@@ -231,28 +234,21 @@ export function ExercisePicker({
     }
 
     return (
-      <View
-        style={[
-          styles.message,
-          {
-            gap: space.xs,
-            paddingTop: space.xl,
-            paddingHorizontal: size.sidePadding + space.xl,
-          },
-        ]}
-      >
-        <Text style={[text.statValue, styles.centered, { color: colors.text }]}>
-          {search !== ''
-            ? `No matches for “${search}”`
-            : swapping
-              ? 'No exercises to swap to'
-              : 'No exercises to add'}
-        </Text>
-        <Text style={[text.meta, styles.centered]}>
-          {search === ''
-            ? nothingToAdd
-            : 'Check the spelling, or create it as a new exercise.'}
-        </Text>
+      <View style={{ paddingHorizontal: size.sidePadding }}>
+        <EmptyCard
+          title={
+            search !== ''
+              ? `No matches for “${search}”`
+              : swapping
+                ? 'No exercises to swap to'
+                : 'No exercises to add'
+          }
+          message={
+            search === ''
+              ? nothingToAdd
+              : 'Check the spelling, or create it as a new exercise.'
+          }
+        />
       </View>
     );
   }
@@ -451,11 +447,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  message: {
-    alignItems: 'center',
-  },
-  centered: {
-    textAlign: 'center',
   },
 });

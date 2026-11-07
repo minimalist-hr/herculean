@@ -235,6 +235,21 @@ test('with nothing in the week plan, it says so', async () => {
   ).toBeNull();
 });
 
+test('if the day fails to load, the routines still show, without a planned one', async () => {
+  answer({});
+  const answered = mockFetch.getMockImplementation();
+  mockFetch.mockImplementation((request) =>
+    new URL(request.url).pathname.startsWith('/api/v1/days/')
+      ? Promise.resolve(new Response(null, { status: 500 }))
+      : (answered?.(request) ?? Promise.reject(new Error('unanswered'))),
+  );
+  await renderChoose();
+
+  expect(await screen.findByText('Push')).toBeOnTheScreen();
+  expect(screen.queryByText('Planned')).toBeNull();
+  expect(screen.queryByText("Couldn't load your routines.")).toBeNull();
+});
+
 test('a list that fails to load can be tried again', async () => {
   mockFetch.mockResolvedValue(new Response(null, { status: 500 }));
   await renderChoose();

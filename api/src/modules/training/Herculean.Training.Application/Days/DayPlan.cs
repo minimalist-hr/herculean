@@ -10,7 +10,7 @@ internal sealed record PlanChange(Weekday Weekday, DateOnly EffectiveFrom, Routi
 
 /// <summary>A workout on a date, which decides how the day is shown.</summary>
 /// <summary>What a completed workout adds to its month.</summary>
-internal sealed record DoneWorkoutTotals(DateOnly Date, DateTimeOffset? StartedAtUtc, DateTimeOffset? FinishedAtUtc, int TargetSets, int SetsDone, decimal VolumeKg);
+internal sealed record DoneWorkoutTotals(DateOnly Date, DateTimeOffset? StartedAtUtc, DateTimeOffset? FinishedAtUtc, int PlannedSets, int SetsDone, decimal VolumeKg);
 
 internal sealed record DayWorkout(Guid Id, DateOnly Date, WorkoutStatus Status, string Name, RoutineId? RoutineId)
 {

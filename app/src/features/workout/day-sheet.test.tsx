@@ -176,11 +176,14 @@ test('details that fail to load can be tried again', async () => {
   await renderSheet();
 
   expect(
-    await screen.findByText("Couldn't load this workout."),
+    await screen.findByText("Couldn't load the summary."),
   ).toBeOnTheScreen();
+  expect(screen.getByText("Couldn't load the exercises.")).toBeOnTheScreen();
 
   answer();
-  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+  for (const retry of screen.getAllByRole('link', { name: 'Try again' })) {
+    await fireEvent.press(retry);
+  }
 
   expect(await screen.findByText(/^2 sets/)).toBeOnTheScreen();
 });

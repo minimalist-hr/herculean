@@ -432,6 +432,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<int>("PlannedSets")
+                        .HasColumnType("integer")
+                        .HasColumnName("planned_sets");
+
                     b.Property<Guid?>("RoutineId")
                         .HasColumnType("uuid")
                         .HasColumnName("routine_id");

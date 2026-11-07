@@ -381,7 +381,7 @@ test('the back link returns to the list without saving or a message', async () =
   expect(savedBody()).toBeUndefined();
 });
 
-test('with one group, there is no Also works', async () => {
+test('with one group, Also works says to create another', async () => {
   groupList = [chest];
   answer(created);
   await renderList();
@@ -389,5 +389,8 @@ test('with one group, there is no Also works', async () => {
   await screen.findByRole('header', { name: 'New exercise' });
   await screen.findAllByRole('button', { name: 'Chest' });
 
-  expect(screen.queryByText(/Also works/)).toBeNull();
+  expect(screen.getByText(/Also works/)).toBeOnTheScreen();
+  expect(
+    screen.getByText('Create another group to choose it here.'),
+  ).toBeOnTheScreen();
 });

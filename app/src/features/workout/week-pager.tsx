@@ -56,7 +56,6 @@ export function WeekPager({
       />
       {days.isError && (
         <LoadFailure
-          inline
           message="Couldn't load the week."
           onRetry={() => {
             void days.refetch();

@@ -95,16 +95,10 @@ export function RoutinesScreen() {
 
       if (shown.length === 0) {
         return (
-          <View style={[styles.message, { gap: space.xs, padding: space.xl }]}>
-            <Text
-              style={[text.statValue, styles.centered, { color: colors.text }]}
-            >
-              {`No matches for “${search}”`}
-            </Text>
-            <Text style={[text.meta, styles.centered]}>
-              Check the spelling, or create it as a new routine.
-            </Text>
-          </View>
+          <EmptyCard
+            title={`No matches for “${search}”`}
+            message="Check the spelling, or create it as a new routine."
+          />
         );
       }
 
@@ -199,11 +193,5 @@ export function RoutinesScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  message: {
-    alignItems: 'center',
-  },
-  centered: {
-    textAlign: 'center',
   },
 });

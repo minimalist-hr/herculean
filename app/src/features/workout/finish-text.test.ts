@@ -1,4 +1,9 @@
-import { discardMessage, finishWarning, recordReason } from './finish-text';
+import {
+  discardMessage,
+  finishCounts,
+  finishWarning,
+  recordReason,
+} from './finish-text';
 
 const base = {
   name: 'Legs',
@@ -84,4 +89,17 @@ test.each([
       `${String(weightKg)} kg`,
     ),
   ).toBe(reason);
+});
+
+test('a workout gives the same counts as its summary would', () => {
+  expect(
+    finishCounts([
+      { name: 'Squat', sets: [{ checked: true }, { checked: false }] },
+      { name: 'Leg curl', sets: [{ checked: true }] },
+    ]),
+  ).toEqual({
+    setsChecked: 2,
+    setsTotal: 3,
+    uncheckedExercises: [{ name: 'Squat', uncheckedSets: 1, sets: 2 }],
+  });
 });

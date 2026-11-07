@@ -175,14 +175,18 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
             )}
           </View>
 
-          {/* With one group, there is nothing else it can also work. */}
-          {groups.data?.length !== 1 && (
-            <View style={{ gap: space.sm }}>
-              <Text style={text.eyebrow}>
-                Also works
-                <Text style={[text.meta, styles.optional]}> · optional</Text>
+          <View style={{ gap: space.sm }}>
+            <Text style={text.eyebrow}>
+              Also works
+              <Text style={[text.meta, styles.optional]}> · optional</Text>
+            </Text>
+            {/* With one group, there is nothing else it can also work. */}
+            {groups.data?.length === 1 ? (
+              <Text style={text.meta}>
+                Create another group to choose it here.
               </Text>
-              {renderGroups((group) =>
+            ) : (
+              renderGroups((group) =>
                 group.id === groupId ? null : (
                   <Chip
                     key={group.id}
@@ -194,9 +198,9 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
                     }}
                   />
                 ),
-              )}
-            </View>
-          )}
+              )
+            )}
+          </View>
         </>
       )}
     </View>

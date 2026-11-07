@@ -1,48 +1,36 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
+import { PlaceholderBox } from './placeholder-box';
 import { TextLink } from './text-link';
 
 /** Says something didn't load, in its place, and offers to read it again. */
 export function LoadFailure({
   message,
   onRetry,
-  inline = false,
 }: {
   message: string;
   onRetry: () => void;
-  /** One line for a part of a screen, with Try again beside the message. */
-  inline?: boolean;
 }) {
   const { colors, space, text } = useTheme();
 
   return (
-    <View
-      style={
-        inline
-          ? [styles.inline, { gap: space.sm }]
-          : [styles.failure, { paddingTop: space.xl }]
-      }
-    >
+    // Try again's touch area already adds room below it, so the box looks even.
+    <PlaceholderBox roomBelow={space.sm}>
       <Text
         accessibilityRole="alert"
-        style={[text.body, { color: colors.muted }]}
+        style={[text.body, styles.centered, { color: colors.muted }]}
       >
         {message}
       </Text>
       <TextLink label="Try again" onPress={onRetry} />
-    </View>
+    </PlaceholderBox>
   );
 }
 
 const styles = StyleSheet.create({
-  failure: {
-    alignItems: 'center',
-  },
-  inline: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
+  centered: {
+    textAlign: 'center',
   },
 });

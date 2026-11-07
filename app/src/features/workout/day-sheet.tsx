@@ -6,7 +6,10 @@ import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useCurrentUser } from '@/features/account/use-current-user';
-import { ExerciseTargets } from '@/features/routines/exercise-targets';
+import {
+  ExerciseTargets,
+  ExerciseTargetsSkeleton,
+} from '@/features/routines/exercise-targets';
 import { formatVolume } from '@/formats/formats';
 import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
@@ -63,34 +66,39 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
       : minutesText(data.durationSeconds);
   }
 
-  if (workout.isError || summary.isError) {
-    return (
-      <LoadFailure
-        message="Couldn't load this workout."
-        onRetry={() => {
-          void workout.refetch();
-          void summary.refetch();
-        }}
-      />
-    );
-  }
-
   return (
     <View style={{ gap: space.lg }}>
       <StatusLabel
         label={`Done · ${shortWeekdayDate(dateFromText(day.date))}`}
         color={colors.success}
       />
-      <View style={[styles.tiles, { gap: space.sm }]}>
-        <SheetTile label="Time" value={time()} />
-        <SheetTile label="Sets" value={data && String(data.setsChecked)} />
-        <SheetTile
-          label="Volume"
-          value={data && formatVolume(data.volumeKg, units)}
+      {summary.isError ? (
+        <LoadFailure
+          message="Couldn't load the summary."
+          onRetry={() => {
+            void summary.refetch();
+          }}
         />
-      </View>
-      {workout.data === undefined ? (
-        <Skeleton width={300} height={56} />
+      ) : (
+        <View style={[styles.tiles, { gap: space.sm }]}>
+          <SheetTile label="Time" value={time()} />
+          <SheetTile label="Sets" value={data && String(data.setsChecked)} />
+          <SheetTile
+            label="Volume"
+            value={data && formatVolume(data.volumeKg, units)}
+          />
+        </View>
+      )}
+      {workout.isError && (
+        <LoadFailure
+          message="Couldn't load the exercises."
+          onRetry={() => {
+            void workout.refetch();
+          }}
+        />
+      )}
+      {workout.isError ? null : workout.data === undefined ? (
+        <ExerciseTargetsSkeleton />
       ) : (
         <ExerciseTargets
           exercises={savedExercises(workout.data, units)}
@@ -191,7 +199,7 @@ export function DaySheet({
     return (
       <View style={{ gap: space.lg }}>
         <Skeleton width={200} height={12} />
-        <Skeleton width={300} height={56} />
+        <ExerciseTargetsSkeleton />
       </View>
     );
   }

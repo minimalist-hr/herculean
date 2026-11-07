@@ -9,8 +9,10 @@ import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
-import { Skeleton } from '@/components/skeleton';
-import { ExerciseTargets } from '@/features/routines/exercise-targets';
+import {
+  ExerciseTargets,
+  ExerciseTargetsSkeleton,
+} from '@/features/routines/exercise-targets';
 import { counted } from '@/features/routines/formats';
 import {
   RoutineRow,
@@ -62,7 +64,7 @@ function ConfirmSheet({
   visible: boolean;
   onClose: () => void;
 }) {
-  const { colors, space } = useTheme();
+  const { colors } = useTheme();
   const details = useRoutine(routine.id);
   const start = useStartWorkout({ replace: true });
   const verb = date === today ? 'Start' : 'Log';
@@ -88,12 +90,7 @@ function ConfirmSheet({
       );
     }
 
-    return (
-      <View style={{ gap: space.sm }}>
-        <Skeleton width={300} height={56} />
-        <Skeleton width={300} height={56} />
-      </View>
-    );
+    return <ExerciseTargetsSkeleton />;
   }
 
   return (
@@ -128,7 +125,9 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const plannedId = day.data?.routine?.id;
-  const loaded = routines.data !== undefined && day.data !== undefined;
+  // The day only puts its planned routine first, so if it fails, the routines show in their usual order.
+  const loaded =
+    routines.data !== undefined && (day.data !== undefined || day.isError);
   const shown = loaded ? routinesToPick(routines.data, plannedId) : [];
   const empty = loaded && shown.length === 0;
 
@@ -169,13 +168,12 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
       });
     }
 
-    if (routines.isError || day.isError) {
+    if (routines.isError) {
       return (
         <LoadFailure
           message="Couldn't load your routines."
           onRetry={() => {
             void routines.refetch();
-            void day.refetch();
           }}
         />
       );

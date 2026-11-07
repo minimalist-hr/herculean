@@ -78,6 +78,33 @@ public sealed class WorkoutTests
     }
 
     [Fact]
+    public void FinishingKeepsThePlannedSetsOfARemovedExercise()
+    {
+        Workout workout = Workout.Start(
+            UserId.From(Guid.CreateVersion7()),
+            Date,
+            RoutineId.New(),
+            "Legs",
+            [new RoutineExerciseValues(ExerciseId.New(), 3, 8, 10), new RoutineExerciseValues(ExerciseId.New(), 2, 8, 10)],
+            new Dictionary<ExerciseId, List<SetValues>>(),
+            null);
+        workout.UpdateSet(workout.Exercises[0].Id, workout.Exercises[0].Sets[0].Id, null, null, true);
+
+        workout.Finish(Now);
+
+        workout.Exercises.ShouldHaveSingleItem();
+        workout.PlannedSets.ShouldBe(5);
+    }
+
+    [Fact]
+    public void ASkippedWorkoutPlansItsRoutinesSets()
+    {
+        Workout skipped = Workout.Skip(UserId.From(Guid.CreateVersion7()), Date, RoutineId.New(), "Legs", [new RoutineExerciseValues(ExerciseId.New(), 3, 8, 10), new RoutineExerciseValues(ExerciseId.New(), 2, 8, 10)]);
+
+        skipped.PlannedSets.ShouldBe(5);
+    }
+
+    [Fact]
     public void FinishingWithNothingCheckedChangesNothing()
     {
         _workout.Finish(Now).Error.ShouldBe(WorkoutErrors.NothingChecked);

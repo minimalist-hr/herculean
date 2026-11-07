@@ -7,14 +7,16 @@ import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { AlertIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText, shortWeekdayDate } from './dates';
-import { discardMessage, finishWarning } from './finish-text';
+import { discardMessage, finishCounts, finishWarning } from './finish-text';
 import { useDiscardWorkout, useSaveWorkout } from './use-finish-workout';
+import { useWorkout } from './use-workout';
 import { useWorkoutSummary } from './use-workout-summary';
 import { NewRecords, SummaryTiles } from './workout-summary-parts';
 
@@ -54,7 +56,10 @@ export function FinishScreen({ id }: { id: string }) {
   const discard = useDiscardWorkout(id);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
-  const warning = summary.data && finishWarning(summary.data);
+  // Logging already holds the workout, so the warning shows at once, before the summary.
+  const workout = useWorkout(id).data;
+  const counts = summary.data ?? (workout && finishCounts(workout.exercises));
+  const warning = counts && finishWarning(counts);
 
   function renderContent() {
     if (summary.data === undefined && summary.isError) {
@@ -72,9 +77,7 @@ export function FinishScreen({ id }: { id: string }) {
       <>
         {warning && <Warning title={warning.title} message={warning.message} />}
         <SummaryTiles summary={summary.data} units={units} />
-        {summary.data !== undefined && (
-          <NewRecords records={summary.data.records} units={units} />
-        )}
+        <NewRecords records={summary.data?.records} units={units} />
       </>
     );
   }
@@ -98,8 +101,10 @@ export function FinishScreen({ id }: { id: string }) {
           />
           <ScreenHeading
             label={
-              summary.data &&
-              `${summary.data.name} · ${shortWeekdayDate(dateFromText(summary.data.date))}`
+              // A blank line keeps the room while it loads, so the page doesn't move.
+              summary.data
+                ? `${summary.data.name} · ${shortWeekdayDate(dateFromText(summary.data.date))}`
+                : ' '
             }
             title="Finish workout"
           />
@@ -108,16 +113,21 @@ export function FinishScreen({ id }: { id: string }) {
       </ScrollView>
       {summary.data !== undefined && (
         <BottomActionBox aboveTabBar>
-          {summary.data.setsChecked > 0 && (
-            <Button
-              label="Save workout"
-              waitingLabel="Saving workout"
-              waiting={save.isPending}
-              onPress={() => {
+          <Button
+            label="Save workout"
+            waitingLabel="Saving workout"
+            waiting={save.isPending}
+            muted={summary.data.setsChecked === 0}
+            onPress={() => {
+              if (summary.data.setsChecked === 0) {
+                notifyFailure(
+                  'Check off a set to save, or discard the workout.',
+                );
+              } else {
                 save.mutate();
-              }}
-            />
-          )}
+              }
+            }}
+          />
           <Button
             label="Discard workout"
             variant="dangerOutline"

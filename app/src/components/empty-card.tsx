@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
-/** Stands where something will show once there is some. */
+import { PlaceholderBox } from './placeholder-box';
+
+/** Stands where something will show once there is some, or when nothing matches. */
 export function EmptyCard({
   title,
   message,
@@ -10,36 +12,21 @@ export function EmptyCard({
   title: string;
   message: string;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, text } = useTheme();
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          gap: space.xs,
-          padding: space.xl,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-        },
-      ]}
-    >
+    <PlaceholderBox>
       <Text
         style={[text.listItemName, styles.centered, { color: colors.text }]}
       >
         {title}
       </Text>
       <Text style={[text.meta, styles.centered]}>{message}</Text>
-    </View>
+    </PlaceholderBox>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-  },
   centered: {
     textAlign: 'center',
   },

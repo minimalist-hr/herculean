@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
+import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
 import { PlusIcon, ReorderIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
@@ -168,17 +169,13 @@ function Heading({ workout }: { workout: Workout }) {
       <Text style={text.meta}>
         {elapsed === null ? date : `${date} · ${formatClock(elapsed)}`}
       </Text>
-      {total > 0 && (
-        <>
-          <Text style={text.meta}>
-            <Text style={[styles.done, { color: colors.text }]}>
-              {String(done)}
-            </Text>
-            {` of ${String(total)} sets`}
-          </Text>
-          <ProgressBar done={done} total={total} />
-        </>
-      )}
+      <Text style={text.meta}>
+        <Text style={[styles.done, { color: colors.text }]}>
+          {String(done)}
+        </Text>
+        {` of ${String(total)} sets`}
+      </Text>
+      <ProgressBar done={done} total={total} />
     </View>
   );
 }
@@ -347,18 +344,22 @@ function Logging({
             }}
           />
         </View>
-        {exercises.length > 0 && (
-          <View style={styles.action}>
-            <Button
-              label="Reorder"
-              variant="secondary"
-              icon={ReorderIcon}
-              onPress={() => {
-                router.push(`/workout/log/${workout.id}/reorder` as Href);
-              }}
-            />
-          </View>
-        )}
+        <View style={styles.action}>
+          <Button
+            label="Reorder"
+            variant="secondary"
+            icon={ReorderIcon}
+            muted={exercises.length < 2}
+            onPress={() => {
+              if (exercises.length < 2) {
+                notifyFailure('Add another exercise first.');
+                return;
+              }
+
+              router.push(`/workout/log/${workout.id}/reorder` as Href);
+            }}
+          />
+        </View>
       </View>
 
       {removing !== null && (
@@ -425,15 +426,11 @@ function removeMessageOf(exercise: WorkoutExercise) {
 }
 
 function NoExercises() {
-  const { colors, space, text } = useTheme();
-
   return (
-    <View style={[styles.empty, { gap: space.xs, paddingVertical: space.xl }]}>
-      <Text style={[text.listItemName, { color: colors.text }]}>
-        No exercises left
-      </Text>
-      <Text style={text.meta}>Add an exercise to keep logging.</Text>
-    </View>
+    <EmptyCard
+      title="No exercises left"
+      message="Add an exercise to keep logging."
+    />
   );
 }
 
@@ -488,9 +485,6 @@ const styles = StyleSheet.create({
   },
   done: {
     fontWeight: '700',
-  },
-  empty: {
-    alignItems: 'center',
   },
   actions: {
     flexDirection: 'row',

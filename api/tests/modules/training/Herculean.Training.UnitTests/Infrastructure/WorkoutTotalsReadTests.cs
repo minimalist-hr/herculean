@@ -99,7 +99,7 @@ public sealed class WorkoutTotalsReadTests : IDisposable
         totals.Date.ShouldBe(Date);
         totals.StartedAtUtc.ShouldBe(Now.AddHours(-1));
         totals.FinishedAtUtc.ShouldBe(Now);
-        totals.TargetSets.ShouldBe(3);
+        totals.PlannedSets.ShouldBe(3);
         totals.SetsDone.ShouldBe(2);
         totals.VolumeKg.ShouldBe(1400);
     }

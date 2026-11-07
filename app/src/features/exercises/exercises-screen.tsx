@@ -4,13 +4,13 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
-  Text,
   View,
   type FlatListInstance,
 } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { EmptyCard } from '@/components/empty-card';
+import { LoadFailure } from '@/components/load-failure';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { Chip, ChipLink } from '@/components/chip';
@@ -18,7 +18,6 @@ import { PlusIcon } from '@/components/icons';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
-import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
@@ -40,7 +39,7 @@ type ListItem =
 const searchWaitMs = 300;
 
 export function ExercisesScreen() {
-  const { colors, size, space, text } = useTheme();
+  const { colors, size, space } = useTheme();
   const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const listRef = useRef<FlatListInstance>(null);
@@ -177,21 +176,13 @@ export function ExercisesScreen() {
 
     if (failed) {
       return (
-        <View style={[styles.message, { paddingTop: space.xl }]}>
-          <Text
-            accessibilityRole="alert"
-            style={[text.body, { color: colors.muted }]}
-          >
-            Couldn&apos;t load your exercises.
-          </Text>
-          <TextLink
-            label="Try again"
-            onPress={() => {
-              void groups.refetch();
-              void exercises.refetch();
-            }}
-          />
-        </View>
+        <LoadFailure
+          message="Couldn't load your exercises."
+          onRetry={() => {
+            void groups.refetch();
+            void exercises.refetch();
+          }}
+        />
       );
     }
 
@@ -207,23 +198,18 @@ export function ExercisesScreen() {
     const selectedGroup = groups.data?.find((group) => group.id === groupId);
 
     return (
-      <View
-        style={[
-          styles.message,
-          { gap: space.xs, paddingTop: space.xl, paddingHorizontal: space.xl },
-        ]}
-      >
-        <Text style={[text.statValue, styles.centered, { color: colors.text }]}>
-          {search === ''
+      <EmptyCard
+        title={
+          search === ''
             ? `No exercises in ${selectedGroup?.name ?? 'this group'}`
-            : `No matches for “${search}”`}
-        </Text>
-        <Text style={[text.meta, styles.centered]}>
-          {search === ''
+            : `No matches for “${search}”`
+        }
+        message={
+          search === ''
             ? 'Create one to use it in routines and workouts.'
-            : 'Check the spelling, or create it as a new exercise.'}
-        </Text>
-      </View>
+            : 'Check the spelling, or create it as a new exercise.'
+        }
+      />
     );
   }
 
@@ -334,11 +320,5 @@ function keyOf(item: ListItem) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  message: {
-    alignItems: 'center',
-  },
-  centered: {
-    textAlign: 'center',
   },
 });
