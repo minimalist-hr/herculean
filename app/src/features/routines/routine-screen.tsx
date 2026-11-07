@@ -17,11 +17,13 @@ import { ExerciseTargets } from './exercise-targets';
 import { counted, dayNames, joined } from './formats';
 import { useDeleteRoutine } from './use-delete-routine';
 import { useRoutine } from './use-routine';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 type Routine = components['schemas']['RoutineDetailsResponse'];
 
 export function RoutineScreen({ id }: { id: string }) {
   const { colors, size } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const routine = useRoutine(id);
 
@@ -50,7 +52,7 @@ export function RoutineScreen({ id }: { id: string }) {
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax,
+        paddingBottom: size.gap.sectionMax + floatingRoom,
       }}
     >
       <BackLink

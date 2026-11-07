@@ -29,6 +29,7 @@ import { ExerciseChart } from './exercise-chart';
 import { ExerciseSessions } from './exercise-sessions';
 import { useExercise } from './use-exercise';
 import { useExerciseSessions } from './use-exercise-sessions';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 type Exercise = components['schemas']['ExerciseDetailsResponse'];
 type Units = components['schemas']['Units'];
@@ -45,6 +46,7 @@ export function ExerciseScreen({
   backLabel?: string;
 }) {
   const { colors, size } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const exercise = useExercise(id);
   const sessions = useExerciseSessions(id);
@@ -93,7 +95,7 @@ export function ExerciseScreen({
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax,
+        paddingBottom: size.gap.sectionMax + floatingRoom,
       }}
     >
       <BackLink

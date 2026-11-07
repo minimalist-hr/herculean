@@ -28,6 +28,7 @@ import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
 import { useExercises } from './use-exercises';
 import { noGroupsMessage, useGroups } from './use-groups';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 type Exercise = components['schemas']['ExerciseListItemResponse'];
 
@@ -40,6 +41,7 @@ const searchWaitMs = 300;
 
 export function ExercisesScreen() {
   const { colors, size, space, text } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const listRef = useRef<FlatListInstance>(null);
   const [searchText, setSearchText] = useState('');
@@ -284,7 +286,7 @@ export function ExercisesScreen() {
         renderItem={({ item }) => renderItem(item)}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        contentContainerStyle={{ paddingBottom: space.xl }}
+        contentContainerStyle={{ paddingBottom: space.xl + floatingRoom }}
       />
       <BottomActionBox aboveTabBar>
         <Button

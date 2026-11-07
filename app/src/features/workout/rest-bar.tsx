@@ -28,17 +28,28 @@ import {
 export const restBarRoom = { open: 80, hidden: 60 };
 
 const barGap = 4;
+/** The room before the chevron. */
+const barPaddingLeft = 8;
 const hideWidth = 28;
 const stepWidth = 44;
 const actionWidth = 76;
 /** The side padding, the bar's borders and padding, its controls and the gaps between them. */
 const barTaken =
-  16 * 2 + 2 + 8 + hideWidth + stepWidth * 2 + actionWidth + barGap * 4;
+  16 * 2 +
+  2 +
+  barPaddingLeft +
+  8 +
+  hideWidth +
+  stepWidth * 2 +
+  actionWidth +
+  barGap * 4;
 const fullTextSize = 22;
-/** How wide "REST 10:00", the longest it gets with the steppers showing, is at the full size. */
-const longestTextWidth = 126;
+/** The label is smaller than the time, which is what you read from across the room. */
+const labelRatio = 15 / 22;
+/** How wide the smaller "REST", the gap and "10:00", the longest it gets with the steppers showing, are at the full size. */
+const longestTextWidth = 112;
 
-/** The size of the label and the time. It's worked out from the screen alone, so it never changes with the time. */
+/** The size of the time, which sets the label's. It's worked out from the screen alone, so it never changes with the time. */
 export function restTextSize(windowWidth: number, fontScale: number) {
   const room = windowWidth - barTaken;
   const fits = (fullTextSize * room) / (longestTextWidth * fontScale);
@@ -162,6 +173,7 @@ export function RestBar({
           left: size.sidePadding,
           right: size.sidePadding,
           gap: barGap,
+          paddingLeft: barPaddingLeft,
           paddingRight: space.sm,
         },
       ]}
@@ -176,18 +188,26 @@ export function RestBar({
       >
         <ChevronDownIcon color={colors.muted} size={20} />
       </Tappable>
-      {/* One line of text, so the label and the time are always the same size. */}
-      <Text
-        numberOfLines={1}
-        style={[
-          text.cardTitle,
-          styles.reading,
-          { color: colors.muted, fontSize },
-        ]}
-      >
-        {'REST '}
-        <Text style={{ color: timeColor }}>{time}</Text>
-      </Text>
+      {/* The label and the time share a baseline, with room between them. */}
+      <View style={[styles.reading, { gap: space.sm }]}>
+        <Text
+          style={[
+            text.cardTitle,
+            {
+              color: colors.muted,
+              fontSize: Math.round(fontSize * labelRatio),
+            },
+          ]}
+        >
+          REST
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[text.cardTitle, styles.time, { color: timeColor, fontSize }]}
+        >
+          {time}
+        </Text>
+      </View>
       {!over && (
         <>
           <StepButton
@@ -210,6 +230,7 @@ export function RestBar({
       <View style={styles.action}>
         {clock.phase === 'ready' ? (
           <Button
+            compact
             label="Start"
             onPress={() => {
               onChange(start(rest, currentTime()));
@@ -217,6 +238,7 @@ export function RestBar({
           />
         ) : (
           <Button
+            compact
             label={over ? 'Done' : 'Skip'}
             onPress={() => {
               onChange(finish(rest));
@@ -250,6 +272,11 @@ const styles = StyleSheet.create({
   reading: {
     flex: 1,
     minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  time: {
+    flexShrink: 1,
   },
   action: {
     width: actionWidth,

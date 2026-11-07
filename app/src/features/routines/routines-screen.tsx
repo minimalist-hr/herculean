@@ -18,11 +18,13 @@ import { RoutineRow, RoutineRowSkeleton } from './routine-row';
 import { useRoutines } from './use-routines';
 import { useWeekPlan } from './use-week-plan';
 import { WeekPlanCard } from './week-plan-card';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 type Routine = components['schemas']['RoutineListItemResponse'];
 
 export function RoutinesScreen() {
   const { colors, dayColors, size, space, text } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const routines = useRoutines();
   const weekPlan = useWeekPlan();
@@ -173,7 +175,7 @@ export function RoutinesScreen() {
         keyboardDismissMode="on-drag"
         contentContainerStyle={{
           paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl,
+          paddingBottom: space.xl + floatingRoom,
         }}
       >
         {renderContent()}

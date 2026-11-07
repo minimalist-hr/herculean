@@ -17,6 +17,7 @@ import { dayKeys, workoutKeys } from './query-keys';
 const pagesBackToDay = 2;
 
 const changedByAWorkout = [
+  workoutKeys.inProgress,
   dayKeys.allDay,
   dayKeys.allDays,
   dayKeys.allMonths,

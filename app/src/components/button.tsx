@@ -20,6 +20,8 @@ interface ButtonProps {
   muted?: boolean;
   /** Shows before the label, for example a plus. */
   icon?: (props: { color: string; size: number }) => ReactNode;
+  /** As tall as the smallest touch target, for a bar with little room. */
+  compact?: boolean;
 }
 
 export function Button({
@@ -31,6 +33,7 @@ export function Button({
   dimmed = false,
   muted = false,
   icon,
+  compact = false,
 }: ButtonProps) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const filled = variant === 'primary' || variant === 'danger';
@@ -58,7 +61,7 @@ export function Button({
         },
         filled
           ? {
-              height: size.primaryButton,
+              height: compact ? size.touchTargetMin : size.primaryButton,
               backgroundColor:
                 variant === 'danger' ? colors.dangerFill : colors.primary,
             }

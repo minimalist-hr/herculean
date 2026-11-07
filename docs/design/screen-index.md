@@ -1,6 +1,6 @@
 # Screen index
 
-291 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+292 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -78,7 +78,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W07 | Workout › Today · loading | W1 Today states | 390×844 | [png](screens/workout/W07-Workout-Today-Loading.png) · [html](html/workout/W07-Workout-Today-Loading.html) · [source](source/workout/W07-Workout-Today-Loading.dc.html) |
 | W08 | Workout › Today · load failure | W1 Today states | 390×844 | [png](screens/workout/W08-Workout-Today-Load-Failure.png) · [html](html/workout/W08-Workout-Today-Load-Failure.html) · [source](source/workout/W08-Workout-Today-Load-Failure.dc.html) |
 | W01 | Workout › Today · full scroll | W1 Today states | 390×942 | [png](screens/workout/W01-Workout-Today.png) · [html](html/workout/W01-Workout-Today.html) · [source](source/workout/W01-Workout-Today.dc.html) |
-| W02 | Workout › Today · in progress · full scroll | W1 Today states | 390×966 | [png](screens/workout/W02-Workout-Today-In-Progress.png) · [html](html/workout/W02-Workout-Today-In-Progress.html) · [source](source/workout/W02-Workout-Today-In-Progress.dc.html) |
+| W02 | Workout › Today · in progress · full scroll | W1 Today states | 390×1046 | [png](screens/workout/W02-Workout-Today-In-Progress.png) · [html](html/workout/W02-Workout-Today-In-Progress.html) · [source](source/workout/W02-Workout-Today-In-Progress.dc.html) |
 | W03 | Workout › Today · completed | W1 Today states | 390×844 | [png](screens/workout/W03-Workout-Today-Completed.png) · [html](html/workout/W03-Workout-Today-Completed.html) · [source](source/workout/W03-Workout-Today-Completed.dc.html) |
 | W06 | Workout › Today · skipped · full scroll | W1 Today states | 390×946 | [png](screens/workout/W06-Workout-Today-Skipped.png) · [html](html/workout/W06-Workout-Today-Skipped.html) · [source](source/workout/W06-Workout-Today-Skipped.dc.html) |
 | W26 | Workout › Skip workout · confirm | W1 Today states | 390×844 | [png](screens/workout/W26-Workout-Skip-Confirm.png) · [html](html/workout/W26-Workout-Skip-Confirm.html) · [source](source/workout/W26-Workout-Skip-Confirm.dc.html) |
@@ -143,6 +143,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W74 | Workout › Today · another workout in progress | W1 Today states | 390×844 | [png](screens/workout/W74-Workout-Today-Another-In-Progress.png) · [html](html/workout/W74-Workout-Today-Another-In-Progress.html) · [source](source/workout/W74-Workout-Today-Another-In-Progress.dc.html) |
 | W75 | Workout › Today · week strip loading · full scroll | W1 Today states | 390×942 | [png](screens/workout/W75-Workout-Today-Week-Loading.png) · [html](html/workout/W75-Workout-Today-Week-Loading.html) · [source](source/workout/W75-Workout-Today-Week-Loading.dc.html) |
 | W79 | Workout › Today · week strip load failure · full scroll | W1 Today states | 390×1002 | [png](screens/workout/W79-Workout-Today-Week-Load-Failure.png) · [html](html/workout/W79-Workout-Today-Week-Load-Failure.html) · [source](source/workout/W79-Workout-Today-Week-Load-Failure.dc.html) |
+| W81 | Workout › Today · in progress, Resume bar hidden | W1 Today states | 390×844 | [png](screens/workout/W81-Workout-Today-Resume-Bar-Hidden.png) · [html](html/workout/W81-Workout-Today-Resume-Bar-Hidden.html) · [source](source/workout/W81-Workout-Today-Resume-Bar-Hidden.dc.html) |
 | W76 | Workout › Month › Day summary · in progress, sheet | W5 Month | 390×844 | [png](screens/workout/W76-Workout-Month-Day-In-Progress.png) · [html](html/workout/W76-Workout-Month-Day-In-Progress.html) · [source](source/workout/W76-Workout-Month-Day-In-Progress.dc.html) |
 | W77 | Workout › Month › Day summary · completed, loading, sheet | W5 Month | 390×844 | [png](screens/workout/W77-Workout-Month-Day-Completed-Loading.png) · [html](html/workout/W77-Workout-Month-Day-Completed-Loading.html) · [source](source/workout/W77-Workout-Month-Day-Completed-Loading.dc.html) |
 | W78 | Workout › Month › Day summary · completed, load failure, sheet | W5 Month | 390×844 | [png](screens/workout/W78-Workout-Month-Day-Completed-Load-Failure.png) · [html](html/workout/W78-Workout-Month-Day-Completed-Load-Failure.html) · [source](source/workout/W78-Workout-Month-Day-Completed-Load-Failure.dc.html) |

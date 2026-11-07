@@ -17,6 +17,7 @@ import { exerciseTotal } from './saved-workout';
 import { useWorkout } from './use-workout';
 import { useWorkoutSummary } from './use-workout-summary';
 import { NewRecords, SummaryTiles } from './workout-summary-parts';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 type Exercise = components['schemas']['WorkoutExerciseResponse'];
 type WorkoutRecord = components['schemas']['WorkoutRecordResponse'];
@@ -106,6 +107,7 @@ export function WorkoutDetailsScreen({
 }) {
   const router = useRouter();
   const { colors, radius, size, space, text } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const user = useCurrentUser();
   const units = user.data?.units ?? 'metric';
   const workout = useWorkout(id);
@@ -209,7 +211,7 @@ export function WorkoutDetailsScreen({
         gap: space.lg,
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: space.xl,
+        paddingBottom: space.xl + floatingRoom,
       }}
     >
       <View>

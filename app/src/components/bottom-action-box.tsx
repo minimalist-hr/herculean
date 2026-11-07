@@ -1,8 +1,10 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme/theme-provider';
+
+import { ReportActionBox } from './above-tab-bar';
 
 interface BottomActionBoxProps {
   /** It sits on the tab bar, which keeps the room for the phone's bottom edge. */
@@ -18,9 +20,13 @@ export function BottomActionBox({
   const { colors, size } = useTheme();
   const insets = useSafeAreaInsets();
   const { actionBoxPadding } = size;
+  const [height, setHeight] = useState(0);
 
   return (
     <View
+      onLayout={(event) => {
+        setHeight(event.nativeEvent.layout.height);
+      }}
       style={[
         styles.box,
         {
@@ -40,6 +46,7 @@ export function BottomActionBox({
       ]}
     >
       {children}
+      {aboveTabBar && <ReportActionBox height={height} />}
     </View>
   );
 }

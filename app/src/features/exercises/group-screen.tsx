@@ -21,12 +21,14 @@ import { countOf } from './groups-list';
 import { NoSessionsCard } from './no-sessions-card';
 import { useDeleteGroup } from './use-delete-group';
 import { useGroup } from './use-group';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 type Group = components['schemas']['GroupDetailsResponse'];
 type Exercise = components['schemas']['ExerciseListItemResponse'];
 
 export function GroupScreen({ id }: { id: string }) {
   const { colors, size } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const group = useGroup(id);
 
@@ -55,7 +57,7 @@ export function GroupScreen({ id }: { id: string }) {
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax,
+        paddingBottom: size.gap.sectionMax + floatingRoom,
       }}
     >
       <BackLink

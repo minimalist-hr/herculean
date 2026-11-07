@@ -23,6 +23,8 @@ const confirmRoutine = async (on) => {
 };
 const logPath = `/workout/log/${sampleWorkout.id}`;
 const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
+// The workout in progress, which shows the Resume bar.
+const inProgressAnswer = { 'GET /api/v1/workouts': { status: 200, body: [{ id: sampleWorkout.id, date: '2026-10-23', status: 'inProgress', name: sampleWorkout.name }] } };
 const addPath = `${logPath}/add`;
 const newExercisePath = `${addPath}/new-exercise`;
 const inclineDumbbellPress = sampleWorkout.exercises.find((exercise) => exercise.name === 'Incline dumbbell bench press');
@@ -407,9 +409,15 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor('Start workout');
   } },
-  { id: 'W02', file: 'W02-Workout-Today-In-Progress', title: 'Workout › Today · in progress', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23').map((day) => (day.date === '2026-10-23' ? { ...day, status: 'inProgress' } : day)) } }, steps: async (on) => {
+  { id: 'W02', file: 'W02-Workout-Today-In-Progress', title: 'Workout › Today · in progress', row: 'W1 Today states', today: friday, answers: { ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23').map((day) => (day.date === '2026-10-23' ? { ...day, status: 'inProgress' } : day)) } }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Resume workout');
+  } },
+  { id: 'W81', file: 'W81-Workout-Today-Resume-Bar-Hidden', title: 'Workout › Today · in progress, Resume bar hidden', row: 'W1 Today states', today: friday, full: false, answers: { ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23').map((day) => (day.date === '2026-10-23' ? { ...day, status: 'inProgress' } : day)) } }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Resume workout');
+    await on.tap('Hide workout bar');
+    await on.sleep(300);
   } },
   { id: 'W06', file: 'W06-Workout-Today-Skipped', title: 'Workout › Today · skipped', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) }, steps: async (on) => {
     await on.go('/workout');

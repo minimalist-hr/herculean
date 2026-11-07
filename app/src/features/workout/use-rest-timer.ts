@@ -1,29 +1,9 @@
-import * as SecureStore from 'expo-secure-store';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
 
+import { readStored, writeStored } from './phone-storage';
 import type { Rest } from './rest-timer';
 
 const storageKey = 'restTimer';
-
-// The web has no secure storage, so there it lives as long as the page.
-let webStored: string | null = null;
-
-async function read() {
-  return Platform.OS === 'web'
-    ? webStored
-    : SecureStore.getItemAsync(storageKey);
-}
-
-async function write(value: string | null) {
-  if (Platform.OS === 'web') {
-    webStored = value;
-  } else if (value === null) {
-    await SecureStore.deleteItemAsync(storageKey);
-  } else {
-    await SecureStore.setItemAsync(storageKey, value);
-  }
-}
 
 function restOf(stored: string | null | undefined, workoutId: string) {
   if (!stored) {
@@ -46,7 +26,7 @@ export function useRestTimer(workoutId: string) {
 
   useEffect(() => {
     let current = true;
-    void read()
+    void readStored(storageKey)
       .catch(() => null)
       .then((stored) => {
         if (current) {
@@ -62,7 +42,8 @@ export function useRestTimer(workoutId: string) {
 
   useEffect(() => {
     if (loaded) {
-      void write(
+      void writeStored(
+        storageKey,
         rest === null ? null : JSON.stringify({ workoutId, rest }),
       ).catch(() => undefined);
     }

@@ -344,6 +344,9 @@ export function createApi() {
 
       return { status: 200, body: exercise.sets.map((set) => (set.id === path.split('/')[8] ? { ...set, ...body } : set)) };
     }
+    if (key === 'GET /api/v1/workouts') {
+      return { status: 200, body: [] };
+    }
     if (key === `GET /api/v1/workouts/${sampleWorkout.id}/summary`) {
       return { status: 200, body: sampleSummary };
     }

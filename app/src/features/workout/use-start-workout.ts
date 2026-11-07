@@ -5,7 +5,7 @@ import { api } from '@/api/client';
 import { ApiProblemError, toApiError } from '@/api/problem';
 import { notifyFailure } from '@/components/notifications';
 
-import { dayKeys } from './query-keys';
+import { dayKeys, workoutKeys } from './query-keys';
 
 /** Starts a day's workout from its routine, or one picked for that day, then opens logging. With replace, logging takes the place of the current page. */
 export function useStartWorkout({ replace = false } = {}) {
@@ -37,9 +37,12 @@ export function useStartWorkout({ replace = false } = {}) {
         router.push(logging);
       }
       await Promise.all(
-        [dayKeys.allDay, dayKeys.allDays, dayKeys.allMonths].map((queryKey) =>
-          queryClient.invalidateQueries({ queryKey }),
-        ),
+        [
+          dayKeys.allDay,
+          dayKeys.allDays,
+          dayKeys.allMonths,
+          workoutKeys.inProgress,
+        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       );
     },
     onError: (error) => {

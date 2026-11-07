@@ -22,6 +22,7 @@ import { useDay } from './use-day';
 import { useDayRefresh } from './use-day-refresh';
 import { useFirstDay } from './use-first-day';
 import { WeekPager } from './week-pager';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 export function WorkoutScreen({
   openedDate,
@@ -31,6 +32,7 @@ export function WorkoutScreen({
 }) {
   const router = useRouter();
   const { colors, size, space } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const { now, refresh } = useDayRefresh();
   const today = dateText(now);
   const [picked, setPicked] = useState<string | null>(openedDate ?? null);
@@ -137,7 +139,7 @@ export function WorkoutScreen({
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl,
+          paddingBottom: space.xl + floatingRoom,
         }}
       >
         {renderContent()}

@@ -28,6 +28,7 @@ import { useDayRefresh } from './use-day-refresh';
 import { useDays } from './use-days';
 import { useFirstDay } from './use-first-day';
 import { useMonthSummary } from './use-month-summary';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 function useMonthDays(month: string) {
   const dates = monthDates(month);
@@ -47,6 +48,7 @@ function MonthPage({
 export function MonthScreen() {
   const router = useRouter();
   const { colors, size, space } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const { now, refresh } = useDayRefresh();
   const today = dateText(now);
   const [month, setMonth] = useState(() => monthText(now));
@@ -104,7 +106,7 @@ export function MonthScreen() {
         gap: space.lg,
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: space.xl,
+        paddingBottom: space.xl + floatingRoom,
       }}
     >
       <View>

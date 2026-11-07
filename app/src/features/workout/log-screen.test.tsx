@@ -665,8 +665,8 @@ describe('the size of the rest text', () => {
   test.each([
     [390, 1, 22],
     [430, 1, 22],
-    [360, 1, 19],
-    [360, 1.3, 14],
+    [360, 1, 20],
+    [360, 1.3, 15],
   ])('on a %i wide screen at font scale %d is %i', (width, scale, size) => {
     expect(restTextSize(width, scale)).toBe(size);
   });

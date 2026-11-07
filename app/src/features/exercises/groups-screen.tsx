@@ -17,9 +17,11 @@ import { useTheme } from '@/theme/theme-provider';
 import { GroupsList } from './groups-list';
 import { useGroupOrder } from './use-group-order';
 import { useGroups } from './use-groups';
+import { useFloatingRoom } from '@/components/above-tab-bar';
 
 export function GroupsScreen() {
   const { colors, radius, size, space, text } = useTheme();
+  const floatingRoom = useFloatingRoom();
   const router = useRouter();
   const groups = useGroups();
   const saveOrder = useGroupOrder();
@@ -164,7 +166,7 @@ export function GroupsScreen() {
         keyboardDismissMode="on-drag"
         contentContainerStyle={{
           paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl,
+          paddingBottom: space.xl + floatingRoom,
         }}
       >
         {renderList()}
