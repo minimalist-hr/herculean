@@ -1,6 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
@@ -18,10 +25,15 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
 import { DetailsSkeleton } from './exercises-skeleton';
-import { NoSessionsCard } from './no-sessions-card';
+import { ExerciseSessions } from './exercise-sessions';
 import { useExercise } from './use-exercise';
+import { useExerciseSessions } from './use-exercise-sessions';
 
 type Exercise = components['schemas']['ExerciseDetailsResponse'];
+type Units = components['schemas']['Units'];
+
+/** How close to the end, in points, the next page of sessions starts loading. */
+const loadMoreDistance = 600;
 
 export function ExerciseScreen({
   id,
@@ -34,10 +46,28 @@ export function ExerciseScreen({
   const { colors, size } = useTheme();
   const router = useRouter();
   const exercise = useExercise(id);
+  const sessions = useExerciseSessions(id);
+
+  function loadMoreNearTheEnd({
+    nativeEvent: { layoutMeasurement, contentOffset, contentSize },
+  }: NativeSyntheticEvent<NativeScrollEvent>) {
+    const nearTheEnd =
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - loadMoreDistance;
+    // After a failed page, only Try again loads it.
+    if (
+      nearTheEnd &&
+      sessions.hasNextPage &&
+      !sessions.isFetching &&
+      !sessions.isFetchNextPageError
+    ) {
+      void sessions.fetchNextPage();
+    }
+  }
 
   function renderContent() {
     if (exercise.data !== undefined) {
-      return <Details exercise={exercise.data} />;
+      return <Details exercise={exercise.data} sessions={sessions} />;
     }
 
     if (exercise.isError) {
@@ -51,11 +81,13 @@ export function ExerciseScreen({
       );
     }
 
-    return <DetailsSkeleton label="Loading the exercise" />;
+    return <DetailsSkeleton label="Loading the exercise" tiles />;
   }
 
   return (
     <ScrollView
+      onScroll={loadMoreNearTheEnd}
+      scrollEventThrottle={100}
       style={{ backgroundColor: colors.bg }}
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
@@ -74,9 +106,17 @@ export function ExerciseScreen({
   );
 }
 
-function Details({ exercise }: { exercise: Exercise }) {
+function Details({
+  exercise,
+  sessions,
+}: {
+  exercise: Exercise;
+  sessions: ReturnType<typeof useExerciseSessions>;
+}) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const router = useRouter();
+  const user = useCurrentUser();
+  const units = user.data?.units ?? 'metric';
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const inUse = exercise.routines.length > 0;
 
@@ -128,7 +168,7 @@ function Details({ exercise }: { exercise: Exercise }) {
         </Text>
       </View>
 
-      <Progress exercise={exercise} />
+      <Progress exercise={exercise} units={units} />
 
       <View style={{ gap: space.sm }}>
         <SectionTitle>Used in</SectionTitle>
@@ -169,6 +209,8 @@ function Details({ exercise }: { exercise: Exercise }) {
         )}
       </View>
 
+      <ExerciseSessions sessions={sessions} units={units} />
+
       <DeleteExerciseSheet
         exercise={exercise}
         visible={confirmingDelete}
@@ -183,30 +225,28 @@ function Details({ exercise }: { exercise: Exercise }) {
   );
 }
 
-/** The best set and how often it was done, or a card until it has been done. */
-function Progress({ exercise }: { exercise: Exercise }) {
+/** The best set and how often it was done, with a dash until it has been done. */
+function Progress({ exercise, units }: { exercise: Exercise; units: Units }) {
   const { space } = useTheme();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
   const { bestSet, timesDone, firstDoneOn } = exercise;
-
-  if (bestSet === null || firstDoneOn === null) {
-    return (
-      <NoSessionsCard message="Finish a workout with this exercise and its sets, best set and progress show up here." />
-    );
-  }
 
   return (
     <View style={[styles.tiles, { gap: space.sm }]}>
       <StatTile
         label="Best set"
-        value={formatSet(bestSet.weightKg, bestSet.reps, units)}
-        detail={formatShortDate(bestSet.date)}
+        value={
+          bestSet === null
+            ? '—'
+            : formatSet(bestSet.weightKg, bestSet.reps, units)
+        }
+        detail={
+          bestSet === null ? 'Not done yet' : formatShortDate(bestSet.date)
+        }
       />
       <StatTile
         label="Done"
         value={timesDone === 1 ? '1 time' : `${String(timesDone)} times`}
-        detail={formatSince(firstDoneOn)}
+        detail={firstDoneOn === null ? undefined : formatSince(firstDoneOn)}
       />
     </View>
   );

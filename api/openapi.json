@@ -662,6 +662,83 @@
         ]
       }
     },
+    "/api/v1/exercises/{id}/sessions": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "List an exercise's sessions",
+        "description": "Returns 20 of the completed workouts with checked sets of one of the signed-in user's exercises, newest first, with the months they're in. Pass nextCursor as cursor for the next 20.",
+        "operationId": "ListExerciseSessions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The exercise's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The nextCursor of the page before. Leave it out for the newest sessions.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of sessions. Empty when the exercise hasn't been done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSessionsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The cursor isn't one from an earlier page.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The exercise does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/exercises/{id}": {
       "get": {
         "tags": [
@@ -3606,6 +3683,71 @@
         },
         "description": "An exercise."
       },
+      "ExerciseSessionResponse": {
+        "required": [
+          "workoutId",
+          "date",
+          "workoutName",
+          "sets"
+        ],
+        "type": "object",
+        "properties": {
+          "workoutId": {
+            "type": "string",
+            "description": "The workout's ID.",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "description": "The workout's date, in the user's time zone.",
+            "format": "date"
+          },
+          "workoutName": {
+            "type": "string",
+            "description": "The workout's name."
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionSetResponse"
+            },
+            "description": "The checked sets, in their order."
+          }
+        },
+        "description": "A completed workout with checked sets of the exercise."
+      },
+      "ExerciseSessionsResponse": {
+        "required": [
+          "sessions",
+          "months",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseSessionResponse"
+            },
+            "description": "The sessions on this page."
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionMonthResponse"
+            },
+            "description": "Every month this page has sessions in, newest first, with all of that month's sessions counted."
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Pass it as cursor for the next page. Null on the last page."
+          }
+        },
+        "description": "A page of an exercise's sessions, newest first."
+      },
       "FirstDayResponse": {
         "required": [
           "date"
@@ -4216,6 +4358,45 @@
           }
         },
         "description": "A saved routine, and the days it took from other routines."
+      },
+      "SessionMonthResponse": {
+        "required": [
+          "month",
+          "sessions"
+        ],
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "description": "The month, as yyyy-MM."
+          },
+          "sessions": {
+            "type": "integer",
+            "description": "The number of sessions in it.",
+            "format": "int32"
+          }
+        },
+        "description": "A month of sessions."
+      },
+      "SessionSetResponse": {
+        "required": [
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg. A bodyweight set has 0.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          }
+        },
+        "description": "A checked set in a session."
       },
       "SetResponse": {
         "required": [

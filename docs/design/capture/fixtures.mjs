@@ -299,6 +299,9 @@ export function createApi() {
 
       return { status: 201, body: { id: created.id, name: created.name, groupId: created.groupId, alsoWorksGroupIds: [] } };
     }
+    if (method === 'GET' && path.endsWith('/sessions')) {
+      return { status: 200, body: { sessions: [], months: [], nextCursor: null } };
+    }
     if (method === 'GET' && path.startsWith('/api/v1/exercises/')) {
       const item = list.find((candidate) => candidate.id === id) ?? list[0];
 

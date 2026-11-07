@@ -112,6 +112,9 @@ function answer({
       stored = null;
       return new Response(null, { status: 204 });
     }
+    if (new URL(request.url).pathname.endsWith('/sessions')) {
+      return Response.json({ sessions: [], months: [], nextCursor: null });
+    }
     if (stored === null) {
       return problem(404, 'exercise.not_found', 'The exercise does not exist.');
     }

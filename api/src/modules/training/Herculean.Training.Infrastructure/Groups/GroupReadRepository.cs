@@ -25,16 +25,13 @@ internal sealed class GroupReadRepository(TrainingDbContext dbContext) : IGroupR
     public async Task<GroupDetailsResponse?> GetAsync(GroupId id, CancellationToken cancellationToken)
     {
         GroupDetailsResponse? group = await GetWithoutBestSetsAsync(id, cancellationToken);
-        if (group is null)
-        {
-            return null;
-        }
-
-        return group with
-        {
-            Exercises = await DoneSets.WithBestSetsAsync(dbContext, group.Exercises, cancellationToken),
-            AlsoWorksExercises = await DoneSets.WithBestSetsAsync(dbContext, group.AlsoWorksExercises, cancellationToken),
-        };
+        return group is null
+            ? null
+            : group with
+            {
+                Exercises = await DoneSets.WithBestSetsAsync(dbContext, group.Exercises, cancellationToken),
+                AlsoWorksExercises = await DoneSets.WithBestSetsAsync(dbContext, group.AlsoWorksExercises, cancellationToken),
+            };
     }
 
     private Task<GroupDetailsResponse?> GetWithoutBestSetsAsync(GroupId id, CancellationToken cancellationToken) =>

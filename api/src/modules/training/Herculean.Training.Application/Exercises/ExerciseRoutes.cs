@@ -9,4 +9,6 @@ internal static class ExerciseRoutes
     public const string Exercise = $"{Exercises}/{{id:guid}}";
 
     public const string RestoreExercise = $"{Exercise}/restore";
+
+    public const string Sessions = $"{Exercise}/sessions";
 }

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using Herculean.Account.Contracts;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Queries;
@@ -5,6 +7,7 @@ using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.GetGroup;
@@ -136,6 +139,23 @@ internal sealed class FakeExerciseReadRepository : IExerciseReadRepository
 
     public Task<ExerciseDetailsResponse?> GetAsync(ExerciseId id, CancellationToken cancellationToken) =>
         Task.FromResult(Details.SingleOrDefault(exercise => exercise.Id == id.Value));
+
+    /// <summary>The sessions of every exercise that exists, newest first.</summary>
+    public List<ExerciseSessionResponse> Sessions { get; } = [];
+
+    public HashSet<ExerciseId> Existing { get; } = [];
+
+    public Task<bool> ExistsAsync(ExerciseId id, CancellationToken cancellationToken) => Task.FromResult(Existing.Contains(id));
+
+    public Task<List<ExerciseSessionResponse>> ListSessionsAsync(ExerciseId id, DateOnly? before, int take, CancellationToken cancellationToken) =>
+        Task.FromResult(Sessions.Where(session => before is null || session.Date < before).Take(take).ToList());
+
+    public Task<List<SessionMonthResponse>> ListSessionMonthsAsync(ExerciseId id, DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
+        Task.FromResult(Sessions
+            .Where(session => session.Date >= from && session.Date <= to)
+            .GroupBy(session => session.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture))
+            .Select(month => new SessionMonthResponse(month.Key, month.Count()))
+            .ToList());
 }
 
 internal sealed class FakeExerciseRepository : IExerciseRepository

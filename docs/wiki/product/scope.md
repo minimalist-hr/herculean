@@ -84,7 +84,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | PUT | `/api/v1/exercises/{id}` | E20 |
 | DELETE | `/api/v1/exercises/{id}` | E21 |
 | POST | `/api/v1/exercises/{id}/restore` | Undo on E01 |
-| GET | `/api/v1/exercises/{id}/sessions` | E10 (all sessions, chart), with a `from` filter |
+| GET | `/api/v1/exercises/{id}/sessions` | E10's sessions, 20 a page, newest first, with `cursor` for the next page and each month's count |
 | GET | `/api/v1/groups` | E30, chips everywhere |
 | GET | `/api/v1/groups/{id}` | E35 |
 | POST | `/api/v1/groups` | E32 |

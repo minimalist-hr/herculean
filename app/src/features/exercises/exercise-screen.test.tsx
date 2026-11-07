@@ -10,6 +10,8 @@ import { ThemeProvider } from '@/theme/theme-provider';
 import { ExerciseScreen } from './exercise-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
+// Sessions have their own answers, so the other tests needn't know about them.
+const mockSessions = jest.fn<Promise<Response>, [Request]>();
 
 jest.mock('@/api/client', () => {
   const createClient =
@@ -17,7 +19,10 @@ jest.mock('@/api/client', () => {
   return {
     api: createClient({
       baseUrl: 'http://api.test',
-      fetch: (request: Request) => mockFetch(request),
+      fetch: (request: Request) =>
+        new URL(request.url).pathname.endsWith('/sessions')
+          ? mockSessions(request)
+          : mockFetch(request),
     }),
   };
 });
@@ -37,7 +42,17 @@ function exercise(group: string, alsoWorks: string[] = []) {
   };
 }
 
-function answer(body: unknown) {
+const noSessions = { sessions: [], months: [], nextCursor: null };
+
+/** Answers the exercise with this body, and its sessions page by cursor. */
+function answer(
+  body: unknown,
+  sessions: (cursor: string | null) => Response = () =>
+    Response.json(noSessions),
+) {
+  mockSessions.mockImplementation((request) =>
+    Promise.resolve(sessions(new URL(request.url).searchParams.get('cursor'))),
+  );
   mockFetch.mockImplementation((request) =>
     Promise.resolve(
       Response.json(
@@ -45,6 +60,33 @@ function answer(body: unknown) {
       ),
     ),
   );
+}
+
+const doneExercise = {
+  ...exercise('Chest'),
+  bestSet: { weightKg: 82.5, reps: 10, date: '2026-10-16' },
+  timesDone: 3,
+  firstDoneOn: '2026-09-25',
+};
+
+function session(date: string, sets: [number, number][]) {
+  return {
+    workoutId: `workout-${date}`,
+    date,
+    workoutName: 'Chest and arms 2',
+    sets: sets.map(([weightKg, reps]) => ({ weightKg, reps })),
+  };
+}
+
+/** Scrolls to the end of the screen, which loads the next page of sessions. */
+function scrollToTheEnd() {
+  return fireEvent.scroll(screen.getByText('All sessions'), {
+    nativeEvent: {
+      layoutMeasurement: { height: 800 },
+      contentOffset: { y: 1200 },
+      contentSize: { height: 2000 },
+    },
+  });
 }
 
 function Layout() {
@@ -80,6 +122,34 @@ async function renderExercise() {
 
 beforeEach(() => {
   mockFetch.mockReset();
+  mockSessions.mockReset();
+  mockSessions.mockImplementation(() =>
+    Promise.resolve(Response.json(noSessions)),
+  );
+  // Friday 6 November 2026, so dates in 2026 show no year. Only the date is fixed: timers run as usual.
+  jest.useFakeTimers({
+    now: new Date(2026, 10, 6, 18),
+    doNotFake: [
+      'hrtime',
+      'nextTick',
+      'performance',
+      'queueMicrotask',
+      'requestAnimationFrame',
+      'cancelAnimationFrame',
+      'requestIdleCallback',
+      'cancelIdleCallback',
+      'setImmediate',
+      'clearImmediate',
+      'setInterval',
+      'clearInterval',
+      'setTimeout',
+      'clearTimeout',
+    ],
+  });
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 test('shows the skeleton, then the exercise', async () => {
@@ -113,17 +183,20 @@ test('adds the also works groups in lower case', async () => {
   ).toBeOnTheScreen();
 });
 
-test('shows that it has no sessions and is in no routine', async () => {
+test('never done, every section is in its place and says so', async () => {
   answer(exercise('Shoulders'));
   await renderExercise();
 
-  expect(await screen.findByText('No sessions yet')).toBeOnTheScreen();
   expect(
-    screen.getByText(
-      'Finish a workout with this exercise and its sets, best set and progress show up here.',
+    await screen.findByText(
+      'Finish a workout with this exercise and its sessions show up here.',
     ),
   ).toBeOnTheScreen();
-  expect(screen.getByText('Used in')).toBeOnTheScreen();
+  expect(screen.getByText('—')).toBeOnTheScreen();
+  expect(screen.getByText('Not done yet')).toBeOnTheScreen();
+  expect(screen.getByText('0 times')).toBeOnTheScreen();
+  expect(screen.getByText('No sessions yet')).toBeOnTheScreen();
+  expect(screen.getByText('All sessions')).toBeOnTheScreen();
   expect(screen.getByText('Not in any routine yet')).toBeOnTheScreen();
   expect(
     screen.getByText('Add it when you create or edit a routine.'),
@@ -143,7 +216,6 @@ test('a done exercise shows its best set and how often it was done', async () =>
   expect(screen.getByText('Mon, 16th Oct 2023')).toBeOnTheScreen();
   expect(screen.getByText('11 times')).toBeOnTheScreen();
   expect(screen.getByText('Since 7th Aug 2023')).toBeOnTheScreen();
-  expect(screen.queryByText('No sessions yet')).toBeNull();
 });
 
 test('a failed read says so, and Try again reads it again', async () => {
@@ -322,4 +394,123 @@ test('the back link is there while it loads', async () => {
 
   expect(screen.getByRole('link', { name: 'Exercises' })).toBeOnTheScreen();
   await screen.findByRole('header', { name: 'Bench press' });
+});
+
+test('sessions show by month, each with its date, workout and sets', async () => {
+  answer(doneExercise, () =>
+    Response.json({
+      sessions: [
+        session('2026-10-16', [
+          [80, 10],
+          [82.5, 8],
+        ]),
+        session('2026-09-25', [[77.5, 10]]),
+      ],
+      months: [
+        { month: '2026-10', sessions: 1 },
+        { month: '2026-09', sessions: 2 },
+      ],
+      nextCursor: null,
+    }),
+  );
+  await renderExercise();
+
+  expect(await screen.findByText('80 × 10 · 82.5 × 8')).toBeOnTheScreen();
+  expect(
+    screen.getByRole('header', { name: 'October · 1 session' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('header', { name: 'September · 2 sessions' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Fri, 25th Sep')).toBeOnTheScreen();
+  expect(screen.getAllByText('Chest and arms 2')).toHaveLength(2);
+  expect(screen.getAllByText('kg × reps')).toHaveLength(2);
+});
+
+test('scrolling to the end loads the next page', async () => {
+  answer(doneExercise, (cursor) =>
+    Response.json(
+      cursor === null
+        ? {
+            sessions: [session('2026-10-16', [[80, 10]])],
+            months: [{ month: '2026-10', sessions: 1 }],
+            nextCursor: '2026-10-16',
+          }
+        : {
+            sessions: [session('2023-09-25', [[75, 10]])],
+            months: [{ month: '2023-09', sessions: 1 }],
+            nextCursor: null,
+          },
+    ),
+  );
+  await renderExercise();
+  await screen.findByText('80 × 10');
+
+  await scrollToTheEnd();
+
+  expect(await screen.findByText('75 × 10')).toBeOnTheScreen();
+  expect(
+    screen.getByRole('header', { name: 'September 2023 · 1 session' }),
+  ).toBeOnTheScreen();
+});
+
+test('a page that fails says so, and Try again loads it', async () => {
+  let failing = true;
+  answer(doneExercise, (cursor) => {
+    if (cursor === null) {
+      return Response.json({
+        sessions: [session('2026-10-16', [[80, 10]])],
+        months: [{ month: '2026-10', sessions: 1 }],
+        nextCursor: '2026-10-16',
+      });
+    }
+
+    return failing
+      ? Response.json({ title: 'Down' }, { status: 503 })
+      : Response.json({
+          sessions: [session('2026-10-09', [[77.5, 10]])],
+          months: [{ month: '2026-10', sessions: 2 }],
+          nextCursor: null,
+        });
+  });
+  await renderExercise();
+  await screen.findByText('80 × 10');
+
+  await scrollToTheEnd();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't load more sessions.",
+  );
+
+  failing = false;
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(await screen.findByText('77.5 × 10')).toBeOnTheScreen();
+  expect(
+    screen.getByRole('header', { name: 'October · 2 sessions' }),
+  ).toBeOnTheScreen();
+});
+
+test('sessions that fail to load say so, and Try again reads them', async () => {
+  let failing = true;
+  answer(doneExercise, () =>
+    failing
+      ? Response.json({ title: 'Down' }, { status: 503 })
+      : Response.json({
+          sessions: [session('2026-10-16', [[80, 10]])],
+          months: [{ month: '2026-10', sessions: 1 }],
+          nextCursor: null,
+        }),
+  );
+  await renderExercise();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't load the sessions.",
+  );
+  expect(screen.getByText('82.5 kg × 10')).toBeOnTheScreen();
+
+  failing = false;
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(await screen.findByText('80 × 10')).toBeOnTheScreen();
 });

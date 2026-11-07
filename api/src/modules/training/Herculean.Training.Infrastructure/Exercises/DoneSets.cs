@@ -61,6 +61,23 @@ internal static class DoneSets
             .Select(sets => sets.Min(set => set.Date))
             .ToListAsync(cancellationToken);
 
+    internal sealed record SessionMonth(int Year, int Month, int Sessions);
+
+    /// <summary>The number of sessions of the exercise in each month between two dates. A day has at most one workout, so each date is one session.</summary>
+    internal static Task<List<SessionMonth>> ListMonthsAsync(
+        TrainingDbContext dbContext,
+        ExerciseId exerciseId,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken cancellationToken) =>
+        Of(dbContext, [exerciseId])
+            .Where(set => set.Date >= from && set.Date <= to)
+            .Select(set => set.Date)
+            .Distinct()
+            .GroupBy(date => new { date.Year, date.Month })
+            .Select(dates => new SessionMonth(dates.Key.Year, dates.Key.Month, dates.Count()))
+            .ToListAsync(cancellationToken);
+
     /// <summary>The exercises with their best sets filled in.</summary>
     internal static async Task<List<ExerciseListItemResponse>> WithBestSetsAsync(
         TrainingDbContext dbContext,

@@ -24,6 +24,14 @@ public sealed class PostgresTranslationTests
     public Task WorkoutDatesTranslate() =>
         ShouldTranslateAsync(dbContext => DoneSets.ListWorkoutDatesAsync(dbContext, ExerciseId.New(), Token));
 
+    [Fact]
+    public Task SessionMonthsTranslate() =>
+        ShouldTranslateAsync(dbContext => DoneSets.ListMonthsAsync(dbContext, ExerciseId.New(), new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31), Token));
+
+    [Fact]
+    public Task SessionsTranslate() =>
+        ShouldTranslateAsync(dbContext => new ExerciseReadRepository(dbContext).ListSessionsAsync(ExerciseId.New(), new DateOnly(2026, 10, 16), 21, Token));
+
     private static async Task ShouldTranslateAsync(Func<TrainingDbContext, Task> read)
     {
         using TrainingDbContext dbContext = new(

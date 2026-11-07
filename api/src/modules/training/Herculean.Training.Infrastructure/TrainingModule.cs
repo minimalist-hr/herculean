@@ -15,6 +15,7 @@ using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.CreateExercise;
 using Herculean.Training.Application.Exercises.DeleteExercise;
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Exercises.RestoreExercise;
 using Herculean.Training.Application.Exercises.UpdateExercise;
@@ -110,6 +111,8 @@ public static class TrainingModule
         builder.Services.AddScoped<GetWorkoutSettingsHandler>();
         builder.Services.AddScoped<ListExercisesHandler>();
         builder.Services.AddScoped<GetExerciseHandler>();
+        builder.Services.AddScoped<IValidator<ListExerciseSessionsRequest>, ListExerciseSessionsValidator>();
+        builder.Services.AddScoped<ListExerciseSessionsHandler>();
         builder.Services.AddScoped<ListGroupsHandler>();
         builder.Services.AddScoped<ListRoutinesHandler>();
         builder.Services.AddScoped<IValidator<CreateRoutineRequest>, CreateRoutineValidator>();
@@ -170,6 +173,7 @@ public static class TrainingModule
         GetWorkoutSettingsEndpoint.Map(endpoints);
         UpdateWorkoutSettingsEndpoint.Map(endpoints);
         ListExercisesEndpoint.Map(endpoints);
+        ListExerciseSessionsEndpoint.Map(endpoints);
         GetExerciseEndpoint.Map(endpoints);
         ListGroupsEndpoint.Map(endpoints);
         ListRoutinesEndpoint.Map(endpoints);

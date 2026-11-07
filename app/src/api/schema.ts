@@ -196,6 +196,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises/{id}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List an exercise's sessions
+         * @description Returns 20 of the completed workouts with checked sets of one of the signed-in user's exercises, newest first, with the months they're in. Pass nextCursor as cursor for the next 20.
+         */
+        get: operations["ListExerciseSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exercises/{id}": {
         parameters: {
             query?: never;
@@ -948,6 +968,32 @@ export interface components {
             /** @description The other groups it also works. */
             alsoWorksGroupIds: string[];
         };
+        /** @description A completed workout with checked sets of the exercise. */
+        ExerciseSessionResponse: {
+            /**
+             * Format: uuid
+             * @description The workout's ID.
+             */
+            workoutId: string;
+            /**
+             * Format: date
+             * @description The workout's date, in the user's time zone.
+             */
+            date: string;
+            /** @description The workout's name. */
+            workoutName: string;
+            /** @description The checked sets, in their order. */
+            sets: components["schemas"]["SessionSetResponse"][];
+        };
+        /** @description A page of an exercise's sessions, newest first. */
+        ExerciseSessionsResponse: {
+            /** @description The sessions on this page. */
+            sessions: components["schemas"]["ExerciseSessionResponse"][];
+            /** @description Every month this page has sessions in, newest first, with all of that month's sessions counted. */
+            months: components["schemas"]["SessionMonthResponse"][];
+            /** @description Pass it as cursor for the next page. Null on the last page. */
+            nextCursor: null | string;
+        };
         /** @description The first day the user can reach. */
         FirstDayResponse: {
             /**
@@ -1292,6 +1338,29 @@ export interface components {
             name: string;
             /** @description The weekdays that moved here from another routine, from Monday. */
             movedDays: components["schemas"]["MovedDayResponse"][];
+        };
+        /** @description A month of sessions. */
+        SessionMonthResponse: {
+            /** @description The month, as yyyy-MM. */
+            month: string;
+            /**
+             * Format: int32
+             * @description The number of sessions in it.
+             */
+            sessions: number;
+        };
+        /** @description A checked set in a session. */
+        SessionSetResponse: {
+            /**
+             * Format: double
+             * @description The weight in kg. A bodyweight set has 0.
+             */
+            weightKg: number;
+            /**
+             * Format: int32
+             * @description The reps.
+             */
+            reps: number;
         };
         /** @description A set in a workout. */
         SetResponse: {
@@ -2155,6 +2224,59 @@ export interface operations {
             };
             /** @description The user already has an exercise with this name, or has reached the limit of 500 exercises. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListExerciseSessions: {
+        parameters: {
+            query?: {
+                /** @description The nextCursor of the page before. Leave it out for the newest sessions. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of sessions. Empty when the exercise hasn't been done. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseSessionsResponse"];
+                };
+            };
+            /** @description The cursor isn't one from an earlier page. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise does not exist, is deleted, or belongs to another user. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

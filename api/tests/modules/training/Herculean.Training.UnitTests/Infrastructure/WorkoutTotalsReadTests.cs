@@ -2,6 +2,7 @@ using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Workouts;
@@ -79,6 +80,9 @@ public sealed class WorkoutTotalsReadTests : IDisposable
 
     private Task<List<DoneWorkoutTotals>> ListDoneAsync() =>
         new DayReadRepository(_dbContext).ListDoneWorkoutTotalsAsync(Date, Date.AddDays(27), Token);
+
+    private Task<List<ExerciseSessionResponse>> ListSessionsAsync(Exercise exercise, DateOnly? before, int take = 20) =>
+        new ExerciseReadRepository(_dbContext).ListSessionsAsync(exercise.Id, before, take, Token);
 
     private Task<List<EarlierMostReps>> ListEarlierAsync(Exercise exercise, DateOnly before) =>
         new WorkoutReadRepository(_dbContext).ListEarlierMostRepsAsync([exercise.Id], before, Token);
@@ -172,6 +176,50 @@ public sealed class WorkoutTotalsReadTests : IDisposable
         listed.Single(exercise => exercise.Id == done.Id.Value).BestSet.ShouldBe(new BestSetResponse(60, 10, Date));
         listed.Single(exercise => exercise.Id == notDone.Id.Value).BestSet.ShouldBeNull();
         group.Exercises.ShouldHaveSingleItem().BestSet.ShouldBe(new BestSetResponse(60, 10, Date));
+    }
+
+    [Fact]
+    public async Task SessionsComeNewestFirstWithOnlyTheirCheckedSets()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        Workout older = await SaveWorkoutAsync(exercise, Date.AddDays(-7), finish: true, (100, 5));
+        Workout newer = await SaveWorkoutAsync(exercise, Date, finish: true, (100, 8), (90, 10));
+        await SaveWorkoutAsync(exercise, Date.AddDays(-3), finish: true);
+        await SaveWorkoutAsync(exercise, Date.AddDays(1), finish: false, (100, 5));
+
+        List<ExerciseSessionResponse> sessions = await ListSessionsAsync(exercise, before: null);
+
+        sessions.Select(session => session.WorkoutId).ShouldBe([newer.Id.Value, older.Id.Value]);
+        sessions[0].WorkoutName.ShouldBe("Legs");
+        sessions[0].Sets.ShouldBe([new SessionSetResponse(100, 8), new SessionSetResponse(90, 10)]);
+    }
+
+    [Fact]
+    public async Task SessionsBeforeADateStartAfterIt()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        await SaveWorkoutAsync(exercise, Date.AddDays(-14), finish: true, (100, 5));
+        await SaveWorkoutAsync(exercise, Date.AddDays(-7), finish: true, (100, 5));
+        await SaveWorkoutAsync(exercise, Date, finish: true, (100, 5));
+
+        List<ExerciseSessionResponse> sessions = await ListSessionsAsync(exercise, before: Date.AddDays(-7), take: 5);
+
+        sessions.ShouldHaveSingleItem().Date.ShouldBe(Date.AddDays(-14));
+    }
+
+    [Fact]
+    public async Task SessionMonthsCountEachMonthNewestFirst()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        await SaveWorkoutAsync(exercise, new DateOnly(2026, 9, 28), finish: true, (100, 5));
+        await SaveWorkoutAsync(exercise, new DateOnly(2026, 10, 5), finish: true, (100, 5));
+        await SaveWorkoutAsync(exercise, new DateOnly(2026, 10, 12), finish: true, (100, 5));
+        await SaveWorkoutAsync(exercise, new DateOnly(2026, 10, 19), finish: true);
+
+        List<SessionMonthResponse> months = await new ExerciseReadRepository(_dbContext)
+            .ListSessionMonthsAsync(exercise.Id, new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 31), Token);
+
+        months.ShouldBe([new SessionMonthResponse("2026-10", 2), new SessionMonthResponse("2026-09", 1)]);
     }
 
     [Fact]

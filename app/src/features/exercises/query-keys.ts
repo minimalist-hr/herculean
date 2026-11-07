@@ -6,5 +6,7 @@ export const exerciseKeys = {
   group: (id: string) => ['exercises', 'group', id] as const,
   details: ['exercise'] as const,
   detail: (id: string) => ['exercise', id] as const,
+  // Under the exercise, so a change to it refreshes its sessions too.
+  sessions: (id: string) => ['exercise', id, 'sessions'] as const,
   groups: ['groups'] as const,
 };

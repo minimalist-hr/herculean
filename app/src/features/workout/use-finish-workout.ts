@@ -8,6 +8,7 @@ import {
   notifyFailure,
   notifySuccess,
 } from '@/components/notifications';
+import { exerciseKeys } from '@/features/exercises/query-keys';
 import { routineKeys } from '@/features/routines/query-keys';
 
 import { dayKeys, workoutKeys } from './query-keys';
@@ -20,6 +21,8 @@ const changedByAWorkout = [
   dayKeys.allDays,
   dayKeys.allMonths,
   routineKeys.all,
+  exerciseKeys.all,
+  exerciseKeys.details,
 ];
 
 function failureMessage(error: Error, fallback: string) {

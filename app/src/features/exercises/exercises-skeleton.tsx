@@ -71,8 +71,14 @@ export function ExercisesSkeleton() {
   );
 }
 
-/** The details of an exercise or a group while they load. */
-export function DetailsSkeleton({ label }: { label: string }) {
+/** The details of an exercise or a group while they load. With tiles, an exercise's progress tiles take the card's place. */
+export function DetailsSkeleton({
+  label,
+  tiles = false,
+}: {
+  label: string;
+  tiles?: boolean;
+}) {
   const { colors, radius, size, space } = useTheme();
 
   return (
@@ -88,22 +94,46 @@ export function DetailsSkeleton({ label }: { label: string }) {
         </View>
         <Skeleton width={110} height={14} />
       </View>
-      <View
-        style={[
-          styles.noSessions,
-          {
-            gap: space.sm,
-            paddingTop: space.xl,
-            paddingBottom: size.gap.sectionMax,
-            borderRadius: radius.card,
-            borderColor: colors.border,
-          },
-        ]}
-      >
-        <Skeleton width={28} height={28} />
-        <Skeleton width={130} height={16} />
-        <Skeleton width={260} height={12} />
-      </View>
+      {tiles ? (
+        <View style={[styles.tiles, { gap: space.sm }]}>
+          {[90, 70].map((width) => (
+            <View
+              key={width}
+              style={[
+                styles.tile,
+                {
+                  gap: space.sm,
+                  padding: size.statTilePadding,
+                  borderRadius: radius.card,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                },
+              ]}
+            >
+              <Skeleton width={60} height={10} />
+              <Skeleton width={width} height={24} />
+              <Skeleton width={80} height={10} />
+            </View>
+          ))}
+        </View>
+      ) : (
+        <View
+          style={[
+            styles.noSessions,
+            {
+              gap: space.sm,
+              paddingTop: space.xl,
+              paddingBottom: size.gap.sectionMax,
+              borderRadius: radius.card,
+              borderColor: colors.border,
+            },
+          ]}
+        >
+          <Skeleton width={28} height={28} />
+          <Skeleton width={130} height={16} />
+          <Skeleton width={260} height={12} />
+        </View>
+      )}
       <View style={{ gap: space.sm }}>
         <Skeleton width={60} height={10} />
         <View
@@ -141,6 +171,13 @@ const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
     overflow: 'hidden',
+  },
+  tiles: {
+    flexDirection: 'row',
+  },
+  tile: {
+    flex: 1,
+    borderWidth: 1,
   },
   row: {
     justifyContent: 'center',
