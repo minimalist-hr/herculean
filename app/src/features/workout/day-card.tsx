@@ -24,6 +24,7 @@ import { useSkipWorkout } from './use-skip-workout';
 import { useStartWorkout } from './use-start-workout';
 import { useUndoSkip } from './use-undo-skip';
 import { useWorkout } from './use-workout';
+import { resumeFirst, useWorkoutInProgress } from './use-workout-in-progress';
 import { useWorkoutSummary } from './use-workout-summary';
 import { savedExercises, savedMeta } from './saved-workout';
 import { checkedSets, progressText, workoutProgress } from './workout-progress';
@@ -89,34 +90,78 @@ function Actions({ children }: { children: ReactNode[] }) {
   );
 }
 
-function StartButton({ date, label }: { date: string; label: string }) {
+/** True while a workout is in progress, which keeps another from starting. */
+function useAnotherInProgress() {
+  return Boolean(useWorkoutInProgress().data);
+}
+
+const startNotYet = "A workout can't be started before its day.";
+
+/** The first reason an action can't be used now, or null when it can. */
+function firstReason(reasons: [boolean, string][]) {
+  return reasons.find(([applies]) => applies)?.[1] ?? null;
+}
+
+function StartButton({
+  date,
+  label,
+  notYet = false,
+}: {
+  date: string;
+  label: string;
+  /** The day hasn't come yet. */
+  notYet?: boolean;
+}) {
   const start = useStartWorkout();
+  const reason = firstReason([
+    [notYet, startNotYet],
+    [useAnotherInProgress(), resumeFirst],
+  ]);
 
   return (
     <Button
       label={label}
       waitingLabel="Starting workout"
       waiting={start.isPending}
+      muted={reason !== null}
       onPress={() => {
-        start.mutate({ date });
+        if (reason !== null) {
+          notifyFailure(reason);
+        } else {
+          start.mutate({ date });
+        }
       }}
     />
   );
 }
 
-function OtherRoutineButton({ date }: { date: string }) {
+function OtherRoutineButton({
+  date,
+  notYet = false,
+}: {
+  date: string;
+  /** The day hasn't come yet. */
+  notYet?: boolean;
+}) {
   const router = useRouter();
   const firstDay = useFirstDay();
-  const beforeFirstDay = firstDay.data !== undefined && date < firstDay.data;
+  const reason = firstReason([
+    [notYet, startNotYet],
+    [
+      firstDay.data !== undefined && date < firstDay.data,
+      "A workout can't be added before your first day.",
+    ],
+    [useAnotherInProgress(), resumeFirst],
+  ]);
 
   return (
     <Button
       label="Other routine"
       variant="secondary"
-      muted={beforeFirstDay}
+      muted={reason !== null}
       onPress={() => {
-        if (beforeFirstDay) {
-          notifyFailure("A workout can't be added before your first day.");
+        if (reason !== null) {
+          notifyFailure(reason);
         } else {
           router.push({
             pathname: '/workout/choose/[date]',
@@ -131,9 +176,12 @@ function OtherRoutineButton({ date }: { date: string }) {
 function SkipButton({
   date,
   routineName,
+  notYet = false,
 }: {
   date: string;
   routineName: string;
+  /** The day hasn't come yet. */
+  notYet?: boolean;
 }) {
   const skip = useSkipWorkout();
   const [confirming, setConfirming] = useState(false);
@@ -143,8 +191,13 @@ function SkipButton({
       <Button
         label="Skip workout"
         variant="secondary"
+        muted={notYet}
         onPress={() => {
-          setConfirming(true);
+          if (notYet) {
+            notifyFailure("A workout can't be skipped before its day.");
+          } else {
+            setConfirming(true);
+          }
         }}
       />
       <Sheet
@@ -480,7 +533,7 @@ function RestCard({
         meta="Nothing planned. Recovery is part of the program."
       />
       {daysAway >= 0 && <UpNext upNext={day.upNext} today={today} />}
-      {daysAway <= 0 && <OtherRoutineButton date={day.date} />}
+      <OtherRoutineButton date={day.date} notYet={daysAway > 0} />
     </Card>
   );
 }
@@ -554,24 +607,24 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
     return <MissedCard date={day.date} routine={day.routine} />;
   }
 
+  // A planned day is today or later.
+  const notYet = day.date > today;
+
   return (
     <Card>
       <PlannedContent date={date} routine={day.routine} />
-      {day.date === today && (
-        <>
-          <StartButton date={day.date} label="Start workout" />
-          <Actions>
-            {[
-              <OtherRoutineButton key="other" date={day.date} />,
-              <SkipButton
-                key="skip"
-                date={day.date}
-                routineName={day.routine.name}
-              />,
-            ]}
-          </Actions>
-        </>
-      )}
+      <StartButton date={day.date} label="Start workout" notYet={notYet} />
+      <Actions>
+        {[
+          <OtherRoutineButton key="other" date={day.date} notYet={notYet} />,
+          <SkipButton
+            key="skip"
+            date={day.date}
+            routineName={day.routine.name}
+            notYet={notYet}
+          />,
+        ]}
+      </Actions>
     </Card>
   );
 }

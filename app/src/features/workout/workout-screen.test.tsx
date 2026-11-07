@@ -342,6 +342,43 @@ test('a failed Start workout says so', async () => {
   ).toBeOnTheScreen();
 });
 
+test('while another workout runs, Start workout and Other routine look muted and say to resume it first', async () => {
+  mockFetch.mockImplementation((request) => {
+    const { pathname } = new URL(request.url);
+    if (pathname === '/api/v1/workouts') {
+      return Promise.resolve(
+        Response.json([
+          { id: 'w9', date: '2026-11-02', status: 'inProgress', name: 'Arms' },
+        ]),
+      );
+    }
+    return Promise.resolve(
+      Response.json(pathname === '/api/v1/days' ? week : plannedDay),
+    );
+  });
+  await renderWorkout();
+  await screen.findByText('Legs');
+  const start = screen.getByRole('button', { name: 'Start workout' });
+  const other = screen.getByRole('button', { name: 'Other routine' });
+  await waitFor(() => {
+    expect(start).not.toHaveStyle({ opacity: 1 });
+  });
+  expect(other).not.toHaveStyle({ opacity: 1 });
+
+  await fireEvent.press(start);
+
+  expect(
+    await screen.findByText('Resume or finish your workout first.'),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(other);
+
+  expect(screen.queryByText('Choose routine screen')).toBeNull();
+  expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
+    false,
+  );
+});
+
 describe('a day in progress', () => {
   const inProgressDay = {
     ...plannedDay,
@@ -669,7 +706,7 @@ describe('other days', () => {
     expect(await screen.findByText('Choose routine screen')).toBeOnTheScreen();
   });
 
-  test('tomorrow shows the plan, with nothing to do yet', async () => {
+  test('tomorrow shows the plan, with its actions muted until the day', async () => {
     answerByDate({ '2026-11-03': restDay, '2026-11-04': upcomingDay });
     await renderWorkout();
     await open('Wednesday 4, Arms');
@@ -678,9 +715,28 @@ describe('other days', () => {
     expect(screen.getByText('Tomorrow')).toBeOnTheScreen();
     expect(screen.getByText('Wed, 4th November')).toBeOnTheScreen();
     expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Skip workout' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Other routine' })).toBeNull();
+    const start = screen.getByRole('button', { name: 'Start workout' });
+    const skip = screen.getByRole('button', { name: 'Skip workout' });
+    expect(start).not.toHaveStyle({ opacity: 1 });
+    expect(skip).not.toHaveStyle({ opacity: 1 });
+    expect(
+      screen.getByRole('button', { name: 'Other routine' }),
+    ).not.toHaveStyle({ opacity: 1 });
+
+    await fireEvent.press(start);
+
+    expect(
+      await screen.findByText("A workout can't be started before its day."),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(skip);
+
+    expect(
+      await screen.findByText("A workout can't be skipped before its day."),
+    ).toBeOnTheScreen();
+    expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
+      false,
+    );
   });
 
   test('a later rest day has its weekday as the title, and the next date', async () => {
@@ -693,7 +749,15 @@ describe('other days', () => {
     expect(screen.getByText('5th November')).toBeOnTheScreen();
     expect(screen.getByText('Arms')).toBeOnTheScreen();
     expect(screen.getByText('Fri, 6th Nov')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Other routine' })).toBeNull();
+    const other = screen.getByRole('button', { name: 'Other routine' });
+    expect(other).not.toHaveStyle({ opacity: 1 });
+
+    await fireEvent.press(other);
+
+    expect(
+      await screen.findByText("A workout can't be started before its day."),
+    ).toBeOnTheScreen();
+    expect(screen.queryByText('Choose routine screen')).toBeNull();
   });
 
   test('yesterday as a rest day has no up next', async () => {

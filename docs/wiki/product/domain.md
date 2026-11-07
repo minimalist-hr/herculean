@@ -121,7 +121,8 @@ One workout per date, and a workout only happens on today or a past day.
 | Today or past | Skipped | Undo skip |
 | Past | Missed | Log workout, Other routine, Skip workout |
 | Past | Rest | Other routine |
-| Future | Planned or rest | None |
+| Future | Planned | Start workout, Other routine, Skip workout, all muted |
+| Future | Rest | Other routine, muted |
 
 | Action | What it does | The day then shows |
 |---|---|---|
@@ -135,6 +136,7 @@ One workout per date, and a workout only happens on today or a past day.
 
 - "Its plan" is planned, missed or rest, from the week plan on that date.
 - Only one workout can be in progress. While one runs on another day, Start workout, Log workout and Other routine look muted, and tapping one says to resume or finish it first.
+- On a future day, the actions look muted, and tapping one says a workout can't be started or skipped before its day.
 - A workout that runs past midnight stays on the date it started.
 - The first day is the earlier of the first workout and the day the account was created, so imported workouts extend it. The week strip reaches from its week to 4 weeks ahead. A workout can't be added before it, except by an import, so Other routine looks muted there and says why.
 - A workout keeps its copy when its routine changes or is deleted. Exercise renames show everywhere.

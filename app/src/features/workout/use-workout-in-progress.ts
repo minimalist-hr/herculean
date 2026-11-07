@@ -5,6 +5,9 @@ import { toApiError } from '@/api/problem';
 
 import { workoutKeys } from './query-keys';
 
+/** What a start button says while another workout is in progress. */
+export const resumeFirst = 'Resume or finish your workout first.';
+
 /** The workout in progress, on any day, or null when none is. */
 export function useWorkoutInProgress() {
   return useQuery({

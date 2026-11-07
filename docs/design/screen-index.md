@@ -1,6 +1,6 @@
 # Screen index
 
-292 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+294 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -103,6 +103,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W21 | Workout › Missed day | W3 Other days | 390×844 | [png](screens/workout/W21-Workout-Missed-Day.png) · [html](html/workout/W21-Workout-Missed-Day.html) · [source](source/workout/W21-Workout-Missed-Day.dc.html) |
 | W22 | Workout › Skipped day | W3 Other days | 390×844 | [png](screens/workout/W22-Workout-Skipped-Day.png) · [html](html/workout/W22-Workout-Skipped-Day.html) · [source](source/workout/W22-Workout-Skipped-Day.dc.html) |
 | W24 | Workout › Upcoming day · tomorrow | W3 Other days | 390×844 | [png](screens/workout/W24-Workout-Upcoming-Day.png) · [html](html/workout/W24-Workout-Upcoming-Day.html) · [source](source/workout/W24-Workout-Upcoming-Day.dc.html) |
+| W82 | Workout › Upcoming day · start says why | W3 Other days | 390×844 | [png](screens/workout/W82-Workout-Upcoming-Day-Not-Yet.png) · [html](html/workout/W82-Workout-Upcoming-Day-Not-Yet.html) · [source](source/workout/W82-Workout-Upcoming-Day-Not-Yet.dc.html) |
 | W25 | Workout › Rest day | W3 Other days | 390×844 | [png](screens/workout/W25-Workout-Rest-Day.png) · [html](html/workout/W25-Workout-Rest-Day.html) · [source](source/workout/W25-Workout-Rest-Day.dc.html) |
 | W28 | Workout › Another week | W3 Other days | 390×844 | [png](screens/workout/W28-Workout-Another-Week.png) · [html](html/workout/W28-Workout-Another-Week.html) · [source](source/workout/W28-Workout-Another-Week.dc.html) |
 | W29 | Workout › Day from the month | W3 Other days | 390×844 | [png](screens/workout/W29-Workout-Day-From-Month.png) · [html](html/workout/W29-Workout-Day-From-Month.html) · [source](source/workout/W29-Workout-Day-From-Month.dc.html) |
@@ -129,8 +130,8 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W15 | Workout › Undo skip · undoing | W1 Today states | 390×844 | [png](screens/workout/W15-Workout-Undo-Skip-Undoing.png) · [html](html/workout/W15-Workout-Undo-Skip-Undoing.html) · [source](source/workout/W15-Workout-Undo-Skip-Undoing.dc.html) |
 | W16 | Workout › Undo skip · couldn't undo | W1 Today states | 390×844 | [png](screens/workout/W16-Workout-Undo-Skip-Failed.png) · [html](html/workout/W16-Workout-Undo-Skip-Failed.html) · [source](source/workout/W16-Workout-Undo-Skip-Failed.dc.html) |
 | W17 | Workout › Today · first week, no earlier weeks · full scroll | W3 Other days | 390×942 | [png](screens/workout/W17-Workout-First-Week.png) · [html](html/workout/W17-Workout-First-Week.html) · [source](source/workout/W17-Workout-First-Week.dc.html) |
-| W18 | Workout › Upcoming day · last week, no later weeks | W3 Other days | 390×844 | [png](screens/workout/W18-Workout-Last-Week.png) · [html](html/workout/W18-Workout-Last-Week.html) · [source](source/workout/W18-Workout-Last-Week.dc.html) |
-| W19 | Workout › Day in another year | W3 Other days | 390×844 | [png](screens/workout/W19-Workout-Another-Year.png) · [html](html/workout/W19-Workout-Another-Year.html) · [source](source/workout/W19-Workout-Another-Year.dc.html) |
+| W18 | Workout › Upcoming day · last week, no later weeks · full scroll | W3 Other days | 390×942 | [png](screens/workout/W18-Workout-Last-Week.png) · [html](html/workout/W18-Workout-Last-Week.html) · [source](source/workout/W18-Workout-Last-Week.dc.html) |
+| W19 | Workout › Day in another year · full scroll | W3 Other days | 390×942 | [png](screens/workout/W19-Workout-Another-Year.png) · [html](html/workout/W19-Workout-Another-Year.html) · [source](source/workout/W19-Workout-Another-Year.dc.html) |
 | W50 | Workout › Month · another month · full scroll | W5 Month | 390×1048 | [png](screens/workout/W50-Workout-Month-Another-Month.png) · [html](html/workout/W50-Workout-Month-Another-Month.html) · [source](source/workout/W50-Workout-Month-Another-Month.dc.html) |
 | W51 | Workout › Month · last month, a later day says why | W5 Month | 390×844 | [png](screens/workout/W51-Workout-Month-Last.png) · [html](html/workout/W51-Workout-Month-Last.html) · [source](source/workout/W51-Workout-Month-Last.dc.html) |
 | W52 | Workout › Month · first month, an earlier day says why | W5 Month | 390×844 | [png](screens/workout/W52-Workout-Month-First-Says-Why.png) · [html](html/workout/W52-Workout-Month-First-Says-Why.html) · [source](source/workout/W52-Workout-Month-First-Says-Why.dc.html) |
@@ -143,6 +144,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W74 | Workout › Today · another workout in progress | W1 Today states | 390×844 | [png](screens/workout/W74-Workout-Today-Another-In-Progress.png) · [html](html/workout/W74-Workout-Today-Another-In-Progress.html) · [source](source/workout/W74-Workout-Today-Another-In-Progress.dc.html) |
 | W75 | Workout › Today · week strip loading · full scroll | W1 Today states | 390×942 | [png](screens/workout/W75-Workout-Today-Week-Loading.png) · [html](html/workout/W75-Workout-Today-Week-Loading.html) · [source](source/workout/W75-Workout-Today-Week-Loading.dc.html) |
 | W79 | Workout › Today · week strip load failure · full scroll | W1 Today states | 390×1002 | [png](screens/workout/W79-Workout-Today-Week-Load-Failure.png) · [html](html/workout/W79-Workout-Today-Week-Load-Failure.html) · [source](source/workout/W79-Workout-Today-Week-Load-Failure.dc.html) |
+| W80 | Workout › Today · another workout in progress, start muted · full scroll · full scroll | W1 Today states | 390×1022 | [png](screens/workout/W80-Workout-Today-Start-Muted.png) · [html](html/workout/W80-Workout-Today-Start-Muted.html) · [source](source/workout/W80-Workout-Today-Start-Muted.dc.html) |
 | W81 | Workout › Today · in progress, Resume bar hidden | W1 Today states | 390×844 | [png](screens/workout/W81-Workout-Today-Resume-Bar-Hidden.png) · [html](html/workout/W81-Workout-Today-Resume-Bar-Hidden.html) · [source](source/workout/W81-Workout-Today-Resume-Bar-Hidden.dc.html) |
 | W76 | Workout › Month › Day summary · in progress, sheet | W5 Month | 390×844 | [png](screens/workout/W76-Workout-Month-Day-In-Progress.png) · [html](html/workout/W76-Workout-Month-Day-In-Progress.html) · [source](source/workout/W76-Workout-Month-Day-In-Progress.dc.html) |
 | W77 | Workout › Month › Day summary · completed, loading, sheet | W5 Month | 390×844 | [png](screens/workout/W77-Workout-Month-Day-Completed-Loading.png) · [html](html/workout/W77-Workout-Month-Day-Completed-Loading.html) · [source](source/workout/W77-Workout-Month-Day-Completed-Loading.dc.html) |

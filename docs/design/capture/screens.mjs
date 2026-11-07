@@ -23,6 +23,8 @@ const confirmRoutine = async (on) => {
 };
 const logPath = `/workout/log/${sampleWorkout.id}`;
 const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
+// A workout in progress the day before, which keeps today's from starting.
+const anotherInProgressAnswer = { 'GET /api/v1/workouts': { status: 200, body: [{ id: sampleWorkout.id, date: '2026-10-22', status: 'inProgress', name: 'Back and shoulders 1' }] } };
 // The workout in progress, which shows the Resume bar.
 const inProgressAnswer = { 'GET /api/v1/workouts': { status: 200, body: [{ id: sampleWorkout.id, date: '2026-10-23', status: 'inProgress', name: sampleWorkout.name }] } };
 const addPath = `${logPath}/add`;
@@ -461,6 +463,13 @@ export const screens = [
     await on.tap('Saturday 24, Back and shoulders 2');
     await on.waitFor('Planned for Saturday');
   } },
+  { id: 'W82', file: 'W82-Workout-Upcoming-Day-Not-Yet', title: 'Workout › Upcoming day · start says why', row: 'W3 Other days', today: friday, full: false, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Saturday 24, Back and shoulders 2');
+    await on.waitFor('Planned for Saturday');
+    await on.tap('Start workout');
+    await on.waitFor("A workout can't be started before its day.");
+  } },
   { id: 'W25', file: 'W25-Workout-Rest-Day', title: 'Workout › Rest day', row: 'W3 Other days', today: friday, steps: async (on) => {
     await on.go('/workout');
     await on.tap('Sunday 25, rest day');
@@ -664,10 +673,15 @@ export const screens = [
     await on.tap('Start workout');
     await on.waitFor("Couldn't start the workout. Try again.");
   } },
-  { id: 'W74', file: 'W74-Workout-Today-Another-In-Progress', title: 'Workout › Today · another workout in progress', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': problem(409, 'workout.another_in_progress', 'Another workout is in progress. Resume or finish it first.') }, steps: async (on) => {
+  { id: 'W74', file: 'W74-Workout-Today-Another-In-Progress', title: 'Workout › Today · another workout in progress', row: 'W1 Today states', today: friday, full: false, answers: anotherInProgressAnswer, steps: async (on) => {
     await on.go('/workout');
+    await on.waitFor('Resume');
     await on.tap('Start workout');
-    await on.waitFor('Another workout is in progress. Resume or finish it first.');
+    await on.waitFor('Resume or finish your workout first.');
+  } },
+  { id: 'W80', file: 'W80-Workout-Today-Start-Muted', title: 'Workout › Today · another workout in progress, start muted · full scroll', row: 'W1 Today states', today: friday, answers: anotherInProgressAnswer, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Resume');
   } },
   { id: 'W75', file: 'W75-Workout-Today-Week-Loading', title: 'Workout › Today · week strip loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': 'hold' }, steps: async (on) => {
     await on.go('/workout');
