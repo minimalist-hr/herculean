@@ -3,36 +3,39 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/theme/theme-provider';
 import { Tappable } from './tappable';
 
-interface QuickPicksProps {
-  values: readonly number[];
+interface QuickPicksProps<T extends string | number> {
+  values: readonly T[];
   /** The current value. A pick that matches it is filled. */
-  selected: number;
-  onSelect: (value: number) => void;
-  format: (value: number) => string;
-  formatSpoken: (value: number) => string;
+  selected: T;
+  onSelect: (value: T) => void;
+  format: (value: T) => string;
+  formatSpoken: (value: T) => string;
+  /** Names the row for screen readers, for example "Time range". */
+  label?: string;
 }
 
 /** A row of common values to set with one tap, for example rest times. */
-export function QuickPicks({
+export function QuickPicks<T extends string | number>({
   values,
   selected,
   onSelect,
   format,
   formatSpoken,
-}: QuickPicksProps) {
+  label = 'Quick picks',
+}: QuickPicksProps<T>) {
   const { colors, radius, size, space, text } = useTheme();
 
   return (
     <View
       accessibilityRole="toolbar"
-      accessibilityLabel="Quick picks"
+      accessibilityLabel={label}
       style={[styles.row, { gap: space.xs }]}
     >
       {values.map((value) => {
         const isSelected = value === selected;
         return (
           <Tappable
-            key={value}
+            key={String(value)}
             accessibilityRole="button"
             accessibilityLabel={formatSpoken(value)}
             accessibilityState={{ selected: isSelected }}

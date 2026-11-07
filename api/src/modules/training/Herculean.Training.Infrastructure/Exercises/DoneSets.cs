@@ -61,6 +61,18 @@ internal static class DoneSets
             .Select(sets => sets.Min(set => set.Date))
             .ToListAsync(cancellationToken);
 
+    /// <summary>The heaviest set of each session of the exercise, then the most reps at that weight, from a date on.</summary>
+    internal static Task<List<DoneSet>> ListHeaviestPerSessionAsync(
+        TrainingDbContext dbContext,
+        ExerciseId exerciseId,
+        DateOnly? from,
+        CancellationToken cancellationToken) =>
+        Of(dbContext, [exerciseId])
+            .Where(set => from == null || set.Date >= from)
+            .GroupBy(set => set.WorkoutId)
+            .Select(sets => sets.OrderByDescending(set => set.WeightKg).ThenByDescending(set => set.Reps).First())
+            .ToListAsync(cancellationToken);
+
     internal sealed record SessionMonth(int Year, int Month, int Sessions);
 
     /// <summary>The number of sessions of the exercise in each month between two dates. A day has at most one workout, so each date is one session.</summary>

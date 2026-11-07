@@ -1,5 +1,6 @@
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.GetExerciseProgress;
 using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups.ListGroups;
@@ -103,6 +104,13 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
                 .ThenByDescending(month => month.Month)
                 .Select(month => new SessionMonthResponse($"{month.Year:D4}-{month.Month:D2}", month.Sessions)),
         ];
+    }
+
+    public async Task<List<ProgressPointResponse>> ListHeaviestSetsAsync(ExerciseId id, DateOnly? from, CancellationToken cancellationToken)
+    {
+        List<DoneSets.DoneSet> heaviest = await DoneSets.ListHeaviestPerSessionAsync(dbContext, id, from, cancellationToken);
+
+        return [.. heaviest.OrderBy(set => set.Date).Select(set => new ProgressPointResponse(set.Date, set.WeightKg, set.Reps))];
     }
 
     private Task<ExerciseDetailsResponse?> GetWithoutProgressAsync(ExerciseId id, CancellationToken cancellationToken) =>

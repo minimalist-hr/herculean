@@ -216,6 +216,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises/{id}/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an exercise's progress
+         * @description Returns the heaviest set of each completed workout with checked sets of one of the signed-in user's exercises, over a range up to today, oldest first. A range with more than 60 sessions returns each month's heaviest set instead.
+         */
+        get: operations["GetExerciseProgress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exercises/{id}": {
         parameters: {
             query?: never;
@@ -951,6 +971,13 @@ export interface components {
             groupName: string;
             bestSet: null | components["schemas"]["BestSetResponse"];
         };
+        /** @description An exercise's heaviest sets over a range, oldest first. */
+        ExerciseProgressResponse: {
+            /** @description True when the range has too many sessions to show each, so each point is a month's heaviest set. */
+            byMonth: boolean;
+            /** @description Each session's heaviest set, or each month's when byMonth is true, oldest first. Empty when the range has no sessions. */
+            points: components["schemas"]["ProgressPointResponse"][];
+        };
         /** @description An exercise. */
         ExerciseResponse: {
             /**
@@ -1140,6 +1167,24 @@ export interface components {
             };
             /** @description Finds the request in the logs. */
             traceId: string;
+        };
+        /** @description A heaviest set: the most weight, then the most reps at that weight. */
+        ProgressPointResponse: {
+            /**
+             * Format: date
+             * @description The workout's date, in the user's time zone.
+             */
+            date: string;
+            /**
+             * Format: double
+             * @description The weight in kg. A bodyweight set has 0.
+             */
+            weightKg: number;
+            /**
+             * Format: int32
+             * @description The reps.
+             */
+            reps: number;
         };
         /**
          * @description What a record beat: the heaviest weight, or the most reps at a weight.
@@ -2258,6 +2303,59 @@ export interface operations {
                 };
             };
             /** @description The cursor isn't one from an earlier page. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetExerciseProgress: {
+        parameters: {
+            query?: {
+                /** @description How far back to read, up to today: 3m, 6m, 1y or all. Leave it out for 3m. */
+                range?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The heaviest sets. Empty when the range has no sessions. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseProgressResponse"];
+                };
+            };
+            /** @description The range isn't 3m, 6m, 1y or all. */
             400: {
                 headers: {
                     [name: string]: unknown;

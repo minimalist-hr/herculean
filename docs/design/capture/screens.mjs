@@ -2,7 +2,7 @@
 
 import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout } from './fixtures.mjs';
 
-const { benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
+const { benchHistory, benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
 const exercisePath = `/exercises/${lateralRaise.id}`;
 const routinePath = `/routines/${chestAndArms.id}`;
@@ -246,6 +246,20 @@ const reorderPath = `${logPath}/reorder`;
 const swapOnceThenFail = () => {
   let calls = 0;
   return () => (calls++ === 0 ? swapped : 'fail');
+};
+
+const benchExercisePath = `/exercises/${benchPress.id}`;
+const benchApi = `/api/v1/exercises/${benchPress.id}`;
+/** Bench press after 25 sessions, with any answers changed. */
+const benchAnswers = (changes = {}) => ({
+  [`GET ${benchApi}`]: { status: 200, body: benchHistory.details },
+  [`GET ${benchApi}/sessions`]: (url) => ({ status: 200, body: url.searchParams.get('cursor') ? benchHistory.lastPage : benchHistory.firstPage }),
+  [`GET ${benchApi}/progress`]: (url) => ({ status: 200, body: url.searchParams.get('range') === 'all' ? benchHistory.allProgress : benchHistory.progress }),
+  ...changes,
+});
+const openBench = async (on) => {
+  await on.go(benchExercisePath);
+  await on.waitFor('Heaviest set');
 };
 
 export const screens = [
@@ -693,6 +707,10 @@ export const screens = [
     await on.tap('Delete exercise');
     await on.waitFor('Undo');
   } },
+  { id: 'E10', file: 'E10-Exercises-Detail', title: 'Exercises › Exercise', row: 'E2 Exercise details', answers: benchAnswers(), steps: async (on) => {
+    await openBench(on);
+    await on.waitFor('70 → 82.5 kg');
+  } },
   { id: 'E11', file: 'E11-Exercises-Detail-Never-Done', title: 'Exercises › Exercise · never done', row: 'E2 Exercise details', steps: async (on) => {
     await on.go(exercisePath);
     await on.waitFor('Used in');
@@ -705,6 +723,36 @@ export const screens = [
   { id: 'E14', file: 'E14-Exercises-Detail-Load-Failure', title: 'Exercises › Exercise · load failure', row: 'E2 Exercise details', answers: { [`GET /api/v1/exercises/${lateralRaise.id}`]: 'fail' }, steps: async (on) => {
     await on.go(exercisePath);
     await on.waitFor('Try again');
+  } },
+  { id: 'E17', file: 'E17-Exercises-Detail-Loading-More', title: 'Exercises › Exercise · loading more sessions', row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/sessions`]: (url) => (url.searchParams.get('cursor') ? 'hold' : { status: 200, body: benchHistory.firstPage }) }), steps: async (on) => {
+    await openBench(on);
+    await on.end();
+    await on.waitFor('Loading more sessions');
+    await on.end();
+  } },
+  { id: 'E18', file: 'E18-Exercises-Detail-Load-More-Failure', title: "Exercises › Exercise · couldn't load more sessions", row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/sessions`]: (url) => (url.searchParams.get('cursor') ? 'fail' : { status: 200, body: benchHistory.firstPage }) }), steps: async (on) => {
+    await openBench(on);
+    await on.end();
+    await on.waitFor("Couldn't load more sessions.");
+    await on.end();
+  } },
+  { id: 'E19', file: 'E19-Exercises-Detail-Sessions-Loading', title: 'Exercises › Exercise · sessions loading', row: 'E2 Exercise details', answers: benchAnswers({ [`GET ${benchApi}/sessions`]: 'hold' }), steps: async (on) => {
+    await openBench(on);
+    await on.waitFor('70 → 82.5 kg');
+  } },
+  { id: 'E67', file: 'E67-Exercises-Detail-Chart-Loading', title: 'Exercises › Exercise · chart loading', row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/progress`]: 'hold' }), steps: openBench },
+  { id: 'E68', file: 'E68-Exercises-Detail-Chart-Load-Failure', title: "Exercises › Exercise · chart couldn't load", row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/progress`]: 'fail' }), steps: async (on) => {
+    await openBench(on);
+    await on.waitFor("Couldn't load the chart.");
+  } },
+  { id: 'E69', file: 'E69-Exercises-Detail-Chart-Empty', title: 'Exercises › Exercise · no sessions in this period', row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/progress`]: { status: 200, body: { byMonth: false, points: [] } } }), steps: async (on) => {
+    await openBench(on);
+    await on.waitFor('No sessions in this period');
+  } },
+  { id: 'E70', file: 'E70-Exercises-Detail-Chart-By-Month', title: 'Exercises › Exercise · All, by month', row: 'E2 Exercise details', full: false, answers: benchAnswers(), steps: async (on) => {
+    await openBench(on);
+    await on.tap('All time');
+    await on.waitFor('50 → 82.5 kg');
   } },
   { id: 'E20', file: 'E20-Exercises-Edit', title: 'Exercises › Edit exercise', row: 'E3 Edit or delete', steps: async (on) => {
     await on.go(exercisePath);

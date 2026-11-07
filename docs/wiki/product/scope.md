@@ -85,6 +85,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | DELETE | `/api/v1/exercises/{id}` | E21 |
 | POST | `/api/v1/exercises/{id}/restore` | Undo on E01 |
 | GET | `/api/v1/exercises/{id}/sessions` | E10's sessions, 20 a page, newest first, with `cursor` for the next page and each month's count |
+| GET | `/api/v1/exercises/{id}/progress` | E10's chart: each session's heaviest set over `range` (3m, 6m, 1y or all), oldest first, or each month's past 60 sessions |
 | GET | `/api/v1/groups` | E30, chips everywhere |
 | GET | `/api/v1/groups/{id}` | E35 |
 | POST | `/api/v1/groups` | E32 |
@@ -93,7 +94,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | POST | `/api/v1/groups/{id}/restore` | Undo on E30 |
 | PUT | `/api/v1/group-order` | E30, drag to reorder |
 
-**Left to other features:** "Used in" on E10 shows routines from [3. Routines](#3-routines). E10's chart, sessions and `/sessions` endpoint need [5. Logging](#5-logging), so they moved to [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54).
+**Left to other features:** "Used in" on E10 shows routines from [3. Routines](#3-routines). E10's chart, sessions, `/sessions` and `/progress` need [5. Logging](#5-logging), so they moved to [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54).
 
 **Done when**
 - A group's trash is only active when no exercise uses it.

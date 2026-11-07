@@ -25,6 +25,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
 import { DetailsSkeleton } from './exercises-skeleton';
+import { ExerciseChart } from './exercise-chart';
 import { ExerciseSessions } from './exercise-sessions';
 import { useExercise } from './use-exercise';
 import { useExerciseSessions } from './use-exercise-sessions';
@@ -169,6 +170,12 @@ function Details({
       </View>
 
       <Progress exercise={exercise} units={units} />
+
+      <ExerciseChart
+        exerciseId={exercise.id}
+        done={exercise.timesDone > 0}
+        units={units}
+      />
 
       <View style={{ gap: space.sm }}>
         <SectionTitle>Used in</SectionTitle>

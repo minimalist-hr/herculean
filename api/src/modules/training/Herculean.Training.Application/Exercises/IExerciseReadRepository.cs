@@ -1,4 +1,5 @@
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.GetExerciseProgress;
 using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Domain.Exercises;
@@ -37,4 +38,10 @@ internal interface IExerciseReadRepository
     /// <param name="to">The last date counted.</param>
     /// <param name="cancellationToken">Stops the read.</param>
     Task<List<SessionMonthResponse>> ListSessionMonthsAsync(ExerciseId id, DateOnly from, DateOnly to, CancellationToken cancellationToken);
+
+    /// <summary>The heaviest set of each session of the exercise, then the most reps at that weight, oldest first.</summary>
+    /// <param name="id">The exercise's ID.</param>
+    /// <param name="from">The first date read. Null reads every session.</param>
+    /// <param name="cancellationToken">Stops the read.</param>
+    Task<List<ProgressPointResponse>> ListHeaviestSetsAsync(ExerciseId id, DateOnly? from, CancellationToken cancellationToken);
 }

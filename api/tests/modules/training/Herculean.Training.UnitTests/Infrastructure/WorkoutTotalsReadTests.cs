@@ -2,6 +2,7 @@ using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.GetExerciseProgress;
 using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups.GetGroup;
@@ -205,6 +206,21 @@ public sealed class WorkoutTotalsReadTests : IDisposable
         List<ExerciseSessionResponse> sessions = await ListSessionsAsync(exercise, before: Date.AddDays(-7), take: 5);
 
         sessions.ShouldHaveSingleItem().Date.ShouldBe(Date.AddDays(-14));
+    }
+
+    [Fact]
+    public async Task HeaviestSetsComeOnePerSessionOldestFirstFromADate()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        await SaveWorkoutAsync(exercise, Date.AddDays(-30), finish: true, (120, 5));
+        await SaveWorkoutAsync(exercise, Date.AddDays(-7), finish: true, (90, 10), (100, 5), (100, 8));
+        await SaveWorkoutAsync(exercise, Date, finish: true, (95, 6));
+        await SaveWorkoutAsync(exercise, Date.AddDays(1), finish: false, (140, 1));
+
+        List<ProgressPointResponse> points = await new ExerciseReadRepository(_dbContext)
+            .ListHeaviestSetsAsync(exercise.Id, Date.AddDays(-7), Token);
+
+        points.ShouldBe([new ProgressPointResponse(Date.AddDays(-7), 100, 8), new ProgressPointResponse(Date, 95, 6)]);
     }
 
     [Fact]

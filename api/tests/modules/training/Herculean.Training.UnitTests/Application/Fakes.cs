@@ -7,6 +7,7 @@ using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
 using Herculean.Training.Application.Exercises;
 using Herculean.Training.Application.Exercises.GetExercise;
+using Herculean.Training.Application.Exercises.GetExerciseProgress;
 using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
@@ -156,6 +157,19 @@ internal sealed class FakeExerciseReadRepository : IExerciseReadRepository
             .GroupBy(session => session.Date.ToString("yyyy-MM", CultureInfo.InvariantCulture))
             .Select(month => new SessionMonthResponse(month.Key, month.Count()))
             .ToList());
+
+    /// <summary>Each session's heaviest set, oldest first.</summary>
+    public List<ProgressPointResponse> HeaviestSets { get; } = [];
+
+    /// <summary>The first date the last heaviest sets read asked for.</summary>
+    public DateOnly? HeaviestFrom { get; private set; }
+
+    public Task<List<ProgressPointResponse>> ListHeaviestSetsAsync(ExerciseId id, DateOnly? from, CancellationToken cancellationToken)
+    {
+        HeaviestFrom = from;
+
+        return Task.FromResult(HeaviestSets.Where(point => from is null || point.Date >= from).ToList());
+    }
 }
 
 internal sealed class FakeExerciseRepository : IExerciseRepository

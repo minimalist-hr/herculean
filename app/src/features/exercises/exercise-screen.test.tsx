@@ -10,8 +10,9 @@ import { ThemeProvider } from '@/theme/theme-provider';
 import { ExerciseScreen } from './exercise-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
-// Sessions have their own answers, so the other tests needn't know about them.
+// Sessions and the chart have their own answers, so the other tests needn't know about them.
 const mockSessions = jest.fn<Promise<Response>, [Request]>();
+const mockProgress = jest.fn<Promise<Response>, [Request]>();
 
 jest.mock('@/api/client', () => {
   const createClient =
@@ -19,10 +20,16 @@ jest.mock('@/api/client', () => {
   return {
     api: createClient({
       baseUrl: 'http://api.test',
-      fetch: (request: Request) =>
-        new URL(request.url).pathname.endsWith('/sessions')
-          ? mockSessions(request)
-          : mockFetch(request),
+      fetch: (request: Request) => {
+        const { pathname } = new URL(request.url);
+        if (pathname.endsWith('/sessions')) {
+          return mockSessions(request);
+        }
+
+        return pathname.endsWith('/progress')
+          ? mockProgress(request)
+          : mockFetch(request);
+      },
     }),
   };
 });
@@ -126,6 +133,10 @@ beforeEach(() => {
   mockSessions.mockImplementation(() =>
     Promise.resolve(Response.json(noSessions)),
   );
+  mockProgress.mockReset();
+  mockProgress.mockImplementation(() =>
+    Promise.resolve(Response.json({ byMonth: false, points: [] })),
+  );
   // Friday 6 November 2026, so dates in 2026 show no year. Only the date is fixed: timers run as usual.
   jest.useFakeTimers({
     now: new Date(2026, 10, 6, 18),
@@ -195,7 +206,11 @@ test('never done, every section is in its place and says so', async () => {
   expect(screen.getByText('—')).toBeOnTheScreen();
   expect(screen.getByText('Not done yet')).toBeOnTheScreen();
   expect(screen.getByText('0 times')).toBeOnTheScreen();
-  expect(screen.getByText('No sessions yet')).toBeOnTheScreen();
+  // The chart's box and the sessions both say so.
+  expect(screen.getByText('Heaviest set')).toBeOnTheScreen();
+  expect(screen.getAllByText('No sessions yet')).toHaveLength(2);
+  expect(screen.queryByRole('toolbar', { name: 'Time range' })).toBeNull();
+  expect(mockProgress).not.toHaveBeenCalled();
   expect(screen.getByText('All sessions')).toBeOnTheScreen();
   expect(screen.getByText('Not in any routine yet')).toBeOnTheScreen();
   expect(
@@ -513,4 +528,146 @@ test('sessions that fail to load say so, and Try again reads them', async () => 
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 
   expect(await screen.findByText('80 × 10')).toBeOnTheScreen();
+});
+
+const progress = {
+  byMonth: false,
+  points: [
+    { date: '2026-08-07', weightKg: 70, reps: 10 },
+    { date: '2026-09-11', weightKg: 77.5, reps: 8 },
+    { date: '2026-10-16', weightKg: 82.5, reps: 10 },
+  ],
+};
+
+/** Gives the chart its width, as the phone would once it lays the screen out. */
+async function layOutChart() {
+  await fireEvent(await screen.findByTestId('exercise-chart'), 'layout', {
+    nativeEvent: { layout: { width: 358 } },
+  });
+}
+
+test('the chart shows the heaviest sets of the last 3 months first', async () => {
+  answer(doneExercise);
+  mockProgress.mockImplementation(() =>
+    Promise.resolve(Response.json(progress)),
+  );
+  await renderExercise();
+  await layOutChart();
+
+  expect(await screen.findByText('70 → 82.5 kg')).toBeOnTheScreen();
+  expect(screen.getAllByTestId('chart-dot')).toHaveLength(3);
+  expect(
+    screen.getByRole('image', {
+      name: 'Heaviest set went from 70 kg on Fri, 7th Aug to 82.5 kg on Fri, 16th Oct',
+    }),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Last 3 months' })).toBeSelected();
+  expect(
+    new URL(mockProgress.mock.calls[0][0].url).searchParams.get('range'),
+  ).toBe('3m');
+});
+
+test('picking a range reads it', async () => {
+  answer(doneExercise);
+  await renderExercise();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'All time' }),
+  );
+
+  await waitFor(() => {
+    expect(
+      mockProgress.mock.calls.map(([request]) =>
+        new URL(request.url).searchParams.get('range'),
+      ),
+    ).toEqual(['3m', 'all']);
+  });
+  expect(screen.getByRole('button', { name: 'All time' })).toBeSelected();
+});
+
+test('a range with no sessions says so in the box', async () => {
+  answer(doneExercise);
+  await renderExercise();
+
+  expect(
+    await screen.findByText('No sessions in this period'),
+  ).toBeOnTheScreen();
+});
+
+test('one session shows its weight without a change', async () => {
+  answer(doneExercise);
+  mockProgress.mockImplementation(() =>
+    Promise.resolve(
+      Response.json({ byMonth: false, points: [progress.points[2]] }),
+    ),
+  );
+  await renderExercise();
+  await layOutChart();
+
+  expect(
+    await screen.findByRole('image', {
+      name: 'Heaviest set was 82.5 kg on Fri, 16th Oct',
+    }),
+  ).toBeOnTheScreen();
+});
+
+test('a chart that fails says so in the box, and Try again reads it', async () => {
+  answer(doneExercise);
+  mockProgress.mockRejectedValueOnce(new TypeError('Network request failed'));
+  await renderExercise();
+
+  expect(await screen.findByText("Couldn't load the chart.")).toBeOnTheScreen();
+  // The sessions still show, because the chart loads on its own.
+  expect(screen.getByText('All sessions')).toBeOnTheScreen();
+
+  mockProgress.mockImplementation(() =>
+    Promise.resolve(Response.json(progress)),
+  );
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(await screen.findByText('70 → 82.5 kg')).toBeOnTheScreen();
+});
+
+test('the chart follows the units setting', async () => {
+  answer(doneExercise);
+  mockFetch.mockImplementation((request) => {
+    const { pathname } = new URL(request.url);
+    if (pathname === '/api/v1/users/me') {
+      return Promise.resolve(
+        Response.json({
+          email: 'filip@example.com',
+          name: 'Filip',
+          units: 'imperial',
+          timeZone: 'Europe/Zagreb',
+        }),
+      );
+    }
+
+    return Promise.resolve(
+      Response.json(pathname === '/api/v1/groups' ? [] : doneExercise),
+    );
+  });
+  mockProgress.mockImplementation(() =>
+    Promise.resolve(Response.json(progress)),
+  );
+  await renderExercise();
+
+  expect(await screen.findByText('154.3 → 181.9 lb')).toBeOnTheScreen();
+});
+
+test('past 20 points, only the last one has a dot', async () => {
+  answer(doneExercise);
+  const points = Array.from({ length: 25 }, (_, week) => ({
+    date: new Date(Date.UTC(2026, 4, 1 + 7 * week)).toISOString().slice(0, 10),
+    weightKg: 60 + week,
+    reps: 8,
+  }));
+  mockProgress.mockImplementation(() =>
+    Promise.resolve(Response.json({ byMonth: false, points })),
+  );
+  await renderExercise();
+  await layOutChart();
+  await screen.findByText('60 → 84 kg');
+
+  expect(screen.getAllByTestId('chart-dot')).toHaveLength(1);
 });

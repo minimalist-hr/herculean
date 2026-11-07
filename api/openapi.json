@@ -739,6 +739,84 @@
         ]
       }
     },
+    "/api/v1/exercises/{id}/progress": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get an exercise's progress",
+        "description": "Returns the heaviest set of each completed workout with checked sets of one of the signed-in user's exercises, over a range up to today, oldest first. A range with more than 60 sessions returns each month's heaviest set instead.",
+        "operationId": "GetExerciseProgress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The exercise's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "description": "How far back to read, up to today: 3m, 6m, 1y or all. Leave it out for 3m.",
+            "schema": {
+              "type": "string",
+              "default": "3m"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The heaviest sets. Empty when the range has no sessions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseProgressResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The range isn't 3m, 6m, 1y or all.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The exercise does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/exercises/{id}": {
       "get": {
         "tags": [
@@ -3649,6 +3727,27 @@
         },
         "description": "An exercise in the list."
       },
+      "ExerciseProgressResponse": {
+        "required": [
+          "byMonth",
+          "points"
+        ],
+        "type": "object",
+        "properties": {
+          "byMonth": {
+            "type": "boolean",
+            "description": "True when the range has too many sessions to show each, so each point is a month's heaviest set."
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProgressPointResponse"
+            },
+            "description": "Each session's heaviest set, or each month's when byMonth is true, oldest first. Empty when the range has no sessions."
+          }
+        },
+        "description": "An exercise's heaviest sets over a range, oldest first."
+      },
       "ExerciseResponse": {
         "required": [
           "id",
@@ -4014,6 +4113,32 @@
           }
         },
         "description": "An error, as Problem Details (RFC 9457). Every error has the same fields."
+      },
+      "ProgressPointResponse": {
+        "required": [
+          "date",
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "The workout's date, in the user's time zone.",
+            "format": "date"
+          },
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg. A bodyweight set has 0.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          }
+        },
+        "description": "A heaviest set: the most weight, then the most reps at that weight."
       },
       "RecordKind": {
         "enum": [

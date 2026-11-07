@@ -302,6 +302,9 @@ export function createApi() {
     if (method === 'GET' && path.endsWith('/sessions')) {
       return { status: 200, body: { sessions: [], months: [], nextCursor: null } };
     }
+    if (method === 'GET' && path.endsWith('/progress')) {
+      return { status: 200, body: { byMonth: false, points: [] } };
+    }
     if (method === 'GET' && path.startsWith('/api/v1/exercises/')) {
       const item = list.find((candidate) => candidate.id === id) ?? list[0];
 
@@ -383,6 +386,46 @@ export function createApi() {
   };
 }
 
+/** A date some days before another, as the API writes dates. */
+const daysBefore = (date, days) => new Date(Date.parse(date) - days * 86_400_000).toISOString().slice(0, 10);
+
+// Bench press done every Friday up to 16 October, a little heavier every few weeks: 25 sessions, newest first.
+const benchSessions = Array.from({ length: 25 }, (_, week) => {
+  const date = daysBefore('2026-10-16', 7 * week);
+  const top = 82.5 - Math.floor(week / 2) * 2.5;
+
+  return { workoutId: `workout-${date}`, date, workoutName: 'Chest and arms 2', sets: [[top - 2.5, 10], [top, 10], [top, 8]].map(([weightKg, reps]) => ({ weightKg, reps })) };
+});
+const sessionMonths = (sessions) =>
+  [...new Set(sessions.map((session) => session.date.slice(0, 7)))].map((month) => ({
+    month,
+    sessions: benchSessions.filter((session) => session.date.startsWith(month)).length,
+  }));
+const benchPoints = (sessions) =>
+  sessions
+    .map((session) => ({ date: session.date, weightKg: Math.max(...session.sets.map((set) => set.weightKg)), reps: 10 }))
+    .reverse();
+// Each month's heaviest set since April 2021, for All, which shows months when there are many sessions.
+const monthlyPoints = Array.from({ length: 67 }, (_, index) => {
+  const month = new Date(Date.UTC(2021, 3 + index, 12));
+
+  return { date: month.toISOString().slice(0, 10), weightKg: 50 + Math.round((index * 32.5) / 66 / 2.5) * 2.5, reps: 8 };
+});
+
+/** Bench press after 25 sessions: its details, its sessions a page at a time, and its chart for each range. */
+const benchHistory = {
+  details: {
+    ...exerciseDetails(exercises[0], [{ id: chestAndArms.id, name: chestAndArms.name }]),
+    bestSet: { weightKg: 82.5, reps: 10, date: '2026-10-09' },
+    timesDone: 25,
+    firstDoneOn: benchSessions.at(-1).date,
+  },
+  firstPage: { sessions: benchSessions.slice(0, 20), months: sessionMonths(benchSessions.slice(0, 20)), nextCursor: benchSessions[19].date },
+  lastPage: { sessions: benchSessions.slice(20), months: sessionMonths(benchSessions.slice(20)), nextCursor: null },
+  progress: { byMonth: false, points: benchPoints(benchSessions.filter((session) => session.date >= '2026-08-07')) },
+  allProgress: { byMonth: true, points: monthlyPoints },
+};
+
 // The same routine with each group's exercises next to each other, so they join into blocks.
 const groupOrder = ['Chest', 'Biceps', 'Triceps'];
 const chestAndArmsTogether = {
@@ -391,6 +434,7 @@ const chestAndArmsTogether = {
 };
 
 export const sample = {
+  benchHistory,
   chestAndArmsTogether,
   benchPress: exercises[0],
   lateralRaise: exercises[6],

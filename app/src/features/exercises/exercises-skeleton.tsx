@@ -95,27 +95,45 @@ export function DetailsSkeleton({
         <Skeleton width={110} height={14} />
       </View>
       {tiles ? (
-        <View style={[styles.tiles, { gap: space.sm }]}>
-          {[90, 70].map((width) => (
+        <>
+          <View style={[styles.tiles, { gap: space.sm }]}>
+            {[90, 70].map((width) => (
+              <View
+                key={width}
+                style={[
+                  styles.tile,
+                  {
+                    gap: space.sm,
+                    padding: size.statTilePadding,
+                    borderRadius: radius.card,
+                    borderColor: colors.border,
+                    backgroundColor: colors.card,
+                  },
+                ]}
+              >
+                <Skeleton width={60} height={10} />
+                <Skeleton width={width} height={24} />
+                <Skeleton width={80} height={10} />
+              </View>
+            ))}
+          </View>
+          <View style={{ gap: space.sm }}>
+            <Skeleton width={90} height={10} />
             <View
-              key={width}
               style={[
-                styles.tile,
+                styles.card,
                 {
-                  gap: space.sm,
-                  padding: size.statTilePadding,
+                  padding: space.lg,
                   borderRadius: radius.card,
                   borderColor: colors.border,
                   backgroundColor: colors.card,
                 },
               ]}
             >
-              <Skeleton width={60} height={10} />
-              <Skeleton width={width} height={24} />
-              <Skeleton width={80} height={10} />
+              <Skeleton width={280} height={150} />
             </View>
-          ))}
-        </View>
+          </View>
+        </>
       ) : (
         <View
           style={[
