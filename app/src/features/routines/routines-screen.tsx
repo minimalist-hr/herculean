@@ -60,8 +60,24 @@ export function RoutinesScreen() {
     );
   }
 
-  function renderContent() {
-    if (routines.data !== undefined && weekPlan.data !== undefined) {
+  function renderWeekPlan() {
+    if (search !== '' || noRoutines) {
+      return null;
+    }
+
+    return weekPlan.isError ? (
+      <WeekPlanCard
+        onRetry={() => {
+          void weekPlan.refetch();
+        }}
+      />
+    ) : (
+      <WeekPlanCard days={weekPlan.data} />
+    );
+  }
+
+  function renderRoutines() {
+    if (routines.data !== undefined) {
       if (noRoutines) {
         return (
           <EmptyCard
@@ -90,21 +106,15 @@ export function RoutinesScreen() {
         );
       }
 
-      return (
-        <View style={{ gap: size.gap.sectionMax }}>
-          {search === '' && <WeekPlanCard days={weekPlan.data} />}
-          <View style={{ gap: space.sm }}>{shown.map(renderRoutine)}</View>
-        </View>
-      );
+      return <View style={{ gap: space.sm }}>{shown.map(renderRoutine)}</View>;
     }
 
-    if (routines.isError || weekPlan.isError) {
+    if (routines.isError) {
       return (
         <LoadFailure
           message="Couldn't load your routines."
           onRetry={() => {
             void routines.refetch();
-            void weekPlan.refetch();
           }}
         />
       );
@@ -115,14 +125,20 @@ export function RoutinesScreen() {
         accessible
         accessibilityLabel="Loading your routines"
         accessibilityLiveRegion="polite"
-        style={{ gap: size.gap.sectionMax }}
+        style={{ gap: space.sm }}
       >
-        <WeekPlanCard />
-        <View style={{ gap: space.sm }}>
-          {[120, 100, 130, 90].map((width) => (
-            <RoutineRowSkeleton key={width} width={width} />
-          ))}
-        </View>
+        {[120, 100, 130, 90].map((width) => (
+          <RoutineRowSkeleton key={width} width={width} />
+        ))}
+      </View>
+    );
+  }
+
+  function renderContent() {
+    return (
+      <View style={{ gap: size.gap.sectionMax }}>
+        {renderWeekPlan()}
+        {renderRoutines()}
       </View>
     );
   }

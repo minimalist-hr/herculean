@@ -1,3 +1,5 @@
+import { LoadFailure } from '@/components/load-failure';
+
 import { addDays, dateText, weekOf } from './dates';
 import { SwipePager } from './swipe-pager';
 import { useDays } from './use-days';
@@ -24,6 +26,8 @@ export function WeekPager({
   onSelect,
   onChangeWeek,
 }: WeekPagerProps) {
+  const days = useDays(dateText(week[0]), dateText(week[6]));
+
   function page(pageWeek: Date[], hasWeek: boolean) {
     return {
       key: dateText(pageWeek[0]),
@@ -40,15 +44,26 @@ export function WeekPager({
   }
 
   return (
-    <SwipePager
-      testID="week-strip"
-      previous={page(weekOf(addDays(week[0], -7)), canGoBack)}
-      current={page(week, true)}
-      next={page(weekOf(addDays(week[0], 7)), canGoForward)}
-      canGoBack={canGoBack}
-      canGoForward={canGoForward}
-      onChange={onChangeWeek}
-    />
+    <>
+      <SwipePager
+        testID="week-strip"
+        previous={page(weekOf(addDays(week[0], -7)), canGoBack)}
+        current={page(week, true)}
+        next={page(weekOf(addDays(week[0], 7)), canGoForward)}
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        onChange={onChangeWeek}
+      />
+      {days.isError && (
+        <LoadFailure
+          inline
+          message="Couldn't load the week."
+          onRetry={() => {
+            void days.refetch();
+          }}
+        />
+      )}
+    </>
   );
 }
 

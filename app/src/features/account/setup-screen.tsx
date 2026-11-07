@@ -149,6 +149,7 @@ export function SetupScreen() {
                     step={defaultRest.stepSeconds}
                     format={formatClock}
                     formatSpoken={formatSpokenDuration}
+                    formatLimit={formatClock}
                     lessLabel="15 seconds less"
                     moreLabel="15 seconds more"
                   />

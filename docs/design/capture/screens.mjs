@@ -188,6 +188,66 @@ const lastWeek = async (on) => {
 };
 const noPlannedDays = { done: 0, missed: 0, skipped: 0, minutesTrained: 0, setsDone: 0, setsPlanned: 0, volumeKg: 0, plannedDays: 0, consistencyPercent: null };
 
+const benchId = `workout-${benchPress.id}`;
+const benchPath = `/api/v1/workouts/${sampleWorkout.id}/exercises/${benchId}`;
+const benchSets = sampleWorkout.exercises.find((exercise) => exercise.id === benchId).sets;
+const workoutWith = (exercises) => ({ [workoutPath]: { status: 200, body: { ...sampleWorkout, exercises } } });
+const withBenchSets = (sets) => workoutWith(sampleWorkout.exercises.map((exercise) => (exercise.id === benchId ? { ...exercise, sets } : exercise)));
+const thirtyExercises = workoutWith(Array.from({ length: 30 }, (_, index) => ({ ...sampleWorkout.exercises[index % sampleWorkout.exercises.length], id: `workout-extra-${String(index)}` })));
+const swapPath = `PATCH /api/v1/workouts/${sampleWorkout.id}/exercises/${inclineDumbbellPress.id}`;
+const swapped = { status: 200, body: { ...sampleWorkout, exercises: sampleWorkout.exercises.map((exercise) => (exercise.id === inclineDumbbellPress.id ? { ...exercise, exerciseId: lateralRaise.id, name: lateralRaise.name, groupId: lateralRaise.groupId, groupName: lateralRaise.groupName } : exercise)) } };
+const swapIncline = async (on) => {
+  await openLog(on);
+  await on.tap(`Open ${inclineDumbbellPress.name}`);
+  await on.tap(`Swap ${inclineDumbbellPress.name}`);
+  await on.tap('Shoulders');
+  await on.tap(lateralRaise.name);
+  await on.tap('Swap exercise');
+};
+const pickToAdd = async (on) => {
+  await openLog(on);
+  await on.tap('Add exercise');
+  await on.waitFor('Pick the exercises to add to this workout.');
+  await on.tap(lateralRaise.name);
+};
+const removeBench = async (on) => {
+  await openLog(on);
+  await on.tap('Remove Flat barbell bench press');
+  await on.waitFor('Remove Flat barbell bench press?');
+  await on.tap('Remove exercise');
+};
+const editBenchWeight = async (on) => {
+  await openLog(on);
+  await on.tap('Set 2 weight, 82.5 kilograms');
+  await on.tap('5');
+  await on.tap('Save set');
+};
+const fillNewExercise = async (on) => {
+  await on.go('/exercise/new');
+  await on.type('Name', 'Pistol squat');
+  await on.tap('Legs');
+  await on.tap('Save exercise');
+};
+const createRoutine = async (on) => {
+  await on.tap('Routines');
+  await on.tap('New routine');
+  await on.type('Name', 'Upper body');
+  await on.tap('Add exercise');
+  await on.tap(benchPress.name);
+  await on.tap('Add exercise');
+  await on.tap('Save routine');
+};
+const openTargets = async (on) => {
+  await on.go(editPath);
+  await on.tap('Flat barbell bench press, 3 × 8–10');
+  await on.waitFor('Sets and reps for this routine.');
+};
+const reorderPath = `${logPath}/reorder`;
+const swapOnceThenFail = () => {
+  let calls = 0;
+  return () => (calls++ === 0 ? swapped : 'fail');
+};
+
 export const screens = [
   // A · Account
   { id: 'A01', file: 'A01-Account-Sign-In', title: 'Account › Sign in', row: 'A1 Sign in', signedIn: false, steps: (on) => on.waitFor('Sign in') },
@@ -288,10 +348,31 @@ export const screens = [
     await fillNewPassword(on);
     await on.waitFor('Password changed. Sign in with the new one.');
   } },
+  { id: 'A56', file: 'A56-Account-Reset-Password-Discard', title: 'Account › Reset password › Discard changes · confirm', row: 'A2 Reset password', signedIn: false, full: false, steps: async (on) => {
+    await on.tap('Forgot password?');
+    await on.waitFor('Send reset link');
+    await on.sleep(500);
+    await on.type('Email', 'filip@example.com');
+    await on.tap('Sign in');
+    await on.waitFor('Discard changes?');
+    await on.sleep(400);
+  } },
+  { id: 'A57', file: 'A57-Account-New-Password-Link-Invalid', title: 'Account › New password · link no longer valid', row: 'A2 Reset password', signedIn: false, full: false, answers: { 'POST /api/v1/password-resets/complete': problem(404, 'user.invalid_password_reset_token', 'This link has expired. Send a new one.') }, steps: async (on) => {
+    await fillNewPassword(on);
+    await on.waitFor('This link has expired. Send a new one.');
+  } },
   { id: 'A23', file: 'A23-Account-Create-Creating', title: 'Account › Create account · creating', row: 'A3 Create account', signedIn: false, answers: { 'POST /api/v1/users': 'hold' }, steps: fillCreateAccount },
   { id: 'A24', file: 'A24-Account-Create-Failed', title: "Account › Create account · couldn't create", row: 'A3 Create account', signedIn: false, full: false, answers: { 'POST /api/v1/users': 'fail' }, steps: async (on) => {
     await fillCreateAccount(on);
     await on.waitFor("Couldn't create the account. Try again.");
+  } },
+  { id: 'A25', file: 'A25-Account-Create-Discard', title: 'Account › Create account › Discard changes · confirm', row: 'A3 Create account', signedIn: false, full: false, steps: async (on) => {
+    await on.tap('Create account');
+    await on.waitFor('Welcome to Herculean');
+    await on.type('Email', 'filip@example.com');
+    await on.tap('Sign in');
+    await on.waitFor('Discard changes?');
+    await on.sleep(400);
   } },
   { id: 'A32', file: 'A32-Account-Setup-Finishing', title: 'Account › Setup · finishing', row: 'A3 Create account', signedIn: false, answers: { ...unfinishedUser, 'PATCH /api/v1/users/me': 'hold' }, steps: goToSetup },
   { id: 'A33', file: 'A33-Account-Setup-Failed', title: "Account › Setup · couldn't finish", row: 'A3 Create account', signedIn: false, full: false, answers: { ...unfinishedUser, 'PATCH /api/v1/users/me': 'fail' }, steps: async (on) => {
@@ -551,6 +632,43 @@ export const screens = [
     await openDayFromMonth(on, '21 October, Legs, missed');
     await on.waitFor('Try again');
   } },
+  { id: 'W72', file: 'W72-Workout-Today-Starting', title: 'Workout › Today · starting', row: 'W1 Today states', today: friday, answers: { 'POST /api/v1/workouts': 'hold' }, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Start workout');
+    await on.waitFor('Starting workout');
+  } },
+  { id: 'W73', file: 'W73-Workout-Today-Start-Failed', title: "Workout › Today · couldn't start", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Start workout');
+    await on.waitFor("Couldn't start the workout. Try again.");
+  } },
+  { id: 'W74', file: 'W74-Workout-Today-Another-In-Progress', title: 'Workout › Today · another workout in progress', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': problem(409, 'workout.another_in_progress', 'Another workout is in progress. Resume or finish it first.') }, steps: async (on) => {
+    await on.go('/workout');
+    await on.tap('Start workout');
+    await on.waitFor('Another workout is in progress. Resume or finish it first.');
+  } },
+  { id: 'W75', file: 'W75-Workout-Today-Week-Loading', title: 'Workout › Today · week strip loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': 'hold' }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor('Start workout');
+  } },
+  { id: 'W79', file: 'W79-Workout-Today-Week-Load-Failure', title: 'Workout › Today · week strip load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': 'fail' }, steps: async (on) => {
+    await on.go('/workout');
+    await on.waitFor("Couldn't load the week.");
+  } },
+  { id: 'W76', file: 'W76-Workout-Month-Day-In-Progress', title: 'Workout › Month › Day summary · in progress, sheet', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days/2026-10-21': { status: 200, body: { ...legsDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
+    await openDayFromMonth(on, '21 October, Legs, missed');
+    await on.waitFor('Open day');
+  } },
+  { id: 'W77', file: 'W77-Workout-Month-Day-Completed-Loading', title: 'Workout › Month › Day summary · completed, loading, sheet', row: 'W5 Month', today: friday, full: false, answers: { ...pastSavedAnswers, [workoutPath]: 'hold', [summaryPath]: 'hold' }, steps: async (on) => {
+    await openMonth(on);
+    await on.tap('20 October, Back and shoulders 1, missed');
+    await on.sleep(600);
+  } },
+  { id: 'W78', file: 'W78-Workout-Month-Day-Completed-Load-Failure', title: 'Workout › Month › Day summary · completed, load failure, sheet', row: 'W5 Month', today: friday, full: false, answers: { ...pastSavedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
+    await openMonth(on);
+    await on.tap('20 October, Back and shoulders 1, missed');
+    await on.waitFor('Try again');
+  } },
   // E · Exercises
   { id: 'E02', file: 'E02-Exercises-Loading', title: 'Exercises · loading', row: 'E1 Exercises tab', answers: { ...lists('hold'), 'GET /api/v1/groups': 'hold' }, steps: (on) => on.go('/exercises') },
   { id: 'E01', file: 'E01-Exercises', title: 'Exercises', row: 'E1 Exercises tab', steps: async (on) => {
@@ -762,6 +880,58 @@ export const screens = [
     await on.tap('Undo');
     await on.waitFor("Couldn't undo. Try again.");
   } },
+  { id: 'E56', file: 'E56-Exercises-No-Groups', title: 'Exercises · no groups, New exercise says why', row: 'E1 Exercises tab', full: false, answers: { 'GET /api/v1/groups': noGroups, ...lists({ status: 200, body: [] }) }, steps: async (on) => {
+    await on.go('/exercises');
+    await on.tap('New exercise');
+    await on.waitFor('Create a group first.');
+  } },
+  { id: 'E57', file: 'E57-Exercises-Groups-Loading', title: 'Exercises · groups still loading', row: 'E1 Exercises tab', answers: { 'GET /api/v1/groups': 'hold' }, steps: async (on) => {
+    await on.go('/exercises');
+    await on.waitFor(benchPress.name);
+  } },
+  { id: 'E58', file: 'E58-Exercises-New-Limit-Reached', title: 'Exercises › New exercise · limit reached', row: 'E1 Exercises tab', full: false, answers: { 'POST /api/v1/exercises': problem(409, 'exercise.limit_reached', "You've reached the limit of 500 exercises.") }, steps: async (on) => {
+    await fillNewExercise(on);
+    await on.waitFor("You've reached the limit of 500 exercises.");
+  } },
+  { id: 'E59', file: 'E59-Exercises-New-Name-Taken', title: 'Exercises › New exercise · name taken', row: 'E1 Exercises tab', answers: { 'POST /api/v1/exercises': problem(409, 'exercise.name_taken', 'You already have an exercise with this name.') }, steps: async (on) => {
+    await fillNewExercise(on);
+    await on.waitFor('You already have an exercise with this name.');
+  } },
+  { id: 'E60', file: 'E60-Exercises-New-Saving', title: 'Exercises › New exercise · saving', row: 'E1 Exercises tab', answers: { 'POST /api/v1/exercises': 'hold' }, steps: fillNewExercise },
+  { id: 'E61', file: 'E61-Exercises-New-Failed', title: "Exercises › New exercise · couldn't save", row: 'E1 Exercises tab', full: false, answers: { 'POST /api/v1/exercises': 'fail' }, steps: async (on) => {
+    await fillNewExercise(on);
+    await on.waitFor("Couldn't save the exercise. Try again.");
+  } },
+  { id: 'E62', file: 'E62-Exercises-New-Discard', title: 'Exercises › New exercise › Discard changes · confirm', row: 'E1 Exercises tab', full: false, steps: async (on) => {
+    await on.go('/exercises');
+    await on.tap('New exercise');
+    await on.type('Name', 'Pistol squat');
+    await on.tap('Exercises');
+    await on.waitFor('Discard changes?');
+    await on.sleep(400);
+  } },
+  { id: 'E63', file: 'E63-Exercises-New-Groups-Loading', title: 'Exercises › New exercise · groups loading', row: 'E1 Exercises tab', answers: { 'GET /api/v1/groups': 'hold' }, steps: async (on) => {
+    await on.go('/exercise/new');
+    await on.waitFor('Save exercise');
+  } },
+  { id: 'E64', file: 'E64-Exercises-Groups-New-Name-Missing', title: 'Exercises › Groups › New group · name missing', row: 'E4 Groups', steps: async (on) => {
+    await on.go('/group/new');
+    await on.tap('Save group');
+    await on.waitFor('Enter a name.');
+  } },
+  { id: 'E65', file: 'E65-Exercises-Groups-New-Discard', title: 'Exercises › Groups › New group › Discard changes · confirm', row: 'E4 Groups', full: false, steps: async (on) => {
+    await on.tap('Exercises');
+    await on.tap('Groups');
+    await on.tap('New group');
+    await on.type('Name', 'Core');
+    await on.tap('Groups');
+    await on.waitFor('Discard changes?');
+    await on.sleep(400);
+  } },
+  { id: 'E66', file: 'E66-Exercises-Groups-Group-Not-Done', title: 'Exercises › Groups › Group · not done yet', row: 'E4 Groups', answers: { [`GET /api/v1/groups/${chest.id}`]: { status: 200, body: { ...chest, exerciseCount: 1, exercises: [{ ...benchPress, bestSet: null }], alsoWorksExercises: [] } } }, steps: async (on) => {
+    await on.go(groupPath);
+    await on.waitFor('No sessions yet');
+  } },
   // L · Add exercise, reached from a routine
   { id: 'L03', file: 'L03-Logging-Loading', title: 'Logging › Loading', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'hold' }, steps: async (on) => {
     await on.go(logPath);
@@ -916,6 +1086,130 @@ export const screens = [
     await on.go(logPath);
     await on.waitFor('No exercises left');
   } },
+  { id: 'L40', file: 'L40-Logging-Exercise-Limit', title: 'Logging · 30 exercises, Add exercise says why', row: 'L1 Log sets', today: friday, full: false, answers: thirtyExercises, steps: async (on) => {
+    await openLog(on);
+    await on.end();
+    await on.tap('Add exercise');
+    await on.waitFor('A workout can have at most 30 exercises.');
+  } },
+  { id: 'L41', file: 'L41-Logging-Set-Limit', title: 'Logging · 20 sets, Add set says why', row: 'L1 Log sets', today: friday, full: false, answers: withBenchSets(Array.from({ length: 20 }, (_, order) => ({ ...benchSets[1], id: `${benchId}-set-${String(order)}`, order }))), steps: async (on) => {
+    await on.go(logPath);
+    await on.waitFor('Finish');
+    await on.end();
+    await on.tap('Add set');
+    await on.waitFor('An exercise can have at most 20 sets.');
+  } },
+  { id: 'L42', file: 'L42-Logging-Reps-Whole-Numbers', title: 'Logging › Edit reps · decimal point says why', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 2 reps, 10');
+    await on.tap('Decimal point');
+    await on.waitFor('Reps are whole numbers.');
+  } },
+  { id: 'L43', file: 'L43-Logging-Weight-Out-Of-Range', title: 'Logging › Edit weight · out of range, Save says why', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 2 weight, 82.5 kilograms');
+    for (const _ of [1, 2, 3, 4]) {
+      await on.tap('9');
+    }
+    await on.tap('Save set');
+    await on.sleep(600);
+  } },
+  { id: 'L44', file: 'L44-Logging-Only-Set', title: 'Logging › Edit weight · only set, Remove says why', row: 'L1 Log sets', today: friday, full: false, answers: withBenchSets([{ ...benchSets[1], order: 0 }]), steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 1 weight, 82.5 kilograms');
+    await on.tap('Remove set');
+    await on.waitFor("An exercise keeps at least one set. Use the exercise's trash to remove it.");
+  } },
+  { id: 'L45', file: 'L45-Logging-Saving-Set', title: 'Logging › Edit weight · saving set', row: 'L1 Log sets', today: friday, full: false, answers: { [`PATCH ${benchPath}/sets/${benchId}-set-1`]: 'hold' }, steps: async (on) => {
+    await editBenchWeight(on);
+    await on.waitFor('Saving set');
+  } },
+  { id: 'L46', file: 'L46-Logging-Save-Set-Failed', title: "Logging · couldn't save a set", row: 'L1 Log sets', today: friday, full: false, answers: { [`PATCH ${benchPath}/sets/${benchId}-set-1`]: 'fail' }, steps: async (on) => {
+    await editBenchWeight(on);
+    await on.waitFor("Couldn't save the set. Try again.");
+  } },
+  { id: 'L47', file: 'L47-Logging-Add-Set-Failed', title: "Logging · couldn't add a set", row: 'L1 Log sets', today: friday, full: false, answers: { [`POST ${benchPath}/sets`]: 'fail' }, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Add set');
+    await on.waitFor("Couldn't add the set. Try again.");
+  } },
+  { id: 'L48', file: 'L48-Logging-Remove-Set-Failed', title: "Logging · couldn't remove a set", row: 'L1 Log sets', today: friday, full: false, answers: { [`DELETE ${benchPath}/sets/${benchId}-set-2`]: 'fail' }, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 3 weight, 82.5 kilograms');
+    await on.tap('Remove set');
+    await on.waitFor("Couldn't remove the set. Try again.");
+  } },
+  { id: 'L49', file: 'L49-Logging-Undo-Set-Failed', title: "Logging · couldn't bring the set back", row: 'L1 Log sets', today: friday, full: false, answers: { [`DELETE ${benchPath}/sets/${benchId}-set-2`]: { status: 204 }, [`POST ${benchPath}/sets`]: 'fail' }, steps: async (on) => {
+    await openLog(on);
+    await on.tap('Set 3 weight, 82.5 kilograms');
+    await on.tap('Remove set');
+    await on.tap('Undo');
+    await on.waitFor("Couldn't bring the set back. Try again.");
+  } },
+  { id: 'L60', file: 'L60-Logging-Reorder-Loading', title: 'Logging › Reorder exercises · loading', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'hold' }, steps: (on) => on.go(reorderPath) },
+  { id: 'L61', file: 'L61-Logging-Reorder-Load-Failure', title: 'Logging › Reorder exercises · load failure', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'fail' }, steps: async (on) => {
+    await on.go(reorderPath);
+    await on.waitFor('Try again');
+  } },
+  { id: 'L62', file: 'L62-Logging-Reorder-Dragging', title: 'Logging › Reorder exercises · dragging', row: 'L1 Log sets', today: friday, full: false, steps: async (on) => {
+    await on.go(reorderPath);
+    await on.hold('Move Flat barbell bench press', 90);
+  } },
+  { id: 'L63', file: 'L63-Logging-Reorder-Failed', title: "Logging › Reorder exercises · couldn't save the order", row: 'L1 Log sets', today: friday, full: false, answers: { [`PUT /api/v1/workouts/${sampleWorkout.id}/exercise-order`]: 'fail' }, steps: async (on) => {
+    await on.go(reorderPath);
+    await on.hold('Move Flat barbell bench press', 90);
+    await on.release();
+    await on.waitFor("Couldn't save the order. Try again.");
+  } },
+  { id: 'L50', file: 'L50-Logging-Exercise-Removed', title: 'Logging · exercise removed, with Undo', row: 'L2 Exercises', today: friday, full: false, steps: async (on) => {
+    await removeBench(on);
+    await on.waitFor('Flat barbell bench press removed.');
+  } },
+  { id: 'L51', file: 'L51-Logging-Remove-Exercise-Failed', title: "Logging · couldn't remove an exercise", row: 'L2 Exercises', today: friday, full: false, answers: { [`DELETE ${benchPath}`]: 'fail' }, steps: async (on) => {
+    await removeBench(on);
+    await on.waitFor("Couldn't remove the exercise. Try again.");
+  } },
+  { id: 'L52', file: 'L52-Logging-Undo-Remove-Failed', title: "Logging · couldn't bring the exercise back", row: 'L2 Exercises', today: friday, full: false, answers: { [`POST /api/v1/workouts/${sampleWorkout.id}/exercises`]: 'fail' }, steps: async (on) => {
+    await removeBench(on);
+    await on.waitFor('Flat barbell bench press removed.');
+    // The confirm sheet is still closing, with its own copy of the notification.
+    await on.sleep(1000);
+    await on.tap('Undo');
+    await on.waitFor("Couldn't bring the exercise back. Try again.");
+  } },
+  { id: 'L53', file: 'L53-Logging-Exercise-Swapped', title: 'Logging · exercise swapped, with Undo', row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: swapped }, steps: async (on) => {
+    await swapIncline(on);
+    await on.waitFor(`${inclineDumbbellPress.name} swapped for ${lateralRaise.name}.`);
+  } },
+  { id: 'L54', file: 'L54-Logging-Swap-Swapping', title: 'Logging › Swap exercise · swapping', row: 'L2 Exercises', today: friday, answers: { [swapPath]: 'hold' }, steps: async (on) => {
+    await swapIncline(on);
+    await on.waitFor('Swapping exercise');
+  } },
+  { id: 'L55', file: 'L55-Logging-Swap-Failed', title: "Logging › Swap exercise · couldn't swap", row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: problem(409, 'workout.exercise_has_checked_sets', "An exercise with checked sets can't be swapped. Uncheck them first.") }, steps: async (on) => {
+    await swapIncline(on);
+    await on.waitFor("An exercise with checked sets can't be swapped. Uncheck them first.");
+  } },
+  { id: 'L56', file: 'L56-Logging-Undo-Swap-Failed', title: "Logging · couldn't undo a swap", row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: swapOnceThenFail() }, steps: async (on) => {
+    await swapIncline(on);
+    await on.tap('Undo');
+    await on.waitFor("Couldn't undo the swap. Try again.");
+  } },
+  { id: 'L57', file: 'L57-Logging-Add-Exercise-Adding', title: 'Logging › Add exercise · adding', row: 'L2 Exercises', today: friday, answers: { [`POST /api/v1/workouts/${sampleWorkout.id}/exercises`]: 'hold' }, steps: async (on) => {
+    await pickToAdd(on);
+    await on.tap('Add exercise');
+    await on.waitFor('Adding exercise');
+  } },
+  { id: 'L58', file: 'L58-Logging-Add-Exercise-Failed', title: "Logging › Add exercise · couldn't add", row: 'L2 Exercises', today: friday, full: false, answers: { [`POST /api/v1/workouts/${sampleWorkout.id}/exercises`]: problem(409, 'workout.too_many_exercises', 'A workout can have at most 30 exercises.') }, steps: async (on) => {
+    await pickToAdd(on);
+    await on.tap('Add exercise');
+    await on.waitFor('A workout can have at most 30 exercises.');
+  } },
+  { id: 'L59', file: 'L59-Logging-Add-Exercise-Discard', title: 'Logging › Add exercise › Discard picks · confirm', row: 'L2 Exercises', today: friday, full: false, steps: async (on) => {
+    await pickToAdd(on);
+    await on.tap('Logging');
+    await on.waitFor('Discard changes?');
+    await on.sleep(400);
+  } },
   // R · Routines
   { id: 'R02', file: 'R02-Routines-Loading', title: 'Routines · loading', row: 'R1 Routines tab', answers: { 'GET /api/v1/routines': 'hold', 'GET /api/v1/week-plan-days': 'hold' }, steps: (on) => on.go('/routines') },
   { id: 'R01', file: 'R01-Routines', title: 'Routines', row: 'R1 Routines tab', steps: async (on) => {
@@ -1064,5 +1358,29 @@ export const screens = [
     await on.sleep(600);
     await on.tap('Save routine');
     await on.waitFor('Upper body created.');
+  } },
+  { id: 'R42', file: 'R42-Routines-Edit-Add-Exercise', title: 'Routines › Edit routine › Add exercise', row: 'R3 Edit a routine', steps: async (on) => {
+    await on.go(editPath);
+    await on.tap('Add exercise');
+    await on.waitFor('Pick the exercises to add to this routine.');
+    await on.tap(lateralRaise.name);
+  } },
+  { id: 'R43', file: 'R43-Routines-New-Limit-Reached', title: 'Routines › New routine · limit reached', row: 'R4 New routine', full: false, answers: { 'POST /api/v1/routines': problem(409, 'routine.limit_reached', "You've reached the limit of 50 routines.") }, steps: async (on) => {
+    await createRoutine(on);
+    await on.waitFor("You've reached the limit of 50 routines.");
+  } },
+  { id: 'R44', file: 'R44-Routines-Targets-Discard', title: 'Routines › Edit routine › Sets and reps › Discard changes · confirm', row: 'R3 Edit a routine', full: false, steps: async (on) => {
+    await openTargets(on);
+    await on.tap('One set more');
+    await on.tap('Edit routine');
+    await on.waitFor('Discard changes?');
+    await on.sleep(400);
+  } },
+  { id: 'R45', file: 'R45-Routines-Targets-Limit', title: 'Routines › Edit routine › Sets and reps · at the limit', row: 'R3 Edit a routine', full: false, steps: async (on) => {
+    await openTargets(on);
+    await on.tap('One set less');
+    await on.tap('One set less');
+    await on.tap('One set less, not available at the limit');
+    await on.waitFor('At least 1 set.');
   } },
 ];

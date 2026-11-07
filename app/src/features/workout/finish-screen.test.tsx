@@ -201,7 +201,7 @@ test('a past day with every set checked has a dash, no warning and no records', 
 
   expect(await screen.findByText('—')).toBeOnTheScreen();
   expect(screen.queryByText(/not checked off/)).toBeNull();
-  expect(screen.queryByText('New records')).toBeNull();
+  expect(screen.getByText('No new records this time.')).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: 'Save workout' })).toBeTruthy();
 });
 

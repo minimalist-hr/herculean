@@ -127,7 +127,7 @@ export function WorkoutDetailsScreen({
     return (
       <>
         <SummaryTiles summary={summary.data} units={units} saved />
-        {summary.data !== undefined && summary.data.records.length > 0 && (
+        {summary.data !== undefined && (
           <NewRecords records={summary.data.records} units={units} />
         )}
         {workout.data !== undefined && summary.data !== undefined && (

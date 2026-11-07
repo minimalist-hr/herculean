@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/theme/theme-provider';
 
 import { MinusIcon, PlusIcon } from './icons';
+import { notifyFailure } from './notifications';
 import { Tappable } from './tappable';
 
 interface StepperProps {
@@ -18,6 +19,8 @@ interface StepperProps {
   format: (value: number) => string;
   /** How screen readers say the value, for example "1 minute 30 seconds". */
   formatSpoken: (value: number) => string;
+  /** How a limit reads in the notification, for example 20 → "20 sets". */
+  formatLimit: (value: number) => string;
   /** The button labels, for example "15 seconds less" and "15 seconds more". */
   lessLabel: string;
   moreLabel: string;
@@ -33,6 +36,7 @@ export function Stepper({
   step,
   format,
   formatSpoken,
+  formatLimit,
   lessLabel,
   moreLabel,
 }: StepperProps) {
@@ -44,9 +48,13 @@ export function Stepper({
     <View style={[styles.row, { gap: space.sm }]}>
       <StepButton
         label={lessLabel}
-        disabled={value <= min}
+        muted={value <= min}
         onPress={() => {
-          onChange(less);
+          if (value <= min) {
+            notifyFailure(`At least ${formatLimit(min)}.`);
+          } else {
+            onChange(less);
+          }
         }}
       >
         <MinusIcon color={colors.text} />
@@ -77,9 +85,13 @@ export function Stepper({
       </View>
       <StepButton
         label={moreLabel}
-        disabled={value >= max}
+        muted={value >= max}
         onPress={() => {
-          onChange(more);
+          if (value >= max) {
+            notifyFailure(`At most ${formatLimit(max)}.`);
+          } else {
+            onChange(more);
+          }
         }}
       >
         <PlusIcon color={colors.text} />
@@ -90,21 +102,21 @@ export function Stepper({
 
 interface StepButtonProps {
   label: string;
-  /** At the limit, the button is dimmed and does nothing. */
-  disabled: boolean;
+  /** At the limit, the button looks muted, and a press says why. */
+  muted: boolean;
   onPress: () => void;
   children: ReactNode;
 }
 
-function StepButton({ label, disabled, onPress, children }: StepButtonProps) {
+function StepButton({ label, muted, onPress, children }: StepButtonProps) {
   const { colors, opacity, radius, size } = useTheme();
 
   return (
     <Tappable
       accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
+      accessibilityLabel={
+        muted ? `${label}, not available at the limit` : label
+      }
       onPress={onPress}
       style={[
         styles.box,
@@ -114,7 +126,7 @@ function StepButton({ label, disabled, onPress, children }: StepButtonProps) {
           borderRadius: radius.control,
           borderColor: colors.border,
           backgroundColor: colors.raised,
-          opacity: disabled ? opacity.dimmed : 1,
+          opacity: muted ? opacity.dimmed : 1,
         },
       ]}
     >

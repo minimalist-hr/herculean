@@ -158,12 +158,17 @@ function Details({ group }: { group: Group }) {
         )}
       </View>
 
-      {group.alsoWorksExercises.length > 0 && (
-        <View style={{ gap: space.sm }}>
-          <SectionTitle>Also works</SectionTitle>
+      <View style={{ gap: space.sm }}>
+        <SectionTitle>Also works</SectionTitle>
+        {group.alsoWorksExercises.length > 0 ? (
           <View>{renderRows(group.alsoWorksExercises)}</View>
-        </View>
-      )}
+        ) : (
+          <EmptyCard
+            title="No exercises yet"
+            message="Choose this group under Also works when you create or edit an exercise."
+          />
+        )}
+      </View>
 
       <Sheet
         visible={confirmingDelete}

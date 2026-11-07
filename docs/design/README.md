@@ -9,11 +9,11 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 | Path | What it is | Use it for |
 |---|---|---|
 | `design-document.md` | The written spec: brand, tokens, components, navigation, interaction and content rules, every screen by area, sample data, parked ideas | Read first. The source of truth for rules. |
-| `screen-index.md` | All 234 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
-| `screens/*.png` | Every screen at 2× (780 px wide), default settings: dark, Racing blue, Chakra Petch, sharp corners | Looking at a screen |
+| `screen-index.md` | All 284 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
+| `screens/<area>/*.png` | Every screen at 2× (780 px wide), default settings: dark, Racing blue, Chakra Petch, sharp corners | Looking at a screen |
 | `capture/` | The tool that captures built screens from the running app, with the list of every built screen and state | Updating a screen after a change |
-| `html/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
-| `source/*.dc.html`, `source/canvas.json` | The original Claude Design files (templates plus a small `renderVals()` script with the theme logic and sample data) | Theme switching logic, list data, states |
+| `html/<area>/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
+| `source/<area>/*.dc.html`, `source/canvas.json` | The original Claude Design files (templates plus a small `renderVals()` script with the theme logic and sample data) | Theme switching logic, list data, states |
 | `tokens/design-tokens.json` | Colors (dark/light × Racing blue/Titanium), status colors, radii, type scale, sizes | Building the theme |
 | `brand/` | Logo concepts board, the pillar mark as SVG (on dark, on light, app icon), the whole logo as PNG for email | App icon, splash, sign in |
 

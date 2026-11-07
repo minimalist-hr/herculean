@@ -193,14 +193,19 @@ test('once an exercise is done, its row shows the best set and the card goes', a
   expect(screen.queryByText('No sessions yet')).toBeNull();
 });
 
-test('an empty group says how to fill it, without Also works', async () => {
+test('an empty group keeps both sections and says how to fill them', async () => {
   answer();
   await openGroup(/^Core/);
 
   expect(
     await screen.findByText('Choose this group when you create or edit one.'),
   ).toBeOnTheScreen();
-  expect(screen.queryByText('Also works')).toBeNull();
+  expect(screen.getByText('Also works')).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      'Choose this group under Also works when you create or edit an exercise.',
+    ),
+  ).toBeOnTheScreen();
 });
 
 test('a failed read says so, and Try again reads it again', async () => {

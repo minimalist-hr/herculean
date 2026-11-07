@@ -72,7 +72,7 @@ export function FinishScreen({ id }: { id: string }) {
       <>
         {warning && <Warning title={warning.title} message={warning.message} />}
         <SummaryTiles summary={summary.data} units={units} />
-        {summary.data !== undefined && summary.data.records.length > 0 && (
+        {summary.data !== undefined && (
           <NewRecords records={summary.data.records} units={units} />
         )}
       </>

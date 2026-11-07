@@ -162,12 +162,13 @@ test('lists new records', async () => {
   expect(screen.getByText('70 kg × 8')).toBeOnTheScreen();
 });
 
-test('with no records there is no records section', async () => {
+test('with no records the records section says so', async () => {
   answer({ summaryAnswer: { ...summary, records: [] } });
   await renderDetails();
   await screen.findByText('Exercises');
 
-  expect(screen.queryByText('New records')).toBeNull();
+  expect(screen.getByText('New records')).toBeOnTheScreen();
+  expect(screen.getByText('No new records this time.')).toBeOnTheScreen();
 });
 
 test('each set shows last time, weight and reps', async () => {

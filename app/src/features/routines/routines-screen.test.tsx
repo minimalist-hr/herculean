@@ -162,18 +162,48 @@ test('without routines it says what to do', async () => {
   expect(screen.queryByText('Repeats every week')).toBeNull();
 });
 
-test('a failed read says so, and Try again reads both again', async () => {
-  mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+function failOn(failing: string, routines: unknown[]) {
+  mockFetch.mockImplementation((request) => {
+    const path = new URL(request.url).pathname;
+    if (path === failing) {
+      return Promise.reject(new TypeError('Network request failed'));
+    }
+    return Promise.resolve(
+      Response.json(path === '/api/v1/routines' ? routines : restWeek()),
+    );
+  });
+}
+
+test('failed routines say so in their place, and Try again reads them again', async () => {
+  failOn('/api/v1/routines', [legs]);
   await renderRoutines();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
     "Couldn't load your routines.",
   );
+  expect(screen.getByText('Week plan')).toBeOnTheScreen();
 
   answer([legs]);
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 
   expect(await screen.findByText('Legs')).toBeOnTheScreen();
+});
+
+test('a failed week plan says so in its place, and the routines still show', async () => {
+  failOn('/api/v1/week-plan-days', [legs]);
+  await renderRoutines();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't load the week plan.",
+  );
+  expect(screen.getByText('Legs')).toBeOnTheScreen();
+
+  answer([legs]);
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(
+    await screen.findByRole('button', { name: 'Monday, rest day' }),
+  ).toBeOnTheScreen();
 });
 
 test('New routine opens the page', async () => {

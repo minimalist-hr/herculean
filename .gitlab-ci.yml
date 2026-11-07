@@ -59,6 +59,14 @@ api:
     paths: [api/TestResults/]
     expire_in: 1 day
 
+design:
+  stage: check
+  image: node:24-alpine
+  rules:
+    - changes: [docs/design/**/*]
+  script:
+    - node docs/design/capture/check.mjs
+
 mr:
   stage: check
   image: alpine:3

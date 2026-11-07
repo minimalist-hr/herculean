@@ -8,7 +8,7 @@ import { Stepper } from '@/components/stepper';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
-import { targetText } from './formats';
+import { counted, targetText } from './formats';
 import {
   useRoutineDraft,
   type RoutineExerciseDraft,
@@ -93,6 +93,7 @@ function Form({
               step={1}
               format={String}
               formatSpoken={(value) => `${String(value)} sets`}
+              formatLimit={(value) => counted(value, 'set', 'sets')}
               lessLabel="One set less"
               moreLabel="One set more"
             />
@@ -115,6 +116,7 @@ function Form({
               step={1}
               format={String}
               formatSpoken={(value) => `${String(value)} reps`}
+              formatLimit={(value) => counted(value, 'rep', 'reps')}
               lessLabel="One rep less from"
               moreLabel="One rep more from"
             />
@@ -140,6 +142,7 @@ function Form({
               step={1}
               format={String}
               formatSpoken={(value) => `${String(value)} reps`}
+              formatLimit={(value) => counted(value, 'rep', 'reps')}
               lessLabel="One rep less to"
               moreLabel="One rep more to"
             />

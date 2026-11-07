@@ -61,7 +61,7 @@ interface Saved {
 
 let saved: Saved | undefined;
 
-function answer(save?: () => Response) {
+function answer(save?: () => Response, body: unknown = routine) {
   saved = undefined;
   mockFetch.mockImplementation(async (request) => {
     const { pathname } = new URL(request.url);
@@ -90,7 +90,7 @@ function answer(save?: () => Response) {
         },
       ]);
     }
-    return Response.json(routine);
+    return Response.json(body);
   });
 }
 
@@ -330,6 +330,27 @@ test('after Undo nothing has changed, so leaving does not ask', async () => {
   await fireEvent.press(screen.getByRole('link', { name: 'Legs' }));
 
   expect(await screen.findByText('Routine screen')).toBeOnTheScreen();
+});
+
+test('at 30 exercises Add exercise says why and stays', async () => {
+  const exercises = Array.from({ length: 30 }, (_, index) => ({
+    ...routine.exercises[0],
+    exerciseId: `exercise-${String(index)}`,
+    name: `Exercise ${String(index)}`,
+  }));
+  answer(undefined, { ...routine, exercises });
+  await loaded();
+
+  await fireEvent.press(
+    screen.getAllByRole('button', {
+      name: 'Add exercise, not available at 30 exercises',
+    })[0],
+  );
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'A routine can have at most 30 exercises.',
+  );
+  expect(screen.queryByRole('header', { name: 'Add exercise' })).toBeNull();
 });
 
 test('targets and Add exercise open under the edit page', async () => {

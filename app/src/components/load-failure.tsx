@@ -8,14 +8,23 @@ import { TextLink } from './text-link';
 export function LoadFailure({
   message,
   onRetry,
+  inline = false,
 }: {
   message: string;
   onRetry: () => void;
+  /** One line for a part of a screen, with Try again beside the message. */
+  inline?: boolean;
 }) {
   const { colors, space, text } = useTheme();
 
   return (
-    <View style={[styles.failure, { paddingTop: space.xl }]}>
+    <View
+      style={
+        inline
+          ? [styles.inline, { gap: space.sm }]
+          : [styles.failure, { paddingTop: space.xl }]
+      }
+    >
       <Text
         accessibilityRole="alert"
         style={[text.body, { color: colors.muted }]}
@@ -29,6 +38,11 @@ export function LoadFailure({
 
 const styles = StyleSheet.create({
   failure: {
+    alignItems: 'center',
+  },
+  inline: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
   },
 });

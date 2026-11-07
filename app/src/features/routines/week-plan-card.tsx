@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { Skeleton } from '@/components/skeleton';
 import { SectionTitle } from '@/components/section-title';
@@ -15,9 +16,12 @@ const mark = 14;
 /** The week at a glance: a colored square on a day with a routine, a dash on a rest day. */
 export function WeekPlanCard({
   days,
+  onRetry,
 }: {
   /** Nothing yet while it loads. */
   days?: components['schemas']['WeekPlanDayResponse'][];
+  /** Set when the week plan couldn't load. */
+  onRetry?: () => void;
 }) {
   const { colors, dayColors, radius, space, text } = useTheme();
   const router = useRouter();
@@ -28,7 +32,25 @@ export function WeekPlanCard({
         <SectionTitle>Week plan</SectionTitle>
         <Text style={text.meta}>Repeats every week</Text>
       </View>
+      {onRetry === undefined ? (
+        renderCard()
+      ) : (
+        <LoadFailure
+          inline
+          message="Couldn't load the week plan."
+          onRetry={onRetry}
+        />
+      )}
+    </View>
+  );
+
+  function renderCard() {
+    return (
       <View
+        accessible={days === undefined}
+        accessibilityLabel={
+          days === undefined ? 'Loading the week plan' : undefined
+        }
         style={[
           styles.card,
           {
@@ -109,8 +131,8 @@ export function WeekPlanCard({
           );
         })}
       </View>
-    </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({

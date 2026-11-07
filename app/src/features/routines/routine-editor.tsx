@@ -39,6 +39,9 @@ const routineNameSchema = z.object({
 
 const noDays: Weekday[] = [];
 
+/** The most exercises a routine can hold. */
+const maxExercises = 30;
+
 interface RoutineEditorProps {
   /** The screen its back link returns to. */
   back: string;
@@ -65,7 +68,7 @@ export function RoutineEditor({
   saving,
   onSave,
 }: RoutineEditorProps) {
-  const { colors, size, space, text } = useTheme();
+  const { colors, opacity, size, space, text } = useTheme();
   const router = useRouter();
   const { pages, exercises, changed, setExercises, setPicked, setCreatedIds } =
     useRoutineDraft();
@@ -141,6 +144,7 @@ export function RoutineEditor({
     });
   }
 
+  const full = exercises.length >= maxExercises;
   const setCount = exercises.reduce(
     (sum, exercise) => sum + exercise.targetSets,
     0,
@@ -210,14 +214,30 @@ export function RoutineEditor({
                 </Text>
               </View>
               <HeaderIconButton
-                label="Add exercise"
+                label={
+                  full
+                    ? `Add exercise, not available at ${String(maxExercises)} exercises`
+                    : 'Add exercise'
+                }
                 onPress={() => {
+                  if (full) {
+                    notifyFailure(
+                      `A routine can have at most ${String(maxExercises)} exercises.`,
+                    );
+                    return;
+                  }
+
                   setPicked([]);
                   setCreatedIds([]);
                   router.push(pages.addExercise);
                 }}
               >
-                <PlusIcon color={colors.text} size={20} />
+                <View style={{ opacity: full ? opacity.disabled : 1 }}>
+                  <PlusIcon
+                    color={full ? colors.muted : colors.text}
+                    size={20}
+                  />
+                </View>
               </HeaderIconButton>
             </View>
 

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 import puppeteer from 'puppeteer-core';
 
+import { areaPath } from './areas.mjs';
 import { createApi } from './fixtures.mjs';
 import { screens } from './screens.mjs';
 
@@ -151,6 +152,17 @@ function helpers(page) {
     release: async () => {
       await page.mouse.up();
       await sleep(600);
+    },
+    /** Scrolls every scrolling list to its end, for what sits below the screen. */
+    end: async () => {
+      await page.evaluate(() => {
+        for (const element of document.querySelectorAll('*')) {
+          if (element.scrollHeight > element.clientHeight + 1) {
+            element.scrollTop = element.scrollHeight;
+          }
+        }
+      });
+      await sleep(400);
     },
     /** Moves within the app, because reloading the page would sign the user out. */
     go: async (path) => {
@@ -368,10 +380,10 @@ async function capture(browser, screen, script) {
     }
     const height = await page.evaluate(() => innerHeight);
     const file = screen.file;
-    await page.screenshot({ path: join(designDir, 'screens', `${file}.png`) });
+    await page.screenshot({ path: join(designDir, 'screens', areaPath(file, 'png')) });
     const body = await page.evaluate(serialize);
-    writeFileSync(join(designDir, 'html', `${file}.html`), htmlFile(screen.title, body, height));
-    writeFileSync(join(designDir, 'source', `${file}.dc.html`), sourceFile(screen.title, body, height, script));
+    writeFileSync(join(designDir, 'html', areaPath(file, 'html')), htmlFile(screen.title, body, height));
+    writeFileSync(join(designDir, 'source', areaPath(file, 'dc.html')), sourceFile(screen.title, body, height, script));
 
     return height;
   } finally {
@@ -386,7 +398,7 @@ function updateIndexes(results) {
   for (const { screen, height } of results) {
     const full = height > minHeight ? ' · full scroll' : '';
     const label = screen.title + full;
-    const row = `| ${screen.id} | ${label} | ${screen.row} | ${width}×${height} | [png](screens/${screen.file}.png) · [html](html/${screen.file}.html) · [source](source/${screen.file}.dc.html) |`;
+    const row = `| ${screen.id} | ${label} | ${screen.row} | ${width}×${height} | [png](screens/${areaPath(screen.file, 'png')}) · [html](html/${areaPath(screen.file, 'html')}) · [source](source/${areaPath(screen.file, 'dc.html')}) |`;
     const existing = new RegExp(`^\\| ${screen.id} \\|[^\\n]*$`, 'm');
     if (existing.test(index)) {
       index = index.replace(existing, () => row);
@@ -436,7 +448,7 @@ function updateIndexes(results) {
   const canvas = JSON.parse(readFileSync(canvasPath, 'utf8'));
   canvas.boards['Index.dc.html'].h = Math.max(1576, boardHeight);
   for (const { screen, height } of results) {
-    const file = `${screen.file}.dc.html`;
+    const file = areaPath(screen.file, 'dc.html');
     const y = Math.max(...Object.values(canvas.boards).map((item) => item.y + item.h));
     canvas.boards[file] ??= { is_interactive: true, x: 0, y: y + 120, w: width, h: height, title: '' };
     if (!canvas.order.includes(file)) {

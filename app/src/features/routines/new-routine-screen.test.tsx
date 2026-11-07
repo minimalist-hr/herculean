@@ -365,6 +365,36 @@ test('targets change on a page, and the low end never passes the high end', asyn
   expect(await screen.findByText('4 × 11')).toBeOnTheScreen();
 });
 
+test('a stepper at its limit says why', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+  await fireEvent.press(screen.getByRole('button', { name: /^Squat, 3/ }));
+  await screen.findByRole('header', { name: 'Squat' });
+
+  for (let press = 0; press < 2; press += 1) {
+    await fireEvent.press(screen.getByRole('button', { name: 'One set less' }));
+  }
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'One set less, not available at the limit',
+    }),
+  );
+  expect(await screen.findByRole('alert')).toHaveTextContent('At least 1 set.');
+
+  for (let press = 0; press < 7; press += 1) {
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'One rep less from' }),
+    );
+  }
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'One rep less from, not available at the limit',
+    }),
+  );
+  expect(await screen.findByRole('alert')).toHaveTextContent('At least 1 rep.');
+});
+
 test('removing asks first, and Undo puts it back', async () => {
   answer();
   await openNew();

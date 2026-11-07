@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Herculean · Splash · couldn't connect</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Oxanium:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; background: {{c.bg}}; color: {{c.text}}; font-family: '{{font}}', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+<div role="img" aria-label="Herculean" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow: hidden; background: radial-gradient(ellipse 90% 45% at 50% 50%, {{glow}}, transparent 75%), {{c.bg}}">
+<div style="position: absolute; left: 0; right: 0; top: 406px; display: flex; justify-content: center"><span role="img" aria-label="Herculean" style="font-size: 32px; font-weight: 700; letter-spacing: 0.14em; line-height: 1; white-space: nowrap; color: {{c.text}}"><svg width="25.92" height="29.12" viewBox="-4 0 89 100" aria-hidden="true" style="vertical-align: -3.36px; margin: 0 5.73px 0 0.92px"><polygon points="0,0 19.4,0 23.4,4 23.4,9 19.4,9 19.4,91 23.4,91 23.4,96 19.4,100 0,100 -4,96 -4,91 0,91 0,9 -4,9 -4,4" style="fill: {{c.text}}"></polygon><polygon points="61.6,0 81.0,0 85.0,4 85.0,9 81.0,9 81.0,91 85.0,91 85.0,96 81.0,100 61.6,100 57.6,96 57.6,91 61.6,91 61.6,9 57.6,9 57.6,4" style="fill: {{c.text}}"></polygon><polygon points="19.4,44 61.6,32 61.6,56 19.4,68" style="fill: {{c.primary}}"></polygon></svg>ERCU<span style="color: {{c.primaryText}}">LEAN</span></span></div>
+<div style="position: absolute; left: 0; right: 0; top: 462px; display: flex; flex-direction: column; align-items: center"><p role="alert" style="margin: 0; font-size: 14px; line-height: 1.5; color: {{c.muted}}">Couldn't connect.</p><a href="../account/A00-Account-Splash.dc.html" style="display: inline-flex; align-items: center; height: 44px; padding: 0 8px; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {{c.primaryText}}">Try again</a></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const pal = this.props.palette ?? 'Racing blue';
+    const font = this.props.font ?? 'Chakra Petch';
+    const sharp = (this.props.corners ?? 'sharp') === 'sharp';
+    const r = sharp
+      ? { card: '6px', ctrl: '4px', pill: '3px', check: '3px', sheet: '10px' }
+      : { card: '16px', ctrl: '10px', pill: '999px', check: '8px', sheet: '24px' };
+    const tint = (hex, a) => {
+      let h = String(hex).replace('#', '');
+      if (h.length === 3) h = h.split('').map((x) => x + x).join('');
+      const n = parseInt(h, 16);
+      return 'rgba(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + a + ')';
+    };
+    const accents = {
+      'Racing blue': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Titanium': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+    };
+    const neutral = dark
+      ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
+      : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
+    const primary = c.primary;
+    c.danger = dark ? '#F87171' : '#DC2626';
+    c.onDanger = '#FFFFFF';
+    const st = this.state || {};
+    const radio = (items, key, def) => {
+      const cur = st[key] || def;
+      return items.map((it) => {
+        const on = it.id === cur;
+        return Object.assign({}, it, {
+          on: on,
+          hasSub: !!it.sub,
+          edge: on ? c.primary : c.border,
+          bg: on ? c.raised : 'transparent',
+          ring: on ? c.primary : c.muted,
+          dot: on ? c.primary : 'transparent',
+          pick: () => this.setState({ [key]: it.id })
+        });
+      });
+    };
+    c.glow = tint(c.primary, dark ? 0.2 : 0.1);
+    return { c, r, font, glow: c.glow };
+  }
+}
+</script>
+</body>
+</html>

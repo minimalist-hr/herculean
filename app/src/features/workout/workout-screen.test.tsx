@@ -186,6 +186,28 @@ test('says what the week strip knows about each day', async () => {
   expect(screen.getByLabelText('Tuesday 3, Legs, today')).toBeOnTheScreen();
 });
 
+test('a failed week says so under the strip, and the day still shows', async () => {
+  mockFetch.mockImplementation((request) =>
+    new URL(request.url).pathname === '/api/v1/days'
+      ? Promise.reject(new TypeError('Network request failed'))
+      : Promise.resolve(Response.json(plannedDay)),
+  );
+  await renderWorkout();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't load the week.",
+  );
+  expect(screen.getByText('Legs')).toBeOnTheScreen();
+
+  answer(plannedDay);
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(
+    await screen.findByLabelText('Monday 2, Arms, missed'),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText("Couldn't load the week.")).toBeNull();
+});
+
 test('marks days with a workout, and leaves rest days plain', async () => {
   answer(plannedDay, [
     { date: '2026-11-02', status: 'missed', routineName: 'Arms' },
@@ -246,10 +268,12 @@ test('says the week and the day could not load, and tries again', async () => {
   await renderWorkout();
 
   expect(await screen.findByText("Couldn't load this day.")).toBeOnTheScreen();
+  expect(await screen.findByText("Couldn't load the week.")).toBeOnTheScreen();
   expect(screen.getByLabelText('Monday 2')).toBeOnTheScreen();
 
   answer(plannedDay);
-  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+  // The day's Try again reads the week again too.
+  await fireEvent.press(screen.getAllByRole('link', { name: 'Try again' })[1]);
 
   expect(await screen.findByText('Legs')).toBeOnTheScreen();
   expect(

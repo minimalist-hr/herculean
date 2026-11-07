@@ -88,6 +88,11 @@ export function NewRecords({
           },
         ]}
       >
+        {records.length === 0 && (
+          <Text style={[text.body, { color: colors.muted, padding: space.lg }]}>
+            No new records this time.
+          </Text>
+        )}
         {records.map((record, index) => (
           <View
             key={record.name}

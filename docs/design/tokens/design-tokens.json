@@ -1,5 +1,5 @@
 {
-  "$description": "Herculean design tokens, taken from the renderVals() code in source/*.dc.html. Every app color is a token; no screen uses a raw hex.",
+  "$description": "Herculean design tokens, taken from the renderVals() code in source/<area>/*.dc.html. Every app color is a token; no screen uses a raw hex.",
   "color": {
     "neutral": {
       "dark":  { "bg": "#050506", "card": "#0F1012", "raised": "#17181B", "border": "#2C2F34", "text": "#F2F3F5", "muted": "#A9AEB6" },
