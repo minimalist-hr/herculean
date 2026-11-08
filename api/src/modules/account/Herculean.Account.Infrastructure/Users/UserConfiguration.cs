@@ -18,6 +18,8 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         // Stored by name, so reordering the enum never changes saved data.
         builder.Property(user => user.Units).HasConversion<string>();
+        builder.Property(user => user.Theme).HasConversion<string>();
+        builder.Property(user => user.Color).HasConversion<string>();
 
         builder.HasMany(user => user.RefreshTokens)
             .WithOne()

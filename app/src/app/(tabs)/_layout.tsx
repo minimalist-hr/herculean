@@ -9,9 +9,12 @@ import {
   WorkoutIcon,
 } from '@/components/icons';
 import { TabBar } from '@/components/tab-bar';
+import { useKeepTimeZone } from '@/features/account/use-keep-time-zone';
 import { ResumeBar } from '@/features/workout/resume-bar';
 
 export default function TabsLayout() {
+  useKeepTimeZone();
+
   return (
     <InTabsContext.Provider value>
       <View style={styles.tabs}>

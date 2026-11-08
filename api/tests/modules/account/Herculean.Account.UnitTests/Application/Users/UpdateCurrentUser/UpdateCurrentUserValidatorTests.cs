@@ -18,7 +18,7 @@ public sealed class UpdateCurrentUserValidatorTests
     [Fact]
     public void RequestWithEveryFieldPasses()
     {
-        _validator.Validate(new UpdateCurrentUserRequest(" Filip ", Units.Imperial, "Europe/London")).IsValid.ShouldBeTrue();
+        _validator.Validate(new UpdateCurrentUserRequest(" Filip ", Units.Imperial, Theme.Light, Color.Titanium, "Europe/London")).IsValid.ShouldBeTrue();
     }
 
     [Theory]
@@ -45,6 +45,18 @@ public sealed class UpdateCurrentUserValidatorTests
     public void UnitsMustBeKnown()
     {
         ShouldFailOn(Nothing with { Units = (Units)7 }, nameof(UpdateCurrentUserRequest.Units));
+    }
+
+    [Fact]
+    public void ThemeMustBeKnown()
+    {
+        ShouldFailOn(Nothing with { Theme = (Theme)7 }, nameof(UpdateCurrentUserRequest.Theme));
+    }
+
+    [Fact]
+    public void ColorMustBeKnown()
+    {
+        ShouldFailOn(Nothing with { Color = (Color)7 }, nameof(UpdateCurrentUserRequest.Color));
     }
 
     [Fact]

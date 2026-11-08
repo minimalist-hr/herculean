@@ -8,6 +8,8 @@ internal sealed class UpdateCurrentUserValidator : AbstractValidator<UpdateCurre
     {
         RuleFor(request => request.Name!).UserName().When(request => request.Name is not null);
         RuleFor(request => request.Units).IsInEnum();
+        RuleFor(request => request.Theme).IsInEnum();
+        RuleFor(request => request.Color).IsInEnum();
         RuleFor(request => request.TimeZone!).IanaTimeZone().When(request => request.TimeZone is not null);
     }
 }

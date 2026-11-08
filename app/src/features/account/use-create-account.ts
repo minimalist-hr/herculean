@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { getCalendars } from 'expo-localization';
 
 import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 
+import { phoneTimeZone } from './phone-time-zone';
 import { enterApp, saveTokens } from './session';
 
 interface CreateAccount {
@@ -27,9 +27,4 @@ export function useCreateAccount() {
       enterApp(false);
     },
   });
-}
-
-// The API keeps the user's time zone for dates and days. UTC only if the phone has none.
-function phoneTimeZone() {
-  return getCalendars().at(0)?.timeZone ?? 'UTC';
 }

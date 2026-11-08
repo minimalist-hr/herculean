@@ -43,7 +43,7 @@ export interface paths {
         head?: never;
         /**
          * Change the signed-in user
-         * @description Changes the name, units or time zone. Setup sends the name and units; the app sends a new time zone when the phone's changes.
+         * @description Changes the name, units, theme, color or time zone. Setup sends the name and units, Settings the others; the app sends a new time zone when the phone's changes.
          */
         patch: operations["UpdateCurrentUser"];
         trace?: never;
@@ -804,6 +804,11 @@ export interface components {
              */
             date: string;
         };
+        /**
+         * @description The accent color of buttons, links and highlights.
+         * @enum {unknown}
+         */
+        Color: "racingBlue" | "titanium";
         /** @description The token from the reset link, and the new password. */
         CompletePasswordResetRequest: {
             /** @description The token from the reset link. It works once. */
@@ -1520,6 +1525,11 @@ export interface components {
             /** @description The values the sets had, which is how a swap is undone. Left out, they start from the new exercise's last time. */
             sets?: null | components["schemas"]["SwappedSet"][];
         };
+        /**
+         * @description Light or dark: matchPhone follows the phone's setting.
+         * @enum {unknown}
+         */
+        Theme: "matchPhone" | "dark" | "light";
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
             /** @description A JWT. Send it as `Authorization: Bearer <accessToken>`. */
@@ -1557,6 +1567,8 @@ export interface components {
             /** @description 1 to 50 characters, trimmed. */
             name?: null | string;
             units?: null | components["schemas"]["Units"];
+            theme?: null | components["schemas"]["Theme"];
+            color?: null | components["schemas"]["Color"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Sent when the phone's changes. */
             timeZone?: null | string;
         };
@@ -1641,6 +1653,10 @@ export interface components {
             name: null | string;
             /** @description The units the app shows weights and lengths in. */
             units: components["schemas"]["Units"];
+            /** @description Light or dark, or matching the phone. */
+            theme: components["schemas"]["Theme"];
+            /** @description The accent color. */
+            color: components["schemas"]["Color"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it. */
             timeZone: string;
         };

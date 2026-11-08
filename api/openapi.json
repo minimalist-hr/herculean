@@ -64,7 +64,7 @@
           "Users"
         ],
         "summary": "Change the signed-in user",
-        "description": "Changes the name, units or time zone. Setup sends the name and units; the app sends a new time zone when the phone's changes.",
+        "description": "Changes the name, units, theme, color or time zone. Setup sends the name and units, Settings the others; the app sends a new time zone when the phone's changes.",
         "operationId": "UpdateCurrentUser",
         "requestBody": {
           "content": {
@@ -3507,6 +3507,13 @@
         },
         "description": "The best set of an exercise."
       },
+      "Color": {
+        "enum": [
+          "racingBlue",
+          "titanium"
+        ],
+        "description": "The accent color of buttons, links and highlights."
+      },
       "CompletePasswordResetRequest": {
         "required": [
           "token",
@@ -4915,6 +4922,14 @@
         },
         "description": "The exercise to swap to."
       },
+      "Theme": {
+        "enum": [
+          "matchPhone",
+          "dark",
+          "light"
+        ],
+        "description": "Light or dark: matchPhone follows the phone's setting."
+      },
       "TokenResponse": {
         "required": [
           "accessToken",
@@ -4989,6 +5004,28 @@
               {
                 "description": "The units the app shows weights and lengths in.",
                 "$ref": "#/components/schemas/Units"
+              }
+            ]
+          },
+          "theme": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Light or dark, or matching the phone.",
+                "$ref": "#/components/schemas/Theme"
+              }
+            ]
+          },
+          "color": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The accent color.",
+                "$ref": "#/components/schemas/Color"
               }
             ]
           },
@@ -5193,6 +5230,8 @@
           "email",
           "name",
           "units",
+          "theme",
+          "color",
           "timeZone"
         ],
         "type": "object",
@@ -5211,6 +5250,14 @@
           "units": {
             "description": "The units the app shows weights and lengths in.",
             "$ref": "#/components/schemas/Units"
+          },
+          "theme": {
+            "description": "Light or dark, or matching the phone.",
+            "$ref": "#/components/schemas/Theme"
+          },
+          "color": {
+            "description": "The accent color.",
+            "$ref": "#/components/schemas/Color"
           },
           "timeZone": {
             "type": "string",

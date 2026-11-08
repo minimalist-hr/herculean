@@ -109,6 +109,11 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("color");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
@@ -128,6 +133,11 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("theme");
 
                     b.Property<string>("TimeZone")
                         .IsRequired()

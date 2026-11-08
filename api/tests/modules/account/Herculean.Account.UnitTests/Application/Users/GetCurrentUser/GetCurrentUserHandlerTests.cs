@@ -26,7 +26,7 @@ public sealed class GetCurrentUserHandlerTests
 
         Result<UserResponse> result = await _handler.HandleAsync(TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", Name: null, Units.Metric, "Europe/Zagreb"));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", Name: null, Units.Metric, Theme.MatchPhone, Color.RacingBlue, "Europe/Zagreb"));
     }
 
     [Fact]

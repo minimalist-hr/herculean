@@ -1,0 +1,10 @@
+using System.ComponentModel;
+
+namespace Herculean.Account.Domain.Users;
+
+[Description("The accent color of buttons, links and highlights.")]
+internal enum Color
+{
+    RacingBlue,
+    Titanium,
+}

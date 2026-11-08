@@ -25,6 +25,10 @@ internal sealed class User : Entity<UserId>
 
     public Units Units { get; private set; } = Units.Metric;
 
+    public Theme Theme { get; private set; } = Theme.MatchPhone;
+
+    public Color Color { get; private set; } = Color.RacingBlue;
+
     /// <summary>An IANA name, for example <c>Europe/Zagreb</c>.</summary>
     public string TimeZone { get; private set; }
 
@@ -46,6 +50,16 @@ internal sealed class User : Entity<UserId>
     public void ChangeUnits(Units units)
     {
         Units = units;
+    }
+
+    public void ChangeTheme(Theme theme)
+    {
+        Theme = theme;
+    }
+
+    public void ChangeColor(Color color)
+    {
+        Color = color;
     }
 
     public void ChangeTimeZone(string timeZone)
