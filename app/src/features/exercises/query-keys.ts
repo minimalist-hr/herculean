@@ -10,5 +10,7 @@ export const exerciseKeys = {
   sessions: (id: string) => ['exercise', id, 'sessions'] as const,
   progress: (id: string, range: string) =>
     ['exercise', id, 'progress', range] as const,
+  lastTime: (id: string, before: string) =>
+    ['exercise', id, 'last-time', before] as const,
   groups: ['groups'] as const,
 };

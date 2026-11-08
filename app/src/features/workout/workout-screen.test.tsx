@@ -105,6 +105,7 @@ async function renderWorkout() {
         <PlaceholderScreen title="Choose routine screen" />
       ),
       'workout/log/[id]': () => <PlaceholderScreen title="Logging screen" />,
+      'workout/edit/[id]': () => <PlaceholderScreen title="Edit screen" />,
       'routine/new': () => <PlaceholderScreen title="New routine screen" />,
     },
     { initialUrl: '/' },
@@ -563,15 +564,13 @@ describe('a saved day', () => {
     expect(await screen.findByText('Details screen')).toBeOnTheScreen();
   });
 
-  test('Edit says it comes later', async () => {
+  test('Edit opens the edit page', async () => {
     answerSaved();
     await renderWorkout();
 
     await fireEvent.press(await screen.findByRole('button', { name: 'Edit' }));
 
-    expect(
-      await screen.findByText('Editing a workout comes in a later update.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText('Edit screen')).toBeOnTheScreen();
   });
 
   /** A saved day whose workout can be deleted and restored, like the server. */

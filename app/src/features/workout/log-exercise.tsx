@@ -157,7 +157,8 @@ function SetRow({
   index: number;
   units: Units;
   onEdit: (set: WorkoutSet, field: SetField) => void;
-  onToggle: (set: WorkoutSet) => void;
+  /** Checks or unchecks a set. Without it, as in a saved workout, every set counts and there is no check box. */
+  onToggle?: (set: WorkoutSet) => void;
 }) {
   const { colors, radius, size, space, text } = useTheme();
   const number = String(index + 1);
@@ -174,9 +175,10 @@ function SetRow({
           paddingVertical: 2,
           paddingHorizontal: space.sm,
           borderRadius: radius.control,
-          backgroundColor: set.checked
-            ? `${colors.primary}${checkedRowAlpha}`
-            : undefined,
+          backgroundColor:
+            onToggle && set.checked
+              ? `${colors.primary}${checkedRowAlpha}`
+              : undefined,
         },
       ]}
     >
@@ -194,10 +196,7 @@ function SetRow({
         >
           {number}
         </Text>
-        <Text
-          numberOfLines={1}
-          style={[text.meta, styles.lastTime, !lastTime && styles.noLastTime]}
-        >
+        <Text numberOfLines={1} style={[text.meta, styles.lastTime]}>
           {lastTime
             ? formatLastTime(lastTime.weightKg, lastTime.reps, units)
             : '–'}
@@ -217,28 +216,30 @@ function SetRow({
           }}
         />
       </Tappable>
-      <Tappable
-        accessibilityRole="checkbox"
-        accessibilityLabel={`Set ${number} done`}
-        accessibilityState={{ checked: set.checked }}
-        onPress={() => {
-          onToggle(set);
-        }}
-        style={[styles.check, { height: size.touchTargetMin }]}
-      >
-        <View
-          style={[
-            styles.box,
-            {
-              borderRadius: radius.control,
-              borderColor: set.checked ? colors.primary : colors.muted,
-              backgroundColor: set.checked ? colors.primary : undefined,
-            },
-          ]}
+      {onToggle && (
+        <Tappable
+          accessibilityRole="checkbox"
+          accessibilityLabel={`Set ${number} done`}
+          accessibilityState={{ checked: set.checked }}
+          onPress={() => {
+            onToggle(set);
+          }}
+          style={[styles.check, { height: size.touchTargetMin }]}
         >
-          {set.checked && <CheckIcon color={colors.onPrimary} size={18} />}
-        </View>
-      </Tappable>
+          <View
+            style={[
+              styles.box,
+              {
+                borderRadius: radius.control,
+                borderColor: set.checked ? colors.primary : colors.muted,
+                backgroundColor: set.checked ? colors.primary : undefined,
+              },
+            ]}
+          >
+            {set.checked && <CheckIcon color={colors.onPrimary} size={18} />}
+          </View>
+        </Tappable>
+      )}
     </View>
   );
 }
@@ -253,15 +254,19 @@ export function OpenExercise({
   onToggle,
   onAddSet,
   onRemove,
+  canSwap = true,
 }: {
   workoutId: string;
   exercise: WorkoutExercise;
   units: Units;
   adding: boolean;
   onEdit: (set: WorkoutSet, field: SetField) => void;
-  onToggle: (set: WorkoutSet) => void;
+  /** Without it, as when editing a saved workout, there are no check boxes. */
+  onToggle?: (set: WorkoutSet) => void;
   onAddSet: () => void;
   onRemove: () => void;
+  /** Swapping belongs to logging. */
+  canSwap?: boolean;
 }) {
   const { colors, radius, space, text } = useTheme();
   const router = useRouter();
@@ -301,24 +306,26 @@ export function OpenExercise({
             <ExerciseTargetLine exercise={exercise} />
           </Tappable>
         </View>
-        <ExerciseAction
-          label={`Swap ${exercise.name}`}
-          muted={checkedSets(exercise) > 0}
-          onPress={() => {
-            if (checkedSets(exercise) > 0) {
-              notifyFailure(
-                "An exercise with checked sets can't be swapped. Uncheck them first.",
-              );
-              return;
-            }
+        {canSwap && (
+          <ExerciseAction
+            label={`Swap ${exercise.name}`}
+            muted={checkedSets(exercise) > 0}
+            onPress={() => {
+              if (checkedSets(exercise) > 0) {
+                notifyFailure(
+                  "An exercise with checked sets can't be swapped. Uncheck them first.",
+                );
+                return;
+              }
 
-            router.push(
-              `/workout/log/${workoutId}/add?swap=${exercise.id}` as Href,
-            );
-          }}
-        >
-          <SwapIcon color={colors.muted} size={20} />
-        </ExerciseAction>
+              router.push(
+                `/workout/log/${workoutId}/add?swap=${exercise.id}` as Href,
+              );
+            }}
+          >
+            <SwapIcon color={colors.muted} size={20} />
+          </ExerciseAction>
+        )}
         <ExerciseAction label={`Remove ${exercise.name}`} onPress={onRemove}>
           <TrashIcon color={colors.dangerFill} size={20} />
         </ExerciseAction>
@@ -339,7 +346,7 @@ export function OpenExercise({
         <View style={[styles.valueWidth, styles.centered]}>
           <SectionTitle>Reps</SectionTitle>
         </View>
-        <View style={styles.check} />
+        {onToggle && <View style={styles.check} />}
       </View>
 
       <View style={{ gap: 2 }}>
@@ -416,8 +423,7 @@ const styles = StyleSheet.create({
   lastTime: {
     flex: 1,
     minWidth: 0,
-  },
-  noLastTime: {
+    alignItems: 'center',
     textAlign: 'center',
   },
   valueWidth: {

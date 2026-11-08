@@ -185,7 +185,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 - **Exercises:** the trash → L13 → undo bar. Add exercise → the L20 flow from [3. Routines](#3-routines) → L01. The swap icon → the L20 flow, one pick → L01, with an undo bar. Reorder → L04, which saves each drop. Removing every exercise shows L02.
 - **History:** the exercise name → E10.
 - **Finish:** Finish → L34 → L30, or L31 if nothing is checked. The back link → L01. Save workout → the day, completed. Discard workout → L33 → the day on its plan, with an undo bar (W65). Undo → the day, in progress.
-- **Saved day:** W03 and W20 show a saved workout with the sets done, then View workout → W67, and Edit and Delete, which say they come in a later update. On the month, W42 → View workout → W67, or Open day → the day. The back link on W67 returns to where it opened from, and says Workout, or Month from W42.
+- **Saved day:** W03 and W20 show a saved workout with the sets done, then View workout → W67, Edit → W30, and Delete → W32. On the month, W42 → View workout → W67, or Open day → the day. The back link on W67 returns to where it opened from, and says Workout, or Month from W42.
 - **Resume:** Resume on W02, or the Resume bar on any tab → L01.
 - **Leave:** the back link on L01 → W02. Every change saves as you go.
 
@@ -223,7 +223,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 **Screens:** W30 Edit workout, W31 Set removed, W32 Delete workout, W29 Day from the month, W40 Month, W41 Loading, W43 to W46 Day summary, W47 First month, W48 Another day selected, W49 Load failure.
 
 **Flows**
-- **Edit:** Edit on W03 or W20 → W30. Sets use the L10 and L11 sheets. Remove set → W31 undo bar. The trash on an exercise → L13 → undo bar. Add exercise → the L20 flow. Save workout → back to the day.
+- **Edit:** Edit on W03 or W20 → W30. Sets use the L10 and L11 sheets. Remove set → W31 undo bar. The trash on an exercise → L13 → undo bar. Add exercise → the L20 flow; an added exercise starts with 3 sets of 0 kg and the low end of the reps, and shows its last time before the workout's date. Save workout → back to the day.
 - **Delete:** Delete on W03 or W20 → W32 → the day, with an undo bar.
 - **Month:** the calendar icon on W01 → W41 → W40. Swipe to change month, from the first day's month to the month holding the last day the week strip reaches. Days past those limits look muted, and tapping one says why (W47). Back to today returns to today, and shows when another day or month is selected. A tapped day stays selected (W48). A day → W43 to W46 → Open day → that day on the Workout tab, in its week, with "Back to month" (W29). W40's back link, named Workout, goes to the Workout tab. If the month can't load → W49.
 
@@ -236,6 +236,7 @@ Changes on W30 stay in the app until Save workout.
 | Method | Route | Used by |
 |---|---|---|
 | PUT | `/api/v1/workouts/{id}` | W30 Save workout: exercises and sets |
+| GET | `/api/v1/exercises/{id}/last-time` | W30, an added exercise's last time `before` the workout's date |
 | DELETE | `/api/v1/workouts/{id}` | W32 |
 | POST | `/api/v1/workouts/{id}/restore` | Undo after W32 |
 | GET | `/api/v1/days` | W40 calendar, with `from` and `to` filters |

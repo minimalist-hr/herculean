@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 
 import { api } from '@/api/client';
+import type { components } from '@/api/schema';
 import { ApiProblemError, toApiError } from '@/api/problem';
 import {
   dismissNotification,
@@ -146,6 +147,39 @@ export function useDeleteWorkout(id: string) {
     },
     onError: () => {
       notifyFailure("Couldn't delete the workout. Try again.");
+    },
+  });
+}
+
+type EditedExercise = components['schemas']['EditedWorkoutExercise'];
+
+/** Saves a corrected saved workout, then goes back to its day. */
+export function useEditWorkout(id: string) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const refresh = useRefreshAfterWorkout();
+
+  return useMutation({
+    mutationFn: async (exercises: EditedExercise[]) => {
+      const { data, error } = await api.PUT('/api/v1/workouts/{id}', {
+        params: { path: { id } },
+        body: { exercises },
+      });
+      if (data === undefined) {
+        throw toApiError(error);
+      }
+    },
+    onSuccess: async () => {
+      router.back();
+      await Promise.all([
+        refresh(),
+        queryClient.invalidateQueries({ queryKey: workoutKeys.all }),
+      ]);
+    },
+    onError: (error) => {
+      notifyFailure(
+        failureMessage(error, "Couldn't save the workout. Try again."),
+      );
     },
   });
 }

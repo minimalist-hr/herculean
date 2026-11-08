@@ -474,8 +474,8 @@ function CompletedCard({
 
     return (
       <View style={{ gap: space.sm }}>
-        <Skeleton width={260} height={56} />
-        <Skeleton width={260} height={56} />
+        <Skeleton width="100%" height={56} />
+        <Skeleton width="100%" height={56} />
       </View>
     );
   }
@@ -505,7 +505,10 @@ function CompletedCard({
             label="Edit"
             variant="secondary"
             onPress={() => {
-              notifyFailure('Editing a workout comes in a later update.');
+              router.push({
+                pathname: '/workout/edit/[id]',
+                params: { id: workoutId },
+              });
             }}
           />,
           <DeleteButton

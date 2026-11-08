@@ -144,6 +144,13 @@ function stepLabel(direction: string, field: SetField, units: Units) {
 }
 
 /** A set's sheet: the values, a keypad and Save set. It's mounted anew for each opening, so it starts from the set. */
+/** The values a set's sheet saves. A field left out didn't change. */
+export interface SetChanges {
+  weightKg?: number;
+  reps?: number;
+}
+
+/** L01's set sheet: every change saves to the workout right away. */
 export function SetSheet({
   workoutId,
   edit,
@@ -155,6 +162,51 @@ export function SetSheet({
   edit: SetEdit;
   visible: boolean;
   units: Units;
+  onClose: () => void;
+}) {
+  const updateSet = useUpdateSet(workoutId);
+  const deleteSet = useDeleteSet(workoutId);
+
+  return (
+    <SetEditorSheet
+      edit={edit}
+      visible={visible}
+      units={units}
+      saving={updateSet.isPending}
+      onSave={(changes) => {
+        updateSet.mutate(
+          { workoutExerciseId: edit.exercise.id, setId: edit.set.id, changes },
+          { onSuccess: onClose },
+        );
+      }}
+      onRemove={() => {
+        onClose();
+        deleteSet.mutate({
+          workoutExerciseId: edit.exercise.id,
+          set: edit.set,
+        });
+      }}
+      onClose={onClose}
+    />
+  );
+}
+
+/** A set's keypad, steppers and trash. Where a change goes is up to the screen. */
+export function SetEditorSheet({
+  edit,
+  visible,
+  units,
+  saving,
+  onSave,
+  onRemove,
+  onClose,
+}: {
+  edit: SetEdit;
+  visible: boolean;
+  units: Units;
+  saving: boolean;
+  onSave: (changes: SetChanges) => void;
+  onRemove: () => void;
   onClose: () => void;
 }) {
   const { colors, opacity, radius, size, space, text } = useTheme();
@@ -171,8 +223,6 @@ export function SetSheet({
       Math.max(keyHeight.least, current - Math.ceil(points / keyRows)),
     );
   }, []);
-  const updateSet = useUpdateSet(workoutId);
-  const deleteSet = useDeleteSet(workoutId);
   const value = field === 'weight' ? weight : reps;
   const setValue = field === 'weight' ? setWeight : setReps;
   const problem =
@@ -219,10 +269,7 @@ export function SetSheet({
       return;
     }
 
-    updateSet.mutate(
-      { workoutExerciseId: exercise.id, setId: set.id, changes },
-      { onSuccess: onClose },
-    );
+    onSave(changes);
   }
 
   function remove() {
@@ -233,8 +280,7 @@ export function SetSheet({
       return;
     }
 
-    onClose();
-    deleteSet.mutate({ workoutExerciseId: exercise.id, set });
+    onRemove();
   }
 
   return (
@@ -320,7 +366,7 @@ export function SetSheet({
       <Button
         label="Save set"
         waitingLabel="Saving set"
-        waiting={updateSet.isPending}
+        waiting={saving}
         muted={problem !== null}
         onPress={save}
       />

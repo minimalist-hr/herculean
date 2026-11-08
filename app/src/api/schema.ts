@@ -216,6 +216,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises/{id}/last-time": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an exercise's last time
+         * @description Returns the sets of one of the signed-in user's exercises in its latest completed workout before a date.
+         */
+        get: operations["GetExerciseLastTime"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/exercises/{id}/progress": {
         parameters: {
             query?: never;
@@ -993,6 +1013,10 @@ export interface components {
              * @description The date of the first of those workouts, in the user's time zone. Null until the exercise has been done.
              */
             firstDoneOn: null | string;
+        };
+        /** @description An exercise's sets the last time it was done. */
+        ExerciseLastTimeResponse: {
+            lastTime: null | components["schemas"]["LastTimeResponse"];
         };
         /** @description An exercise in the list. */
         ExerciseListItemResponse: {
@@ -2344,6 +2368,59 @@ export interface operations {
                 };
             };
             /** @description The cursor isn't one from an earlier page. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The exercise does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetExerciseLastTime: {
+        parameters: {
+            query: {
+                /** @description Only workouts before this date count, such as the date of the workout it's added to. */
+                before: string;
+            };
+            header?: never;
+            path: {
+                /** @description The exercise's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Its last time, or null when it wasn't done before the date. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseLastTimeResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
             400: {
                 headers: {
                     [name: string]: unknown;

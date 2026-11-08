@@ -739,6 +739,85 @@
         ]
       }
     },
+    "/api/v1/exercises/{id}/last-time": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get an exercise's last time",
+        "description": "Returns the sets of one of the signed-in user's exercises in its latest completed workout before a date.",
+        "operationId": "GetExerciseLastTime",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The exercise's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "description": "Only workouts before this date count, such as the date of the workout it's added to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Its last time, or null when it wasn't done before the date.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseLastTimeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The exercise does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/exercises/{id}/progress": {
       "get": {
         "tags": [
@@ -3896,6 +3975,26 @@
           }
         },
         "description": "An exercise, its groups and its progress."
+      },
+      "ExerciseLastTimeResponse": {
+        "required": [
+          "lastTime"
+        ],
+        "type": "object",
+        "properties": {
+          "lastTime": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Its latest completed workout before the date. Null when it wasn't done before then.",
+                "$ref": "#/components/schemas/LastTimeResponse"
+              }
+            ]
+          }
+        },
+        "description": "An exercise's sets the last time it was done."
       },
       "ExerciseListItemResponse": {
         "required": [

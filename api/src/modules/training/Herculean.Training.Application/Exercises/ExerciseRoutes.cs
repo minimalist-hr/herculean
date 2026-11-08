@@ -13,4 +13,6 @@ internal static class ExerciseRoutes
     public const string Sessions = $"{Exercise}/sessions";
 
     public const string Progress = $"{Exercise}/progress";
+
+    public const string LastTime = $"{Exercise}/last-time";
 }

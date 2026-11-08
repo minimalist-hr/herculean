@@ -63,6 +63,14 @@ const deleteFromToday = async (on) => {
   await on.waitFor('Delete workout');
   await on.sleep(400);
 };
+const editFromToday = async (on) => {
+  await on.go('/workout');
+  await on.waitFor('View workout');
+  await on.tap('Edit');
+  await on.waitFor('Save workout');
+  await on.sleep(400);
+};
+const editWorkoutPath = `/workout/edit/${sampleWorkout.id}`;
 const pastSavedAnswers = {
   ...savedAnswers,
   'GET /api/v1/days/2026-10-20': { status: 200, body: { ...sampleDay, date: '2026-10-20', status: 'completed', workoutId: sampleWorkout.id, routine: { ...sampleDay.routine, name: 'Back and shoulders 1', exercises: savedWorkout.exercises } } },
@@ -599,6 +607,14 @@ export const screens = [
     await on.tap('Undo');
     await on.waitFor("Couldn't undo. Try again.");
   } },
+  { id: 'W30', file: 'W30-Workout-Edit', title: 'Workout › Edit workout · full scroll', row: 'W4 Edit or delete a workout', today: friday, answers: savedAnswers, steps: editFromToday },
+  { id: 'W31', file: 'W31-Workout-Edit-Set-Removed', title: 'Workout › Edit workout · set removed, undo bar', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: async (on) => {
+    await editFromToday(on);
+    await on.tap('Set 1 reps, 12');
+    await on.waitFor('Save set');
+    await on.tap('Remove set');
+    await on.waitFor('Set 1 removed.');
+  } },
   { id: 'W32', file: 'W32-Workout-Delete-Confirm', title: 'Workout › Delete workout · confirm', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: deleteFromToday },
   { id: 'W83', file: 'W83-Workout-Deleted-Undo', title: 'Workout › Workout deleted, with Undo', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: deletableAnswers(), steps: async (on) => {
     await deleteFromToday(on);
@@ -617,6 +633,31 @@ export const screens = [
     await on.waitFor('Workout deleted.');
     await on.tap('Undo');
     await on.waitFor("Couldn't undo. Try again.");
+  } },
+  { id: 'W86', file: 'W86-Workout-Edit-Loading', title: 'Workout › Edit workout · loading', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [workoutPath]: 'hold' }, steps: async (on) => {
+    await on.go(editWorkoutPath);
+    await on.waitFor('Loading this workout');
+  } },
+  { id: 'W87', file: 'W87-Workout-Edit-Load-Failed', title: "Workout › Edit workout · couldn't load", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [workoutPath]: { status: 500 } }, steps: async (on) => {
+    await on.go(editWorkoutPath);
+    await on.waitFor("Couldn't load this workout.");
+  } },
+  { id: 'W88', file: 'W88-Workout-Edit-Saving', title: 'Workout › Edit workout · saving', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [`PUT /api/v1/workouts/${sampleWorkout.id}`]: 'hold' }, steps: async (on) => {
+    await editFromToday(on);
+    await on.tap('Save workout');
+    await on.waitFor('Saving workout');
+  } },
+  { id: 'W89', file: 'W89-Workout-Edit-Save-Failed', title: "Workout › Edit workout · couldn't save", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [`PUT /api/v1/workouts/${sampleWorkout.id}`]: { status: 500 } }, steps: async (on) => {
+    await editFromToday(on);
+    await on.tap('Save workout');
+    await on.waitFor("Couldn't save the workout. Try again.");
+  } },
+  { id: 'W90', file: 'W90-Workout-Edit-Leave', title: 'Workout › Edit workout · discard changes', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: async (on) => {
+    await editFromToday(on);
+    await on.tap('Add set');
+    await on.tap('Workout');
+    await on.waitFor('Discard changes');
+    await on.sleep(400);
   } },
   { id: 'W03', file: 'W03-Workout-Today-Completed', title: 'Workout › Today · completed', row: 'W1 Today states', today: friday, answers: savedAnswers, steps: async (on) => {
     await on.go('/workout');

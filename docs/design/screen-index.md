@@ -1,6 +1,6 @@
 # Screen index
 
-297 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+302 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -107,12 +107,17 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W25 | Workout › Rest day | W3 Other days | 390×844 | [png](screens/workout/W25-Workout-Rest-Day.png) · [html](html/workout/W25-Workout-Rest-Day.html) · [source](source/workout/W25-Workout-Rest-Day.dc.html) |
 | W28 | Workout › Another week | W3 Other days | 390×844 | [png](screens/workout/W28-Workout-Another-Week.png) · [html](html/workout/W28-Workout-Another-Week.html) · [source](source/workout/W28-Workout-Another-Week.dc.html) |
 | W29 | Workout › Day from the month | W3 Other days | 390×844 | [png](screens/workout/W29-Workout-Day-From-Month.png) · [html](html/workout/W29-Workout-Day-From-Month.html) · [source](source/workout/W29-Workout-Day-From-Month.dc.html) |
-| W30 | Workout › Edit workout · full scroll | W4 Edit or delete a workout | 390×1900 | [png](screens/workout/W30-Workout-Edit.png) · [html](html/workout/W30-Workout-Edit.html) · [source](source/workout/W30-Workout-Edit.dc.html) |
+| W30 | Workout › Edit workout · full scroll · full scroll | W4 Edit or delete a workout | 390×1256 | [png](screens/workout/W30-Workout-Edit.png) · [html](html/workout/W30-Workout-Edit.html) · [source](source/workout/W30-Workout-Edit.dc.html) |
 | W31 | Workout › Edit workout · set removed, undo bar | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W31-Workout-Edit-Set-Removed.png) · [html](html/workout/W31-Workout-Edit-Set-Removed.html) · [source](source/workout/W31-Workout-Edit-Set-Removed.dc.html) |
 | W32 | Workout › Delete workout · confirm | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W32-Workout-Delete-Confirm.png) · [html](html/workout/W32-Workout-Delete-Confirm.html) · [source](source/workout/W32-Workout-Delete-Confirm.dc.html) |
 | W83 | Workout › Workout deleted, with Undo | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W83-Workout-Deleted-Undo.png) · [html](html/workout/W83-Workout-Deleted-Undo.html) · [source](source/workout/W83-Workout-Deleted-Undo.dc.html) |
 | W84 | Workout › Delete workout · couldn't delete | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W84-Workout-Delete-Failed.png) · [html](html/workout/W84-Workout-Delete-Failed.html) · [source](source/workout/W84-Workout-Delete-Failed.dc.html) |
 | W85 | Workout › Undo delete · couldn't undo | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W85-Workout-Undo-Delete-Failed.png) · [html](html/workout/W85-Workout-Undo-Delete-Failed.html) · [source](source/workout/W85-Workout-Undo-Delete-Failed.dc.html) |
+| W86 | Workout › Edit workout · loading | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W86-Workout-Edit-Loading.png) · [html](html/workout/W86-Workout-Edit-Loading.html) · [source](source/workout/W86-Workout-Edit-Loading.dc.html) |
+| W87 | Workout › Edit workout · couldn't load | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W87-Workout-Edit-Load-Failed.png) · [html](html/workout/W87-Workout-Edit-Load-Failed.html) · [source](source/workout/W87-Workout-Edit-Load-Failed.dc.html) |
+| W88 | Workout › Edit workout · saving | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W88-Workout-Edit-Saving.png) · [html](html/workout/W88-Workout-Edit-Saving.html) · [source](source/workout/W88-Workout-Edit-Saving.dc.html) |
+| W89 | Workout › Edit workout · couldn't save | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W89-Workout-Edit-Save-Failed.png) · [html](html/workout/W89-Workout-Edit-Save-Failed.html) · [source](source/workout/W89-Workout-Edit-Save-Failed.dc.html) |
+| W90 | Workout › Edit workout · discard changes | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W90-Workout-Edit-Leave.png) · [html](html/workout/W90-Workout-Edit-Leave.html) · [source](source/workout/W90-Workout-Edit-Leave.dc.html) |
 | W41 | Workout › Month · loading · full scroll | W5 Month | 390×1048 | [png](screens/workout/W41-Workout-Month-Loading.png) · [html](html/workout/W41-Workout-Month-Loading.html) · [source](source/workout/W41-Workout-Month-Loading.dc.html) |
 | W40 | Workout › Month · full scroll | W5 Month | 390×1048 | [png](screens/workout/W40-Workout-Month.png) · [html](html/workout/W40-Workout-Month.html) · [source](source/workout/W40-Workout-Month.dc.html) |
 | W42 | Workout › Month › Day summary · sheet | W5 Month | 390×844 | [png](screens/workout/W42-Workout-Month-Day-Sheet.png) · [html](html/workout/W42-Workout-Month-Day-Sheet.html) · [source](source/workout/W42-Workout-Month-Day-Sheet.dc.html) |
