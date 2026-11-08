@@ -46,6 +46,7 @@ using Herculean.Training.Application.Workouts.AddWorkoutExercises;
 using Herculean.Training.Application.Workouts.CreateWorkout;
 using Herculean.Training.Application.Workouts.DeleteSet;
 using Herculean.Training.Application.Workouts.DeleteWorkout;
+using Herculean.Training.Application.Workouts.EditWorkout;
 using Herculean.Training.Application.Workouts.GetWorkoutSummary;
 using Herculean.Training.Application.Workouts.ListWorkouts;
 using Herculean.Training.Application.Workouts.RestoreWorkout;
@@ -136,6 +137,8 @@ public static class TrainingModule
         builder.Services.AddScoped<IValidator<CreateWorkoutRequest>, CreateWorkoutValidator>();
         builder.Services.AddScoped<CreateWorkoutHandler>();
         builder.Services.AddScoped<DeleteWorkoutHandler>();
+        builder.Services.AddScoped<IValidator<EditWorkoutRequest>, EditWorkoutValidator>();
+        builder.Services.AddScoped<EditWorkoutHandler>();
         builder.Services.AddScoped<IValidator<UpdateWorkoutRequest>, UpdateWorkoutValidator>();
         builder.Services.AddScoped<UpdateWorkoutHandler>();
         builder.Services.AddScoped<RestoreWorkoutHandler>();
@@ -196,6 +199,7 @@ public static class TrainingModule
         GetMonthSummaryEndpoint.Map(endpoints);
         CreateWorkoutEndpoint.Map(endpoints);
         DeleteWorkoutEndpoint.Map(endpoints);
+        EditWorkoutEndpoint.Map(endpoints);
         UpdateWorkoutEndpoint.Map(endpoints);
         RestoreWorkoutEndpoint.Map(endpoints);
         GetWorkoutSummaryEndpoint.Map(endpoints);

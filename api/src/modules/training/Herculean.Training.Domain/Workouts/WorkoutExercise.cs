@@ -113,6 +113,13 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         return Result.Success();
     }
 
+    /// <summary>Takes these sets in place of its own, all checked, as a saved workout's are.</summary>
+    internal void ReplaceSets(IReadOnlyList<SetValues> sets)
+    {
+        _sets.Clear();
+        _sets.AddRange(sets.Select((values, order) => Set.Restore(UserId, Id, order, values, isChecked: true)));
+    }
+
     /// <summary>Removes the sets that weren't checked, and closes the gaps.</summary>
     internal void RemoveUncheckedSets()
     {

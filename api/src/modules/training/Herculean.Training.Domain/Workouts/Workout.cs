@@ -232,6 +232,63 @@ internal sealed class Workout : Entity<WorkoutId>
         return Result.Success();
     }
 
+    /// <summary>Corrects a saved workout: its exercises become these, in this order, each with these sets. A new exercise gets the starting targets.</summary>
+    public Result Edit(IReadOnlyList<EditedExercise> exercises)
+    {
+        if (Status != WorkoutStatus.Completed)
+        {
+            return WorkoutErrors.NotCompleted;
+        }
+
+        if (exercises.Count == 0)
+        {
+            return WorkoutErrors.NothingToKeep;
+        }
+
+        if (exercises.Count > Routine.MaxExercises)
+        {
+            return WorkoutErrors.TooManyExercises;
+        }
+
+        if (exercises.DistinctBy(exercise => exercise.ExerciseId).Count() != exercises.Count)
+        {
+            return WorkoutErrors.ExerciseAlreadyIn;
+        }
+
+        if (exercises.Any(exercise => exercise.Id is WorkoutExerciseId id && !_exercises.Exists(kept => kept.Id == id)))
+        {
+            return WorkoutErrors.ExerciseNotFound;
+        }
+
+        if (exercises.Any(exercise => exercise.Sets.Count == 0))
+        {
+            return WorkoutErrors.LastSet;
+        }
+
+        if (exercises.Any(exercise => exercise.Sets.Count > WorkoutExercise.MaxSets))
+        {
+            return WorkoutErrors.TooManySets;
+        }
+
+        _exercises.RemoveAll(kept => !exercises.Any(exercise => exercise.Id == kept.Id));
+        foreach ((EditedExercise edited, int order) in exercises.Select((edited, order) => (edited, order)))
+        {
+            WorkoutExercise? kept = _exercises.Find(exercise => exercise.Id == edited.Id);
+            if (kept is null)
+            {
+                RoutineExerciseValues values = new(edited.ExerciseId, WorkoutExercise.StartingTargetSets, WorkoutExercise.StartingTargetRepsFrom, WorkoutExercise.StartingTargetRepsTo);
+                _exercises.Add(WorkoutExercise.Restore(UserId, Id, order, values, [.. edited.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, true))]));
+            }
+            else
+            {
+                kept.MoveTo(order);
+                kept.ReplaceSets(edited.Sets);
+            }
+        }
+
+        return Result.Success();
+    }
+
     public void Delete(DateTimeOffset deletedAtUtc)
     {
         DeletedAtUtc = deletedAtUtc;

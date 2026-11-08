@@ -96,6 +96,44 @@ public sealed class WorkoutTests
         workout.PlannedSets.ShouldBe(5);
     }
 
+    private static Workout SavedWorkout()
+    {
+        Workout workout = Workout.Start(UserId.From(Guid.CreateVersion7()), Date, RoutineId.New(), "Legs", [new RoutineExerciseValues(ExerciseId.New(), 1, 8, 10)], new Dictionary<ExerciseId, List<SetValues>>(), null);
+        workout.UpdateSet(workout.Exercises[0].Id, workout.Exercises[0].Sets[0].Id, 100, 5, true);
+        workout.Finish(Now);
+
+        return workout;
+    }
+
+    [Fact]
+    public void EditingKeepsAtLeastOneExercise()
+    {
+        SavedWorkout().Edit([]).Error.ShouldBe(WorkoutErrors.NothingToKeep);
+    }
+
+    [Fact]
+    public void EditingAllowsAtMost30Exercises()
+    {
+        List<EditedExercise> many = [.. Enumerable.Range(0, Routine.MaxExercises + 1).Select(_ => new EditedExercise(null, ExerciseId.New(), [new SetValues(10, 5)]))];
+
+        SavedWorkout().Edit(many).Error.ShouldBe(WorkoutErrors.TooManyExercises);
+    }
+
+    [Fact]
+    public void EditingTakesEachExerciseOnce()
+    {
+        ExerciseId curl = ExerciseId.New();
+
+        SavedWorkout().Edit([new EditedExercise(null, curl, [new SetValues(10, 5)]), new EditedExercise(null, curl, [new SetValues(10, 5)])]).Error.ShouldBe(WorkoutErrors.ExerciseAlreadyIn);
+    }
+
+    [Fact]
+    public void EditingKeepsOneTo20SetsAnExercise()
+    {
+        SavedWorkout().Edit([new EditedExercise(null, ExerciseId.New(), [])]).Error.ShouldBe(WorkoutErrors.LastSet);
+        SavedWorkout().Edit([new EditedExercise(null, ExerciseId.New(), [.. Enumerable.Repeat(new SetValues(10, 5), WorkoutExercise.MaxSets + 1)])]).Error.ShouldBe(WorkoutErrors.TooManySets);
+    }
+
     [Fact]
     public void ASkippedWorkoutPlansItsRoutinesSets()
     {

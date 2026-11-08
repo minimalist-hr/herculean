@@ -1959,6 +1959,93 @@
           }
         ]
       },
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Edit a saved workout",
+        "description": "Replaces a saved workout's exercises and sets with the ones sent, in their order. Exercises left out are removed; new ones get the starting targets. Every set counts as done.",
+        "operationId": "EditWorkout",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditWorkoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The edited workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout, a workout exercise or an added exercise does not exist, is deleted, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout isn't saved.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
       "patch": {
         "tags": [
           "Workouts"
@@ -3675,6 +3762,73 @@
           }
         },
         "description": "A day's status, for the week strip."
+      },
+      "EditedWorkoutExercise": {
+        "required": [
+          "id",
+          "exerciseId",
+          "sets"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The workout exercise's ID, or null for an exercise added while editing.",
+            "format": "uuid"
+          },
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditedWorkoutSet"
+            },
+            "description": "Its sets in order, 1 to 20. Every set of a saved workout counts as done."
+          }
+        },
+        "description": "An exercise of the edited workout."
+      },
+      "EditedWorkoutSet": {
+        "required": [
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps, 1 to 100.",
+            "format": "int32"
+          }
+        },
+        "description": "A set of the edited workout."
+      },
+      "EditWorkoutRequest": {
+        "required": [
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditedWorkoutExercise"
+            },
+            "description": "Its exercises in order, 1 to 30, each exercise once. Exercises left out are removed."
+          }
+        },
+        "description": "A saved workout as edited: all its exercises in order, each with all its sets."
       },
       "ExerciseDetailsResponse": {
         "required": [

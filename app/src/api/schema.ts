@@ -496,7 +496,11 @@ export interface paths {
          * @description Returns one of the signed-in user's workouts, with its exercises and sets in order, and each exercise's last time.
          */
         get: operations["GetWorkout"];
-        put?: never;
+        /**
+         * Edit a saved workout
+         * @description Replaces a saved workout's exercises and sets with the ones sent, in their order. Exercises left out are removed; new ones get the starting targets. Every set counts as done.
+         */
+        put: operations["EditWorkout"];
         post?: never;
         /**
          * Delete a workout
@@ -929,6 +933,39 @@ export interface components {
             status: components["schemas"]["DayStatus"];
             /** @description The name of the routine planned on it. Null on a rest day. */
             routineName: null | string;
+        };
+        /** @description An exercise of the edited workout. */
+        EditedWorkoutExercise: {
+            /**
+             * Format: uuid
+             * @description The workout exercise's ID, or null for an exercise added while editing.
+             */
+            id: null | string;
+            /**
+             * Format: uuid
+             * @description The exercise's ID.
+             */
+            exerciseId: string;
+            /** @description Its sets in order, 1 to 20. Every set of a saved workout counts as done. */
+            sets: components["schemas"]["EditedWorkoutSet"][];
+        };
+        /** @description A set of the edited workout. */
+        EditedWorkoutSet: {
+            /**
+             * Format: double
+             * @description The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.
+             */
+            weightKg: number;
+            /**
+             * Format: int32
+             * @description The reps, 1 to 100.
+             */
+            reps: number;
+        };
+        /** @description A saved workout as edited: all its exercises in order, each with all its sets. */
+        EditWorkoutRequest: {
+            /** @description Its exercises in order, 1 to 30, each exercise once. Exercises left out are removed. */
+            exercises: components["schemas"]["EditedWorkoutExercise"][];
         };
         /** @description An exercise, its groups and its progress. */
         ExerciseDetailsResponse: {
@@ -3217,6 +3254,69 @@ export interface operations {
             };
             /** @description The workout does not exist, is deleted, or belongs to another user. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    EditWorkout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditWorkoutRequest"];
+            };
+        };
+        responses: {
+            /** @description The edited workout. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout, a workout exercise or an added exercise does not exist, is deleted, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout isn't saved. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
