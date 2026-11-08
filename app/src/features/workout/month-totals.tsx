@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { Skeleton } from '@/components/skeleton';
+import { SkeletonLine, textLine } from '@/components/skeleton';
 import { counted } from '@/features/routines/formats';
 import { SectionTitle } from '@/components/section-title';
 import { useCurrentUser } from '@/features/account/use-current-user';
@@ -11,9 +11,8 @@ import { useTheme } from '@/theme/theme-provider';
 
 type MonthSummary = components['schemas']['MonthSummaryResponse'];
 
-/** What a line of big text takes, so nothing moves when the values arrive. */
-const bigStatHeight = 31;
-const hintHeight = 16;
+/** Shown for a number there's nothing to work out from yet. */
+export const noValue = '–';
 
 function timeText(minutes: number) {
   const hours = Math.floor(minutes / 60);
@@ -21,22 +20,6 @@ function timeText(minutes: number) {
   return hours === 0
     ? `${String(minutes)} min`
     : `${String(hours)} h ${String(minutes % 60)} min`;
-}
-
-function SkeletonLine({
-  width,
-  height,
-  lineHeight,
-}: {
-  width: number;
-  height: number;
-  lineHeight: number;
-}) {
-  return (
-    <View style={[styles.skeletonLine, { height: lineHeight }]}>
-      <Skeleton width={width} height={height} />
-    </View>
-  );
 }
 
 function CountTile({
@@ -66,7 +49,7 @@ function CountTile({
     >
       <StatusLabel label={label} color={color} />
       {value === undefined ? (
-        <SkeletonLine width={32} height={24} lineHeight={bigStatHeight} />
+        <SkeletonLine width={32} height={24} lineHeight={textLine.bigStat} />
       ) : (
         <Text style={[text.bigStat, { color: colors.text }]}>{value}</Text>
       )}
@@ -118,8 +101,8 @@ export function TotalTile({
       <Text style={text.eyebrow}>{label}</Text>
       {value === undefined ? (
         <>
-          <SkeletonLine width={90} height={24} lineHeight={bigStatHeight} />
-          <SkeletonLine width={110} height={12} lineHeight={hintHeight} />
+          <SkeletonLine width={90} height={24} lineHeight={textLine.bigStat} />
+          <SkeletonLine width={110} height={12} lineHeight={textLine.meta} />
         </>
       ) : (
         <>
@@ -137,9 +120,9 @@ export function TotalTile({
   );
 }
 
-function consistencyText(summary: MonthSummary) {
+export function consistencyText(summary: MonthSummary) {
   return summary.consistencyPercent === null
-    ? '–'
+    ? noValue
     : `${String(summary.consistencyPercent)}%`;
 }
 
@@ -185,7 +168,7 @@ export function MonthTotals({
           hint="Weight × reps, all sets"
         />
         <TotalTile
-          label="Consistency"
+          label="On plan"
           value={summary && consistencyText(summary)}
           hint={
             summary &&
@@ -206,8 +189,5 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     borderWidth: 1,
-  },
-  skeletonLine: {
-    justifyContent: 'center',
   },
 });

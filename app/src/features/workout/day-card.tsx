@@ -332,6 +332,16 @@ function UndoSkipButton({ workoutId }: { workoutId: string }) {
   );
 }
 
+/** A routine's size in words, for example "4 exercises · 12 sets". */
+export function routineMeta(routine: DayRoutine) {
+  const sets = routine.exercises.reduce(
+    (total, exercise) => total + exercise.targetSets,
+    0,
+  );
+
+  return `${counted(routine.exercises.length, 'exercise', 'exercises')} · ${counted(sets, 'set', 'sets')}`;
+}
+
 function PlannedContent({
   date,
   routine,
@@ -340,17 +350,13 @@ function PlannedContent({
   routine: DayRoutine;
 }) {
   const { colors } = useTheme();
-  const sets = routine.exercises.reduce(
-    (total, exercise) => total + exercise.targetSets,
-    0,
-  );
 
   return (
     <>
       <CardHeading
         label={`Planned for ${dayNameOf(date).full}`}
         title={routine.name}
-        meta={`${counted(routine.exercises.length, 'exercise', 'exercises')} · ${counted(sets, 'set', 'sets')}`}
+        meta={routineMeta(routine)}
       />
       <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
     </>
@@ -411,6 +417,20 @@ function SkippedCard({
   );
 }
 
+/** A workout in progress: how far it is, and that with the time so far as a line of text. */
+export function useInProgress(workoutId: string) {
+  const workout = useWorkout(workoutId).data;
+  const elapsed = useElapsed(workout?.startedAtUtc);
+  const progress = workoutProgress(workout?.exercises ?? []);
+  const sets = progressText(progress);
+
+  return {
+    workout,
+    progress,
+    meta: elapsed === null ? sets : `${sets} · ${formatClock(elapsed)}`,
+  };
+}
+
 function InProgressCard({
   day,
   routine,
@@ -424,10 +444,7 @@ function InProgressCard({
 }) {
   const { colors, text } = useTheme();
   const router = useRouter();
-  const workout = useWorkout(workoutId).data;
-  const elapsed = useElapsed(workout?.startedAtUtc);
-  const progress = workoutProgress(workout?.exercises ?? []);
-  const sets = progressText(progress);
+  const { workout, progress, meta } = useInProgress(workoutId);
 
   return (
     <Card>
@@ -435,7 +452,7 @@ function InProgressCard({
         label="In progress"
         labelColor={colors.primaryText}
         title={routine.name}
-        meta={elapsed === null ? sets : `${sets} · ${formatClock(elapsed)}`}
+        meta={meta}
       />
       <ProgressBar done={progress.done} total={progress.total} />
       <ExerciseTargets

@@ -13,6 +13,7 @@ import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { EmptyCard } from '@/components/empty-card';
 import { HeaderIconButton } from '@/components/header-icon-button';
+import { useGoBack } from '@/features/home/use-go-back';
 import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
@@ -40,14 +41,16 @@ const loadMoreDistance = 600;
 export function ExerciseScreen({
   id,
   backLabel = 'Exercises',
+  openedFromHome = false,
 }: {
   id: string;
   /** The screen its back link returns to. */
   backLabel?: string;
+  openedFromHome?: boolean;
 }) {
   const { colors, size } = useTheme();
   const floatingRoom = useFloatingRoom();
-  const router = useRouter();
+  const goBack = useGoBack(openedFromHome);
   const exercise = useExercise(id);
   const sessions = useExerciseSessions(id);
 
@@ -98,12 +101,7 @@ export function ExerciseScreen({
         paddingBottom: size.gap.sectionMax + floatingRoom,
       }}
     >
-      <BackLink
-        label={backLabel}
-        onPress={() => {
-          router.back();
-        }}
-      />
+      <BackLink label={openedFromHome ? 'Home' : backLabel} onPress={goBack} />
       {renderContent()}
     </ScrollView>
   );

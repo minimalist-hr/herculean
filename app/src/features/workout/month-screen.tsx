@@ -7,6 +7,7 @@ import { Button } from '@/components/button';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
+import { useGoBack } from '@/features/home/use-go-back';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -45,8 +46,13 @@ function MonthPage({
   return <MonthCalendar month={month} days={days.data} {...calendar} />;
 }
 
-export function MonthScreen() {
+export function MonthScreen({
+  openedFromHome = false,
+}: {
+  openedFromHome?: boolean;
+}) {
   const router = useRouter();
+  const goBack = useGoBack(openedFromHome);
   const { colors, size, space } = useTheme();
   const floatingRoom = useFloatingRoom();
   const { now, refresh } = useDayRefresh();
@@ -111,10 +117,8 @@ export function MonthScreen() {
     >
       <View>
         <BackLink
-          label="Workout"
-          onPress={() => {
-            router.back();
-          }}
+          label={openedFromHome ? 'Home' : 'Workout'}
+          onPress={goBack}
         />
         <View style={[styles.title, { gap: space.md }]}>
           <View style={styles.heading}>

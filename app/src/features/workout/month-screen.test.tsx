@@ -1,8 +1,8 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
-import { AccessibilityInfo } from 'react-native';
+import { AccessibilityInfo, Text } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { dragBy } from '@/test-utils/drag';
@@ -152,7 +152,7 @@ async function renderMonth() {
     {
       _layout: Layout,
       index: () => <WorkoutScreen />,
-      'workout/month': MonthScreen,
+      'workout/month': () => <MonthScreen />,
       'workout/day/[date]': DayRoute,
     },
     { initialUrl: '/' },
@@ -241,7 +241,7 @@ describe('totals', () => {
     answer();
     mockFetch.mockImplementation(() => new Promise(() => undefined));
     await renderRouter(
-      { _layout: Layout, index: MonthScreen },
+      { _layout: Layout, index: () => <MonthScreen /> },
       { initialUrl: '/' },
     );
 
@@ -255,7 +255,7 @@ describe('totals', () => {
     async (failing) => {
       answer({ failing: failing === '/days' ? 'api/v1/days' : failing });
       await renderRouter(
-        { _layout: Layout, index: MonthScreen },
+        { _layout: Layout, index: () => <MonthScreen /> },
         { initialUrl: '/' },
       );
 
@@ -600,4 +600,23 @@ test('the back link goes to the Workout tab', async () => {
   await fireEvent.press(screen.getByRole('link', { name: 'Workout' }));
 
   expect(await screen.findByRole('button', { name: 'Month' })).toBeTruthy();
+});
+
+test('opened from Home, the back link goes to Home', async () => {
+  answer();
+  await renderRouter(
+    {
+      _layout: Layout,
+      index: () => <Text>Home page</Text>,
+      'workout/month': () => <MonthScreen openedFromHome />,
+    },
+    { initialUrl: '/' },
+  );
+  await act(() => {
+    router.push('/workout/month');
+  });
+
+  await fireEvent.press(await screen.findByRole('link', { name: 'Home' }));
+
+  expect(await screen.findByText('Home page')).toBeOnTheScreen();
 });

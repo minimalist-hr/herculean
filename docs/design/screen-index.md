@@ -35,7 +35,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
-| H07 | Home · loading · full scroll | H1 Today states | 390×990 | [png](screens/home/H07-Home-Loading.png) · [html](html/home/H07-Home-Loading.html) · [source](source/home/H07-Home-Loading.dc.html) |
+| H07 | Home · loading · full scroll | H1 Today states | 390×1066 | [png](screens/home/H07-Home-Loading.png) · [html](html/home/H07-Home-Loading.html) · [source](source/home/H07-Home-Loading.dc.html) |
 | H01 | Home · full scroll | H1 Today states | 390×1010 | [png](screens/home/H01-Home.png) · [html](html/home/H01-Home.html) · [source](source/home/H01-Home.dc.html) |
 | H44 | Home · are you ready | H1 Today states | 390×844 | [png](screens/home/H44-Home-Ready.png) · [html](html/home/H44-Home-Ready.html) · [source](source/home/H44-Home-Ready.dc.html) |
 | H02 | Home · in progress · full scroll | H1 Today states | 390×1106 | [png](screens/home/H02-Home-In-Progress.png) · [html](html/home/H02-Home-In-Progress.html) · [source](source/home/H02-Home-In-Progress.dc.html) |

@@ -302,9 +302,9 @@ Changes on W30 stay in the app until Save workout.
 **Flows**
 - **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's done, skipped or a rest day. Open day → W01.
 - **This week:** today → W01, another day → that day, with Back to Home.
-- **This month:** workouts, how much of the plan was done, and volume, each compared with last month. Open month → W40.
+- **This month:** workouts, how much of the plan was done, and volume, each compared with last month. Open month → W40, with Home as its back link.
 - **Streak:** read-only, with the best so far.
-- **Recent records:** a record → E10.
+- **Recent records:** a record → E10, with Home as its back link.
 
 **Endpoints**
 

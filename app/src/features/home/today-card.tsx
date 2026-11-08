@@ -1,23 +1,26 @@
 import { useRouter, type Href } from 'expo-router';
+import { View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { ProgressBar } from '@/components/progress-bar';
-import { counted } from '@/features/routines/formats';
+import {
+  Skeleton,
+  SkeletonGroup,
+  SkeletonLine,
+  textLine,
+} from '@/components/skeleton';
 import {
   Card,
   CardHeading,
   NoRoutinesCard,
+  routineMeta,
   StartButton,
   UpNext,
+  useInProgress,
 } from '@/features/workout/day-card';
 import { savedMeta } from '@/features/workout/saved-workout';
-import { useWorkout } from '@/features/workout/use-workout';
 import { useWorkoutSummary } from '@/features/workout/use-workout-summary';
-import {
-  progressText,
-  workoutProgress,
-} from '@/features/workout/workout-progress';
 import { useTheme } from '@/theme/theme-provider';
 
 type Day = components['schemas']['DayResponse'];
@@ -32,8 +35,7 @@ function InProgress({
 }) {
   const { colors } = useTheme();
   const router = useRouter();
-  const workout = useWorkout(workoutId).data;
-  const progress = workoutProgress(workout?.exercises ?? []);
+  const { progress, meta } = useInProgress(workoutId);
 
   return (
     <Card>
@@ -41,7 +43,7 @@ function InProgress({
         label="In progress"
         labelColor={colors.primaryText}
         title={routine.name}
-        meta={progressText(progress)}
+        meta={meta}
       />
       <ProgressBar done={progress.done} total={progress.total} />
       <Button
@@ -76,6 +78,28 @@ function Completed({
       />
       <UpNext upNext={day.upNext} today={day.date} />
     </Card>
+  );
+}
+
+/** The size of a planned day's card, the one seen most. */
+export function TodayCardSkeleton() {
+  const { size, space } = useTheme();
+
+  return (
+    <SkeletonGroup label="Loading today">
+      <Card>
+        <View style={{ gap: space.xs }}>
+          <SkeletonLine width={70} height={10} lineHeight={textLine.eyebrow} />
+          <SkeletonLine
+            width={190}
+            height={20}
+            lineHeight={textLine.cardTitle}
+          />
+          <SkeletonLine width={170} height={10} lineHeight={textLine.meta} />
+        </View>
+        <Skeleton width="100%" height={size.primaryButton} />
+      </Card>
+    </SkeletonGroup>
   );
 }
 
@@ -121,12 +145,7 @@ export function TodayCard({ day }: { day: Day }) {
     );
   }
 
-  const sets = routine.exercises.reduce(
-    (total, exercise) => total + exercise.targetSets,
-    0,
-  );
-
-  const meta = `${counted(routine.exercises.length, 'exercise', 'exercises')} · ${counted(sets, 'set', 'sets')}`;
+  const meta = routineMeta(routine);
 
   return (
     <Card>

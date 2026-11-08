@@ -7,6 +7,7 @@ import { HeaderIconButton } from '@/components/header-icon-button';
 import { CalendarIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
+import { useGoBack } from '@/features/home/use-go-back';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -33,6 +34,7 @@ export function WorkoutScreen({
   openedFromHome?: boolean;
 }) {
   const router = useRouter();
+  const goBack = useGoBack(openedFromHome);
   const { colors, size, space } = useTheme();
   const floatingRoom = useFloatingRoom();
   const { now, refresh } = useDayRefresh();
@@ -81,12 +83,7 @@ export function WorkoutScreen({
         <Button
           label={openedFromHome ? 'Back to Home' : 'Back to month'}
           variant="secondary"
-          onPress={() => {
-            router.back();
-            if (openedFromHome) {
-              router.navigate('/');
-            }
-          }}
+          onPress={goBack}
         />
       );
     }

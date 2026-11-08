@@ -175,6 +175,6 @@ Every action in the table is built.
 - **Time trained:** the sum of workout durations. A past day logged later has no duration, so it adds nothing.
 - **Sets:** checked sets, out of the sets planned so far: the routine's target sets on each planned day, and on any day with a workout. Saving keeps the planned sets, even when it removes an exercise left with no sets.
 - **Volume:** volume of checked sets.
-- **Consistency:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.
+- **On plan:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.
 - A skip counts as not done. A workout on a rest day counts as done, and its sets as planned, but its day isn't planned. A workout in progress counts towards nothing until it's finished.
 - Planned days so far are past days, plus today once its workout is done or skipped.

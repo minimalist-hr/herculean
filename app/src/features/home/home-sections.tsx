@@ -6,7 +6,7 @@ import type { components } from '@/api/schema';
 import { OpenOutIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { SectionTitle } from '@/components/section-title';
-import { Skeleton } from '@/components/skeleton';
+import { SkeletonGroup, SkeletonLine, textLine } from '@/components/skeleton';
 import { Tappable } from '@/components/tappable';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
@@ -19,8 +19,12 @@ import {
   shortDate,
   weekOf,
 } from '@/features/workout/dates';
-import { Card, DayCardSkeleton } from '@/features/workout/day-card';
-import { TotalTile } from '@/features/workout/month-totals';
+import { Card } from '@/features/workout/day-card';
+import {
+  consistencyText,
+  noValue,
+  TotalTile,
+} from '@/features/workout/month-totals';
 import { useDay } from '@/features/workout/use-day';
 import { useDays } from '@/features/workout/use-days';
 import { useMonthSummary } from '@/features/workout/use-month-summary';
@@ -32,7 +36,7 @@ import {
 } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-import { TodayCard } from './today-card';
+import { TodayCard, TodayCardSkeleton } from './today-card';
 import { useRecentRecords, useStreak } from './use-home';
 
 type MonthSummary = components['schemas']['MonthSummaryResponse'];
@@ -101,7 +105,7 @@ export function TodaySection({ today }: { today: string }) {
         }}
       />
     ) : (
-      <DayCardSkeleton />
+      <TodayCardSkeleton />
     );
   }
 
@@ -172,12 +176,10 @@ export function WeekSection({ now }: { now: Date }) {
   );
 }
 
-const noChange = '–';
-
 /** How a number moved since last month, for example "+2". */
 function change(current: number | null, previous: number | null, unit = '') {
   if (current === null || previous === null) {
-    return noChange;
+    return noValue;
   }
 
   const difference = current - previous;
@@ -188,10 +190,32 @@ function change(current: number | null, previous: number | null, unit = '') {
   return `${difference > 0 ? '+' : '−'}${String(Math.abs(difference))}${unit}`;
 }
 
+/** How the workouts done moved since last month. A month with nothing planned or done has nothing to compare. */
+function workoutsChange(current: MonthSummary, previous?: MonthSummary) {
+  if (
+    previous === undefined ||
+    (previous.done === 0 && previous.plannedDays === 0)
+  ) {
+    return noValue;
+  }
+
+  return change(current.done, previous.done);
+}
+
+/** How the share done of the plan moved since last month, in percentage points. */
+function onPlanChange(current: MonthSummary, previous?: MonthSummary) {
+  const before = previous?.consistencyPercent ?? null;
+  const now = current.consistencyPercent;
+  const onePoint =
+    before !== null && now !== null && Math.abs(now - before) === 1;
+
+  return change(now, before, onePoint ? ' pt' : ' pts');
+}
+
 /** How volume moved since last month, in percent. */
 function volumeChange(current: MonthSummary, previous?: MonthSummary) {
   if (previous === undefined || previous.volumeKg === 0) {
-    return noChange;
+    return noValue;
   }
 
   return change(
@@ -217,7 +241,10 @@ export function MonthSection({ now }: { now: Date }) {
         <SectionLink
           label="Open month"
           onPress={() => {
-            router.push('/workout/month');
+            router.push({
+              pathname: '/workout/month',
+              params: { from: 'home' },
+            });
           }}
         />
       }
@@ -230,29 +257,23 @@ export function MonthSection({ now }: { now: Date }) {
           }}
         />
       ) : (
-        <View style={{ gap: space.xs }}>
+        <View
+          accessible={summary === undefined}
+          accessibilityLabel={
+            summary === undefined ? 'Loading this month' : undefined
+          }
+          style={{ gap: space.xs }}
+        >
           <View style={[styles.row, { gap: space.sm }]}>
             <TotalTile
               label="Workouts"
               value={summary && String(summary.done)}
-              hint={summary && change(summary.done, previous?.done ?? null)}
+              hint={summary && workoutsChange(summary, previous)}
             />
             <TotalTile
               label="On plan"
-              value={
-                summary &&
-                (summary.consistencyPercent === null
-                  ? noChange
-                  : `${String(summary.consistencyPercent)}%`)
-              }
-              hint={
-                summary &&
-                change(
-                  summary.consistencyPercent,
-                  previous?.consistencyPercent ?? null,
-                  '%',
-                )
-              }
+              value={summary && consistencyText(summary)}
+              hint={summary && onPlanChange(summary, previous)}
             />
             <TotalTile
               label="Volume"
@@ -285,12 +306,22 @@ export function StreakSection() {
 
     if (streak.data === undefined) {
       return (
-        <Card>
-          <View style={{ gap: space.sm }}>
-            <Skeleton width={160} height={20} />
-            <Skeleton width={240} height={10} />
-          </View>
-        </Card>
+        <SkeletonGroup label="Loading your streak">
+          <Card>
+            <View style={{ gap: space.xs }}>
+              <SkeletonLine
+                width={160}
+                height={20}
+                lineHeight={textLine.cardTitle}
+              />
+              <SkeletonLine
+                width={240}
+                height={10}
+                lineHeight={textLine.meta}
+              />
+            </View>
+          </Card>
+        </SkeletonGroup>
       );
     }
 
@@ -306,7 +337,9 @@ export function StreakSection() {
                 : `${counted(weeks, 'week', 'weeks')} on plan`}
             </Text>
             {best > 0 && (
-              <Text style={text.meta}>{`Best ${String(best)}`}</Text>
+              <Text style={text.meta}>
+                {`Best ${counted(best, 'week', 'weeks')}`}
+              </Text>
             )}
           </View>
           <Text style={text.meta}>
@@ -342,11 +375,31 @@ export function RecordsSection() {
 
     if (records.data === undefined) {
       return (
-        <Card>
-          {[180, 150, 170].map((width) => (
-            <Skeleton key={width} width={width} height={14} />
-          ))}
-        </Card>
+        <SkeletonGroup label="Loading your records">
+          <Card>
+            {[180, 150, 170].map((width) => (
+              <View
+                key={width}
+                style={{
+                  gap: space.xs,
+                  minHeight: size.touchTargetMin,
+                  justifyContent: 'center',
+                }}
+              >
+                <SkeletonLine
+                  width={width}
+                  height={14}
+                  lineHeight={textLine.listItemName}
+                />
+                <SkeletonLine
+                  width={190}
+                  height={10}
+                  lineHeight={textLine.meta}
+                />
+              </View>
+            ))}
+          </Card>
+        </SkeletonGroup>
       );
     }
 
@@ -375,7 +428,7 @@ export function RecordsSection() {
             onPress={() => {
               router.push({
                 pathname: '/exercises/[id]',
-                params: { id: record.exerciseId },
+                params: { id: record.exerciseId, from: 'home' },
               });
             }}
             style={{

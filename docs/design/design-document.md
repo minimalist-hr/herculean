@@ -1,8 +1,8 @@
 # Herculean: design document
 
-Version 0.61 · 8 November 2026 · Minimalist
+Version 0.62 · 8 November 2026 · Minimalist
 
-> Changes since 0.60: Home is a dashboard, and every state is captured from the app. From the top: a greeting with the avatar, Today, This week, This month, Streak and Recent records. Today shows one action: Start workout, which asks "Are you ready?" first (H44), or Resume workout. Once it's done, skipped or a rest day, it shows what's up next instead. This month compares with last month, and Streak also shows the best so far. Each section loads on its own (H07), and a section that fails says so alone (H08). A new account keeps every section, with empty copy (H05). Finishing setup says "Setup complete. Welcome to Herculean." (H09). H00 is gone.
+> Changes since 0.61: the Home consistency pass. W40's Consistency tile is now On plan, as on H01. On plan's change is in points. A last month with nothing in it shows "–" under every tile (H05). H02 shows the time so far, like W02. The best streak reads in weeks. H07's skeletons match the filled sections. W40 and E10 opened from Home go back to Home.
 
 > Changes since 0.59, the Settings consistency pass: A11 and H33 both say Send link again, look muted while they wait, and say why when tapped. H18 says "Password changed. Other devices are signed out." Typing in any form clears a failure notification.
 

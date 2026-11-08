@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { Text } from 'react-native';
 
@@ -152,14 +152,22 @@ function stub(name: string) {
   };
 }
 
+function stubOpenedFrom(name: string) {
+  return function Stub() {
+    const { from } = useLocalSearchParams<{ from?: string }>();
+
+    return <Text>{`${name}, from ${String(from)}`}</Text>;
+  };
+}
+
 async function renderHome() {
   await renderRouter({
     _layout: Layout,
     index: HomeScreen,
     workout: stub('Workout page'),
     'workout/day/[date]': stub('Other day page'),
-    'workout/month': stub('Month page'),
-    'exercises/[id]': stub('Exercise page'),
+    'workout/month': stubOpenedFrom('Month page'),
+    'exercises/[id]': stubOpenedFrom('Exercise page'),
     'workout/log/w1': stub('Logging page'),
   });
 }
@@ -215,7 +223,20 @@ test('the streak shows the best so far, and none before the first', async () => 
   answerWith({ '/api/v1/streak': { weeks: 2, best: 11 } });
   await renderHome();
 
-  expect(await screen.findByText('Best 11')).toBeOnTheScreen();
+  expect(await screen.findByText('Best 11 weeks')).toBeOnTheScreen();
+});
+
+test('a workout in progress shows its sets and the time so far', async () => {
+  answerWith({
+    [`/api/v1/days/${today}`]: {
+      ...plannedDay,
+      status: 'inProgress',
+      workoutId: 'w1',
+    },
+  });
+  await renderHome();
+
+  expect(await screen.findByText(/^1 of 2 sets · \d/)).toBeOnTheScreen();
 });
 
 test('This month compares with last month', async () => {
@@ -223,8 +244,38 @@ test('This month compares with last month', async () => {
   await renderHome();
 
   expect(await screen.findByText('+2')).toBeOnTheScreen();
-  expect(screen.getByText('+5%')).toBeOnTheScreen();
+  expect(screen.getByText('+5 pts')).toBeOnTheScreen();
   expect(screen.getByText('+10%')).toBeOnTheScreen();
+});
+
+test('a change of one point reads in the singular', async () => {
+  answerWith({
+    [`/api/v1/month-summaries/${lastMonth}`]: {
+      ...previousMonth,
+      consistencyPercent: 89,
+    },
+  });
+  await renderHome();
+
+  expect(await screen.findByText('+1 pt')).toBeOnTheScreen();
+});
+
+test('a last month with nothing in it has nothing to compare', async () => {
+  const empty = {
+    ...month,
+    done: 0,
+    plannedDays: 0,
+    volumeKg: 0,
+    consistencyPercent: null,
+  };
+  answerWith({
+    [`/api/v1/month-summaries/${thisMonth}`]: empty,
+    [`/api/v1/month-summaries/${lastMonth}`]: empty,
+  });
+  await renderHome();
+
+  expect(await screen.findAllByText('–')).toHaveLength(4);
+  expect(screen.queryByText('Same')).toBeNull();
 });
 
 test.each([
@@ -363,7 +414,7 @@ test('the links open the day, the month and an exercise', async () => {
   await fireEvent.press(
     await screen.findByRole('link', { name: 'Open month' }),
   );
-  expect(await screen.findByText('Month page')).toBeOnTheScreen();
+  expect(await screen.findByText('Month page, from home')).toBeOnTheScreen();
 });
 
 test('another day of the week opens that day', async () => {
@@ -389,7 +440,7 @@ test('a record opens its exercise', async () => {
     await screen.findByRole('button', { name: /^Bench press, / }),
   );
 
-  expect(await screen.findByText('Exercise page')).toBeOnTheScreen();
+  expect(await screen.findByText('Exercise page, from home')).toBeOnTheScreen();
 });
 
 test('Open day opens the workout tab', async () => {

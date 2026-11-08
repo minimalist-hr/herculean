@@ -108,12 +108,12 @@ function Layout() {
   );
 }
 
-async function renderExercise() {
+async function renderExercise(openedFromHome = false) {
   await renderRouter(
     {
       _layout: Layout,
       index: () => <PlaceholderScreen title="List screen" />,
-      '[id]': () => <ExerciseScreen id={id} />,
+      '[id]': () => <ExerciseScreen id={id} openedFromHome={openedFromHome} />,
       'exercise/[id]/edit': () => (
         <PlaceholderScreen title="Edit exercise page" />
       ),
@@ -396,6 +396,13 @@ test('a failed delete and a failed Undo say so', async () => {
   expect(
     await screen.findByText('You already have an exercise with this name.'),
   ).toBeOnTheScreen();
+});
+
+test('opened from Home, the back link says Home', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderExercise(true);
+
+  expect(screen.getByRole('link', { name: 'Home' })).toBeOnTheScreen();
 });
 
 test('the back link is there while it loads', async () => {

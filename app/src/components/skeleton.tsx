@@ -1,9 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Animated, Platform } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Animated, Platform, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
 import { useReduceMotion } from './use-reduce-motion';
+
+/** What a line of each text style takes, so nothing moves when the real text arrives. */
+export const textLine = {
+  eyebrow: 16,
+  meta: 16,
+  listItemName: 21,
+  cardTitle: 29,
+  bigStat: 31,
+};
 
 /** A block in the shape of content that is loading. It pulses gently, and stands still when the phone asks for reduced motion. */
 export function Skeleton({
@@ -50,11 +59,48 @@ export function Skeleton({
     <Animated.View
       style={{
         width,
+        maxWidth: '100%',
         height,
         opacity: pulse,
         borderRadius: radius.pill,
         backgroundColor: colors.raised,
       }}
     />
+  );
+}
+
+/** A skeleton in the room a line of text takes. */
+export function SkeletonLine({
+  width,
+  height,
+  lineHeight,
+}: {
+  width: number;
+  height: number;
+  lineHeight: number;
+}) {
+  return (
+    <View style={{ height: lineHeight, justifyContent: 'center' }}>
+      <Skeleton width={width} height={height} />
+    </View>
+  );
+}
+
+/** Skeletons that a screen reader announces once, as one thing loading. */
+export function SkeletonGroup({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <View
+      accessible
+      accessibilityLabel={label}
+      accessibilityLiveRegion="polite"
+    >
+      {children}
+    </View>
   );
 }
