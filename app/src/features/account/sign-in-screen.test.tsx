@@ -110,6 +110,97 @@ beforeEach(async () => {
   await endSession();
 });
 
+describe('an account waiting to be deleted', () => {
+  const message = 'Your account will be deleted on Sun, 22nd Nov 2026.';
+
+  function answerWaiting(restore: () => Response) {
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      if (pathname === '/api/v1/sessions') {
+        return Promise.resolve(
+          Response.json(
+            {
+              type: 'about:blank',
+              title: 'Conflict',
+              status: 409,
+              detail: message,
+              code: 'user.deletion_scheduled',
+              traceId: '1',
+            },
+            { status: 409 },
+          ),
+        );
+      }
+      if (pathname === '/api/v1/sessions/restore') {
+        return Promise.resolve(restore());
+      }
+
+      return Promise.resolve(
+        Response.json({
+          email: 'filip@example.com',
+          name: 'Filip',
+          units: 'metric',
+          timeZone: 'Europe/Zagreb',
+        }),
+      );
+    });
+  }
+
+  async function signIn() {
+    await renderSignIn();
+    await fillIn('filip@example.com', 'password');
+    await pressSignIn();
+    await screen.findByText('Keep your account?');
+  }
+
+  test('asks to keep it, with the day, and stays signed out', async () => {
+    answerWaiting(() => Response.json(tokens));
+
+    await signIn();
+
+    expect(screen.getByText(message)).toBeOnTheScreen();
+    expect(getAccessToken()).toBeNull();
+  });
+
+  test('Keep account restores it and opens the app', async () => {
+    answerWaiting(() => Response.json(tokens));
+    await signIn();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Keep account' }));
+
+    expect(await screen.findByText('Home screen')).toBeOnTheScreen();
+    await expect(
+      mockFetch.mock.calls
+        .find(([sent]) => sent.url.endsWith('/sessions/restore'))?.[0]
+        .clone()
+        .json(),
+    ).resolves.toEqual({ email: 'filip@example.com', password: 'password' });
+  });
+
+  test('Not now closes it and stays signed out', async () => {
+    answerWaiting(() => Response.json(tokens));
+    await signIn();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Not now' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(message)).toBeNull();
+    });
+    expect(getAccessToken()).toBeNull();
+  });
+
+  test('a failed restore says so', async () => {
+    answerWaiting(() => new Response(null, { status: 500 }));
+    await signIn();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Keep account' }));
+
+    expect(
+      await screen.findByText("Couldn't keep your account. Try again."),
+    ).toBeOnTheScreen();
+  });
+});
+
 test('signing in opens Home for a user who finished setup', async () => {
   answerSignIn('Filip');
   await renderSignIn();

@@ -164,6 +164,10 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
 
+                    b.Property<DateTimeOffset?>("DeletionScheduledForUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deletion_scheduled_for_utc");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(254)
@@ -201,6 +205,9 @@ namespace Herculean.Account.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_users");
+
+                    b.HasIndex("DeletionScheduledForUtc")
+                        .HasDatabaseName("ix_users_deletion_scheduled_for_utc");
 
                     b.HasIndex("Email")
                         .IsUnique()

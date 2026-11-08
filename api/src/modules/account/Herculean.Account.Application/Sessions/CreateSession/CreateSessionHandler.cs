@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 
 using Herculean.Account.Application.Auth;
+using Herculean.Account.Application.Email;
 using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Results;
@@ -31,6 +32,12 @@ internal sealed class CreateSessionHandler(
         if (user is null || passwordVerification == PasswordVerification.Failed)
         {
             return UserErrors.InvalidCredentials;
+        }
+
+        // After the password check, so only the owner learns the account is waiting to be deleted.
+        if (user.DeletionScheduledForUtc is DateTimeOffset deleteAtUtc)
+        {
+            return UserErrors.DeletionScheduled(LocalDates.FormatDate(deleteAtUtc, user.TimeZone));
         }
 
         if (passwordVerification == PasswordVerification.SuccessRehashNeeded)

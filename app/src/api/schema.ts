@@ -40,7 +40,7 @@ export interface paths {
         post?: never;
         /**
          * Delete the signed-in user
-         * @description Checks the current password and deletes the account and everything in it, for good. A last email tells the user.
+         * @description Checks the current password, signs out every device and schedules the account for deletion in 14 days. An email says when. Signing in before then offers to keep it.
          */
         delete: operations["DeleteCurrentUser"];
         options?: never;
@@ -126,6 +126,26 @@ export interface paths {
          * @description Deletes the refresh token of the device signing out. It needs no access token, because the refresh token proves it.
          */
         post: operations["RevokeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Keep an account and sign in
+         * @description Cancels a scheduled deletion and signs in with email and password.
+         */
+        post: operations["RestoreAccount"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1511,6 +1531,13 @@ export interface components {
             /** @description The password the user has now. */
             currentPassword: string;
         };
+        /** @description The sign in details of an account waiting to be deleted. */
+        RestoreAccountRequest: {
+            /** @description The account's email, in any case. */
+            email: string;
+            /** @description The account's password. */
+            password: string;
+        };
         /** @description The refresh token of the device signing out. */
         RevokeSessionRequest: {
             /** @description The refresh token this device holds now. */
@@ -2113,7 +2140,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The account is deleted. */
+            /** @description The account is scheduled for deletion. */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -2307,6 +2334,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
+            /** @description The account is waiting to be deleted. The message says when; restoring it signs in. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
             /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
             429: {
                 headers: {
@@ -2391,6 +2427,57 @@ export interface operations {
             };
             /** @description The token is missing. */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RestoreAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreAccountRequest"];
+            };
+        };
+        responses: {
+            /** @description The account is kept, and signed in. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description The email or password is missing. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The email or password is wrong. The message never says which. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

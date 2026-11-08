@@ -28,6 +28,7 @@ internal static class CreateSessionEndpoint
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK, Description = "Signed in.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "The email or password is missing.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "The email or password is wrong. The message never says which.")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "The account is waiting to be deleted. The message says when; restoring it signs in.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests, "application/problem+json", Description = "Too many tries from this address. Wait a minute; Retry-After says how long.")]
     private static async Task<Results<Ok<TokenResponse>, ProblemHttpResult>> HandleAsync(
         [FromBody] CreateSessionRequest request,

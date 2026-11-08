@@ -20,6 +20,13 @@ internal sealed class SmtpEmailSender(IOptions<EmailOptions> options, IResetLink
         await SendAsync(message, cancellationToken);
     }
 
+    public async Task SendAccountDeletionScheduledAsync(string email, DateTimeOffset deleteAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        using MimeMessage message = AccountDeletionScheduledEmail.Create(MailboxAddress.Parse(options.Value.From), email, deleteAtUtc, timeZone);
+
+        await SendAsync(message, cancellationToken);
+    }
+
     public async Task SendEmailChangeAsync(string newEmail, string token, CancellationToken cancellationToken)
     {
         using MimeMessage message = EmailChangeLinkEmail.Create(MailboxAddress.Parse(options.Value.From), newEmail, emailChangeLinks.Page(token));

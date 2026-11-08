@@ -15,6 +15,7 @@ import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { Glow } from '@/components/glow';
 import { ScreenHeading } from '@/components/screen-heading';
+import { Sheet } from '@/components/sheet';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
 import { Wordmark } from '@/components/wordmark';
@@ -22,7 +23,7 @@ import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { signInSchema, type SignInValues } from './sign-in-schema';
-import { useSignIn } from './use-sign-in';
+import { useKeepAccount, useSignIn } from './use-sign-in';
 
 const emptyValues: SignInValues = { email: '', password: '' };
 
@@ -33,6 +34,16 @@ export function SignInScreen() {
   const [heroHeight, setHeroHeight] = useState<number>();
   // It can be either field that's wrong, so both turn red and the message sits under the last.
   const [wrongCredentials, setWrongCredentials] = useState<string>();
+  const [waitingToDelete, setWaitingToDelete] = useState<
+    SignInValues & { message: string }
+  >();
+  const [keepSheetOpen, setKeepSheetOpen] = useState(false);
+  const keepAccount = useKeepAccount();
+
+  function closeKeepSheet() {
+    setKeepSheetOpen(false);
+  }
+
   const { control, handleSubmit, setFocus, formState } = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: emptyValues,
@@ -50,6 +61,12 @@ export function SignInScreen() {
         error.problem.code === 'user.invalid_credentials'
       ) {
         setWrongCredentials(error.problem.detail);
+      } else if (
+        error instanceof ApiProblemError &&
+        error.problem.code === 'user.deletion_scheduled'
+      ) {
+        setWaitingToDelete({ ...values, message: error.problem.detail });
+        setKeepSheetOpen(true);
       } else {
         notifyFailure("Couldn't sign in. Try again.");
       }
@@ -192,6 +209,35 @@ export function SignInScreen() {
           />
         </View>
       </BottomActionBox>
+
+      <Sheet
+        visible={keepSheetOpen}
+        title="Keep your account?"
+        message={waitingToDelete?.message}
+        onClose={closeKeepSheet}
+      >
+        <Button
+          label="Keep account"
+          waitingLabel="Keeping account"
+          waiting={keepAccount.isPending}
+          onPress={() => {
+            if (waitingToDelete !== undefined) {
+              dismissNotification();
+              keepAccount.mutate(waitingToDelete, {
+                onError: () => {
+                  notifyFailure("Couldn't keep your account. Try again.");
+                },
+              });
+            }
+          }}
+        />
+        <Button
+          label="Not now"
+          variant="secondary"
+          dimmed={keepAccount.isPending}
+          onPress={closeKeepSheet}
+        />
+      </Sheet>
     </View>
   );
 }

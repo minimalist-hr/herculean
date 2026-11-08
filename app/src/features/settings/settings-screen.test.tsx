@@ -654,7 +654,9 @@ describe('sign out and delete account', () => {
 
     await fillAndDelete('password');
 
-    expect(await screen.findByText('Account deleted.')).toBeOnTheScreen();
+    expect(
+      await screen.findByText('Account will be deleted in 14 days.'),
+    ).toBeOnTheScreen();
     await expect(sent('DELETE')?.clone().json()).resolves.toEqual({
       currentPassword: 'password',
     });

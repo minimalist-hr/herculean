@@ -18,6 +18,10 @@ internal static class UserErrors
         ["currentPassword"] = ["The current password is wrong."],
     });
 
+    /// <summary>The right password, but the account is waiting to be deleted. The sentence names the day.</summary>
+    public static Error DeletionScheduled(string deleteOn) =>
+        Error.Conflict("user.deletion_scheduled", $"Your account will be deleted on {deleteOn}.");
+
     public static readonly Error SameEmail = Error.Validation(new Dictionary<string, string[]>
     {
         ["newEmail"] = ["That's already your email."],

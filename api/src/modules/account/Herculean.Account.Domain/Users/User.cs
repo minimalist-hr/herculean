@@ -6,6 +6,9 @@ internal sealed class User : Entity<UserId>
 {
     internal const int NameMaxLength = 50;
 
+    /// <summary>How long a deleted account can still be kept. Must match the copy on H19, A07 and H21.</summary>
+    internal static readonly TimeSpan DeletionWait = TimeSpan.FromDays(14);
+
     private readonly List<RefreshToken> _refreshTokens = [];
     private readonly List<PasswordResetToken> _passwordResetTokens = [];
     private readonly List<EmailChangeToken> _emailChangeTokens = [];
@@ -32,6 +35,9 @@ internal sealed class User : Entity<UserId>
 
     /// <summary>An IANA name, for example <c>Europe/Zagreb</c>.</summary>
     public string TimeZone { get; private set; }
+
+    /// <summary>When the account gets deleted, or null when it isn't going to be.</summary>
+    public DateTimeOffset? DeletionScheduledForUtc { get; private set; }
 
     public IReadOnlyList<RefreshToken> RefreshTokens => _refreshTokens;
 
@@ -104,6 +110,19 @@ internal sealed class User : Entity<UserId>
     public void RemovePasswordResetToken(PasswordResetToken passwordResetToken)
     {
         _passwordResetTokens.Remove(passwordResetToken);
+    }
+
+    /// <summary>Every device is signed out, and a waiting email change is cancelled. Needs the tokens loaded.</summary>
+    public void ScheduleDeletion(DateTimeOffset nowUtc)
+    {
+        DeletionScheduledForUtc = nowUtc + DeletionWait;
+        _refreshTokens.Clear();
+        _emailChangeTokens.Clear();
+    }
+
+    public void CancelDeletion()
+    {
+        DeletionScheduledForUtc = null;
     }
 
     /// <summary>Only the newest link works: a new token cancels the older ones.</summary>

@@ -37,17 +37,20 @@ public sealed class DeleteCurrentUserHandlerTests
         _handler.HandleAsync(new DeleteCurrentUserRequest(password), TestContext.Current.CancellationToken);
 
     [Fact]
-    public async Task RightPasswordDeletesTheAccountAndTellsEveryone()
+    public async Task RightPasswordSchedulesTheDeletionAndSignsOutEveryDevice()
     {
+        _user.AddRefreshToken("hash:phone", Now.AddDays(1));
+        _user.AddEmailChangeToken("new@example.com", "hash:link", Now.AddDays(1));
+
         Result result = await DeleteAsync("password");
 
+        DateTimeOffset deleteAt = Now.AddDays(14);
         result.IsSuccess.ShouldBeTrue();
-        _userRepository.Users.ShouldBeEmpty();
-        _outbox.Events.ShouldBe(
-        [
-            new AccountDeletedIntegrationEvent(_user.Id.Value),
-            new AccountDeletionNoticeRequestedIntegrationEvent("filip@example.com", Now, "Europe/Zagreb"),
-        ]);
+        _userRepository.Users.ShouldHaveSingleItem();
+        _user.DeletionScheduledForUtc.ShouldBe(deleteAt);
+        _user.RefreshTokens.ShouldBeEmpty();
+        _user.EmailChangeTokens.ShouldBeEmpty();
+        _outbox.Events.ShouldBe([new AccountDeletionScheduledIntegrationEvent("filip@example.com", deleteAt, "Europe/Zagreb")]);
         _unitOfWork.Saved.ShouldBeTrue();
     }
 

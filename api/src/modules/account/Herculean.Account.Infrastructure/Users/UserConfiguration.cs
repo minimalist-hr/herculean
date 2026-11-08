@@ -15,6 +15,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Email).HasMaxLength(CreateUserValidator.EmailMaxLength);
         builder.HasIndex(user => user.Email).IsUnique();
         builder.Property(user => user.Name).HasMaxLength(User.NameMaxLength);
+        builder.HasIndex(user => user.DeletionScheduledForUtc);
 
         // Stored by name, so reordering the enum never changes saved data.
         builder.Property(user => user.Units).HasConversion<string>();

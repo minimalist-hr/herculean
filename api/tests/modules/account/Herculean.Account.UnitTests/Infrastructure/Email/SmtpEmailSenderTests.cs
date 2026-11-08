@@ -57,6 +57,17 @@ public sealed class SmtpEmailSenderTests
     }
 
     [Fact]
+    public async Task SendsTheDeletionScheduledEmail()
+    {
+        using FakeSmtpServer server = new();
+
+        await CreateSender(server, password: string.Empty).SendAccountDeletionScheduledAsync("filip@example.com", DateTimeOffset.UnixEpoch, "Europe/Zagreb", TestContext.Current.CancellationToken);
+
+        (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("RCPT TO:<filip@example.com>", StringComparison.Ordinal));
+        server.Data.ShouldContain("Subject: Your Herculean account will be deleted");
+    }
+
+    [Fact]
     public async Task SendsTheEmailChangeLink()
     {
         using FakeSmtpServer server = new();

@@ -129,7 +129,7 @@ Herculean.Training.Application/
 - Refresh tokens, password reset tokens and email change tokens are stored hashed.
 - Each refresh replaces the refresh token with a new one. An expired refresh token is removed when it is used, and the user signs in again.
 - A wrong email and a wrong password get the same 401 and take as long, so sign in never tells which emails have an account.
-- Sign in, refresh, signing out, sending a reset link, completing a reset, changing the password, deleting the account, asking to change the email, sending its link again and confirming it each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
+- Sign in, refresh, signing out, keeping an account, sending a reset link, completing a reset, changing the password, deleting the account, asking to change the email, sending its link again and confirming it each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
 - Sending a reset link answers 202 for every valid email, and the work happens after the answer, so the request never tells which emails have an account. The queue holds only the email: the token is created when the email goes out, so the plain token is never stored.
 - The API checks every access token's signature, issuer, audience and lifetime.
 - Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, sign in, refresh, password resets, the health check and the API docs are anonymous.
@@ -145,6 +145,7 @@ Herculean.Training.Application/
 
 - Jobs are `BackgroundService`s. There is no job library.
 - **Outbox:** sends saved events.
+- **Account deletion:** once at start and then daily, deletes the accounts whose 14 days are over.
 - **Password reset email:** sends the reset links waiting in the queue, one at a time. The queue is in memory: a restart loses what is waiting, and a failed email is only logged. In both cases the user can send the link again.
 
 ## Email
@@ -152,7 +153,7 @@ Herculean.Training.Application/
 - Email goes out over SMTP with MailKit: to Resend in production and to Mailpit locally, so both run the same code.
 - The password changed email goes through the outbox, and Account handles its own event. It is sent only if the change saved, a failed send is tried again, and the event holds only the user's ID and the time. The email shows that time in the user's time zone.
 - The email change link and the notice to the old address go through the outbox too. The link's token is created when the email goes out, so the plain token is never stored.
-- The account deleted email goes through the outbox too. Its event holds the address, because the account is gone by then.
+- The deletion scheduled and account deleted emails go through the outbox too. Their events hold the address, because the account is gone by the last one.
 - Each email has HTML and plain text. The HTML follows section 5 of the [design document](https://gitlab.com/minimalist-sds/herculean/-/blob/main/docs/design/design-document.md), and is an embedded resource next to its code.
 
 ## Logging

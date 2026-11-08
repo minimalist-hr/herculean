@@ -322,7 +322,7 @@ export const screens = [
     await on.type('Password', 'wrong-password');
     await on.tap('Sign in');
   } },
-  { id: 'A07', file: 'A07-Account-Sign-In-Account-Deleted', title: 'Account › Sign in · account deleted', row: 'A1 Sign in', full: false, answers: { 'DELETE /api/v1/users/me': { status: 204 } }, steps: async (on) => {
+  { id: 'A07', file: 'A07-Account-Sign-In-Account-Deleted', title: 'Account › Sign in · deletion scheduled', row: 'A1 Sign in', full: false, answers: { 'DELETE /api/v1/users/me': { status: 204 } }, steps: async (on) => {
     await openSettings(on);
     await on.end();
     await on.tap('Delete account');
@@ -330,7 +330,14 @@ export const screens = [
     await on.sleep(600);
     await on.type('Current password', 'password');
     await on.tap('Delete account');
-    await on.waitFor('Account deleted.');
+    await on.waitFor('Account will be deleted in 14 days.');
+    await on.sleep(600);
+  } },
+  { id: 'A08', file: 'A08-Account-Keep-Account', title: 'Account › Sign in · keep account · sheet', row: 'A1 Sign in', signedIn: false, full: false, answers: { 'POST /api/v1/sessions': problem(409, 'user.deletion_scheduled', 'Your account will be deleted on Fri, 6th Nov 2026.') }, steps: async (on) => {
+    await on.type('Email', 'filip@example.com');
+    await on.type('Password', 'password');
+    await on.tap('Sign in');
+    await on.waitFor('Keep your account?');
     await on.sleep(600);
   } },
   { id: 'A10', file: 'A10-Account-Reset-Password', title: 'Account › Reset password', row: 'A2 Reset password', signedIn: false, steps: (on) => on.tap('Forgot password?') },

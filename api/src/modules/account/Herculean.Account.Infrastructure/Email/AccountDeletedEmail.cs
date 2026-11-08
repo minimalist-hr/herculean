@@ -1,5 +1,7 @@
 using System.Net;
 
+using Herculean.Account.Application.Email;
+
 using MimeKit;
 
 namespace Herculean.Account.Infrastructure.Email;
@@ -12,7 +14,7 @@ internal static class AccountDeletedEmail
 
     public static MimeMessage Create(MailboxAddress from, string email, DateTimeOffset deletedAtUtc, string timeZone)
     {
-        string deletedAt = EmailResources.FormatTime(deletedAtUtc, timeZone);
+        string deletedAt = LocalDates.FormatTime(deletedAtUtc, timeZone);
         BodyBuilder body = new()
         {
             TextBody = $"""

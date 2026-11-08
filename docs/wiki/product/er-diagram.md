@@ -38,6 +38,7 @@ erDiagram
 | Theme | enum | `MatchPhone`, `Dark`, `Light`. Starts at `MatchPhone` |
 | Color | enum | `Nitro`, `Chrome`. Starts at `Nitro` |
 | Units | enum | `Metric`, `Imperial`. Starts at `Metric` |
+| DeletionScheduledForUtc | DateTimeOffset? | Set while the account waits to be deleted |
 | RefreshTokens | list of RefreshToken | |
 | PasswordResetTokens | list of PasswordResetToken | |
 | EmailChangeTokens | list of EmailChangeToken | |

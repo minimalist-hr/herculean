@@ -11,6 +11,23 @@ interface SignIn {
   password: string;
 }
 
+/** Cancels a scheduled deletion and signs in. */
+export function useKeepAccount() {
+  return useMutation({
+    mutationFn: async ({ email, password }: SignIn) => {
+      const { data, error } = await api.POST('/api/v1/sessions/restore', {
+        body: { email, password },
+      });
+      if (data === undefined) {
+        throw toApiError(error);
+      }
+
+      await saveTokens(data);
+      await enterSignedIn();
+    },
+  });
+}
+
 /** Signs in, then shows setup or the app, depending on whether setup is done. */
 export function useSignIn() {
   return useMutation({

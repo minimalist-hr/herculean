@@ -38,9 +38,8 @@ internal sealed class DeleteCurrentUserHandler(
             return UserErrors.WrongCurrentPassword;
         }
 
-        userRepository.Remove(user);
-        outbox.Add(new AccountDeletedIntegrationEvent(user.Id.Value));
-        outbox.Add(new AccountDeletionNoticeRequestedIntegrationEvent(user.Email, timeProvider.GetUtcNow(), user.TimeZone));
+        user.ScheduleDeletion(timeProvider.GetUtcNow());
+        outbox.Add(new AccountDeletionScheduledIntegrationEvent(user.Email, user.DeletionScheduledForUtc!.Value, user.TimeZone));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

@@ -178,6 +178,25 @@ public sealed class UserRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task OnlyAccountsWhoseWaitIsOverAreDue()
+    {
+        DateTimeOffset now = new(2026, 11, 22, 12, 0, 0, TimeSpan.Zero);
+        User due = User.Create("due@example.com", "hash", "Europe/Zagreb");
+        due.ScheduleDeletion(now - User.DeletionWait);
+        User waiting = User.Create("waiting@example.com", "hash", "Europe/Zagreb");
+        waiting.ScheduleDeletion(now);
+        _userRepository.Add(due);
+        _userRepository.Add(waiting);
+        _userRepository.Add(User.Create("active@example.com", "hash", "Europe/Zagreb"));
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        IReadOnlyList<User> found = await _userRepository.ListDueForDeletionAsync(now, TestContext.Current.CancellationToken);
+
+        found.ShouldHaveSingleItem().Email.ShouldBe("due@example.com");
+    }
+
+    [Fact]
     public async Task RemovingAUserRemovesEveryToken()
     {
         User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");

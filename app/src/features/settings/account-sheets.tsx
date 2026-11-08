@@ -73,7 +73,7 @@ export function DeleteAccountSheet({ visible, onClose }: AccountSheetProps) {
     try {
       await deleteAccount.mutateAsync(currentPassword);
       await endSession();
-      notifySuccess('Account deleted.');
+      notifySuccess('Account will be deleted in 14 days.');
     } catch (error) {
       const formErrors = toFormErrors(error, ['currentPassword']);
       if (formErrors.fields.currentPassword !== undefined) {
@@ -91,7 +91,7 @@ export function DeleteAccountSheet({ visible, onClose }: AccountSheetProps) {
     <Sheet
       visible={visible}
       title="Delete your account?"
-      message="Your profile and every workout, routine, exercise and group will be removed for good."
+      message="Your account will be deleted in 14 days. Sign in before then to keep it."
       onClose={close}
       actionsAboveKeyboard
       body={

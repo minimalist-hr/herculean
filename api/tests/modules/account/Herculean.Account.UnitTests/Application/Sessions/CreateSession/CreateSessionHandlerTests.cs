@@ -29,6 +29,31 @@ public sealed class CreateSessionHandlerTests
     }
 
     [Fact]
+    public async Task AnAccountWaitingToBeDeletedSaysWhenAndSignsNobodyIn()
+    {
+        User user = AddUser("hashed:password");
+        user.ScheduleDeletion(new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero));
+
+        Result<TokenResponse> result = await _handler.HandleAsync(new CreateSessionRequest("filip@example.com", "password"), TestContext.Current.CancellationToken);
+
+        Error error = result.Error.ShouldNotBeNull();
+        error.Code.ShouldBe("user.deletion_scheduled");
+        error.Description.ShouldContain("22nd Nov 2026");
+        user.RefreshTokens.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task AWrongPasswordNeverTellsThatTheAccountIsWaitingToBeDeleted()
+    {
+        User user = AddUser("hashed:password");
+        user.ScheduleDeletion(DateTimeOffset.UnixEpoch);
+
+        Result<TokenResponse> result = await _handler.HandleAsync(new CreateSessionRequest("filip@example.com", "wrong"), TestContext.Current.CancellationToken);
+
+        result.Error.ShouldBe(UserErrors.InvalidCredentials);
+    }
+
+    [Fact]
     public async Task WrongPasswordIsInvalidCredentials()
     {
         User user = AddUser("hashed:password");

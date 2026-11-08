@@ -15,6 +15,7 @@
     <EmbeddedResource Include="Email\EmailChangeLinkEmail.html" />
     <EmbeddedResource Include="Email\EmailChangedEmail.html" />
     <EmbeddedResource Include="Email\AccountDeletedEmail.html" />
+    <EmbeddedResource Include="Email\AccountDeletionScheduledEmail.html" />
     <EmbeddedResource Include="Email\wordmark-on-dark.png" />
   </ItemGroup>
 

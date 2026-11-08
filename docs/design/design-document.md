@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.57 · 8 November 2026 · Minimalist
+Version 0.58 · 8 November 2026 · Minimalist
+
+> Changes since 0.57: deleting an account now waits 14 days. H19 says "Your account will be deleted in 14 days. Sign in before then to keep it." A07 says "Account will be deleted in 14 days." New A08: signing in during the wait opens a sheet with the day, Keep account and Not now. New H38: the email sent straight away. H37 goes out when the account is really deleted. H21 says everything is removed permanently after 14 days.
 
 > Changes since 0.56: Sign out and Delete account are built. Sign out asks first on the sheet H36. H19 Delete account now asks for the current password. H34 shows a wrong password under the field, and H35 a failed delete in a notification, and the sheet stays open. After deleting, A07 is A01 saying "Account deleted." New H37: the last email, built like H31.
 
@@ -387,7 +389,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 - **Routines:** exercise removed from a routine, and routine deleted (shown on R01).
 - **Exercises:** exercise deleted (shown on E01), and group deleted (shown on E30).
 - **Other:** workout deleted, and profile photo removed (shown on H10).
-- **Exception:** delete account has no undo (H19).
+- **Exception:** delete account has no undo bar (H19). Signing in within 14 days keeps the account (A08).
 
 **Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it is dimmed and counts down: "Send link again in 0:42".
 
@@ -471,7 +473,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 No routines, H00 Not planned yet | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
-| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
+| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout

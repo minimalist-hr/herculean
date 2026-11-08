@@ -1,5 +1,7 @@
 using System.Net;
 
+using Herculean.Account.Application.Email;
+
 using MimeKit;
 
 namespace Herculean.Account.Infrastructure.Email;
@@ -12,7 +14,7 @@ internal static class PasswordChangedEmail
 
     public static MimeMessage Create(MailboxAddress from, string email, DateTimeOffset changedAtUtc, string timeZone)
     {
-        string changedAt = EmailResources.FormatTime(changedAtUtc, timeZone);
+        string changedAt = LocalDates.FormatTime(changedAtUtc, timeZone);
         BodyBuilder body = new()
         {
             TextBody = $"""

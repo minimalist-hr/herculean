@@ -31,6 +31,9 @@ internal interface IUserRepository
     /// <summary>Checks the email regardless of case.</summary>
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
 
+    /// <summary>The users whose time to keep their account is over, with every kind of token loaded.</summary>
+    Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken);
+
     void Add(User user);
 
     void Remove(User user);

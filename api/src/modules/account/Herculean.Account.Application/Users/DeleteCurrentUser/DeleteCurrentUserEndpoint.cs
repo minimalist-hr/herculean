@@ -21,8 +21,8 @@ internal static class DeleteCurrentUserEndpoint
     }
 
     [EndpointSummary("Delete the signed-in user")]
-    [EndpointDescription("Checks the current password and deletes the account and everything in it, for good. A last email tells the user.")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The account is deleted.")]
+    [EndpointDescription("Checks the current password, signs out every device and schedules the account for deletion in 14 days. An email says when. Signing in before then offers to keep it.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Description = "The account is scheduled for deletion.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "The password is missing or wrong. The errors name the field.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json", Description = "The account no longer exists.")]

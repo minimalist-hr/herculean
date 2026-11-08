@@ -69,6 +69,15 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
         return dbContext.Users.AnyAsync(user => user.Email == normalizedEmail, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken) =>
+        await dbContext.Users
+            .Include(user => user.RefreshTokens)
+            .Include(user => user.PasswordResetTokens)
+            .Include(user => user.EmailChangeTokens)
+            .AsSplitQuery()
+            .Where(user => user.DeletionScheduledForUtc <= nowUtc)
+            .ToListAsync(cancellationToken);
+
     public void Add(User user)
     {
         dbContext.Users.Add(user);
