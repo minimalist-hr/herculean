@@ -73,6 +73,18 @@ export function formatVolume(weightKg: number, units: Units) {
   return `${Math.round(weightIn(weightKg, units)).toLocaleString('en-US')} ${weightUnitOf(units)}`;
 }
 
+/** A total weight for a small space: "12.4 t" or "27.3k lb" from a thousand up. */
+export function formatCompactVolume(weightKg: number, units: Units) {
+  const weight = weightIn(weightKg, units);
+  if (weight < 1000) {
+    return formatVolume(weightKg, units);
+  }
+
+  const thousands = (weight / 1000).toFixed(1);
+
+  return units === 'metric' ? `${thousands} t` : `${thousands}k lb`;
+}
+
 /** A date from the API, for example "2026-10-16" → "Fri, 16th Oct". Another year says which: "Fri, 16th Oct 2023". */
 export function formatShortDate(date: string) {
   const utc = utcDateOf(date);

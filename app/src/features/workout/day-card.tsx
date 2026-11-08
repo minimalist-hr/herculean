@@ -33,7 +33,7 @@ import { checkedSets, progressText, workoutProgress } from './workout-progress';
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
 
-function Card({ children }: { children: ReactNode }) {
+export function Card({ children }: { children: ReactNode }) {
   const { colors, radius, space } = useTheme();
 
   return (
@@ -54,7 +54,7 @@ function Card({ children }: { children: ReactNode }) {
   );
 }
 
-function CardHeading({
+export function CardHeading({
   label,
   labelColor,
   title,
@@ -103,36 +103,70 @@ function firstReason(reasons: [boolean, string][]) {
   return reasons.find(([applies]) => applies)?.[1] ?? null;
 }
 
-function StartButton({
+export function StartButton({
   date,
   label,
   notYet = false,
+  confirmMessage,
 }: {
   date: string;
   label: string;
   /** The day hasn't come yet. */
   notYet?: boolean;
+  /** Asks "Are you ready?" first, with this line under it. */
+  confirmMessage?: string;
 }) {
   const start = useStartWorkout();
+  const [confirming, setConfirming] = useState(false);
   const reason = firstReason([
     [notYet, startNotYet],
     [useAnotherInProgress(), resumeFirst],
   ]);
 
   return (
-    <Button
-      label={label}
-      waitingLabel="Starting workout"
-      waiting={start.isPending}
-      muted={reason !== null}
-      onPress={() => {
-        if (reason !== null) {
-          notifyFailure(reason);
-        } else {
-          start.mutate({ date });
-        }
-      }}
-    />
+    <>
+      <Button
+        label={label}
+        waitingLabel="Starting workout"
+        waiting={start.isPending}
+        muted={reason !== null}
+        onPress={() => {
+          if (reason !== null) {
+            notifyFailure(reason);
+          } else if (confirmMessage === undefined) {
+            start.mutate({ date });
+          } else {
+            setConfirming(true);
+          }
+        }}
+      />
+      {confirmMessage !== undefined && (
+        <Sheet
+          visible={confirming}
+          title="Are you ready?"
+          message={confirmMessage}
+          onClose={() => {
+            setConfirming(false);
+          }}
+        >
+          <Button
+            label={label}
+            waitingLabel="Starting workout"
+            waiting={start.isPending}
+            onPress={() => {
+              start.mutate(
+                { date },
+                {
+                  onSuccess: () => {
+                    setConfirming(false);
+                  },
+                },
+              );
+            }}
+          />
+        </Sheet>
+      )}
+    </>
   );
 }
 
@@ -532,7 +566,13 @@ function upNextWhen(date: string, today: string) {
   return days === 1 ? 'Tomorrow' : shortDate(dateFromText(date));
 }
 
-function UpNext({ upNext, today }: { upNext: Day['upNext']; today: string }) {
+export function UpNext({
+  upNext,
+  today,
+}: {
+  upNext: Day['upNext'];
+  today: string;
+}) {
   const { colors, space, text } = useTheme();
 
   return (
@@ -581,7 +621,7 @@ function RestCard({
   );
 }
 
-function NoRoutinesCard() {
+export function NoRoutinesCard() {
   const router = useRouter();
 
   return (

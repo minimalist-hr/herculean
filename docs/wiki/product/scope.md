@@ -17,10 +17,11 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 1 | [Account](#1-account) | A00, A01, A03, A10–A14, A20, A30, H20, H21 |
 | 2 | [Exercises](#2-exercises) | E01–E04, E10, E11, E20, E21, E30–E36, L22 |
 | 3 | [Routines](#3-routines) | R01–R03, R05, R20–R23, R30, L20, L21, L23, L24 |
-| 4 | [Today and other days](#4-today-and-other-days) | H01, H03–H07, W01, W03–W07, W20–W25 |
-| 5 | [Logging](#5-logging) | W10, W11, W57–W71, L01–L04, L10–L13, L30, L31, W02, H02, W42 |
+| 4 | [Today and other days](#4-today-and-other-days) | W01, W03–W07, W20–W25 |
+| 5 | [Logging](#5-logging) | W10, W11, W57–W71, L01–L04, L10–L13, L30, L31, W02, W42 |
 | 6 | [Edit workout and month](#6-edit-workout-and-month) | W29, W30–W32, W40, W41, W43–W49 |
 | 7 | [Settings](#7-settings) | H10–H19 |
+| 8 | [Home](#8-home) | H01–H09, H44 |
 
 ---
 
@@ -166,7 +167,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
 | DELETE | `/api/v1/workouts/{id}` | Undo skip |
 
-**Left to other features:** Home is planned again later. H03, W03 and W20 show a completed workout, and come with logging. Until their features are built, a button that leads to one says it comes in a later update. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit and Delete are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
+**Left to other features:** Home is in [8. Home](#8-home). W03 and W20 show a completed workout, and come with logging. Until their features are built, a button that leads to one says it comes in a later update. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit and Delete are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
 
 **Done when**
 - Each day shows the status from the [day table](/product/domain#how-a-day-is-shown), in the user's time zone.
@@ -196,7 +197,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | Method | Route | Used by |
 |---|---|---|
 | POST | `/api/v1/workouts` | Start: date and status. The routine comes with Other routine |
-| GET | `/api/v1/workouts` | Resume bar, H02 and muted start buttons, with `status=inProgress`, the only status for now |
+| GET | `/api/v1/workouts` | Resume bar and muted start buttons, with `status=inProgress`, the only status for now |
 | GET | `/api/v1/workouts/{id}` | L01, W03, W20, W42, W67, with last time per exercise |
 | POST | `/api/v1/workouts/{id}/exercises` | L20 Add exercise, undo on L13 |
 | PATCH | `/api/v1/workouts/{id}/exercises/{workoutExerciseId}` | Swap exercise, and its undo |
@@ -289,3 +290,32 @@ Changes on W30 stay in the app until Save workout.
 **Done when**
 - A theme or color change applies to the whole app right away.
 - The email only changes after the link is opened.
+
+---
+
+## 8. Home
+
+**What it does:** a dashboard that answers what to do today, whether you're on track, and whether you're getting stronger.
+
+**Screens:** H01 Home, H02 In progress, H03 Completed, H04 Rest day, H05 New account, H06 Skipped, H07 Loading, H08 A section failed, H09 Setup complete, H44 Are you ready.
+
+**Flows**
+- **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's done, skipped or a rest day. Open day → W01.
+- **This week:** today → W01, another day → that day, with Back to Home.
+- **This month:** workouts, how much of the plan was done, and volume, each compared with last month. Open month → W40.
+- **Streak:** read-only, with the best so far.
+- **Recent records:** a record → E10.
+
+**Endpoints**
+
+| Method | Route | Used by |
+|---|---|---|
+| GET | `/api/v1/days/{date}` | Today |
+| GET | `/api/v1/days` | This week |
+| GET | `/api/v1/month-summaries/{month}` | This month |
+| GET | `/api/v1/streak` | Streak |
+| GET | `/api/v1/records/recent` | Recent records |
+
+**Done when**
+- Each section loads and fails on its own.
+- A new account shows every section, with empty copy.

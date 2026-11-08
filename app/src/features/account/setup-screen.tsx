@@ -18,7 +18,11 @@ import { Stepper } from '@/components/stepper';
 import { TextField } from '@/components/text-field';
 import { defaultRest } from '@/features/settings/default-rest';
 import { formatClock, formatSpokenDuration } from '@/formats/formats';
-import { dismissNotification, notifyFailure } from '@/components/notifications';
+import {
+  dismissNotification,
+  notifyFailure,
+  notifySuccess,
+} from '@/components/notifications';
 import { useTheme } from '@/theme/theme-provider';
 
 import { setupSchema, type SetupValues } from './setup-schema';
@@ -44,6 +48,7 @@ export function SetupScreen() {
     try {
       // Setup done, so the app opens Home in its place.
       await finishSetup.mutateAsync(values);
+      notifySuccess('Setup complete. Welcome to Herculean.');
     } catch (error) {
       const formErrors = toFormErrors(error, ['name']);
       if (formErrors.fields.name !== undefined) {

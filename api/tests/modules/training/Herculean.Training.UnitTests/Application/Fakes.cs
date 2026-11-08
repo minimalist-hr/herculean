@@ -13,6 +13,7 @@ using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.GetGroup;
 using Herculean.Training.Application.Groups.ListGroups;
+using Herculean.Training.Application.Records;
 using Herculean.Training.Application.Routines;
 using Herculean.Training.Application.Routines.GetRoutine;
 using Herculean.Training.Application.Routines.ListRoutines;
@@ -250,6 +251,14 @@ internal sealed class FakeWeekPlanReadRepository : IWeekPlanReadRepository
     public List<WeekPlanDayResponse> Items { get; } = [];
 
     public Task<List<WeekPlanDayResponse>> ListAsync(CancellationToken cancellationToken) => Task.FromResult(Items);
+}
+
+internal sealed class FakeRecordReadRepository : IRecordReadRepository
+{
+    public List<HeaviestSession> Sessions { get; } = [];
+
+    public Task<List<HeaviestSession>> ListHeaviestSessionsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult(Sessions);
 }
 
 internal sealed class FakeDayReadRepository : IDayReadRepository

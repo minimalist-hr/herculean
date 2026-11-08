@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout, samplePhoto } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleDays, sampleMonthSummary, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout, samplePhoto } from './fixtures.mjs';
 
 const { benchHistory, benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
@@ -135,6 +135,10 @@ const openDayFromMonth = async (on, day) => {
   await on.tap(day);
 };
 
+const homeAnswers = {
+  'GET /api/v1/month-summaries/2026-10': { status: 200, body: { ...sampleMonthSummary, done: 9, missed: 1, skipped: 0, setsDone: 171, volumeKg: 12400, plannedDays: 10, consistencyPercent: 90 } },
+  'GET /api/v1/month-summaries/2026-09': { status: 200, body: { ...sampleMonthSummary, done: 7, missed: 2, skipped: 0, setsDone: 133, volumeKg: 11480, plannedDays: 9, consistencyPercent: 85 } },
+};
 const unfinishedUser = { 'GET /api/v1/users/me': { status: 200, body: { email: 'filip@example.com', name: null, units: 'metric', timeZone: 'Europe/Zagreb' } } };
 const goToSetup = async (on) => {
   await on.type('Email', 'filip@example.com');
@@ -458,9 +462,59 @@ export const screens = [
     await goToSetup(on);
     await on.waitFor("Couldn't finish setup. Try again.");
   } },
-  { id: 'H00', file: 'H00-Home-Placeholder', title: 'Home · not planned yet', row: 'H1 Today states', steps: async (on) => {
+  { id: 'H07', file: 'H07-Home-Loading', title: 'Home · loading', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold', 'GET /api/v1/month-summaries/2026-10': 'hold', 'GET /api/v1/month-summaries/2026-09': 'hold', 'GET /api/v1/streak': 'hold', 'GET /api/v1/records/recent': 'hold' }, steps: async (on) => {
     await on.go('/');
-    await on.waitFor('Home');
+    await on.waitFor('Recent records');
+    await on.sleep(400);
+  } },
+  { id: 'H01', file: 'H01-Home', title: 'Home', row: 'H1 Today states', today: friday, answers: homeAnswers, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('Start workout');
+    await on.waitFor('6 weeks on plan');
+    await on.sleep(600);
+  } },
+  { id: 'H44', file: 'H44-Home-Ready', title: 'Home · are you ready', row: 'H1 Today states', today: friday, full: false, answers: homeAnswers, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('Start workout');
+    await on.sleep(400);
+    await on.tap('Start workout');
+    await on.waitFor('Are you ready?');
+    await on.sleep(600);
+  } },
+  { id: 'H02', file: 'H02-Home-In-Progress', title: 'Home · in progress', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('Resume workout');
+    await on.sleep(600);
+  } },
+  { id: 'H03', file: 'H03-Home-Completed', title: 'Home · completed', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, ...savedAnswers }, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('Up next');
+    await on.sleep(600);
+  } },
+  { id: 'H06', file: 'H06-Home-Skipped', title: 'Home · skipped', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, ...skippedAnswers }, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('Skipped');
+    await on.sleep(600);
+  } },
+  { id: 'H04', file: 'H04-Home-Rest-Day', title: 'Home · rest day', row: 'H1 Today states', today: sunday, answers: { ...homeAnswers, 'GET /api/v1/days': sundayWeek, 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1') }, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('Rest day');
+    await on.sleep(600);
+  } },
+  { id: 'H05', file: 'H05-Home-No-Routines', title: 'Home · new account', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } }, 'GET /api/v1/records/recent': { status: 200, body: [] }, 'GET /api/v1/streak': { status: 200, body: { weeks: 0, best: 0 } } }, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor('No routines yet');
+    await on.sleep(1000);
+  } },
+  { id: 'H08', file: 'H08-Home-Section-Failed', title: 'Home · a section failed', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, 'GET /api/v1/streak': 'fail' }, steps: async (on) => {
+    await on.go('/');
+    await on.waitFor("Couldn't load your streak.");
+    await on.sleep(600);
+  } },
+  { id: 'H09', file: 'H09-Home-Setup-Complete', title: 'Home · setup complete', row: 'H1 Today states', signedIn: false, today: friday, full: false, answers: { ...unfinishedUser }, steps: async (on) => {
+    await goToSetup(on);
+    await on.waitFor('Setup complete. Welcome to Herculean.');
+    await on.sleep(600);
   } },
   { id: 'H10', file: 'H10-Settings', title: 'Settings · full scroll', row: 'H2 Settings', steps: async (on) => {
     await on.go('/');

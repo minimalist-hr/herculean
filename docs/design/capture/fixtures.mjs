@@ -279,6 +279,18 @@ export function createApi() {
     if (key === 'GET /api/v1/users/me') {
       return { status: 200, body: { email: 'filip@example.com', name: 'Filip Mučnjak', units: 'metric', theme: 'matchPhone', color: 'nitro', timeZone: 'Europe/Zagreb' } };
     }
+    if (key === 'GET /api/v1/streak') {
+      return { status: 200, body: { weeks: 6, best: 11 } };
+    }
+    if (key === 'GET /api/v1/records/recent') {
+      return {
+        status: 200,
+        body: [
+          { exerciseId: 'smith-incline', exerciseName: 'Smith machine incline bench press', weightKg: 82.5, reps: 10, date: '2026-10-21' },
+          { exerciseId: 'squat', exerciseName: 'Barbell squat', weightKg: 120, reps: 5, date: '2026-10-19' },
+        ],
+      };
+    }
     if (key === 'GET /api/v1/users/me/photo') {
       return { status: 200, body: { image: null } };
     }

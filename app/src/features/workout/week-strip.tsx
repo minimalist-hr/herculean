@@ -39,8 +39,8 @@ export function WeekStrip({
   /** Nothing while it loads, or if it couldn't load: the dates still show. */
   days?: DaySummary[];
   onSelect: (date: string) => void;
-  /** 1 is the next week, and -1 the previous. Screen readers can't swipe, so each day offers these. */
-  onChangeWeek: (direction: number) => void;
+  /** 1 is the next week, and -1 the previous. Screen readers can't swipe, so each day offers these. Without it the strip stays on its week. */
+  onChangeWeek?: (direction: number) => void;
 }) {
   const { colors, radius, space, text } = useTheme();
 
@@ -59,9 +59,9 @@ export function WeekStrip({
             accessibilityRole="button"
             accessibilityLabel={dayLabel(date, day, isToday)}
             accessibilityState={{ selected: isSelected }}
-            accessibilityActions={weekActions}
+            accessibilityActions={onChangeWeek && weekActions}
             onAccessibilityAction={({ nativeEvent }) => {
-              onChangeWeek(nativeEvent.actionName === 'nextWeek' ? 1 : -1);
+              onChangeWeek?.(nativeEvent.actionName === 'nextWeek' ? 1 : -1);
             }}
             onPress={() => {
               onSelect(dateKey);

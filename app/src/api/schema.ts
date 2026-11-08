@@ -632,6 +632,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/streak": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the streak
+         * @description Returns how many finished weeks in a row the signed-in user kept to their plan.
+         */
+        get: operations["GetStreak"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/records/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List recent records
+         * @description Returns up to three exercises whose heaviest weight was beaten in the last 30 days, newest first. The first time an exercise is done isn't a record, and neither is a bodyweight set.
+         */
+        get: operations["ListRecentRecords"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/days/{date}": {
         parameters: {
             query?: never;
@@ -1472,6 +1512,31 @@ export interface components {
              */
             reps: number;
         };
+        /** @description A set that beat the heaviest weight done on an exercise before. */
+        RecentRecordResponse: {
+            /**
+             * Format: uuid
+             * @description The exercise's ID.
+             */
+            exerciseId: string;
+            /** @description The exercise's name. */
+            exerciseName: string;
+            /**
+             * Format: double
+             * @description The weight in kg.
+             */
+            weightKg: number;
+            /**
+             * Format: int32
+             * @description The reps at that weight.
+             */
+            reps: number;
+            /**
+             * Format: date
+             * @description The date of the workout, in the user's time zone.
+             */
+            date: string;
+        };
         /**
          * @description What a record beat: the heaviest weight, or the most reps at a weight.
          * @enum {unknown}
@@ -1741,6 +1806,19 @@ export interface components {
             reps: number;
             /** @description Whether it is marked done. */
             checked: boolean;
+        };
+        /** @description How long the user has kept to their plan. */
+        StreakResponse: {
+            /**
+             * Format: int32
+             * @description Finished weeks in a row with no planned day missed. A skipped day doesn't break it, and this week doesn't count until it's over.
+             */
+            weeks: number;
+            /**
+             * Format: int32
+             * @description The longest streak so far, in weeks.
+             */
+            best: number;
         };
         /** @description The values a set had before a swap. */
         SwappedSet: {
@@ -3935,6 +4013,64 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FirstDayResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetStreak: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The streak. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StreakResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListRecentRecords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The records. Empty when there are none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecentRecordResponse"][];
                 };
             };
             /** @description Not signed in, or the access token expired. */

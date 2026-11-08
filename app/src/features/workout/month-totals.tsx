@@ -91,7 +91,7 @@ export function MonthCounts({ summary }: { summary?: MonthSummary }) {
   );
 }
 
-function TotalTile({
+export function TotalTile({
   label,
   value,
   hint,
@@ -123,7 +123,13 @@ function TotalTile({
         </>
       ) : (
         <>
-          <Text style={[text.bigStat, { color: colors.text }]}>{value}</Text>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={[text.bigStat, { color: colors.text }]}
+          >
+            {value}
+          </Text>
           <Text style={text.meta}>{hint}</Text>
         </>
       )}

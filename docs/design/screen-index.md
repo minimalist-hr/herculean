@@ -1,6 +1,6 @@
 # Screen index
 
-324 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+326 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -35,13 +35,16 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 
 | ID | Screen | Row | Size | Files |
 |---|---|---|---|---|
-| H07 | Home · loading | H1 Today states | 390×844 | [png](screens/home/H07-Home-Loading.png) · [html](html/home/H07-Home-Loading.html) · [source](source/home/H07-Home-Loading.dc.html) |
-| H01 | Home | H1 Today states | 390×844 | [png](screens/home/H01-Home.png) · [html](html/home/H01-Home.html) · [source](source/home/H01-Home.dc.html) |
-| H02 | Home · workout in progress | H1 Today states | 390×844 | [png](screens/home/H02-Home-In-Progress.png) · [html](html/home/H02-Home-In-Progress.html) · [source](source/home/H02-Home-In-Progress.dc.html) |
-| H03 | Home · today completed | H1 Today states | 390×844 | [png](screens/home/H03-Home-Completed.png) · [html](html/home/H03-Home-Completed.html) · [source](source/home/H03-Home-Completed.dc.html) |
-| H06 | Home · today skipped | H1 Today states | 390×844 | [png](screens/home/H06-Home-Skipped.png) · [html](html/home/H06-Home-Skipped.html) · [source](source/home/H06-Home-Skipped.dc.html) |
-| H04 | Home · rest day today | H1 Today states | 390×844 | [png](screens/home/H04-Home-Rest-Day.png) · [html](html/home/H04-Home-Rest-Day.html) · [source](source/home/H04-Home-Rest-Day.dc.html) |
-| H05 | Home · no routines yet | H1 Today states | 390×844 | [png](screens/home/H05-Home-No-Routines.png) · [html](html/home/H05-Home-No-Routines.html) · [source](source/home/H05-Home-No-Routines.dc.html) |
+| H07 | Home · loading · full scroll | H1 Today states | 390×990 | [png](screens/home/H07-Home-Loading.png) · [html](html/home/H07-Home-Loading.html) · [source](source/home/H07-Home-Loading.dc.html) |
+| H01 | Home · full scroll | H1 Today states | 390×1010 | [png](screens/home/H01-Home.png) · [html](html/home/H01-Home.html) · [source](source/home/H01-Home.dc.html) |
+| H44 | Home · are you ready | H1 Today states | 390×844 | [png](screens/home/H44-Home-Ready.png) · [html](html/home/H44-Home-Ready.html) · [source](source/home/H44-Home-Ready.dc.html) |
+| H02 | Home · in progress · full scroll | H1 Today states | 390×1106 | [png](screens/home/H02-Home-In-Progress.png) · [html](html/home/H02-Home-In-Progress.html) · [source](source/home/H02-Home-In-Progress.dc.html) |
+| H03 | Home · completed · full scroll | H1 Today states | 390×1014 | [png](screens/home/H03-Home-Completed.png) · [html](html/home/H03-Home-Completed.html) · [source](source/home/H03-Home-Completed.dc.html) |
+| H06 | Home · skipped · full scroll | H1 Today states | 390×1014 | [png](screens/home/H06-Home-Skipped.png) · [html](html/home/H06-Home-Skipped.html) · [source](source/home/H06-Home-Skipped.dc.html) |
+| H04 | Home · rest day · full scroll | H1 Today states | 390×1014 | [png](screens/home/H04-Home-Rest-Day.png) · [html](html/home/H04-Home-Rest-Day.html) · [source](source/home/H04-Home-Rest-Day.dc.html) |
+| H05 | Home · new account · full scroll | H1 Today states | 390×977 | [png](screens/home/H05-Home-No-Routines.png) · [html](html/home/H05-Home-No-Routines.html) · [source](source/home/H05-Home-No-Routines.dc.html) |
+| H08 | Home · a section failed · full scroll | H1 Today states | 390×1030 | [png](screens/home/H08-Home-Section-Failed.png) · [html](html/home/H08-Home-Section-Failed.html) · [source](source/home/H08-Home-Section-Failed.dc.html) |
+| H09 | Home · setup complete | H1 Today states | 390×844 | [png](screens/home/H09-Home-Setup-Complete.png) · [html](html/home/H09-Home-Setup-Complete.html) · [source](source/home/H09-Home-Setup-Complete.dc.html) |
 | H10 | Settings · full scroll · full scroll | H2 Settings | 390×1156 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
 | H11 | Settings › Profile photo · sheet | H2 Settings | 390×844 | [png](screens/home/H11-Settings-Photo.png) · [html](html/home/H11-Settings-Photo.html) · [source](source/home/H11-Settings-Photo.dc.html) |
 | H39 | Settings · with a photo · full scroll | H2 Settings | 390×1156 | [png](screens/home/H39-Settings-With-Photo.png) · [html](html/home/H39-Settings-With-Photo.html) · [source](source/home/H39-Settings-With-Photo.dc.html) |
@@ -91,7 +94,6 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | A25 | Account › Create account › Discard changes · confirm | A3 Create account | 390×844 | [png](screens/account/A25-Account-Create-Discard.png) · [html](html/account/A25-Account-Create-Discard.html) · [source](source/account/A25-Account-Create-Discard.dc.html) |
 | A32 | Account › Setup · finishing | A3 Create account | 390×844 | [png](screens/account/A32-Account-Setup-Finishing.png) · [html](html/account/A32-Account-Setup-Finishing.html) · [source](source/account/A32-Account-Setup-Finishing.dc.html) |
 | A33 | Account › Setup · couldn't finish | A3 Create account | 390×844 | [png](screens/account/A33-Account-Setup-Failed.png) · [html](html/account/A33-Account-Setup-Failed.html) · [source](source/account/A33-Account-Setup-Failed.dc.html) |
-| H00 | Home · not planned yet | H1 Today states | 390×844 | [png](screens/home/H00-Home-Placeholder.png) · [html](html/home/H00-Home-Placeholder.html) · [source](source/home/H00-Home-Placeholder.dc.html) |
 
 ## W · Workout
 

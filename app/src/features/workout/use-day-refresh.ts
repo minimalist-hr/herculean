@@ -18,6 +18,8 @@ export function useDayRefresh() {
       dayKeys.allDays,
       dayKeys.allMonths,
       dayKeys.first,
+      dayKeys.streak,
+      dayKeys.recentRecords,
     ]) {
       void queryClient.invalidateQueries({ queryKey });
     }

@@ -26,9 +26,11 @@ import { useFloatingRoom } from '@/components/above-tab-bar';
 
 export function WorkoutScreen({
   openedDate,
+  openedFromHome = false,
 }: {
-  /** The day opened from the month, which this screen then goes back to. */
+  /** The day opened from the month or Home, which this screen then goes back to. */
   openedDate?: string;
+  openedFromHome?: boolean;
 }) {
   const router = useRouter();
   const { colors, size, space } = useTheme();
@@ -77,10 +79,13 @@ export function WorkoutScreen({
     if (openedDate !== undefined) {
       return (
         <Button
-          label="Back to month"
+          label={openedFromHome ? 'Back to Home' : 'Back to month'}
           variant="secondary"
           onPress={() => {
             router.back();
+            if (openedFromHome) {
+              router.navigate('/');
+            }
           }}
         />
       );

@@ -2408,6 +2408,83 @@
         ]
       }
     },
+    "/api/v1/streak": {
+      "get": {
+        "tags": [
+          "Days"
+        ],
+        "summary": "Get the streak",
+        "description": "Returns how many finished weeks in a row the signed-in user kept to their plan.",
+        "operationId": "GetStreak",
+        "responses": {
+          "200": {
+            "description": "The streak.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreakResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/records/recent": {
+      "get": {
+        "tags": [
+          "Records"
+        ],
+        "summary": "List recent records",
+        "description": "Returns up to three exercises whose heaviest weight was beaten in the last 30 days, newest first. The first time an exercise is done isn't a record, and neither is a bodyweight set.",
+        "operationId": "ListRecentRecords",
+        "responses": {
+          "200": {
+            "description": "The records. Empty when there are none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecentRecordResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/days/{date}": {
       "get": {
         "tags": [
@@ -5195,6 +5272,43 @@
         },
         "description": "A heaviest set: the most weight, then the most reps at that weight."
       },
+      "RecentRecordResponse": {
+        "required": [
+          "exerciseId",
+          "exerciseName",
+          "weightKg",
+          "reps",
+          "date"
+        ],
+        "type": "object",
+        "properties": {
+          "exerciseId": {
+            "type": "string",
+            "description": "The exercise's ID.",
+            "format": "uuid"
+          },
+          "exerciseName": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps at that weight.",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string",
+            "description": "The date of the workout, in the user's time zone.",
+            "format": "date"
+          }
+        },
+        "description": "A set that beat the heaviest weight done on an exercise before."
+      },
       "RecordKind": {
         "enum": [
           "heaviestWeight",
@@ -5676,6 +5790,26 @@
           }
         },
         "description": "A set in a workout."
+      },
+      "StreakResponse": {
+        "required": [
+          "weeks",
+          "best"
+        ],
+        "type": "object",
+        "properties": {
+          "weeks": {
+            "type": "integer",
+            "description": "Finished weeks in a row with no planned day missed. A skipped day doesn't break it, and this week doesn't count until it's over.",
+            "format": "int32"
+          },
+          "best": {
+            "type": "integer",
+            "description": "The longest streak so far, in weeks.",
+            "format": "int32"
+          }
+        },
+        "description": "How long the user has kept to their plan."
       },
       "SwappedSet": {
         "required": [
@@ -6446,6 +6580,9 @@
     },
     {
       "name": "Days"
+    },
+    {
+      "name": "Records"
     },
     {
       "name": "Workouts"

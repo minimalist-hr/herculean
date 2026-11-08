@@ -11,6 +11,8 @@ export const dayKeys = {
   allDays: ['days'] as const,
   allMonths: ['month-summary'] as const,
   first: ['first-day'] as const,
+  streak: ['streak'] as const,
+  recentRecords: ['recent-records'] as const,
   day: (date: string) => ['day', date] as const,
   days: (from: string, to: string) => ['days', from, to] as const,
   month: (month: string) => ['month-summary', month] as const,

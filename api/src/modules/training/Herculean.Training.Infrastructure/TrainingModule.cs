@@ -6,6 +6,9 @@ using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
 using Herculean.Training.Application.AccountCreated;
 using Herculean.Training.Application.AccountDeleted;
+using Herculean.Training.Application.Days.GetStreak;
+using Herculean.Training.Application.Records;
+using Herculean.Training.Application.Records.ListRecentRecords;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
@@ -102,6 +105,7 @@ public static class TrainingModule
         builder.Services.AddScoped<WeekPlanner>();
         builder.Services.AddScoped<IGroupReadRepository, GroupReadRepository>();
         builder.Services.AddScoped<IExerciseReadRepository, ExerciseReadRepository>();
+        builder.Services.AddScoped<IRecordReadRepository, RecordReadRepository>();
         builder.Services.AddScoped<IRoutineReadRepository, RoutineReadRepository>();
         builder.Services.AddScoped<IWeekPlanReadRepository, WeekPlanReadRepository>();
         builder.Services.AddScoped<IDayReadRepository, DayReadRepository>();
@@ -138,6 +142,8 @@ public static class TrainingModule
         builder.Services.AddScoped<ListDaysHandler>();
         builder.Services.AddScoped<GetDayHandler>();
         builder.Services.AddScoped<GetFirstDayHandler>();
+        builder.Services.AddScoped<GetStreakHandler>();
+        builder.Services.AddScoped<ListRecentRecordsHandler>();
         builder.Services.AddScoped<IValidator<GetMonthSummaryRequest>, GetMonthSummaryValidator>();
         builder.Services.AddScoped<GetMonthSummaryHandler>();
         builder.Services.AddScoped<IValidator<CreateWorkoutRequest>, CreateWorkoutValidator>();
@@ -202,6 +208,8 @@ public static class TrainingModule
         ListWeekPlanDaysEndpoint.Map(endpoints);
         ListDaysEndpoint.Map(endpoints);
         GetFirstDayEndpoint.Map(endpoints);
+        GetStreakEndpoint.Map(endpoints);
+        ListRecentRecordsEndpoint.Map(endpoints);
         GetDayEndpoint.Map(endpoints);
         GetMonthSummaryEndpoint.Map(endpoints);
         CreateWorkoutEndpoint.Map(endpoints);

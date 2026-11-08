@@ -10,5 +10,7 @@ internal static class DayRoutes
 
     public const string FirstDay = "/api/v1/days/first";
 
+    public const string Streak = "/api/v1/streak";
+
     public const string MonthSummary = "/api/v1/month-summaries/{month}";
 }

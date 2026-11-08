@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.60 · 8 November 2026 · Minimalist
+Version 0.61 · 8 November 2026 · Minimalist
+
+> Changes since 0.60: Home is a dashboard, and every state is captured from the app. From the top: a greeting with the avatar, Today, This week, This month, Streak and Recent records. Today shows one action: Start workout, which asks "Are you ready?" first (H44), or Resume workout. Once it's done, skipped or a rest day, it shows what's up next instead. This month compares with last month, and Streak also shows the best so far. Each section loads on its own (H07), and a section that fails says so alone (H08). A new account keeps every section, with empty copy (H05). Finishing setup says "Setup complete. Welcome to Herculean." (H09). H00 is gone.
 
 > Changes since 0.59, the Settings consistency pass: A11 and H33 both say Send link again, look muted while they wait, and say why when tapped. H18 says "Password changed. Other devices are signed out." Typing in any form clears a failure notification.
 
@@ -476,7 +478,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | Row | Screens | What happens |
 |---|---|---|
-| **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 No routines, H00 Not planned yet | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
+| **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 New account, H08 A section failed, H09 Setup complete, H44 Are you ready | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
 | **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
