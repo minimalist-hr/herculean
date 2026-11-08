@@ -120,6 +120,23 @@ function helpers(page) {
       await page.mouse.click(x, y);
       await sleep(250);
     },
+    /** Taps the visible text that starts with this, for a label that counts down. */
+    tapStarting: async (start) => {
+      const center = await page.evaluate((wanted) => {
+        const target = [...document.querySelectorAll('body *')].filter((element) => element.children.length === 0 && element.textContent.trim().startsWith(wanted) && element.getBoundingClientRect().width > 0).at(-1);
+        if (target === undefined) {
+          return null;
+        }
+        const box = target.getBoundingClientRect();
+
+        return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+      }, start);
+      if (center === null) {
+        throw new Error(`Couldn't find text starting with "${start}" on ${page.url()}.`);
+      }
+      await page.mouse.click(center.x, center.y);
+      await sleep(250);
+    },
     type: async (label, text) => {
       await page.waitForSelector(`[aria-label="${label}"]`, { timeout: 8000 });
       const fields = await page.$$(`[aria-label="${label}"]`);
