@@ -71,8 +71,12 @@ async function renderCreateAccount() {
       'create-account': CreateAccountScreen,
       'sign-in': () => <PlaceholderScreen title="Sign in screen" />,
       setup: () => <PlaceholderScreen title="Setup screen" />,
-      terms: () => <LegalScreen document={termsOfService} />,
-      privacy: () => <LegalScreen document={privacyPolicy} />,
+      terms: () => (
+        <LegalScreen document={termsOfService} back="Create account" />
+      ),
+      privacy: () => (
+        <LegalScreen document={privacyPolicy} back="Create account" />
+      ),
     },
     { initialUrl: '/create-account' },
   );

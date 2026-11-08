@@ -40,7 +40,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H06 | Home · today skipped | H1 Today states | 390×844 | [png](screens/home/H06-Home-Skipped.png) · [html](html/home/H06-Home-Skipped.html) · [source](source/home/H06-Home-Skipped.dc.html) |
 | H04 | Home · rest day today | H1 Today states | 390×844 | [png](screens/home/H04-Home-Rest-Day.png) · [html](html/home/H04-Home-Rest-Day.html) · [source](source/home/H04-Home-Rest-Day.dc.html) |
 | H05 | Home · no routines yet | H1 Today states | 390×844 | [png](screens/home/H05-Home-No-Routines.png) · [html](html/home/H05-Home-No-Routines.html) · [source](source/home/H05-Home-No-Routines.dc.html) |
-| H10 | Settings · full scroll | H2 Settings | 390×1240 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
+| H10 | Settings · full scroll · full scroll | H2 Settings | 390×1156 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
 | H11 | Settings › Profile photo · sheet | H2 Settings | 390×844 | [png](screens/home/H11-Settings-Photo.png) · [html](html/home/H11-Settings-Photo.html) · [source](source/home/H11-Settings-Photo.dc.html) |
 | H12 | Settings › Theme · sheet | H2 Settings | 390×844 | [png](screens/home/H12-Settings-Theme.png) · [html](html/home/H12-Settings-Theme.html) · [source](source/home/H12-Settings-Theme.dc.html) |
 | H13 | Settings › Color · sheet | H2 Settings | 390×844 | [png](screens/home/H13-Settings-Color.png) · [html](html/home/H13-Settings-Color.html) · [source](source/home/H13-Settings-Color.dc.html) |

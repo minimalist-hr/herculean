@@ -7,8 +7,15 @@ import { useTheme } from '@/theme/theme-provider';
 
 import type { LegalDocument } from './legal-documents';
 
-/** A legal document as full-page text. Only create account opens these pages so far. */
-export function LegalScreen({ document }: { document: LegalDocument }) {
+/** A legal document as full-page text, opened from create account or Settings. */
+export function LegalScreen({
+  document,
+  back,
+}: {
+  document: LegalDocument;
+  /** The screen its back link returns to. */
+  back: string;
+}) {
   const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -25,7 +32,7 @@ export function LegalScreen({ document }: { document: LegalDocument }) {
     >
       <View style={{ gap: space.xs }}>
         <BackLink
-          label="Create account"
+          label={back}
           onPress={() => {
             router.back();
           }}

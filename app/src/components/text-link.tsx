@@ -8,10 +8,17 @@ interface TextLinkProps {
   onPress: () => void;
   /** Another action on the screen is waiting, so this one can't be pressed. */
   dimmed?: boolean;
+  /** Not available: it looks muted but stays tappable, so it can say why. */
+  muted?: boolean;
 }
 
 /** A link styled as text, for example "Forgot password?" or "Sign in". Its padding makes the touch target. */
-export function TextLink({ label, onPress, dimmed = false }: TextLinkProps) {
+export function TextLink({
+  label,
+  onPress,
+  dimmed = false,
+  muted = false,
+}: TextLinkProps) {
   const { colors, opacity, size, space, text } = useTheme();
 
   return (
@@ -26,7 +33,7 @@ export function TextLink({ label, onPress, dimmed = false }: TextLinkProps) {
         {
           minHeight: size.touchTargetMin,
           paddingHorizontal: space.sm,
-          opacity: dimmed ? opacity.dimmed : 1,
+          opacity: dimmed || muted ? opacity.dimmed : 1,
         },
       ]}
     >

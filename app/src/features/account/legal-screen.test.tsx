@@ -21,7 +21,9 @@ test.each([termsOfService, privacyPolicy])(
     await renderRouter(
       {
         _layout: Layout,
-        index: () => <LegalScreen document={legalDocument} />,
+        index: () => (
+          <LegalScreen document={legalDocument} back="Create account" />
+        ),
       },
       { initialUrl: '/' },
     );

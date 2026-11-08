@@ -436,6 +436,12 @@ export const screens = [
     await on.go('/');
     await on.waitFor('Home');
   } },
+  { id: 'H10', file: 'H10-Settings', title: 'Settings · full scroll', row: 'H2 Settings', steps: async (on) => {
+    await on.go('/');
+    await on.tap('Profile and settings');
+    await on.waitFor('Match my phone');
+    await on.sleep(400);
+  } },
   // W · Workout
   { id: 'W07', file: 'W07-Workout-Today-Loading', title: 'Workout › Today · loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold' }, steps: (on) => on.go('/workout') },
   { id: 'W08', file: 'W08-Workout-Today-Load-Failure', title: 'Workout › Today · load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {
