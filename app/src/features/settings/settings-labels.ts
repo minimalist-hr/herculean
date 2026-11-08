@@ -9,8 +9,8 @@ export const themeLabels: Record<Schemas['Theme'], string> = {
 };
 
 export const colorLabels: Record<Schemas['Color'], string> = {
-  racingBlue: 'Racing blue',
-  titanium: 'Titanium',
+  nitro: 'Nitro',
+  chrome: 'Chrome',
 };
 
 export const unitLabels: Record<Schemas['Units'], string> = {

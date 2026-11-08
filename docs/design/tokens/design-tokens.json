@@ -6,12 +6,12 @@
       "light": { "bg": "#F4F5F7", "card": "#ECEEF1", "raised": "#E2E5E9", "border": "#D0D4DA", "text": "#0A0B0D", "muted": "#4F555D" }
     },
     "accent": {
-      "Racing blue": {
+      "Nitro": {
         "default": true,
         "dark":  { "primary": "#1A55E6", "primaryText": "#7EA2FF", "onPrimary": "#FFFFFF" },
         "light": { "primary": "#1446C8", "primaryText": "#1446C8", "onPrimary": "#FFFFFF" }
       },
-      "Titanium": {
+      "Chrome": {
         "dark":  { "primary": "#C9CED6", "primaryText": "#DDE1E6", "onPrimary": "#050506" },
         "light": { "primary": "#2A2D33", "primaryText": "#1446C8", "onPrimary": "#FFFFFF" }
       }

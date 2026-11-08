@@ -10,11 +10,11 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 |---|---|---|
 | `design-document.md` | The written spec: brand, tokens, components, navigation, interaction and content rules, every screen by area, sample data, parked ideas | Read first. The source of truth for rules. |
 | `screen-index.md` | All 302 screens: ID, name, flow row, size, links to every file | Finding a screen by ID |
-| `screens/<area>/*.png` | Every screen at 2× (780 px wide), default settings: dark, Racing blue, Chakra Petch, sharp corners | Looking at a screen |
+| `screens/<area>/*.png` | Every screen at 2× (780 px wide), default settings: dark, Nitro, Chakra Petch, sharp corners | Looking at a screen |
 | `capture/` | The tool that captures built screens from the running app, with the list of every built screen and state | Updating a screen after a change |
 | `html/<area>/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
 | `source/<area>/*.dc.html`, `source/canvas.json` | The original Claude Design files (templates plus a small `renderVals()` script with the theme logic and sample data) | Theme switching logic, list data, states |
-| `tokens/design-tokens.json` | Colors (dark/light × Racing blue/Titanium), status colors, radii, type scale, sizes | Building the theme |
+| `tokens/design-tokens.json` | Colors (dark/light × Nitro/Chrome), status colors, radii, type scale, sizes | Building the theme |
 | `brand/` | Logo concepts board, the pillar mark as SVG (on dark, on light, app icon), the whole logo as PNG for email | App icon, splash, sign in |
 
 ## How to read a screen
@@ -32,4 +32,4 @@ Built screens, listed in `capture/screens.mjs`, are captured from the running ap
 
 - Drawings: PNGs and static HTML were rendered from the source files with the default Tweaks. The HTML loads Chakra Petch from Google Fonts.
 - Interactions in the source (checking a set, picking a radio, typing) are prototype-only and were dropped in the static HTML.
-- Fonts in the app: Chakra Petch is the default; Oxanium, Exo 2 and Saira were design alternatives in Tweaks, not app settings. The in-app settings are Theme (Match my phone, Dark, Light), Color (Racing blue, Titanium) and Units (Metric, Imperial).
+- Fonts in the app: Chakra Petch is the default; Oxanium, Exo 2 and Saira were design alternatives in Tweaks, not app settings. The in-app settings are Theme (Match my phone, Dark, Light), Color (Nitro, Chrome) and Units (Metric, Imperial).

@@ -16,7 +16,7 @@ interface ThemeProviderProps {
 /** Gives every screen the tokens for the chosen theme and color. Defaults until Settings saves them. */
 export function ThemeProvider({
   theme = 'matchPhone',
-  color = 'racingBlue',
+  color = 'nitro',
   children,
 }: ThemeProviderProps) {
   const phoneScheme = useColorScheme();

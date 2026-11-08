@@ -6,7 +6,7 @@ import { Tappable } from './tappable';
 interface RadioCardProps {
   label: string;
   /** A second line, for example "kg, cm". */
-  detail: string;
+  detail?: string;
   selected: boolean;
   onSelect: () => void;
 }
@@ -23,7 +23,7 @@ export function RadioCard({
   return (
     <Tappable
       accessibilityRole="radio"
-      accessibilityLabel={`${label}, ${detail}`}
+      accessibilityLabel={detail === undefined ? label : `${label}, ${detail}`}
       accessibilityState={{ checked: selected }}
       onPress={onSelect}
       style={[
@@ -40,7 +40,7 @@ export function RadioCard({
     >
       <View style={styles.text}>
         <Text style={[text.listItemName, { color: colors.text }]}>{label}</Text>
-        <Text style={text.meta}>{detail}</Text>
+        {detail !== undefined && <Text style={text.meta}>{detail}</Text>}
       </View>
       <View
         style={[

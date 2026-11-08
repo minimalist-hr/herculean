@@ -29,7 +29,7 @@ function answerWith(storedTimeZone: string) {
         name: 'Filip',
         units: 'metric',
         theme: 'matchPhone',
-        color: 'racingBlue',
+        color: 'nitro',
         timeZone: request.method === 'PATCH' ? 'Europe/London' : storedTimeZone,
       }),
     ),
@@ -38,7 +38,10 @@ function answerWith(storedTimeZone: string) {
 
 async function render() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   await renderHook(
     () => {

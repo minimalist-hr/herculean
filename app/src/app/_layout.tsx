@@ -22,7 +22,8 @@ import {
   useSessionStatus,
   type SessionStatus,
 } from '@/features/account/session';
-import { ThemeProvider, useTheme } from '@/theme/theme-provider';
+import { UserThemeProvider } from '@/features/settings/user-theme-provider';
+import { useTheme } from '@/theme/theme-provider';
 
 // Keep the splash screen up until the font is ready, so text never flashes in another font.
 void SplashScreen.preventAutoHideAsync();
@@ -61,9 +62,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+      <UserThemeProvider>
         <AppStack />
-      </ThemeProvider>
+      </UserThemeProvider>
     </QueryClientProvider>
   );
 }
@@ -117,6 +118,7 @@ function AppStack() {
           <Stack.Screen name="exercise/[id]/edit" />
           <Stack.Screen name="group/new" />
           <Stack.Screen name="group/[id]/edit" />
+          <Stack.Screen name="settings" />
         </Stack.Protected>
         <Stack.Screen name="terms" />
         <Stack.Screen name="privacy" />

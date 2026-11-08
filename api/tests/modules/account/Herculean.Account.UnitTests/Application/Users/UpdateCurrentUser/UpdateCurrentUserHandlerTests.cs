@@ -28,7 +28,7 @@ public sealed class UpdateCurrentUserHandlerTests
             new UpdateCurrentUserRequest(" Filip ", Units.Imperial, TimeZone: null),
             TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Imperial, Theme.MatchPhone, Color.RacingBlue, "Europe/Zagreb"));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Imperial, Theme.MatchPhone, Color.Nitro, "Europe/Zagreb"));
         _unitOfWork.Saved.ShouldBeTrue();
     }
 
@@ -41,18 +41,18 @@ public sealed class UpdateCurrentUserHandlerTests
             new UpdateCurrentUserRequest(Name: null, Units: null, TimeZone: "Europe/London"),
             TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Metric, Theme.MatchPhone, Color.RacingBlue, "Europe/London"));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Metric, Theme.MatchPhone, Color.Nitro, "Europe/London"));
     }
 
     [Fact]
     public async Task ThemeAndColorChange()
     {
         Result<UserResponse> result = await _handler.HandleAsync(
-            new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Titanium),
+            new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Chrome),
             TestContext.Current.CancellationToken);
 
         result.Value.Theme.ShouldBe(Theme.Light);
-        result.Value.Color.ShouldBe(Color.Titanium);
+        result.Value.Color.ShouldBe(Color.Chrome);
     }
 
     [Fact]

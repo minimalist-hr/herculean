@@ -21,11 +21,11 @@ body{margin:0}
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Racing blue","Titanium"],"default":"Racing blue","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":928}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Nitro","Chrome"],"default":"Nitro","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":928}}'>
 class Component extends DCLogic {
   renderVals() {
     const dark = (this.props.theme ?? 'dark') === 'dark';
-    const pal = this.props.palette ?? 'Racing blue';
+    const pal = this.props.palette ?? 'Nitro';
     const font = this.props.font ?? 'Chakra Petch';
     const sharp = (this.props.corners ?? 'sharp') === 'sharp';
     const r = sharp
@@ -38,13 +38,13 @@ class Component extends DCLogic {
       return 'rgba(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + a + ')';
     };
     const accents = {
-      'Racing blue': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
-      'Titanium': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+      'Nitro': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Chrome': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
     };
     const neutral = dark
       ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
       : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
-    const c = Object.assign({}, neutral, (accents[pal] || accents['Racing blue'])[dark ? 'dark' : 'light']);
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Nitro'])[dark ? 'dark' : 'light']);
     const primary = c.primary;
     c.danger = dark ? '#F87171' : '#DC2626';
     c.dangerFill = '#DC2626';

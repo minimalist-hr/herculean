@@ -42,10 +42,10 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H05 | Home · no routines yet | H1 Today states | 390×844 | [png](screens/home/H05-Home-No-Routines.png) · [html](html/home/H05-Home-No-Routines.html) · [source](source/home/H05-Home-No-Routines.dc.html) |
 | H10 | Settings · full scroll · full scroll | H2 Settings | 390×1156 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
 | H11 | Settings › Profile photo · sheet | H2 Settings | 390×844 | [png](screens/home/H11-Settings-Photo.png) · [html](html/home/H11-Settings-Photo.html) · [source](source/home/H11-Settings-Photo.dc.html) |
-| H12 | Settings › Theme · sheet | H2 Settings | 390×844 | [png](screens/home/H12-Settings-Theme.png) · [html](html/home/H12-Settings-Theme.html) · [source](source/home/H12-Settings-Theme.dc.html) |
-| H13 | Settings › Color · sheet | H2 Settings | 390×844 | [png](screens/home/H13-Settings-Color.png) · [html](html/home/H13-Settings-Color.html) · [source](source/home/H13-Settings-Color.dc.html) |
-| H14 | Settings › Units · sheet | H2 Settings | 390×844 | [png](screens/home/H14-Settings-Units.png) · [html](html/home/H14-Settings-Units.html) · [source](source/home/H14-Settings-Units.dc.html) |
-| H15 | Settings › Default rest time · sheet | H2 Settings | 390×844 | [png](screens/home/H15-Settings-Rest-Time.png) · [html](html/home/H15-Settings-Rest-Time.html) · [source](source/home/H15-Settings-Rest-Time.dc.html) |
+| H12 | Settings › Theme | H2 Settings | 390×844 | [png](screens/home/H12-Settings-Theme.png) · [html](html/home/H12-Settings-Theme.html) · [source](source/home/H12-Settings-Theme.dc.html) |
+| H13 | Settings › Color | H2 Settings | 390×844 | [png](screens/home/H13-Settings-Color.png) · [html](html/home/H13-Settings-Color.html) · [source](source/home/H13-Settings-Color.dc.html) |
+| H14 | Settings › Units | H2 Settings | 390×844 | [png](screens/home/H14-Settings-Units.png) · [html](html/home/H14-Settings-Units.html) · [source](source/home/H14-Settings-Units.dc.html) |
+| H15 | Settings › Default rest time | H2 Settings | 390×844 | [png](screens/home/H15-Settings-Rest-Time.png) · [html](html/home/H15-Settings-Rest-Time.html) · [source](source/home/H15-Settings-Rest-Time.dc.html) |
 | H16 | Settings › Name · sheet | H2 Settings | 390×844 | [png](screens/home/H16-Settings-Name.png) · [html](html/home/H16-Settings-Name.html) · [source](source/home/H16-Settings-Name.dc.html) |
 | H17 | Settings › Email · sheet | H2 Settings | 390×844 | [png](screens/home/H17-Settings-Email.png) · [html](html/home/H17-Settings-Email.html) · [source](source/home/H17-Settings-Email.dc.html) |
 | H18 | Settings › Change password · sheet | H2 Settings | 390×844 | [png](screens/home/H18-Settings-Password.png) · [html](html/home/H18-Settings-Password.html) · [source](source/home/H18-Settings-Password.dc.html) |

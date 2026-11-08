@@ -8,7 +8,7 @@ interface DesignTokens {
     neutral: unknown;
     day: { dark: unknown; light: unknown };
     accent: Record<
-      'Racing blue' | 'Titanium',
+      'Nitro' | 'Chrome',
       { default?: boolean; dark: unknown; light: unknown }
     >;
     status: unknown;
@@ -29,10 +29,8 @@ const design = JSON.parse(
   ),
 ) as DesignTokens;
 
-const { dark: racingBlueDark, light: racingBlueLight } =
-  design.color.accent['Racing blue'];
-const { dark: titaniumDark, light: titaniumLight } =
-  design.color.accent.Titanium;
+const { dark: nitroDark, light: nitroLight } = design.color.accent.Nitro;
+const { dark: chromeDark, light: chromeLight } = design.color.accent.Chrome;
 
 test('day colors match the design', () => {
   expect(tokens.color.day.dark).toEqual(design.color.day.dark);
@@ -45,8 +43,8 @@ test('neutral colors match the design', () => {
 
 test('accent colors match the design', () => {
   expect(tokens.color.accent).toEqual({
-    racingBlue: { dark: racingBlueDark, light: racingBlueLight },
-    titanium: { dark: titaniumDark, light: titaniumLight },
+    nitro: { dark: nitroDark, light: nitroLight },
+    chrome: { dark: chromeDark, light: chromeLight },
   });
 });
 

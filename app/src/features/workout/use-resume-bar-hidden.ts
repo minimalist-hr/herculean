@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
-import { readStored, writeStored } from './phone-storage';
+import { readStored, writeStored } from '@/storage/phone-storage';
 
 const storageKey = 'resumeBarHiddenFor';
 

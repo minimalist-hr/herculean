@@ -274,7 +274,7 @@ export function createApi() {
       return { status: 200, body: { accessToken: 'capture', expiresIn: 3600, refreshToken: 'capture' } };
     }
     if (key === 'GET /api/v1/users/me') {
-      return { status: 200, body: { email: 'filip@example.com', name: 'Filip Mučnjak', units: 'metric', theme: 'matchPhone', color: 'racingBlue', timeZone: 'Europe/Zagreb' } };
+      return { status: 200, body: { email: 'filip@example.com', name: 'Filip Mučnjak', units: 'metric', theme: 'matchPhone', color: 'nitro', timeZone: 'Europe/Zagreb' } };
     }
     if (key === 'GET /api/v1/groups') {
       return {

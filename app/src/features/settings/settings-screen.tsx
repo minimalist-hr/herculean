@@ -92,14 +92,16 @@ export function SettingsScreen() {
           first
           label="Theme"
           value={userValue((data) => themeLabels[data.theme])}
-          muted
-          onPress={later('Theme')}
+          onPress={() => {
+            router.push('/settings/theme');
+          }}
         />
         <SettingsRow
           label="Color"
           value={userValue((data) => colorLabels[data.color])}
-          muted
-          onPress={later('Color')}
+          onPress={() => {
+            router.push('/settings/color');
+          }}
         />
       </SettingsSection>
 
@@ -108,14 +110,16 @@ export function SettingsScreen() {
           first
           label="Units"
           value={userValue((data) => unitLabels[data.units])}
-          muted
-          onPress={later('Units')}
+          onPress={() => {
+            router.push('/settings/units');
+          }}
         />
         <SettingsRow
           label="Default rest time"
           value={restValue()}
-          muted
-          onPress={later('Default rest time')}
+          onPress={() => {
+            router.push('/settings/rest-time');
+          }}
         />
       </SettingsSection>
 

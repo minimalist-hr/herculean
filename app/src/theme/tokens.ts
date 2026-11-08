@@ -20,7 +20,7 @@ export const tokens = {
       },
     },
     accent: {
-      racingBlue: {
+      nitro: {
         dark: {
           primary: '#1A55E6',
           primaryText: '#7EA2FF',
@@ -32,7 +32,7 @@ export const tokens = {
           onPrimary: '#FFFFFF',
         },
       },
-      titanium: {
+      chrome: {
         dark: {
           primary: '#C9CED6',
           primaryText: '#DDE1E6',

@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.52 · 8 November 2026 · Minimalist
+Version 0.53 · 8 November 2026 · Minimalist
+
+> Changes since 0.52: H12 Theme, H13 Color, H14 Units and H15 Default rest time are built, as pages instead of sheets, because create and edit are pages. Each has its choices, a Save button at the bottom, and asks before leaving with a change. Saving goes back to H10 and says "Theme saved." A theme or color applies after Save, everywhere at once, and the app opens in it next time. The colors are renamed to one sporty word each: Racing blue is now Nitro, and Titanium is Chrome.
 
 > Changes since 0.51: H10 Settings is built. The FM avatar on Home, still the H00 placeholder, opens it. Rows that come with later issues look muted and say "Theme comes in a later update." until they're built. Terms of service and Privacy policy open H20 and H21 with the back link "Settings". Version shows the app's real version. Sound and vibrate when rest ends stay out until rest alerts exist. Sign out and Delete account are actions, so they have no chevron.
 
@@ -164,9 +166,9 @@ Every color is a token (`{{c.*}}`). No screen uses a raw hex value for app UI. M
 
 | Palette | Mode | `primary` (buttons, fills) | `primaryText` (accent text) | `onPrimary` (text on primary) |
 |---|---|---|---|---|
-| **Racing blue** (default) | Dark | #1A55E6 | #7EA2FF | #FFFFFF |
+| **Nitro** (default) | Dark | #1A55E6 | #7EA2FF | #FFFFFF |
 | | Light | #1446C8 | #1446C8 | #FFFFFF |
-| **Titanium** | Dark | #C9CED6 | #DDE1E6 | #050506 |
+| **Chrome** | Dark | #C9CED6 | #DDE1E6 | #050506 |
 | | Light | #2A2D33 | #1446C8 | #FFFFFF |
 
 The accent is used for primary buttons, the active tab, today in the week strip and month, checked sets, links and "In progress".
@@ -461,7 +463,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 No routines, H00 Not planned yet | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
-| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own sheet. The theme options are Match my phone (default), Dark and Light. The colors are Racing blue and Titanium. The units are Metric (kg, cm) and Imperial (lb, in). |
+| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout
@@ -537,4 +539,4 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 **Decided**
 - Group chips wrap, even if someone creates many groups.
 - Completed is green, skipped is orange, missed is red and in progress uses the accent.
-- The second accent is called Titanium.
+- The second accent is called Chrome.

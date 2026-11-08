@@ -36,7 +36,7 @@ erDiagram
 | PhotoContentType | string? | |
 | TimeZone | string | IANA name, for example `Europe/Zagreb` |
 | Theme | enum | `MatchPhone`, `Dark`, `Light`. Starts at `MatchPhone` |
-| Color | enum | `RacingBlue`, `Titanium`. Starts at `RacingBlue` |
+| Color | enum | `Nitro`, `Chrome`. Starts at `Nitro` |
 | Units | enum | `Metric`, `Imperial`. Starts at `Metric` |
 | RefreshTokens | list of RefreshToken | |
 | PasswordResetTokens | list of PasswordResetToken | |

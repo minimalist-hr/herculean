@@ -27,7 +27,7 @@ internal sealed class User : Entity<UserId>
 
     public Theme Theme { get; private set; } = Theme.MatchPhone;
 
-    public Color Color { get; private set; } = Color.RacingBlue;
+    public Color Color { get; private set; } = Color.Nitro;
 
     /// <summary>An IANA name, for example <c>Europe/Zagreb</c>.</summary>
     public string TimeZone { get; private set; }

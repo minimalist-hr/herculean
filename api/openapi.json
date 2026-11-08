@@ -3509,8 +3509,8 @@
       },
       "Color": {
         "enum": [
-          "racingBlue",
-          "titanium"
+          "nitro",
+          "chrome"
         ],
         "description": "The accent color of buttons, links and highlights."
       },

@@ -808,7 +808,7 @@ export interface components {
          * @description The accent color of buttons, links and highlights.
          * @enum {unknown}
          */
-        Color: "racingBlue" | "titanium";
+        Color: "nitro" | "chrome";
         /** @description The token from the reset link, and the new password. */
         CompletePasswordResetRequest: {
             /** @description The token from the reset link. It works once. */

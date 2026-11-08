@@ -61,7 +61,8 @@ app/
 ## Theme
 
 - `src/theme/tokens.ts` is a copy of `docs/design/tokens/design-tokens.json`. A test fails when they differ.
-- One provider holds Theme (Match my phone, Dark, Light) and Color (Racing blue, Titanium). Until Settings saves them, they are Match my phone and Racing blue. A phone with no preference gets dark.
+- One provider holds Theme (Match my phone, Dark, Light) and Color (Nitro, Chrome), saved on the user. A copy on the phone shows them from the first frame. With neither, they are Match my phone and Nitro. A phone with no preference gets dark.
+- The status bar follows the app's theme, not the phone's.
 - `useTheme` gives screens the current tokens.
 - Styles use tokens only, never raw values.
 - Every text style turns off Android's extra font padding, so text sits in the middle of its box on both platforms.

@@ -8,7 +8,7 @@ export type ColorSetting = keyof typeof tokens.color.accent;
 
 type ColorName =
   | keyof typeof tokens.color.neutral.dark
-  | keyof typeof tokens.color.accent.racingBlue.dark
+  | keyof typeof tokens.color.accent.nitro.dark
   | keyof typeof tokens.color.status.dark
   | 'scrim';
 
@@ -20,6 +20,8 @@ type TextRole =
   | 'tabLabelInactive';
 
 export interface Theme {
+  /** Whether the app is dark or light right now. */
+  scheme: ColorScheme;
   colors: Colors;
   /** One muted color per weekday, for the week plan on the Routines tab. */
   dayColors: Record<keyof typeof tokens.color.day.dark, string>;
@@ -66,6 +68,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
   const { roles } = tokens.font;
 
   return {
+    scheme,
     colors,
     dayColors: tokens.color.day[scheme],
     radius: tokens.radius,

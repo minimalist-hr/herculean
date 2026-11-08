@@ -5,10 +5,11 @@ import { toApiError } from '@/api/problem';
 
 export const currentUserKey = ['current-user'] as const;
 
-/** The signed-in user. */
-export function useCurrentUser() {
+/** The signed-in user. Off until someone is signed in, when asked. */
+export function useCurrentUser({ enabled = true } = {}) {
   return useQuery({
     queryKey: currentUserKey,
+    enabled,
     queryFn: async () => {
       const { data, error } = await api.GET('/api/v1/users/me');
       if (data === undefined) {

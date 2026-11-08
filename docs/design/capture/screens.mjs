@@ -63,6 +63,12 @@ const deleteFromToday = async (on) => {
   await on.waitFor('Delete workout');
   await on.sleep(400);
 };
+const openSettings = async (on) => {
+  await on.go('/');
+  await on.tap('Profile and settings');
+  await on.waitFor('Match my phone');
+  await on.waitFor('3:00');
+};
 const editFromToday = async (on) => {
   await on.go('/workout');
   await on.waitFor('View workout');
@@ -440,6 +446,30 @@ export const screens = [
     await on.go('/');
     await on.tap('Profile and settings');
     await on.waitFor('Match my phone');
+    await on.sleep(400);
+  } },
+  { id: 'H12', file: 'H12-Settings-Theme', title: 'Settings › Theme', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Theme, Match my phone');
+    await on.waitFor('Save theme');
+    await on.sleep(400);
+  } },
+  { id: 'H13', file: 'H13-Settings-Color', title: 'Settings › Color', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Color, Nitro');
+    await on.waitFor('Save color');
+    await on.sleep(400);
+  } },
+  { id: 'H14', file: 'H14-Settings-Units', title: 'Settings › Units', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Units, Metric');
+    await on.waitFor('Save units');
+    await on.sleep(400);
+  } },
+  { id: 'H15', file: 'H15-Settings-Rest-Time', title: 'Settings › Default rest time', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Default rest time, 3:00');
+    await on.waitFor('Save rest time');
     await on.sleep(400);
   } },
   // W · Workout
