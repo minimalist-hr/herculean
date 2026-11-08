@@ -18,6 +18,15 @@ internal static class UserErrors
         ["currentPassword"] = ["The current password is wrong."],
     });
 
+    public static readonly Error SameEmail = Error.Validation(new Dictionary<string, string[]>
+    {
+        ["newEmail"] = ["That's already your email."],
+    });
+
+    public static readonly Error InvalidEmailChangeToken = Error.NotFound("user.invalid_email_change_token", "This link has expired. Send a new one.");
+
+    public static readonly Error NoPendingEmailChange = Error.NotFound("user.no_pending_email_change", "No email change is waiting.");
+
     public static readonly Error InvalidRefreshToken = Error.Unauthorized("user.invalid_refresh_token", "The refresh token is unknown, used or expired. Sign in again.");
 
     public static readonly Error InvalidPasswordResetToken = Error.NotFound("user.invalid_password_reset_token", "This link has expired. Send a new one.");

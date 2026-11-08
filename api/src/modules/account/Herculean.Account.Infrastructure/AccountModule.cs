@@ -5,6 +5,14 @@ using FluentValidation;
 
 using Herculean.Account.Application.Auth;
 using Herculean.Account.Application.Email;
+using Herculean.Account.Application.EmailChanges;
+using Herculean.Account.Application.EmailChanges.ConfirmEmailChange;
+using Herculean.Account.Application.EmailChanges.EmailChanged;
+using Herculean.Account.Application.EmailChanges.EmailChangeRequested;
+using Herculean.Account.Application.EmailChanges.GetPendingEmailChange;
+using Herculean.Account.Application.EmailChanges.OpenConfirmEmailLink;
+using Herculean.Account.Application.EmailChanges.RequestEmailChange;
+using Herculean.Account.Application.EmailChanges.ResendEmailChange;
 using Herculean.Account.Application.PasswordResets;
 using Herculean.Account.Application.PasswordResets.CompletePasswordReset;
 using Herculean.Account.Application.PasswordResets.CreatePasswordReset;
@@ -84,7 +92,9 @@ public static class AccountModule
         builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
         builder.Services.AddSingleton<ITokenIssuer, JwtTokenIssuer>();
         builder.Services.AddSingleton<IPasswordResetTokenIssuer, PasswordResetTokenIssuer>();
+        builder.Services.AddSingleton<IEmailChangeTokenIssuer, EmailChangeTokenIssuer>();
         builder.Services.AddSingleton<IResetLinks, ResetLinks>();
+        builder.Services.AddSingleton<IEmailChangeLinks, EmailChangeLinks>();
         builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
         builder.Services.AddSingleton<PasswordResetQueue>();
         builder.Services.AddSingleton<IPasswordResetQueue>(services => services.GetRequiredService<PasswordResetQueue>());
@@ -112,6 +122,14 @@ public static class AccountModule
         builder.Services.AddScoped<OpenResetLinkHandler>();
         builder.Services.AddScoped<IValidator<CompletePasswordResetRequest>, CompletePasswordResetValidator>();
         builder.Services.AddScoped<CompletePasswordResetHandler>();
+        builder.Services.AddScoped<IValidator<RequestEmailChangeRequest>, RequestEmailChangeValidator>();
+        builder.Services.AddScoped<RequestEmailChangeHandler>();
+        builder.Services.AddScoped<GetPendingEmailChangeHandler>();
+        builder.Services.AddScoped<ResendEmailChangeHandler>();
+        builder.Services.AddScoped<IValidator<ConfirmEmailChangeRequest>, ConfirmEmailChangeValidator>();
+        builder.Services.AddScoped<ConfirmEmailChangeHandler>();
+        builder.Services.AddIntegrationEventHandler<EmailChangeRequestedIntegrationEvent, EmailChangeRequestedIntegrationEventHandler>();
+        builder.Services.AddIntegrationEventHandler<EmailChangedIntegrationEvent, EmailChangedIntegrationEventHandler>();
 
         // Each allows a few tries a minute per IP address, against guessing passwords and tokens and sending too many emails.
         builder.Services.AddRateLimiter(options =>
@@ -131,6 +149,9 @@ public static class AccountModule
             options.AddPolicy(PasswordResetRoutes.CreateRateLimit, AttemptsPerIp);
             options.AddPolicy(PasswordResetRoutes.CompleteRateLimit, AttemptsPerIp);
             options.AddPolicy(UserRoutes.ChangePasswordRateLimit, AttemptsPerIp);
+            options.AddPolicy(EmailChangeRoutes.RequestRateLimit, AttemptsPerIp);
+            options.AddPolicy(EmailChangeRoutes.ResendRateLimit, AttemptsPerIp);
+            options.AddPolicy(EmailChangeRoutes.ConfirmRateLimit, AttemptsPerIp);
         });
     }
 
@@ -152,6 +173,11 @@ public static class AccountModule
         CreatePasswordResetEndpoint.Map(endpoints);
         OpenResetLinkEndpoint.Map(endpoints);
         CompletePasswordResetEndpoint.Map(endpoints);
+        RequestEmailChangeEndpoint.Map(endpoints);
+        GetPendingEmailChangeEndpoint.Map(endpoints);
+        ResendEmailChangeEndpoint.Map(endpoints);
+        ConfirmEmailChangeEndpoint.Map(endpoints);
+        OpenConfirmEmailLinkEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Account module's pending migrations.</summary>

@@ -30,5 +30,10 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(token => token.UserId)
             .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder.HasMany(user => user.EmailChangeTokens)
+            .WithOne()
+            .HasForeignKey(token => token.UserId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

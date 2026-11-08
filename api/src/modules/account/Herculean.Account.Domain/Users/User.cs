@@ -8,6 +8,7 @@ internal sealed class User : Entity<UserId>
 
     private readonly List<RefreshToken> _refreshTokens = [];
     private readonly List<PasswordResetToken> _passwordResetTokens = [];
+    private readonly List<EmailChangeToken> _emailChangeTokens = [];
 
     private User(UserId id, string email, string passwordHash, string timeZone) : base(id)
     {
@@ -35,6 +36,8 @@ internal sealed class User : Entity<UserId>
     public IReadOnlyList<RefreshToken> RefreshTokens => _refreshTokens;
 
     public IReadOnlyList<PasswordResetToken> PasswordResetTokens => _passwordResetTokens;
+
+    public IReadOnlyList<EmailChangeToken> EmailChangeTokens => _emailChangeTokens;
 
     public static User Create(string email, string passwordHash, string timeZone) =>
         new(UserId.New(), NormalizeEmail(email), passwordHash, timeZone);
@@ -101,6 +104,30 @@ internal sealed class User : Entity<UserId>
     public void RemovePasswordResetToken(PasswordResetToken passwordResetToken)
     {
         _passwordResetTokens.Remove(passwordResetToken);
+    }
+
+    /// <summary>Only the newest link works: a new token cancels the older ones.</summary>
+    public void AddEmailChangeToken(string newEmail, string tokenHash, DateTimeOffset expiresAtUtc)
+    {
+        _emailChangeTokens.Clear();
+        _emailChangeTokens.Add(EmailChangeToken.Create(Id, NormalizeEmail(newEmail), tokenHash, expiresAtUtc));
+    }
+
+    public void RemoveEmailChangeToken(EmailChangeToken emailChangeToken)
+    {
+        _emailChangeTokens.Remove(emailChangeToken);
+    }
+
+    /// <summary>The address waiting for its link to be opened, or null. Needs the email change tokens loaded.</summary>
+    public string? PendingEmail(DateTimeOffset nowUtc) =>
+        _emailChangeTokens.SingleOrDefault(token => !token.IsExpired(nowUtc))?.NewEmail;
+
+    /// <summary>The address is proven. A reset link sent to the old one stops working. Needs both kinds of token loaded.</summary>
+    public void ChangeEmail(string newEmail)
+    {
+        Email = NormalizeEmail(newEmail);
+        _emailChangeTokens.Clear();
+        _passwordResetTokens.Clear();
     }
 
     /// <summary>Whoever had the old password loses access: the reset link stops working and every device is signed out.</summary>

@@ -45,6 +45,28 @@ public sealed class SmtpEmailSenderTests
         server.Data.ShouldContain("Subject: Your Herculean password was changed");
     }
 
+    [Fact]
+    public async Task SendsTheEmailChangeLink()
+    {
+        using FakeSmtpServer server = new();
+
+        await CreateSender(server, password: string.Empty).SendEmailChangeAsync("new@example.com", "token", TestContext.Current.CancellationToken);
+
+        (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("RCPT TO:<new@example.com>", StringComparison.Ordinal));
+        server.Data.ShouldContain("Subject: Confirm your new Herculean email");
+    }
+
+    [Fact]
+    public async Task SendsTheEmailChangedNoticeToTheOldAddress()
+    {
+        using FakeSmtpServer server = new();
+
+        await CreateSender(server, password: string.Empty).SendEmailChangedAsync("old@example.com", DateTimeOffset.UnixEpoch, "Europe/Zagreb", TestContext.Current.CancellationToken);
+
+        (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("RCPT TO:<old@example.com>", StringComparison.Ordinal));
+        server.Data.ShouldContain("Subject: Your Herculean email was changed");
+    }
+
     private static Task SendAsync(FakeSmtpServer server, string password) =>
         CreateSender(server, password).SendPasswordResetAsync("filip@example.com", "token", TestContext.Current.CancellationToken);
 
@@ -58,7 +80,8 @@ public sealed class SmtpEmailSenderTests
                 Username = "resend",
                 Password = password,
             }),
-            new FakeResetLinks());
+            new FakeResetLinks(),
+            new FakeEmailChangeLinks());
 
     /// <summary>Answers one SMTP conversation on a free local port and keeps what it was told.</summary>
     private sealed class FakeSmtpServer : IDisposable

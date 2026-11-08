@@ -177,6 +177,29 @@ public sealed class UserRepositoryTests : IDisposable
         (await _dbContext.Set<RefreshToken>().SingleAsync(TestContext.Current.CancellationToken)).TokenHash.ShouldBe("phone");
     }
 
+    [Fact]
+    public async Task EmailChangeTokensLoadAndGoAwayWhenTheEmailChanges()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddEmailChangeToken("new@example.com", "token-hash", DateTimeOffset.UnixEpoch);
+        newUser.AddPasswordResetToken("reset-hash", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        (await _userRepository.GetByIdWithEmailChangeTokensAsync(newUser.Id, TestContext.Current.CancellationToken)).ShouldNotBeNull().EmailChangeTokens.ShouldHaveSingleItem();
+        _dbContext.ChangeTracker.Clear();
+        (await _userRepository.GetByEmailChangeTokenHashAsync("unknown", TestContext.Current.CancellationToken)).ShouldBeNull();
+
+        User user = (await _userRepository.GetByEmailChangeTokenHashAsync("token-hash", TestContext.Current.CancellationToken)).ShouldNotBeNull();
+        user.PasswordResetTokens.ShouldHaveSingleItem();
+        user.ChangeEmail("new@example.com");
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _dbContext.Set<EmailChangeToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+        (await _dbContext.Set<PasswordResetToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

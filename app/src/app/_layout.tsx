@@ -120,6 +120,8 @@ function AppStack() {
           <Stack.Screen name="group/[id]/edit" />
           <Stack.Screen name="settings" />
         </Stack.Protected>
+        {/* An email change link works signed in, signed out and from a closed app. */}
+        <Stack.Screen name="confirm-email" />
         <Stack.Screen name="terms" />
         <Stack.Screen name="privacy" />
       </Stack>

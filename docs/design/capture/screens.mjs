@@ -519,6 +519,49 @@ export const screens = [
     await on.waitFor("The passwords don't match.");
     await on.sleep(400);
   } },
+  { id: 'H17', file: 'H17-Settings-Email', title: 'Settings › Email', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Email, filip@example.com');
+    await on.waitFor('Save email');
+    await on.sleep(400);
+  } },
+  { id: 'H26', file: 'H26-Settings-Email-Errors', title: 'Settings › Email · errors', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes': problem(409, 'user.email_taken', 'An account with this email already exists.') }, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Email, filip@example.com');
+    await on.waitFor('Save email');
+    await on.sleep(400);
+    await on.type('Email address', 'taken@example.com');
+    await on.type('Current password', 'password');
+    await on.tap('Save email');
+    await on.waitFor('An account with this email already exists.');
+    await on.sleep(400);
+  } },
+  { id: 'H27', file: 'H27-Settings-Email-Confirming', title: 'Settings › Email · confirming', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes/confirm': 'hold' }, steps: async (on) => {
+    await on.go('/confirm-email?token=sample');
+    await on.waitFor('Confirming email');
+    await on.sleep(400);
+  } },
+  { id: 'H28', file: 'H28-Settings-Email-Link-Expired', title: 'Settings › Email · link expired', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes/confirm': problem(404, 'user.invalid_email_change_token', 'This link has expired. Send a new one.') }, steps: async (on) => {
+    await on.go('/confirm-email?token=sample');
+    await on.waitFor('Link expired');
+    await on.sleep(400);
+  } },
+  { id: 'H29', file: 'H29-Settings-Email-Confirm-Failed', title: 'Settings › Email · could not confirm', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes/confirm': 'fail' }, steps: async (on) => {
+    await on.go('/confirm-email?token=sample');
+    await on.waitFor('Try again');
+    await on.sleep(400);
+  } },
+  { id: 'H32', file: 'H32-Settings-Email-Waiting', title: 'Settings · email waiting for confirmation', row: 'H2 Settings', answers: { 'GET /api/v1/email-changes/pending': { status: 200, body: { newEmail: 'new@example.com' } } }, steps: async (on) => {
+    await openSettings(on);
+    await on.waitFor('Email, filip@example.com, Waiting for confirmation');
+    await on.sleep(400);
+  } },
+  { id: 'H33', file: 'H33-Settings-Email-Waiting-Page', title: 'Settings › Email · waiting', row: 'H2 Settings', full: false, answers: { 'GET /api/v1/email-changes/pending': { status: 200, body: { newEmail: 'new@example.com' } } }, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Email, filip@example.com, Waiting for confirmation');
+    await on.waitFor('Send again');
+    await on.sleep(400);
+  } },
   // W · Workout
   { id: 'W07', file: 'W07-Workout-Today-Loading', title: 'Workout › Today · loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold' }, steps: (on) => on.go('/workout') },
   { id: 'W08', file: 'W08-Workout-Today-Load-Failure', title: 'Workout › Today · load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {

@@ -9,6 +9,7 @@ import { NotificationBar } from '@/components/notification-bar';
 import { saveTokens } from '@/features/account/session';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import { ChangeEmailScreen } from './change-email-screen';
 import { ChangePasswordScreen } from './change-password-screen';
 import { initialsOf } from './settings-labels';
 import { ProfileButton } from './profile-button';
@@ -141,6 +142,7 @@ async function renderAt(initialUrl: string) {
       'settings/rest-time': DefaultRestScreen,
       'settings/name': NameScreen,
       'settings/password': ChangePasswordScreen,
+      'settings/email': ChangeEmailScreen,
       terms: Legal,
     },
     { initialUrl },
@@ -175,11 +177,11 @@ test('a row not built yet says so', async () => {
   await renderSettings();
 
   await fireEvent.press(
-    await screen.findByRole('button', { name: 'Email, filip@example.com' }),
+    await screen.findByRole('button', { name: 'Sign out' }),
   );
 
   expect(
-    await screen.findByText('Changing your email comes in a later update.'),
+    await screen.findByText('Signing out comes in a later update.'),
   ).toBeOnTheScreen();
 });
 
@@ -291,6 +293,7 @@ test.each([
   ['/settings/theme', { userStatus: 500 }, "Couldn't load your theme."],
   ['/settings/rest-time', { restStatus: 500 }, "Couldn't load your rest time."],
   ['/settings/name', { userStatus: 500 }, "Couldn't load your name."],
+  ['/settings/email', { userStatus: 500 }, "Couldn't load your email."],
 ])(
   '%s opened on its own shows that it is loading, a failure, and Try again',
   async (url, statuses, failure) => {
@@ -552,6 +555,209 @@ describe('change password', () => {
     await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
 
     expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+  });
+});
+
+describe('change email', () => {
+  const pendingPath = '/api/v1/email-changes/pending';
+  const requestPath = '/api/v1/email-changes';
+  const resendPath = '/api/v1/email-changes/resend';
+  const waitingRow = 'Email, filip@example.com, Waiting for confirmation';
+
+  async function openWaitingPage() {
+    await fireEvent.press(
+      await screen.findByRole('button', { name: waitingRow }),
+    );
+    await screen.findByText(/^We sent a link to /);
+  }
+
+  function answerEmailWith({
+    pending = null as string | null,
+    request = () => new Response(null, { status: 202 }),
+    resend = () => new Response(null, { status: 202 }),
+  } = {}) {
+    answerWith();
+    const answerRest = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((sent) => {
+      const { pathname } = new URL(sent.url);
+      if (pathname === pendingPath) {
+        return Promise.resolve(Response.json({ newEmail: pending }));
+      }
+      if (pathname === requestPath) {
+        return Promise.resolve(request());
+      }
+      if (pathname === resendPath) {
+        return Promise.resolve(resend());
+      }
+
+      return answerRest?.(sent) ?? Promise.reject(new Error('No answer'));
+    });
+  }
+
+  function sentTo(pathname: string) {
+    return mockFetch.mock.calls.find(
+      ([sent]) => new URL(sent.url).pathname === pathname,
+    )?.[0];
+  }
+
+  async function fillEmail(newEmail: string, password = 'password') {
+    await fireEvent.changeText(
+      await screen.findByLabelText('Email address'),
+      newEmail,
+    );
+    await fireEvent.changeText(
+      screen.getByLabelText('Current password'),
+      password,
+    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Save email' }));
+  }
+
+  test('saves, says the link is sent and shows it waiting on Settings', async () => {
+    answerEmailWith();
+    await renderSettings();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Email, filip@example.com' }),
+    );
+    await fillEmail(' New@Example.com ');
+
+    expect(
+      await screen.findByText('Link sent to New@Example.com.'),
+    ).toBeOnTheScreen();
+    await expect(sentTo(requestPath)?.clone().json()).resolves.toEqual({
+      newEmail: 'New@Example.com',
+      currentPassword: 'password',
+    });
+    expect(
+      await screen.findByRole('button', { name: waitingRow }),
+    ).toBeOnTheScreen();
+  });
+
+  test.each([
+    ['not-an-email', 'password', 'Enter a valid email.'],
+    ['new@example.com', '', 'Enter your current password.'],
+  ])(
+    'with %p and %p it shows %p and sends nothing',
+    async (email, password, message) => {
+      answerEmailWith();
+      await renderAt('/settings/email');
+
+      await fillEmail(email, password);
+
+      expect(await screen.findByText(message)).toBeOnTheScreen();
+      expect(sentTo(requestPath)).toBeUndefined();
+    },
+  );
+
+  test.each([
+    [
+      'taken',
+      () =>
+        Response.json(
+          {
+            type: 'about:blank',
+            title: 'Conflict',
+            status: 409,
+            detail: 'An account with this email already exists.',
+            code: 'user.email_taken',
+            traceId: '1',
+          },
+          { status: 409 },
+        ),
+      'An account with this email already exists.',
+    ],
+    [
+      'wrong password',
+      () =>
+        validationProblem({
+          currentPassword: ['The current password is wrong.'],
+        }),
+      'The current password is wrong.',
+    ],
+    [
+      'the same email',
+      () => validationProblem({ newEmail: ["That's already your email."] }),
+      "That's already your email.",
+    ],
+  ])('%s shows under its field', async (_, request, message) => {
+    answerEmailWith({ request });
+    await renderAt('/settings/email');
+
+    await fillEmail('new@example.com');
+
+    expect(await screen.findByText(message)).toBeOnTheScreen();
+  });
+
+  test('a failed save says so and stays', async () => {
+    answerEmailWith({ request: () => new Response(null, { status: 500 }) });
+    await renderAt('/settings/email');
+
+    await fillEmail('new@example.com');
+
+    expect(
+      await screen.findByText("Couldn't send the link. Try again."),
+    ).toBeOnTheScreen();
+  });
+
+  test('Send again sends, then asks to wait', async () => {
+    answerEmailWith({ pending: 'new@example.com' });
+    await renderSettings();
+
+    await openWaitingPage();
+    expect(
+      screen.getByText(/^We sent a link to new@example\.com\./),
+    ).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Send again' }));
+
+    expect(await screen.findByText('Link sent again.')).toBeOnTheScreen();
+    await fireEvent.press(
+      await screen.findByRole('button', { name: /^Send again in / }),
+    );
+    expect(
+      await screen.findByText('Wait a moment before sending it again.'),
+    ).toBeOnTheScreen();
+    expect(
+      mockFetch.mock.calls.filter(
+        ([sent]) => new URL(sent.url).pathname === resendPath,
+      ),
+    ).toHaveLength(1);
+  });
+
+  test('a failed Send again says so', async () => {
+    answerEmailWith({
+      pending: 'new@example.com',
+      resend: () => new Response(null, { status: 500 }),
+    });
+    await renderSettings();
+
+    await openWaitingPage();
+    await fireEvent.press(screen.getByRole('button', { name: 'Send again' }));
+
+    expect(
+      await screen.findByText("Couldn't send the link. Try again."),
+    ).toBeOnTheScreen();
+  });
+
+  test('the form stays below the waiting message', async () => {
+    answerEmailWith({ pending: 'new@example.com' });
+    await renderSettings();
+
+    await openWaitingPage();
+
+    expect(screen.getByText('Waiting for confirmation')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Email address')).toBeOnTheScreen();
+  });
+
+  test('with nothing waiting, the row is plain and the page has no message', async () => {
+    answerEmailWith();
+    await renderSettings();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Email, filip@example.com' }),
+    );
+
+    await screen.findByLabelText('Email address');
+    expect(screen.queryByText('Waiting for confirmation')).toBeNull();
   });
 });
 

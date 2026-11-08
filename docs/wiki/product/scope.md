@@ -253,13 +253,13 @@ Changes on W30 stay in the app until Save workout.
 
 **What it does:** you manage your profile photo, theme, color, units, default rest time, sound and vibrate when rest ends, name, email and password. You can sign out or delete your account.
 
-**Screens:** H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email.
+**Screens:** H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email, H27 to H29 Confirming a new email, H30 Confirmation email, H31 Email changed notice.
 
 **Flows**
 - **Open:** the FM avatar on Home → H10.
-- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name and password are built.
+- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name, password and email are built.
 - **Photo:** H11 → Take photo or Choose from library. Remove photo → H10, with an undo bar.
-- **Email:** H17 → Save email → link in the email → the new email is active.
+- **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
 - **Sign out:** → A01.
 - **Delete account:** → H19 → A01. An account deleted event tells Training to delete the user's training data, workouts included.
 
@@ -275,7 +275,9 @@ Changes on W30 stay in the app until Save workout.
 | DELETE | `/api/v1/users/me/photo` | H11 Remove photo |
 | PUT | `/api/v1/users/me/password` | H18 |
 | POST | `/api/v1/email-changes` | H17 |
-| POST | `/api/v1/email-changes/confirm` | Opened from the email link |
+| GET | `/api/v1/email-changes/pending` | H10, H33 |
+| POST | `/api/v1/email-changes/resend` | H33 Send again |
+| POST | `/api/v1/email-changes/confirm` | H27, opened from the email link |
 | GET | `/links/confirm-email` | Redirect page from the email |
 | GET | `/api/v1/workout-settings` | H10 |
 | PATCH | `/api/v1/workout-settings` | H15, sound and vibrate toggles |

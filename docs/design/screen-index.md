@@ -1,6 +1,6 @@
 # Screen index
 
-306 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+314 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -49,7 +49,15 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H16 | Settings › Name | H2 Settings | 390×844 | [png](screens/home/H16-Settings-Name.png) · [html](html/home/H16-Settings-Name.html) · [source](source/home/H16-Settings-Name.dc.html) |
 | H24 | Settings › Name · empty | H2 Settings | 390×844 | [png](screens/home/H24-Settings-Name-Empty.png) · [html](html/home/H24-Settings-Name-Empty.html) · [source](source/home/H24-Settings-Name-Empty.dc.html) |
 | H25 | Settings › Change password · email | H2 Settings | 390×844 | [png](screens/home/H25-Settings-Password-Email.png) · [html](html/home/H25-Settings-Password-Email.html) · [source](source/home/H25-Settings-Password-Email.dc.html) |
-| H17 | Settings › Email · sheet | H2 Settings | 390×844 | [png](screens/home/H17-Settings-Email.png) · [html](html/home/H17-Settings-Email.html) · [source](source/home/H17-Settings-Email.dc.html) |
+| H30 | Settings › Email · confirmation email | H2 Settings | 390×844 | [png](screens/home/H30-Settings-Email-Confirm.png) · [html](html/home/H30-Settings-Email-Confirm.html) · [source](source/home/H30-Settings-Email-Confirm.dc.html) |
+| H31 | Settings › Email · changed notice | H2 Settings | 390×844 | [png](screens/home/H31-Settings-Email-Changed.png) · [html](html/home/H31-Settings-Email-Changed.html) · [source](source/home/H31-Settings-Email-Changed.dc.html) |
+| H17 | Settings › Email | H2 Settings | 390×844 | [png](screens/home/H17-Settings-Email.png) · [html](html/home/H17-Settings-Email.html) · [source](source/home/H17-Settings-Email.dc.html) |
+| H26 | Settings › Email · errors | H2 Settings | 390×844 | [png](screens/home/H26-Settings-Email-Errors.png) · [html](html/home/H26-Settings-Email-Errors.html) · [source](source/home/H26-Settings-Email-Errors.dc.html) |
+| H27 | Settings › Email · confirming | H2 Settings | 390×844 | [png](screens/home/H27-Settings-Email-Confirming.png) · [html](html/home/H27-Settings-Email-Confirming.html) · [source](source/home/H27-Settings-Email-Confirming.dc.html) |
+| H28 | Settings › Email · link expired | H2 Settings | 390×844 | [png](screens/home/H28-Settings-Email-Link-Expired.png) · [html](html/home/H28-Settings-Email-Link-Expired.html) · [source](source/home/H28-Settings-Email-Link-Expired.dc.html) |
+| H29 | Settings › Email · could not confirm | H2 Settings | 390×844 | [png](screens/home/H29-Settings-Email-Confirm-Failed.png) · [html](html/home/H29-Settings-Email-Confirm-Failed.html) · [source](source/home/H29-Settings-Email-Confirm-Failed.dc.html) |
+| H32 | Settings · email waiting for confirmation · full scroll | H2 Settings | 390×1156 | [png](screens/home/H32-Settings-Email-Waiting.png) · [html](html/home/H32-Settings-Email-Waiting.html) · [source](source/home/H32-Settings-Email-Waiting.dc.html) |
+| H33 | Settings › Email · waiting | H2 Settings | 390×844 | [png](screens/home/H33-Settings-Email-Waiting-Page.png) · [html](html/home/H33-Settings-Email-Waiting-Page.html) · [source](source/home/H33-Settings-Email-Waiting-Page.dc.html) |
 | H18 | Settings › Change password | H2 Settings | 390×844 | [png](screens/home/H18-Settings-Password.png) · [html](html/home/H18-Settings-Password.html) · [source](source/home/H18-Settings-Password.dc.html) |
 | H22 | Settings › Change password · wrong current password | H2 Settings | 390×844 | [png](screens/home/H22-Settings-Password-Wrong.png) · [html](html/home/H22-Settings-Password-Wrong.html) · [source](source/home/H22-Settings-Password-Wrong.dc.html) |
 | H23 | Settings › Change password · new password errors | H2 Settings | 390×844 | [png](screens/home/H23-Settings-Password-Errors.png) · [html](html/home/H23-Settings-Password-Errors.html) · [source](source/home/H23-Settings-Password-Errors.dc.html) |

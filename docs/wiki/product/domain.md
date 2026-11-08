@@ -46,7 +46,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Password reset and email change links expire. Their lifetimes are in [Configuration](/development/configuration#api-settings).
 - A password reset link works once, and a new one cancels older ones.
 - Resetting the password deletes every refresh token, so every device is signed out.
-- An email change takes effect only when the link in the email is opened.
+- An email change needs the current password, and takes effect only when the link in the email is opened. A new link cancels older ones. The old address is told, and a reset link sent to it stops working.
 - Sign out deletes that device's refresh token.
 - Changing the password deletes every refresh token except the current one, and emails the user.
 - A token is deleted once it is used or revoked.

@@ -2,6 +2,7 @@ using System.Threading.Channels;
 
 using Herculean.Account.Application.Auth;
 using Herculean.Account.Application.Email;
+using Herculean.Account.Application.EmailChanges;
 using Herculean.Account.Application.PasswordResets;
 using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
@@ -32,6 +33,12 @@ internal sealed class FakeUserRepository : IUserRepository
 
     public Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
+
+    public Task<User?> GetByIdWithEmailChangeTokensAsync(UserId userId, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
+
+    public Task<User?> GetByEmailChangeTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.EmailChangeTokens.Any(token => token.TokenHash == tokenHash)));
 
     public Task<User?> GetByPasswordResetTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.PasswordResetTokens.Any(token => token.TokenHash == tokenHash)));
@@ -93,6 +100,18 @@ internal sealed class FakeTokenIssuer : ITokenIssuer
     public string HashRefreshToken(string refreshToken) => $"hash:{refreshToken}";
 }
 
+internal sealed class FakeEmailChangeTokenIssuer(DateTimeOffset expiresAtUtc) : IEmailChangeTokenIssuer
+{
+    public string Issue(User user, string newEmail)
+    {
+        user.AddEmailChangeToken(newEmail, Hash("token"), expiresAtUtc);
+
+        return "token";
+    }
+
+    public string Hash(string token) => $"hash:{token}";
+}
+
 internal sealed class FakePasswordResetTokenIssuer : IPasswordResetTokenIssuer
 {
     public const string Token = "reset-token";
@@ -128,6 +147,13 @@ internal sealed class FakeResetLinks : IResetLinks
     public string Expired() => ExpiredLink;
 }
 
+internal sealed class FakeEmailChangeLinks : IEmailChangeLinks
+{
+    public string Page(string token) => $"https://api.example.com/links/confirm-email?token={token}";
+
+    public string Confirm(string token) => $"herculean://confirm-email?token={token}";
+}
+
 internal sealed record SentEmail(string Email, string Token);
 
 internal sealed record SentPasswordChangedEmail(string Email, DateTimeOffset ChangedAtUtc, string TimeZone);
@@ -141,6 +167,24 @@ internal sealed class FakeEmailSender : IEmailSender
     public List<SentPasswordChangedEmail> PasswordChangedEmails { get; } = [];
 
     public bool FailNext { get; set; }
+
+    public List<SentEmail> EmailChangeLinks { get; } = [];
+
+    public List<SentPasswordChangedEmail> EmailChangedEmails { get; } = [];
+
+    public Task SendEmailChangeAsync(string newEmail, string token, CancellationToken cancellationToken)
+    {
+        EmailChangeLinks.Add(new SentEmail(newEmail, token));
+
+        return Task.CompletedTask;
+    }
+
+    public Task SendEmailChangedAsync(string oldEmail, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        EmailChangedEmails.Add(new SentPasswordChangedEmail(oldEmail, changedAtUtc, timeZone));
+
+        return Task.CompletedTask;
+    }
 
     public Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
     {

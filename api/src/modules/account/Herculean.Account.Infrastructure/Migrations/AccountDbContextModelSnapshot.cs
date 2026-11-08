@@ -23,6 +23,52 @@ namespace Herculean.Account.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Herculean.Account.Domain.Users.EmailChangeToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at_utc");
+
+                    b.Property<string>("NewEmail")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("new_email");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_email_change_tokens");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_email_change_tokens_token_hash");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_email_change_tokens_user_id");
+
+                    b.ToTable("email_change_tokens", "account");
+                });
+
             modelBuilder.Entity("Herculean.Account.Domain.Users.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -205,6 +251,16 @@ namespace Herculean.Account.Infrastructure.Migrations
                     b.ToTable("outbox_messages", "account");
                 });
 
+            modelBuilder.Entity("Herculean.Account.Domain.Users.EmailChangeToken", b =>
+                {
+                    b.HasOne("Herculean.Account.Domain.Users.User", null)
+                        .WithMany("EmailChangeTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_email_change_tokens_users_user_id");
+                });
+
             modelBuilder.Entity("Herculean.Account.Domain.Users.PasswordResetToken", b =>
                 {
                     b.HasOne("Herculean.Account.Domain.Users.User", null)
@@ -227,6 +283,8 @@ namespace Herculean.Account.Infrastructure.Migrations
 
             modelBuilder.Entity("Herculean.Account.Domain.Users.User", b =>
                 {
+                    b.Navigation("EmailChangeTokens");
+
                     b.Navigation("PasswordResetTokens");
 
                     b.Navigation("RefreshTokens");

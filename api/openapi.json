@@ -496,6 +496,280 @@
         }
       }
     },
+    "/api/v1/email-changes": {
+      "post": {
+        "tags": [
+          "Email changes"
+        ],
+        "summary": "Ask to change the email",
+        "description": "Checks the current password and sends a link to the new address. The email changes only when the link is opened, and a new request cancels an older link.",
+        "operationId": "RequestEmailChange",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestEmailChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted. The link is on its way."
+          },
+          "400": {
+            "description": "A field is not valid, the current password is wrong, or it is already this user's email. The errors name each field.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another account uses this email.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/email-changes/pending": {
+      "get": {
+        "tags": [
+          "Email changes"
+        ],
+        "summary": "Get the email change that is waiting",
+        "description": "The new address whose link hasn't been opened and hasn't expired.",
+        "operationId": "GetPendingEmailChange",
+        "responses": {
+          "200": {
+            "description": "The address waiting, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingEmailChangeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/email-changes/resend": {
+      "post": {
+        "tags": [
+          "Email changes"
+        ],
+        "summary": "Send the email change link again",
+        "description": "Sends a new link to the address that is waiting. The older link stops working.",
+        "operationId": "ResendEmailChange",
+        "responses": {
+          "202": {
+            "description": "Accepted. The link is on its way."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists, or no email change is waiting.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/email-changes/confirm": {
+      "post": {
+        "tags": [
+          "Email changes"
+        ],
+        "summary": "Confirm a new email",
+        "description": "Makes the new email active with the token from the link. It needs no sign in, because the link can be opened on another device or while signed out.",
+        "operationId": "ConfirmEmailChange",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The email is changed."
+          },
+          "400": {
+            "description": "The token is missing.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The token is unknown, already used or expired. Send a new link.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another account took this email after the link was sent.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/links/confirm-email": {
+      "get": {
+        "tags": [
+          "Email changes"
+        ],
+        "summary": "Open an email change link",
+        "description": "The page the email links to. It opens the app's screen that confirms the new email.",
+        "operationId": "OpenConfirmEmailLink",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "The token from the email.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page that opens the app.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/workout-settings": {
       "get": {
         "tags": [
@@ -3625,6 +3899,19 @@
         },
         "description": "The token from the reset link, and the new password."
       },
+      "ConfirmEmailChangeRequest": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token from the link. It works once."
+          }
+        },
+        "description": "The token from the link in the email."
+      },
       "CreateExerciseRequest": {
         "required": [
           "name",
@@ -4476,6 +4763,22 @@
         },
         "description": "A weekday that moved to this routine from another one."
       },
+      "PendingEmailChangeResponse": {
+        "required": [
+          "newEmail"
+        ],
+        "type": "object",
+        "properties": {
+          "newEmail": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The address waiting to be confirmed, or null when none is."
+          }
+        },
+        "description": "The email change waiting for its link to be opened."
+      },
       "ProblemDetails": {
         "required": [
           "type",
@@ -4685,6 +4988,24 @@
           }
         },
         "description": "A group's new name."
+      },
+      "RequestEmailChangeRequest": {
+        "required": [
+          "newEmail",
+          "currentPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "newEmail": {
+            "type": "string",
+            "description": "The new address. The link goes there."
+          },
+          "currentPassword": {
+            "type": "string",
+            "description": "The password the user has now."
+          }
+        },
+        "description": "The new email, and the password that proves it's the user asking."
       },
       "RoutineDetailsResponse": {
         "required": [
@@ -5703,6 +6024,9 @@
     },
     {
       "name": "Password resets"
+    },
+    {
+      "name": "Email changes"
     },
     {
       "name": "Workout settings"

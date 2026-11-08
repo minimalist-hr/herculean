@@ -96,6 +96,9 @@ public sealed class AccountModuleTests
             ["/api/v1/sessions/refresh"] = "refresh",
             ["/api/v1/password-resets"] = "password-reset",
             ["/api/v1/password-resets/complete"] = "password-reset-complete",
+            ["/api/v1/email-changes"] = "email-change",
+            ["/api/v1/email-changes/resend"] = "email-change-resend",
+            ["/api/v1/email-changes/confirm"] = "email-change-confirm",
         });
     }
 }

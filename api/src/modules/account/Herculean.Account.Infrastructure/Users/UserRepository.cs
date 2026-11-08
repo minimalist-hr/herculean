@@ -14,6 +14,18 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
             .Include(user => user.RefreshTokens)
             .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
+    public Task<User?> GetByIdWithEmailChangeTokensAsync(UserId userId, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .Include(user => user.EmailChangeTokens)
+            .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
+    public Task<User?> GetByEmailChangeTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .Include(user => user.EmailChangeTokens)
+            .Include(user => user.PasswordResetTokens)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(user => user.EmailChangeTokens.Any(token => token.TokenHash == tokenHash), cancellationToken);
+
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         string normalizedEmail = User.NormalizeEmail(email);

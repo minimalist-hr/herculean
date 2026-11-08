@@ -276,6 +276,9 @@ export function createApi() {
     if (key === 'GET /api/v1/users/me') {
       return { status: 200, body: { email: 'filip@example.com', name: 'Filip Mučnjak', units: 'metric', theme: 'matchPhone', color: 'nitro', timeZone: 'Europe/Zagreb' } };
     }
+    if (key === 'GET /api/v1/email-changes/pending') {
+      return { status: 200, body: { newEmail: null } };
+    }
     if (key === 'GET /api/v1/groups') {
       return {
         status: 200,

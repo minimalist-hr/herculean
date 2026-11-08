@@ -21,6 +21,7 @@ import {
   unitLabels,
 } from './settings-labels';
 import { SettingsRow, SettingsSection } from './settings-rows';
+import { usePendingEmailChange } from './use-email-change';
 
 /** Says that something comes later, until its issue builds it. */
 function later(what: string) {
@@ -39,6 +40,7 @@ export function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const user = useCurrentUser();
   const workoutSettings = useWorkoutSettings();
+  const pendingEmail = usePendingEmailChange();
 
   function userValue(read: (data: NonNullable<typeof user.data>) => string) {
     if (user.data !== undefined) {
@@ -135,8 +137,12 @@ export function SettingsScreen() {
         <SettingsRow
           label="Email"
           value={userValue((data) => data.email)}
-          muted
-          onPress={later('Changing your email')}
+          attention={
+            pendingEmail.data?.newEmail ? 'Waiting for confirmation' : undefined
+          }
+          onPress={() => {
+            router.push('/settings/email');
+          }}
         />
         <SettingsRow
           label="Password"

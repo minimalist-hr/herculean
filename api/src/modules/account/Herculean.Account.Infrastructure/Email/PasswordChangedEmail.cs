@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Net;
 
 using MimeKit;
@@ -13,7 +12,7 @@ internal static class PasswordChangedEmail
 
     public static MimeMessage Create(MailboxAddress from, string email, DateTimeOffset changedAtUtc, string timeZone)
     {
-        string changedAt = FormatChangedAt(changedAtUtc, timeZone);
+        string changedAt = EmailResources.FormatTime(changedAtUtc, timeZone);
         BodyBuilder body = new()
         {
             TextBody = $"""
@@ -32,23 +31,4 @@ internal static class PasswordChangedEmail
 
         return new MimeMessage([from], [MailboxAddress.Parse(email)], Subject, body.ToMessageBody());
     }
-
-    private static string FormatChangedAt(DateTimeOffset changedAtUtc, string timeZone)
-    {
-        DateTimeOffset local = TimeZoneInfo.ConvertTime(changedAtUtc, TimeZoneInfo.FindSystemTimeZoneById(timeZone));
-        string weekday = local.ToString("ddd", CultureInfo.InvariantCulture);
-        string monthAndTime = local.ToString("MMM yyyy 'at' HH:mm", CultureInfo.InvariantCulture);
-
-        return $"{weekday}, {local.Day}{OrdinalSuffix(local.Day)} {monthAndTime} ({timeZone})";
-    }
-
-    private static string OrdinalSuffix(int day) =>
-        (day % 10, day % 100) switch
-        {
-            (_, 11 or 12 or 13) => "th",
-            (1, _) => "st",
-            (2, _) => "nd",
-            (3, _) => "rd",
-            _ => "th",
-        };
 }

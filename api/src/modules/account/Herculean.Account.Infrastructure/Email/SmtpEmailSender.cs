@@ -1,4 +1,5 @@
 using Herculean.Account.Application.Email;
+using Herculean.Account.Application.EmailChanges;
 using Herculean.Account.Application.PasswordResets;
 
 using MailKit.Net.Smtp;
@@ -10,8 +11,22 @@ using MimeKit;
 
 namespace Herculean.Account.Infrastructure.Email;
 
-internal sealed class SmtpEmailSender(IOptions<EmailOptions> options, IResetLinks resetLinks) : IEmailSender
+internal sealed class SmtpEmailSender(IOptions<EmailOptions> options, IResetLinks resetLinks, IEmailChangeLinks emailChangeLinks) : IEmailSender
 {
+    public async Task SendEmailChangeAsync(string newEmail, string token, CancellationToken cancellationToken)
+    {
+        using MimeMessage message = EmailChangeLinkEmail.Create(MailboxAddress.Parse(options.Value.From), newEmail, emailChangeLinks.Page(token));
+
+        await SendAsync(message, cancellationToken);
+    }
+
+    public async Task SendEmailChangedAsync(string oldEmail, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        using MimeMessage message = EmailChangedEmail.Create(MailboxAddress.Parse(options.Value.From), oldEmail, changedAtUtc, timeZone);
+
+        await SendAsync(message, cancellationToken);
+    }
+
     public async Task SendPasswordResetAsync(string email, string token, CancellationToken cancellationToken)
     {
         using MimeMessage message = PasswordResetEmail.Create(MailboxAddress.Parse(options.Value.From), email, resetLinks.Page(token));

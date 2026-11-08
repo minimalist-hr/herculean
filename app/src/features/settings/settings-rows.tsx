@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { ChevronRightIcon } from '@/components/icons';
+import { AlertIcon, ChevronRightIcon } from '@/components/icons';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
 import { Tappable } from '@/components/tappable';
@@ -40,6 +40,8 @@ interface SettingsRowProps {
   label: string;
   /** What it is set to. Undefined while it loads. */
   value?: string;
+  /** Shows an alert icon by the label. This says why, to screen readers. */
+  attention?: string;
   first?: boolean;
   /** Not available yet: it looks muted but still says why when tapped. */
   muted?: boolean;
@@ -55,6 +57,7 @@ interface SettingsRowProps {
 export function SettingsRow({
   label,
   value,
+  attention,
   first = false,
   muted = false,
   danger = false,
@@ -86,7 +89,9 @@ export function SettingsRow({
     <Tappable
       feedback="fill"
       accessibilityRole={onPress === undefined ? undefined : 'button'}
-      accessibilityLabel={value === undefined ? label : `${label}, ${value}`}
+      accessibilityLabel={[label, value, attention]
+        .filter((part) => part !== undefined)
+        .join(', ')}
       disabled={onPress === undefined}
       onPress={onPress}
       style={[
@@ -101,15 +106,17 @@ export function SettingsRow({
         },
       ]}
     >
-      <Text
-        style={[
-          text.listItemName,
-          styles.label,
-          { color: danger ? colors.danger : colors.text },
-        ]}
-      >
-        {label}
-      </Text>
+      <View style={[styles.label, { gap: space.sm }]}>
+        <Text
+          style={[
+            text.listItemName,
+            { color: danger ? colors.danger : colors.text },
+          ]}
+        >
+          {label}
+        </Text>
+        {attention !== undefined && <AlertIcon color={colors.warn} size={16} />}
+      </View>
       {renderValue()}
       {onPress !== undefined && !action && (
         <ChevronRightIcon color={colors.muted} size={16} />
@@ -129,6 +136,8 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   value: {
     flexShrink: 1,

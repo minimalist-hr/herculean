@@ -5,7 +5,7 @@ namespace Herculean.Account.Application.PasswordResets.OpenResetLink;
 internal static class ResetLinkPage
 {
     /// <summary>Opens the app by itself. The button is there for browsers that wait for a tap.</summary>
-    public static string Render(string appLink)
+    public static string Render(string appLink, string label = "Forgot password?")
     {
         string encodedLink = HtmlEncoder.Default.Encode(appLink);
 
@@ -28,7 +28,7 @@ internal static class ResetLinkPage
             <body>
             <div style="min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; background: #050506; color: #F2F3F5; font-family: 'Chakra Petch', system-ui, sans-serif">
             <main style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 48px 16px 16px">
-            <p style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB6">Forgot password?</p>
+            <p style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB6">{{HtmlEncoder.Default.Encode(label)}}</p>
             <h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em">Opening Herculean</h1>
             <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A9AEB6">Nothing happening? Tap the button on the phone with Herculean.</p>
             </main>

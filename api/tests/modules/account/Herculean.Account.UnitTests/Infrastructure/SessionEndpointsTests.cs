@@ -35,6 +35,7 @@ public sealed class SessionEndpointsTests : IAsyncLifetime
         builder.Configuration["Jwt:AccessTokenLifetime"] = "00:15:00";
         builder.Configuration["Jwt:RefreshTokenLifetime"] = "30.00:00:00";
         builder.Configuration["Tokens:ResetLinkLifetime"] = "01:00:00";
+        builder.Configuration["Tokens:EmailChangeLifetime"] = "1.00:00:00";
         builder.Configuration["Email:Host"] = "localhost";
         builder.Configuration["Email:Port"] = "1025";
         builder.Configuration["Email:From"] = "Herculean <no-reply@minimalist.hr>";
