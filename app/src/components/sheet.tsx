@@ -78,8 +78,8 @@ interface SheetProps {
   onOverflow?: (points: number) => void;
   /** Keeps the actions above the keyboard, for a short form whose action should stay in reach. */
   actionsAboveKeyboard?: boolean;
-  /** The actions below the line: the main one first. The close button and a tap outside cancel. */
-  children: ReactNode;
+  /** The actions below the line: the main one first. The close button and a tap outside cancel. A sheet of choices in its body has none. */
+  children?: ReactNode;
 }
 
 /** A sheet rising over a dimmed screen. It closes back to the screen that opened it, and pulling the grabber down closes it. */
@@ -119,7 +119,8 @@ export function Sheet({
       ? space.lg
       : Math.max(insets.bottom + space.md, paddingBottomMin);
   // The actions wait behind the keyboard, so the fields keep the room.
-  const actionsShown = keyboardHeight === 0 || actionsAboveKeyboard;
+  const actionsShown =
+    children !== undefined && (keyboardHeight === 0 || actionsAboveKeyboard);
   const parts = 1 + (body === undefined ? 0 : 1) + (actionsShown ? 1 : 0);
   const bodyPull = bodyGap === undefined ? 0 : bodyGap - space.lg;
   const natural =

@@ -23,6 +23,7 @@ erDiagram
     User ||--o{ RefreshToken : has
     User ||--o{ PasswordResetToken : has
     User ||--o{ EmailChangeToken : has
+    User ||--o| UserPhoto : has
 ```
 
 ### User
@@ -32,8 +33,7 @@ erDiagram
 | Email | string | Unique, case-insensitive |
 | PasswordHash | string | |
 | Name | string? | Empty until setup (A30) |
-| Photo | byte[]? | |
-| PhotoContentType | string? | |
+| Photo | UserPhoto? | |
 | TimeZone | string | IANA name, for example `Europe/Zagreb` |
 | Theme | enum | `MatchPhone`, `Dark`, `Light`. Starts at `MatchPhone` |
 | Color | enum | `Nitro`, `Chrome`. Starts at `Nitro` |
@@ -60,6 +60,15 @@ erDiagram
 | User | User | |
 | TokenHash | string | |
 | ExpiresAtUtc | DateTimeOffset | |
+
+### UserPhoto
+
+In its own table, so that reading a user doesn't load the image.
+
+| Property | Type | Notes |
+|---|---|---|
+| UserId | UserId | → User, unique |
+| Image | byte[] | JPEG, at most 1 MB |
 
 ### EmailChangeToken
 

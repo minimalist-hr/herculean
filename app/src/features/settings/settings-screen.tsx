@@ -1,12 +1,12 @@
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useIsMutating } from '@tanstack/react-query';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackLink } from '@/components/back-link';
 import { LoadFailure } from '@/components/load-failure';
-import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
 import { TextLink } from '@/components/text-link';
@@ -23,14 +23,9 @@ import {
   unitLabels,
 } from './settings-labels';
 import { SettingsRow, SettingsSection } from './settings-rows';
+import { ProfilePhotoSheet } from './profile-photo-sheet';
 import { usePendingEmailChange } from './use-email-change';
-
-/** Says that something comes later, until its issue builds it. */
-function later(what: string) {
-  return () => {
-    notifyFailure(`${what} comes in a later update.`);
-  };
-}
+import { photoUri, savePhotoKey, useUserPhoto } from './use-user-photo';
 
 /** Shown in place of a value that couldn't load. */
 const noValue = '–';
@@ -225,6 +220,37 @@ function Profile({ name, email }: { name?: string | null; email?: string }) {
   const { colors, radius, size, space, text } = useTheme();
   // The link keeps its full touch area, but takes only its text's height, so the name and link fit the avatar.
   const linkOverhang = (size.touchTargetMin - linkTextHeight) / 2;
+  const image = useUserPhoto().data?.image;
+  const saving = useIsMutating({ mutationKey: savePhotoKey }) > 0;
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  function renderAvatar() {
+    if (saving) {
+      return <Skeleton width={avatarSize} height={avatarSize} />;
+    }
+    if (image) {
+      return (
+        <Image
+          accessibilityIgnoresInvertColors
+          source={{ uri: photoUri(image) }}
+          style={{
+            width: avatarSize,
+            height: avatarSize,
+            borderRadius: radius.control,
+          }}
+        />
+      );
+    }
+    if (email === undefined) {
+      return <Skeleton width={28} height={18} />;
+    }
+
+    return (
+      <Text style={[text.listItemName, { color: colors.text }]}>
+        {initialsOf(name ?? null, email)}
+      </Text>
+    );
+  }
 
   return (
     <View
@@ -245,13 +271,7 @@ function Profile({ name, email }: { name?: string | null; email?: string }) {
           { borderRadius: radius.control, backgroundColor: colors.raised },
         ]}
       >
-        {email === undefined ? (
-          <Skeleton width={28} height={18} />
-        ) : (
-          <Text style={[text.listItemName, { color: colors.text }]}>
-            {initialsOf(name ?? null, email)}
-          </Text>
-        )}
+        {renderAvatar()}
       </View>
       <View style={[styles.profileText, { gap: space.xs }]}>
         {email === undefined ? (
@@ -263,9 +283,20 @@ function Profile({ name, email }: { name?: string | null; email?: string }) {
         )}
         {/* Its side padding widens the touch area, so it starts in line with the name. */}
         <View style={{ marginLeft: -space.sm, marginVertical: -linkOverhang }}>
-          <TextLink label="Add photo" muted onPress={later('Adding a photo')} />
+          <TextLink
+            label={image ? 'Change photo' : 'Add photo'}
+            onPress={() => {
+              setSheetOpen(true);
+            }}
+          />
         </View>
       </View>
+      <ProfilePhotoSheet
+        visible={sheetOpen}
+        onClose={() => {
+          setSheetOpen(false);
+        }}
+      />
     </View>
   );
 }

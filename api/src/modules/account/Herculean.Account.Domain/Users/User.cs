@@ -39,6 +39,9 @@ internal sealed class User : Entity<UserId>
     /// <summary>When the account gets deleted, or null when it isn't going to be.</summary>
     public DateTimeOffset? DeletionScheduledForUtc { get; private set; }
 
+    /// <summary>Null when there is none, or when it wasn't loaded.</summary>
+    public UserPhoto? Photo { get; private set; }
+
     public IReadOnlyList<RefreshToken> RefreshTokens => _refreshTokens;
 
     public IReadOnlyList<PasswordResetToken> PasswordResetTokens => _passwordResetTokens;
@@ -110,6 +113,25 @@ internal sealed class User : Entity<UserId>
     public void RemovePasswordResetToken(PasswordResetToken passwordResetToken)
     {
         _passwordResetTokens.Remove(passwordResetToken);
+    }
+
+    /// <summary>Needs the photo loaded.</summary>
+    public void SetPhoto(byte[] image)
+    {
+        if (Photo is null)
+        {
+            Photo = UserPhoto.Create(Id, image);
+        }
+        else
+        {
+            Photo.Replace(image);
+        }
+    }
+
+    /// <summary>Needs the photo loaded.</summary>
+    public void RemovePhoto()
+    {
+        Photo = null;
     }
 
     /// <summary>Every device is signed out, and a waiting email change is cancelled. Needs the tokens loaded.</summary>

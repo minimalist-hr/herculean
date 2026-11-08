@@ -72,6 +72,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the signed-in user's photo
+         * @description The profile photo, or null when there is none.
+         */
+        get: operations["GetCurrentUserPhoto"];
+        /**
+         * Save the signed-in user's photo
+         * @description Sets or replaces the profile photo.
+         */
+        put: operations["SaveCurrentUserPhoto"];
+        post?: never;
+        /**
+         * Remove the signed-in user's photo
+         * @description Removes the profile photo. With no photo, it changes nothing.
+         */
+        delete: operations["DeleteCurrentUserPhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sessions": {
         parameters: {
             query?: never;
@@ -1661,6 +1689,11 @@ export interface components {
             /** @description The weekdays that moved here from another routine, from Monday. */
             movedDays: components["schemas"]["MovedDayResponse"][];
         };
+        /** @description The new profile photo. */
+        SaveCurrentUserPhotoRequest: {
+            /** @description The photo as a Base64 JPEG, at most 1 MB. */
+            image: string;
+        };
         /** @description A month of sessions. */
         SessionMonthResponse: {
             /** @description The month, as yyyy-MM. */
@@ -1851,6 +1884,11 @@ export interface components {
             date: string;
             /** @description The name of the routine planned on it. Null on a rest day. */
             routineName: null | string;
+        };
+        /** @description The user's profile photo. */
+        UserPhotoResponse: {
+            /** @description The photo as a Base64 JPEG, or null when there is none. */
+            image: null | string;
         };
         /** @description The signed-in user. */
         UserResponse: {
@@ -2285,6 +2323,129 @@ export interface operations {
             };
             /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetCurrentUserPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The photo, or null. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserPhotoResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SaveCurrentUserPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveCurrentUserPhotoRequest"];
+            };
+        };
+        responses: {
+            /** @description The photo is saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description It isn't a Base64 JPEG, or it is over 1 MB. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteCurrentUserPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description There is no photo now. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

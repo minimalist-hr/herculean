@@ -178,6 +178,33 @@ public sealed class UserRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task APhotoLoadsAndIsDeletedWhenRemovedOrWithItsUser()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.SetPhoto([0xFF, 0xD8, 0xFF]);
+        User other = User.Create("other@example.com", "hash", "Europe/Zagreb");
+        other.SetPhoto([0xFF, 0xD8, 0xFF]);
+        _userRepository.Add(newUser);
+        _userRepository.Add(other);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        (await _userRepository.GetByIdAsync(newUser.Id, TestContext.Current.CancellationToken)).ShouldNotBeNull().Photo.ShouldBeNull();
+        _dbContext.ChangeTracker.Clear();
+
+        User user = (await _userRepository.GetByIdWithPhotoAsync(newUser.Id, TestContext.Current.CancellationToken)).ShouldNotBeNull();
+        user.Photo.ShouldNotBeNull();
+        user.RemovePhoto();
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        (await _dbContext.Set<UserPhoto>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+        _dbContext.ChangeTracker.Clear();
+
+        _userRepository.Remove((await _userRepository.GetByIdWithAllTokensAsync(other.Id, TestContext.Current.CancellationToken)).ShouldNotBeNull());
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        (await _dbContext.Set<UserPhoto>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+    }
+
+    [Fact]
     public async Task OnlyAccountsWhoseWaitIsOverAreDue()
     {
         DateTimeOffset now = new(2026, 11, 22, 12, 0, 0, TimeSpan.Zero);

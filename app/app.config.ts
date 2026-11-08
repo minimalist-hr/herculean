@@ -31,6 +31,16 @@ const config: ExpoConfig = {
     'expo-status-bar',
     'expo-secure-store',
     'expo-localization',
+    [
+      'expo-image-picker',
+      {
+        cameraPermission:
+          'Herculean uses the camera to take your profile photo.',
+        photosPermission:
+          'Herculean uses your photos to set your profile photo.',
+        microphonePermission: false,
+      },
+    ],
     // Only the background. The launch screen draws the logo and its glow.
     [
       'expo-splash-screen',

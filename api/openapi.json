@@ -308,6 +308,149 @@
         ]
       }
     },
+    "/api/v1/users/me/photo": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get the signed-in user's photo",
+        "description": "The profile photo, or null when there is none.",
+        "operationId": "GetCurrentUserPhoto",
+        "responses": {
+          "200": {
+            "description": "The photo, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPhotoResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Save the signed-in user's photo",
+        "description": "Sets or replaces the profile photo.",
+        "operationId": "SaveCurrentUserPhoto",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCurrentUserPhotoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The photo is saved."
+          },
+          "400": {
+            "description": "It isn't a Base64 JPEG, or it is over 1 MB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Remove the signed-in user's photo",
+        "description": "Removes the profile photo. With no photo, it changes nothing.",
+        "operationId": "DeleteCurrentUserPhoto",
+        "responses": {
+          "204": {
+            "description": "There is no photo now."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The account no longer exists.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/sessions": {
       "post": {
         "tags": [
@@ -5445,6 +5588,19 @@
         },
         "description": "A saved routine, and the days it took from other routines."
       },
+      "SaveCurrentUserPhotoRequest": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The photo as a Base64 JPEG, at most 1 MB."
+          }
+        },
+        "description": "The new profile photo."
+      },
       "SessionMonthResponse": {
         "required": [
           "month",
@@ -5867,6 +6023,22 @@
           }
         },
         "description": "The day after a day."
+      },
+      "UserPhotoResponse": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The photo as a Base64 JPEG, or null when there is none."
+          }
+        },
+        "description": "The user's profile photo."
       },
       "UserResponse": {
         "required": [

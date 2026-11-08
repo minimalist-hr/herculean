@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout } from './fixtures.mjs';
+import { legsDay, problem, sample, sampleDay, sampleDays, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout, samplePhoto } from './fixtures.mjs';
 
 const { benchHistory, benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
@@ -63,6 +63,7 @@ const deleteFromToday = async (on) => {
   await on.waitFor('Delete workout');
   await on.sleep(400);
 };
+const withPhoto = { 'GET /api/v1/users/me/photo': { status: 200, body: { image: samplePhoto } } };
 const settingsName = 'Filip Mučnjak';
 const openSettings = async (on) => {
   await on.go('/');
@@ -536,6 +537,35 @@ export const screens = [
     await on.tap('Save password');
     await on.waitFor("The passwords don't match.");
     await on.sleep(400);
+  } },
+  { id: 'H11', file: 'H11-Settings-Photo', title: 'Settings › Profile photo · sheet', row: 'H2 Settings', full: false, answers: withPhoto, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Change photo');
+    await on.waitFor('Take photo');
+    await on.sleep(600);
+  } },
+  { id: 'H39', file: 'H39-Settings-With-Photo', title: 'Settings · with a photo', row: 'H2 Settings', answers: withPhoto, steps: async (on) => {
+    await openSettings(on);
+    await on.waitFor('Change photo');
+    await on.sleep(400);
+  } },
+  { id: 'H40', file: 'H40-Settings-Photo-None', title: 'Settings › Profile photo · no photo', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Add photo');
+    await on.waitFor('Take photo');
+    await on.sleep(400);
+    await on.tap('Remove photo');
+    await on.waitFor('There is no photo to remove.');
+    await on.sleep(400);
+  } },
+  { id: 'H41', file: 'H41-Settings-Photo-Removed', title: 'Settings › Profile photo · removed', row: 'H2 Settings', full: false, answers: { ...withPhoto, 'DELETE /api/v1/users/me/photo': { status: 204 } }, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Change photo');
+    await on.waitFor('Take photo');
+    await on.sleep(400);
+    await on.tap('Remove photo');
+    await on.waitFor('Photo removed.');
+    await on.sleep(600);
   } },
   { id: 'H19', file: 'H19-Settings-Delete-Account', title: 'Settings › Delete account · confirm', row: 'H2 Settings', full: false, steps: async (on) => {
     await openSettings(on);

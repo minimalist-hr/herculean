@@ -28,6 +28,11 @@ import { SettingsScreen } from './settings-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 const mockRefreshTokens = jest.fn<Promise<boolean>, []>();
+const mockPickPhoto = jest.fn<Promise<unknown>, [string]>();
+
+jest.mock('./pick-photo', () => ({
+  pickPhoto: (source: string) => mockPickPhoto(source),
+}));
 
 jest.mock('@/api/client', () => {
   const createClient =
@@ -174,17 +179,6 @@ test('the avatar shows the initials and opens Settings with every value', async 
   expect(screen.getByText('Metric')).toBeOnTheScreen();
   expect(await screen.findByText('1:30')).toBeOnTheScreen();
   expect(screen.getByText('filip@example.com')).toBeOnTheScreen();
-});
-
-test('a row not built yet says so', async () => {
-  answerWith();
-  await renderSettings();
-
-  await fireEvent.press(await screen.findByRole('link', { name: 'Add photo' }));
-
-  expect(
-    await screen.findByText('Adding a photo comes in a later update.'),
-  ).toBeOnTheScreen();
 });
 
 function patchBody() {
@@ -557,6 +551,174 @@ describe('change password', () => {
     await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
 
     expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+  });
+});
+
+describe('profile photo', () => {
+  const photoPath = '/api/v1/users/me/photo';
+
+  function answerPhotoWith({
+    image = null as string | null,
+    save = () => new Response(null, { status: 204 }),
+    remove = () => new Response(null, { status: 204 }),
+  } = {}) {
+    answerWith();
+    const answerRest = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((sent) => {
+      if (new URL(sent.url).pathname !== photoPath) {
+        return answerRest?.(sent) ?? Promise.reject(new Error('No answer'));
+      }
+      if (sent.method === 'PUT') {
+        return Promise.resolve(save());
+      }
+      if (sent.method === 'DELETE') {
+        return Promise.resolve(remove());
+      }
+
+      return Promise.resolve(Response.json({ image }));
+    });
+  }
+
+  function sentWith(method: string) {
+    return mockFetch.mock.calls.find(
+      ([sent]) =>
+        sent.method === method && new URL(sent.url).pathname === photoPath,
+    )?.[0];
+  }
+
+  async function openSheet(link: string) {
+    await fireEvent.press(await screen.findByRole('link', { name: link }));
+    await screen.findByText('Profile photo');
+  }
+
+  beforeEach(() => {
+    mockPickPhoto.mockReset();
+    mockPickPhoto.mockResolvedValue({ kind: 'picked', image: 'new-photo' });
+  });
+
+  test('a picked photo is saved and says so', async () => {
+    answerPhotoWith();
+    await renderSettings();
+    await openSheet('Add photo');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
+
+    expect(await screen.findByText('Photo saved.')).toBeOnTheScreen();
+    expect(mockPickPhoto).toHaveBeenCalledWith('camera');
+    await expect(sentWith('PUT')?.clone().json()).resolves.toEqual({
+      image: 'new-photo',
+    });
+    expect(
+      await screen.findByRole('link', { name: 'Change photo' }),
+    ).toBeOnTheScreen();
+  });
+
+  test('denied access says where to allow it', async () => {
+    mockPickPhoto.mockResolvedValue({ kind: 'denied' });
+    answerPhotoWith();
+    await renderSettings();
+    await openSheet('Add photo');
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Choose from library' }),
+    );
+
+    expect(
+      await screen.findByText("Allow photo access in your phone's settings."),
+    ).toBeOnTheScreen();
+    expect(sentWith('PUT')).toBeUndefined();
+  });
+
+  test('cancelling saves nothing', async () => {
+    mockPickPhoto.mockResolvedValue({ kind: 'cancelled' });
+    answerPhotoWith();
+    await renderSettings();
+    await openSheet('Add photo');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
+
+    await waitFor(() => {
+      expect(mockPickPhoto).toHaveBeenCalled();
+    });
+    expect(sentWith('PUT')).toBeUndefined();
+  });
+
+  test.each([
+    [
+      'a failed upload',
+      () => {
+        answerPhotoWith({
+          save: () => new Response(null, { status: 500 }),
+        });
+      },
+    ],
+    [
+      'a photo that cannot be read',
+      () => {
+        mockPickPhoto.mockRejectedValue(new Error('Unreadable'));
+        answerPhotoWith();
+      },
+    ],
+  ])('%s says so', async (_, arrange) => {
+    arrange();
+    await renderSettings();
+    await openSheet('Add photo');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
+
+    expect(
+      await screen.findByText("Couldn't save the photo. Try again."),
+    ).toBeOnTheScreen();
+  });
+
+  test('with no photo, Remove says why and sends nothing', async () => {
+    answerPhotoWith();
+    await renderSettings();
+    await openSheet('Add photo');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Remove photo' }));
+
+    expect(
+      await screen.findByText('There is no photo to remove.'),
+    ).toBeOnTheScreen();
+    expect(sentWith('DELETE')).toBeUndefined();
+  });
+
+  test('Remove can be undone with the same photo', async () => {
+    answerPhotoWith({ image: 'old-photo' });
+    await renderSettings();
+    await openSheet('Change photo');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Remove photo' }));
+
+    expect(await screen.findByText('Photo removed.')).toBeOnTheScreen();
+    expect(
+      await screen.findByRole('link', { name: 'Add photo' }),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Undo'));
+
+    expect(
+      await screen.findByRole('link', { name: 'Change photo' }),
+    ).toBeOnTheScreen();
+    await expect(sentWith('PUT')?.clone().json()).resolves.toEqual({
+      image: 'old-photo',
+    });
+  });
+
+  test('a failed Remove says so', async () => {
+    answerPhotoWith({
+      image: 'old-photo',
+      remove: () => new Response(null, { status: 500 }),
+    });
+    await renderSettings();
+    await openSheet('Change photo');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Remove photo' }));
+
+    expect(
+      await screen.findByText("Couldn't remove the photo. Try again."),
+    ).toBeOnTheScreen();
   });
 });
 

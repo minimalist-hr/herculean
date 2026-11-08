@@ -257,8 +257,8 @@ Changes on W30 stay in the app until Save workout.
 
 **Flows**
 - **Open:** the FM avatar on Home → H10.
-- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name, password, email, sign out and delete account are built.
-- **Photo:** H11 → Take photo or Choose from library. Remove photo → H10, with an undo bar.
+- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name, password, email, profile photo, sign out and delete account are built.
+- **Photo:** H11 → Take photo or Choose from library, dragged and zoomed to a square, made 512 × 512 px on the phone → H39. It also shows on the Home avatar. Remove photo → H41, with an undo bar. With no photo, Remove photo looks muted (H40).
 - **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
 - **Sign out:** → H36 → A01. Without a connection it still signs out on the phone. Signing out, however it happens, clears what the phone holds for the user.
 - **Delete account:** → H19, with the current password → A01, which says so (A07), and H38 says when. A wrong password shows on H34, and a failure on H35. Signing in within 14 days opens A08, to keep the account. After 14 days a daily job deletes it: an account deleted event tells Training to delete the user's training data, workouts included, and H37 is the last email.
@@ -271,7 +271,8 @@ Changes on W30 stay in the app until Save workout.
 |---|---|---|
 | GET | `/api/v1/users/me` | H10 |
 | PATCH | `/api/v1/users/me` | H12, H13, H14, H16 |
-| PUT | `/api/v1/users/me/photo` | H11, undo on H10 |
+| GET | `/api/v1/users/me/photo` | H10, Home avatar |
+| PUT | `/api/v1/users/me/photo` | H11, undo on H41 |
 | DELETE | `/api/v1/users/me/photo` | H11 Remove photo |
 | PUT | `/api/v1/users/me/password` | H18 |
 | POST | `/api/v1/email-changes` | H17 |

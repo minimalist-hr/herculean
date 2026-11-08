@@ -22,6 +22,11 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Theme).HasConversion<string>();
         builder.Property(user => user.Color).HasConversion<string>();
 
+        builder.HasOne(user => user.Photo)
+            .WithOne()
+            .HasForeignKey<UserPhoto>(photo => photo.UserId)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
         builder.HasMany(user => user.RefreshTokens)
             .WithOne()
             .HasForeignKey(token => token.UserId)

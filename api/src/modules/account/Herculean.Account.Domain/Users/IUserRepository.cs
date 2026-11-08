@@ -7,6 +7,9 @@ internal interface IUserRepository
     /// <summary>Finds the user with all their refresh tokens loaded.</summary>
     Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken);
 
+    /// <summary>Finds the user with their photo loaded.</summary>
+    Task<User?> GetByIdWithPhotoAsync(UserId userId, CancellationToken cancellationToken);
+
     /// <summary>Finds the user with every kind of token loaded, so removing the user removes them.</summary>
     Task<User?> GetByIdWithAllTokensAsync(UserId userId, CancellationToken cancellationToken);
 
@@ -31,7 +34,7 @@ internal interface IUserRepository
     /// <summary>Checks the email regardless of case.</summary>
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
 
-    /// <summary>The users whose time to keep their account is over, with every kind of token loaded.</summary>
+    /// <summary>The users whose time to keep their account is over, with their photo and every kind of token loaded.</summary>
     Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken);
 
     void Add(User user);

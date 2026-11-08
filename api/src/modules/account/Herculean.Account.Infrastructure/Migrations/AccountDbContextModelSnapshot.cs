@@ -216,6 +216,39 @@ namespace Herculean.Account.Infrastructure.Migrations
                     b.ToTable("users", "account");
                 });
 
+            modelBuilder.Entity("Herculean.Account.Domain.Users.UserPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("image");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_photos");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_photos_user_id");
+
+                    b.ToTable("user_photos", "account");
+                });
+
             modelBuilder.Entity("Herculean.SharedKernel.Events.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -288,11 +321,23 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .HasConstraintName("fk_refresh_tokens_users_user_id");
                 });
 
+            modelBuilder.Entity("Herculean.Account.Domain.Users.UserPhoto", b =>
+                {
+                    b.HasOne("Herculean.Account.Domain.Users.User", null)
+                        .WithOne("Photo")
+                        .HasForeignKey("Herculean.Account.Domain.Users.UserPhoto", "UserId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_photos_users_user_id");
+                });
+
             modelBuilder.Entity("Herculean.Account.Domain.Users.User", b =>
                 {
                     b.Navigation("EmailChangeTokens");
 
                     b.Navigation("PasswordResetTokens");
+
+                    b.Navigation("Photo");
 
                     b.Navigation("RefreshTokens");
                 });

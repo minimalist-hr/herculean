@@ -34,6 +34,9 @@ internal sealed class FakeUserRepository : IUserRepository
     public Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
 
+    public Task<User?> GetByIdWithPhotoAsync(UserId userId, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
+
     public Task<User?> GetByIdWithAllTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
 

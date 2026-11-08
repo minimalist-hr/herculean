@@ -35,6 +35,7 @@ internal sealed class AccountDbContext(DbContextOptions<AccountDbContext> option
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
         modelBuilder.ApplyConfiguration(new PasswordResetTokenConfiguration());
         modelBuilder.ApplyConfiguration(new EmailChangeTokenConfiguration());
+        modelBuilder.ApplyConfiguration(new UserPhotoConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
     }
 }

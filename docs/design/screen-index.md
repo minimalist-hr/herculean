@@ -1,6 +1,6 @@
 # Screen index
 
-321 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+324 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -44,6 +44,9 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H05 | Home · no routines yet | H1 Today states | 390×844 | [png](screens/home/H05-Home-No-Routines.png) · [html](html/home/H05-Home-No-Routines.html) · [source](source/home/H05-Home-No-Routines.dc.html) |
 | H10 | Settings · full scroll · full scroll | H2 Settings | 390×1156 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
 | H11 | Settings › Profile photo · sheet | H2 Settings | 390×844 | [png](screens/home/H11-Settings-Photo.png) · [html](html/home/H11-Settings-Photo.html) · [source](source/home/H11-Settings-Photo.dc.html) |
+| H39 | Settings · with a photo · full scroll | H2 Settings | 390×1156 | [png](screens/home/H39-Settings-With-Photo.png) · [html](html/home/H39-Settings-With-Photo.html) · [source](source/home/H39-Settings-With-Photo.dc.html) |
+| H40 | Settings › Profile photo · no photo | H2 Settings | 390×844 | [png](screens/home/H40-Settings-Photo-None.png) · [html](html/home/H40-Settings-Photo-None.html) · [source](source/home/H40-Settings-Photo-None.dc.html) |
+| H41 | Settings › Profile photo · removed | H2 Settings | 390×844 | [png](screens/home/H41-Settings-Photo-Removed.png) · [html](html/home/H41-Settings-Photo-Removed.html) · [source](source/home/H41-Settings-Photo-Removed.dc.html) |
 | H12 | Settings › Theme | H2 Settings | 390×844 | [png](screens/home/H12-Settings-Theme.png) · [html](html/home/H12-Settings-Theme.html) · [source](source/home/H12-Settings-Theme.dc.html) |
 | H13 | Settings › Color | H2 Settings | 390×844 | [png](screens/home/H13-Settings-Color.png) · [html](html/home/H13-Settings-Color.html) · [source](source/home/H13-Settings-Color.dc.html) |
 | H14 | Settings › Units | H2 Settings | 390×844 | [png](screens/home/H14-Settings-Units.png) · [html](html/home/H14-Settings-Units.html) · [source](source/home/H14-Settings-Units.dc.html) |

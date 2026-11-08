@@ -14,8 +14,14 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
             .Include(user => user.RefreshTokens)
             .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
+    public Task<User?> GetByIdWithPhotoAsync(UserId userId, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .Include(user => user.Photo)
+            .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
     public Task<User?> GetByIdWithAllTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         dbContext.Users
+            .Include(user => user.Photo)
             .Include(user => user.RefreshTokens)
             .Include(user => user.PasswordResetTokens)
             .Include(user => user.EmailChangeTokens)
@@ -71,6 +77,7 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
 
     public async Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken) =>
         await dbContext.Users
+            .Include(user => user.Photo)
             .Include(user => user.RefreshTokens)
             .Include(user => user.PasswordResetTokens)
             .Include(user => user.EmailChangeTokens)

@@ -156,6 +156,22 @@ export function AlertIcon({ color, size }: IconProps) {
   );
 }
 
+export function CameraIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M4 8h3l2-3h6l2 3h3v12H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+    </Icon>
+  );
+}
+
+export function ImageIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M4 5h16v14H4zM4 16l5-5 4 4 2-2 5 5M15.5 9.5v.5" />
+    </Icon>
+  );
+}
+
 export function TrashIcon({ color, size }: IconProps) {
   return (
     <Icon color={color} size={size}>
