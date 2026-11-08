@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
@@ -6,6 +6,7 @@ import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { UserThemeProvider } from './user-theme-provider';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 const mockStored = new Map<string, string>();
@@ -42,12 +43,7 @@ function Shown() {
 }
 
 async function renderProvider() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-      mutations: { gcTime: 0 },
-    },
-  });
+  const client = createTestQueryClient();
   await render(
     <QueryClientProvider client={client}>
       <UserThemeProvider>

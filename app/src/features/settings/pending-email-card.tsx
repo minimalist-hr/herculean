@@ -73,7 +73,9 @@ function Card({ newEmail }: { newEmail: string }) {
       </View>
       <Button
         label={
-          waiting ? `Send again in ${formatClock(secondsLeft)}` : 'Send again'
+          waiting
+            ? `Send link again in ${formatClock(secondsLeft)}`
+            : 'Send link again'
         }
         waitingLabel="Sending link"
         variant="secondary"

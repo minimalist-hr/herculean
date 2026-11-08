@@ -1,8 +1,4 @@
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useRouter, type Href } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -15,6 +11,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { AddWorkoutExerciseScreen } from './add-workout-exercise-screen';
 import { WorkoutPicksProvider } from './workout-picks';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -86,12 +83,7 @@ function answerWith(request: Request) {
 }
 
 function Layout() {
-  const [client] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: { queries: { retry: false, gcTime: Infinity } },
-      }),
-  );
+  const [client] = useState(() => createTestQueryClient());
 
   return (
     <QueryClientProvider client={client}>

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -12,6 +12,7 @@ import {
   NewExerciseForEditedWorkoutScreen,
 } from './add-to-edited-workout-screen';
 import { EditWorkoutDraft, EditWorkoutScreen } from './edit-workout-screen';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -115,16 +116,7 @@ async function sentBody() {
 
 function Layout() {
   return (
-    <QueryClientProvider
-      client={
-        new QueryClient({
-          defaultOptions: {
-            queries: { retry: false },
-            mutations: { gcTime: 0 },
-          },
-        })
-      }
-    >
+    <QueryClientProvider client={createTestQueryClient()}>
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />

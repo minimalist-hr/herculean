@@ -11,6 +11,7 @@ import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
 import { LoadFailure } from '@/components/load-failure';
 import {
+  clearingNotification,
   dismissNotification,
   notifyFailure,
   notifySuccess,
@@ -297,7 +298,7 @@ function NameForm({ saved }: { saved: string }) {
               autoCapitalize="words"
               returnKeyType="done"
               value={field.value}
-              onChangeText={field.onChange}
+              onChangeText={clearingNotification(field.onChange)}
               onBlur={field.onBlur}
               error={formState.errors.name?.message}
             />

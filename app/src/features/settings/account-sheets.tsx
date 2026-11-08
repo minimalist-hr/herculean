@@ -7,6 +7,7 @@ import { api } from '@/api/client';
 import { toApiError, toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
 import {
+  clearingNotification,
   dismissNotification,
   notifyFailure,
   notifySuccess,
@@ -106,7 +107,7 @@ export function DeleteAccountSheet({ visible, onClose }: AccountSheetProps) {
               password
               returnKeyType="done"
               value={field.value}
-              onChangeText={field.onChange}
+              onChangeText={clearingNotification(field.onChange)}
               onBlur={field.onBlur}
               error={formState.errors.currentPassword?.message}
             />

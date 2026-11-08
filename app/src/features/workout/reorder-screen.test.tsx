@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -8,6 +8,7 @@ import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ReorderScreen } from './reorder-screen';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -77,13 +78,7 @@ function answerWith(request: Request) {
 
 function Layout() {
   return (
-    <QueryClientProvider
-      client={
-        new QueryClient({
-          defaultOptions: { queries: { retry: false, gcTime: Infinity } },
-        })
-      }
-    >
+    <QueryClientProvider client={createTestQueryClient()}>
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />

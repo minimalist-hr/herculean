@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.59 · 8 November 2026 · Minimalist
+Version 0.60 · 8 November 2026 · Minimalist
+
+> Changes since 0.59, the Settings consistency pass: A11 and H33 both say Send link again, look muted while they wait, and say why when tapped. H18 says "Password changed. Other devices are signed out." Typing in any form clears a failure notification.
 
 > Changes since 0.58: H11 Profile photo is built. A photo is dragged and zoomed to a square with the phone's own picker. H39 is H10 with a photo, and the link reads Change photo. The photo also shows on the Home avatar. On H40, with no photo, Remove photo looks muted and says why. H41 is H10 after removing, with Undo. Two notifications have no capture, because the capture tool can't open the phone's picker: H42 "Allow camera access in your phone's settings." or "Allow photo access in your phone's settings.", and H43 "Couldn't save the photo. Try again."
 
@@ -390,10 +392,10 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 - **Edit workout:** set removed (W31) and exercise removed.
 - **Routines:** exercise removed from a routine, and routine deleted (shown on R01).
 - **Exercises:** exercise deleted (shown on E01), and group deleted (shown on E30).
-- **Other:** workout deleted, and profile photo removed (shown on H10).
+- **Other:** workout deleted, and profile photo removed (H41).
 - **Exception:** delete account has no undo bar (H19). Signing in within 14 days keeps the account (A08).
 
-**Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it is dimmed and counts down: "Send link again in 0:42".
+**Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it looks muted and counts down, "Send link again in 0:42", and tapping it says "Wait a moment before sending it again." H33 works the same, but waits only after a send.
 
 **Delete from details.** A routine or exercise is deleted from its details: a red trash icon to the right of the edit button on R05, E10 and E11.
 

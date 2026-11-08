@@ -251,7 +251,7 @@ Changes on W30 stay in the app until Save workout.
 
 ## 7. Settings
 
-**What it does:** you manage your profile photo, theme, color, units, default rest time, sound and vibrate when rest ends, name, email and password. You can sign out or delete your account.
+**What it does:** you manage your profile photo, theme, color, units, default rest time, name, email and password. You can sign out or delete your account.
 
 **Screens:** H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email, H27 to H29 Confirming a new email, H30 Confirmation email, H31 Email changed notice, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email.
 
@@ -259,7 +259,7 @@ Changes on W30 stay in the app until Save workout.
 - **Open:** the FM avatar on Home → H10.
 - **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name, password, email, profile photo, sign out and delete account are built.
 - **Photo:** H11 → Take photo or Choose from library, dragged and zoomed to a square, made 512 × 512 px on the phone → H39. It also shows on the Home avatar. Remove photo → H41, with an undo bar. With no photo, Remove photo looks muted (H40).
-- **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
+- **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send link again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
 - **Sign out:** → H36 → A01. Without a connection it still signs out on the phone. Signing out, however it happens, clears what the phone holds for the user.
 - **Delete account:** → H19, with the current password → A01, which says so (A07), and H38 says when. A wrong password shows on H34, and a failure on H35. Signing in within 14 days opens A08, to keep the account. After 14 days a daily job deletes it: an account deleted event tells Training to delete the user's training data, workouts included, and H37 is the last email.
 
@@ -277,11 +277,11 @@ Changes on W30 stay in the app until Save workout.
 | PUT | `/api/v1/users/me/password` | H18 |
 | POST | `/api/v1/email-changes` | H17 |
 | GET | `/api/v1/email-changes/pending` | H10, H33 |
-| POST | `/api/v1/email-changes/resend` | H33 Send again |
+| POST | `/api/v1/email-changes/resend` | H33 Send link again |
 | POST | `/api/v1/email-changes/confirm` | H27, opened from the email link |
 | GET | `/links/confirm-email` | Redirect page from the email |
 | GET | `/api/v1/workout-settings` | H10 |
-| PATCH | `/api/v1/workout-settings` | H15, sound and vibrate toggles |
+| PATCH | `/api/v1/workout-settings` | H15 |
 | POST | `/api/v1/sessions/revoke` | H36 Sign out |
 | POST | `/api/v1/sessions/restore` | A08 Keep account |
 | DELETE | `/api/v1/users/me` | H19 |

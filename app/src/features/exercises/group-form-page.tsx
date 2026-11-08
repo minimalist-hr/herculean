@@ -6,7 +6,11 @@ import { z } from 'zod';
 import { toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
-import { notifyFailure, notifySuccess } from '@/components/notifications';
+import {
+  clearingNotification,
+  notifyFailure,
+  notifySuccess,
+} from '@/components/notifications';
 import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 
@@ -91,7 +95,7 @@ export function GroupFormPage({
               autoCapitalize="sentences"
               returnKeyType="done"
               value={field.value}
-              onChangeText={field.onChange}
+              onChangeText={clearingNotification(field.onChange)}
               onBlur={field.onBlur}
               error={formState.errors.name?.message}
             />

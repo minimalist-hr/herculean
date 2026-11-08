@@ -9,6 +9,7 @@ import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
 import { LoadFailure } from '@/components/load-failure';
 import {
+  clearingNotification,
   dismissNotification,
   notifyFailure,
   notifySuccess,
@@ -26,6 +27,7 @@ const title = 'Email';
 const subtitle = 'Used to sign in.';
 const emailLabel = 'Email address';
 const emailHelper = "We'll send a link to confirm the new address.";
+const passwordLabel = 'Current password';
 
 const changeEmailSchema = z.object({
   newEmail: z.string().trim().pipe(z.email('Enter a valid email.')),
@@ -125,7 +127,7 @@ function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
                   setFocus('currentPassword');
                 }}
                 value={field.value}
-                onChangeText={field.onChange}
+                onChangeText={clearingNotification(field.onChange)}
                 onBlur={field.onBlur}
                 error={errors.newEmail?.message}
               />
@@ -137,13 +139,13 @@ function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
             render={({ field }) => (
               <TextField
                 ref={field.ref}
-                label="Current password"
+                label={passwordLabel}
                 autoComplete="current-password"
                 password
                 returnKeyType="go"
                 onSubmitEditing={() => void submit()}
                 value={field.value}
-                onChangeText={field.onChange}
+                onChangeText={clearingNotification(field.onChange)}
                 onBlur={field.onBlur}
                 error={errors.currentPassword?.message}
               />
@@ -164,10 +166,17 @@ function EmailSkeleton() {
       accessible
       accessibilityLabel="Loading"
       accessibilityLiveRegion="polite"
-      style={{ gap: space.sm }}
+      style={{ gap: space.lg }}
     >
-      <Text style={text.eyebrow}>{emailLabel}</Text>
-      <Skeleton width="100%" height={size.input} />
+      <View style={{ gap: space.sm }}>
+        <Text style={text.eyebrow}>{emailLabel}</Text>
+        <Skeleton width="100%" height={size.input} />
+        <Text style={text.meta}>{emailHelper}</Text>
+      </View>
+      <View style={{ gap: space.sm }}>
+        <Text style={text.eyebrow}>{passwordLabel}</Text>
+        <Skeleton width="100%" height={size.input} />
+      </View>
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import {
   act,
   fireEvent,
@@ -16,6 +16,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { LogScreen } from './log-screen';
 import { restTextSize } from './rest-bar';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 const mockStored = new Map<string, string>();
@@ -128,13 +129,7 @@ function answerWith(request: Request) {
 
 function Layout() {
   return (
-    <QueryClientProvider
-      client={
-        new QueryClient({
-          defaultOptions: { queries: { retry: false, gcTime: Infinity } },
-        })
-      }
-    >
+    <QueryClientProvider client={createTestQueryClient()}>
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
@@ -1099,9 +1094,7 @@ describe('removing an exercise', () => {
 });
 
 test('an exercise that was just added opens', async () => {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: Infinity } },
-  });
+  const client = createTestQueryClient();
   await renderRouter(
     {
       _layout: () => (

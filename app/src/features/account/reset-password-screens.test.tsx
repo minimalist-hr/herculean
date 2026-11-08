@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 import { NewPasswordScreen } from './new-password-screen';
 import { ResetLinkSentScreen } from './reset-link-sent-screen';
 import { ResetPasswordScreen } from './reset-password-screen';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -31,9 +32,7 @@ function Layout() {
     <QueryClientProvider
       client={
         // The default keeps a timer running for five minutes, which holds Jest open.
-        new QueryClient({
-          defaultOptions: { mutations: { retry: false, gcTime: 0 } },
-        })
+        createTestQueryClient()
       }
     >
       <ThemeProvider theme="dark">
@@ -221,9 +220,11 @@ describe('link sent', () => {
   test('sending again waits a minute from when the screen opens', async () => {
     await renderAt(url);
 
-    expect(
-      screen.getByRole('button', { name: 'Send link again in 1:00' }),
-    ).toBeDisabled();
+    await press('Send link again in 1:00');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Wait a moment before sending it again.',
+    );
 
     await waitOut();
 
@@ -248,7 +249,7 @@ describe('link sent', () => {
     });
     expect(
       screen.getByRole('button', { name: 'Send link again in 1:00' }),
-    ).toBeDisabled();
+    ).toBeOnTheScreen();
   });
 
   test('a failed send shows a notification and can be tried right away', async () => {

@@ -643,7 +643,7 @@ export const screens = [
   { id: 'H33', file: 'H33-Settings-Email-Waiting-Page', title: 'Settings › Email · waiting', row: 'H2 Settings', full: false, answers: { 'GET /api/v1/email-changes/pending': { status: 200, body: { newEmail: 'new@example.com' } } }, steps: async (on) => {
     await openSettings(on);
     await on.tap('Email, filip@example.com, Waiting for confirmation');
-    await on.waitFor('Send again');
+    await on.waitFor('Send link again');
     await on.sleep(400);
   } },
   // W · Workout

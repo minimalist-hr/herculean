@@ -8,6 +8,7 @@ import { toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
 import {
+  clearingNotification,
   dismissNotification,
   notifyFailure,
   notifySuccess,
@@ -47,7 +48,7 @@ export function ChangePasswordScreen() {
         newPassword: password,
       });
       router.back();
-      notifySuccess('Password saved. Other devices are signed out.');
+      notifySuccess('Password changed. Other devices are signed out.');
     } catch (error) {
       guard.block();
       const formErrors = toFormErrors(error, [
@@ -99,7 +100,7 @@ export function ChangePasswordScreen() {
                   setFocus('password');
                 }}
                 value={field.value}
-                onChangeText={field.onChange}
+                onChangeText={clearingNotification(field.onChange)}
                 onBlur={field.onBlur}
                 error={errors.currentPassword?.message}
               />
@@ -121,7 +122,7 @@ export function ChangePasswordScreen() {
                   setFocus('repeatPassword');
                 }}
                 value={field.value}
-                onChangeText={field.onChange}
+                onChangeText={clearingNotification(field.onChange)}
                 onBlur={field.onBlur}
                 error={errors.password?.message}
               />
@@ -139,7 +140,7 @@ export function ChangePasswordScreen() {
                 returnKeyType="go"
                 onSubmitEditing={() => void submit()}
                 value={field.value}
-                onChangeText={field.onChange}
+                onChangeText={clearingNotification(field.onChange)}
                 onBlur={field.onBlur}
                 error={errors.repeatPassword?.message}
               />

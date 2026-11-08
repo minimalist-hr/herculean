@@ -27,6 +27,11 @@ export function ResetLinkSentScreen() {
   const { secondsLeft, restart } = useCountdown(sendAgainWaitSeconds);
 
   function sendAgain() {
+    if (secondsLeft > 0) {
+      notifyFailure('Wait a moment before sending it again.');
+      return;
+    }
+
     dismissNotification();
     sendResetLink.mutate(email, {
       onSuccess: () => {
@@ -96,7 +101,7 @@ export function ResetLinkSentScreen() {
           waitingLabel="Sending link"
           variant="secondary"
           waiting={waiting}
-          dimmed={secondsLeft > 0}
+          muted={secondsLeft > 0}
           onPress={sendAgain}
         />
       </BottomActionBox>

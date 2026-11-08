@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -25,6 +25,7 @@ import {
   UnitsScreen,
 } from './setting-pages';
 import { SettingsScreen } from './settings-screen';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 const mockRefreshTokens = jest.fn<Promise<boolean>, []>();
@@ -113,15 +114,7 @@ function answerWith({
 }
 
 function Layout() {
-  const [client] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { retry: false, gcTime: 0 },
-          mutations: { gcTime: 0 },
-        },
-      }),
-  );
+  const [client] = useState(() => createTestQueryClient());
 
   return (
     <QueryClientProvider client={client}>
@@ -458,7 +451,9 @@ describe('change password', () => {
     await fillPasswords();
 
     expect(
-      await screen.findByText('Password saved. Other devices are signed out.'),
+      await screen.findByText(
+        'Password changed. Other devices are signed out.',
+      ),
     ).toBeOnTheScreen();
     expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
     await expect(putRequest()?.clone().json()).resolves.toEqual({
@@ -1000,7 +995,7 @@ describe('change email', () => {
     expect(await screen.findByText(message)).toBeOnTheScreen();
   });
 
-  test('a failed save says so and stays', async () => {
+  test('a failed save says so, and typing clears it', async () => {
     answerEmailWith({ request: () => new Response(null, { status: 500 }) });
     await renderAt('/settings/email');
 
@@ -1009,6 +1004,17 @@ describe('change email', () => {
     expect(
       await screen.findByText("Couldn't send the link. Try again."),
     ).toBeOnTheScreen();
+
+    await fireEvent.changeText(
+      screen.getByLabelText('Email address'),
+      'other@example.com',
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Couldn't send the link. Try again."),
+      ).toBeNull();
+    });
   });
 
   test('Send again sends, then asks to wait', async () => {
@@ -1019,11 +1025,13 @@ describe('change email', () => {
     expect(
       screen.getByText(/^We sent a link to new@example\.com\./),
     ).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Send again' }));
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Send link again' }),
+    );
 
     expect(await screen.findByText('Link sent again.')).toBeOnTheScreen();
     await fireEvent.press(
-      await screen.findByRole('button', { name: /^Send again in / }),
+      await screen.findByRole('button', { name: /^Send link again in / }),
     );
     expect(
       await screen.findByText('Wait a moment before sending it again.'),
@@ -1043,7 +1051,9 @@ describe('change email', () => {
     await renderSettings();
 
     await openWaitingPage();
-    await fireEvent.press(screen.getByRole('button', { name: 'Send again' }));
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Send link again' }),
+    );
 
     expect(
       await screen.findByText("Couldn't send the link. Try again."),

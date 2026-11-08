@@ -9,11 +9,8 @@ internal sealed class GetCurrentUserPhotoHandler(CurrentUser currentUser, IUserR
     public async Task<Result<UserPhotoResponse>> HandleAsync(CancellationToken cancellationToken)
     {
         User? user = await userRepository.GetByIdWithPhotoAsync(currentUser.UserId, cancellationToken);
-        if (user is null)
-        {
-            return UserErrors.NotFound;
-        }
-
-        return new UserPhotoResponse(user.Photo is null ? null : Convert.ToBase64String(user.Photo.Image));
+        return user is null
+            ? UserErrors.NotFound
+            : new UserPhotoResponse(user.Photo is null ? null : Convert.ToBase64String(user.Photo.Image));
     }
 }

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { LaunchScreen } from './launch-screen';
 import { endSession, saveTokens, useSessionStatus } from './session';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 jest.mock('expo-secure-store', () => {
   const stored = new Map<string, string>();
@@ -31,7 +32,7 @@ async function renderLaunch() {
     <QueryClientProvider
       client={
         // No cleanup timer after the test, so Jest can exit.
-        new QueryClient({ defaultOptions: { mutations: { gcTime: Infinity } } })
+        createTestQueryClient()
       }
     >
       <ThemeProvider theme="dark">

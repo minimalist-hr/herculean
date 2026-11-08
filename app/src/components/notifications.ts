@@ -59,6 +59,14 @@ export function dismissNotification() {
   }
 }
 
+/** For a field's text: typing again clears the notification. */
+export function clearingNotification(onChange: (value: string) => void) {
+  return (value: string) => {
+    dismissNotification();
+    onChange(value);
+  };
+}
+
 /** Dismisses an action such as Undo, which can do nothing once its form has closed. */
 export function dismissAction() {
   if (notification?.action !== undefined) {

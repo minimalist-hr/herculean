@@ -7,6 +7,7 @@ import { Text } from 'react-native';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ResumeBar } from './resume-bar';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -92,9 +93,7 @@ async function renderBar() {
 }
 
 beforeEach(() => {
-  queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  queryClient = createTestQueryClient();
   mockFetch.mockReset();
   jest.useRealTimers();
 });

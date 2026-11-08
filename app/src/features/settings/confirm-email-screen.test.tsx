@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -10,6 +10,7 @@ import { endSession, enterApp } from '@/features/account/session';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ConfirmEmailScreen } from './confirm-email-screen';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -31,15 +32,7 @@ jest.mock('expo-secure-store', () => ({
 }));
 
 function Layout() {
-  const [client] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { retry: false, gcTime: 0 },
-          mutations: { gcTime: 0 },
-        },
-      }),
-  );
+  const [client] = useState(() => createTestQueryClient());
 
   return (
     <QueryClientProvider client={client}>

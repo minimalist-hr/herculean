@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -11,6 +11,7 @@ import { CreateAccountScreen } from './create-account-screen';
 import { privacyPolicy, termsOfService } from './legal-documents';
 import { LegalScreen } from './legal-screen';
 import { endSession, getAccessToken, useSessionStatus } from './session';
+import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -43,11 +44,7 @@ const tokens = {
 function Layout() {
   const status = useSessionStatus();
   return (
-    <QueryClientProvider
-      client={
-        new QueryClient({ defaultOptions: { mutations: { retry: false } } })
-      }
-    >
+    <QueryClientProvider client={createTestQueryClient()}>
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={status === 'signedOut'}>
