@@ -257,7 +257,7 @@ Changes on W30 stay in the app until Save workout.
 
 **Flows**
 - **Open:** the FM avatar on Home → H10.
-- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units and default rest time are built.
+- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time and name are built.
 - **Photo:** H11 → Take photo or Choose from library. Remove photo → H10, with an undo bar.
 - **Email:** H17 → Save email → link in the email → the new email is active.
 - **Sign out:** → A01.

@@ -63,6 +63,7 @@ const deleteFromToday = async (on) => {
   await on.waitFor('Delete workout');
   await on.sleep(400);
 };
+const settingsName = 'Filip Mučnjak';
 const openSettings = async (on) => {
   await on.go('/');
   await on.tap('Profile and settings');
@@ -470,6 +471,22 @@ export const screens = [
     await openSettings(on);
     await on.tap('Default rest time, 3:00');
     await on.waitFor('Save rest time');
+    await on.sleep(400);
+  } },
+  { id: 'H16', file: 'H16-Settings-Name', title: 'Settings › Name', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap(`Name, ${settingsName}`);
+    await on.waitFor('Save name');
+    await on.sleep(400);
+  } },
+  { id: 'H24', file: 'H24-Settings-Name-Empty', title: 'Settings › Name · empty', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap(`Name, ${settingsName}`);
+    await on.waitFor('Save name');
+    await on.sleep(400);
+    await on.type('Your name', '');
+    await on.tap('Save name');
+    await on.waitFor('Enter your name.');
     await on.sleep(400);
   } },
   // W · Workout

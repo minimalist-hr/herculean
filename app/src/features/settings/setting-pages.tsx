@@ -1,7 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Controller, useForm } from 'react-hook-form';
+import { Text, View } from 'react-native';
+import { z } from 'zod';
 
+import { toFormErrors } from '@/api/problem';
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
@@ -14,7 +18,9 @@ import {
 import { QuickPicks } from '@/components/quick-picks';
 import { Skeleton } from '@/components/skeleton';
 import { Stepper } from '@/components/stepper';
+import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
+import { userNameSchema } from '@/features/account/setup-schema';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
 import { formatClock, formatSpokenDuration } from '@/formats/formats';
@@ -205,6 +211,116 @@ function RestSkeleton() {
     >
       <Skeleton width="100%" height={size.stepper.height} />
       <Skeleton width="100%" height={size.touchTargetMin} />
+    </View>
+  );
+}
+
+const nameTitle = 'Name';
+const nameSubtitle = 'Shown on Home and in Settings.';
+const nameLabel = 'Your name';
+const nameFormSchema = z.object({ name: userNameSchema });
+
+export function NameScreen() {
+  const user = useCurrentUser();
+
+  if (user.data === undefined) {
+    return (
+      <FormPage back="Settings" title={nameTitle} subtitle={nameSubtitle}>
+        {user.isError ? (
+          <LoadFailure
+            message="Couldn't load your name."
+            onRetry={() => {
+              void user.refetch();
+            }}
+          />
+        ) : (
+          <NameSkeleton />
+        )}
+      </FormPage>
+    );
+  }
+
+  return <NameForm saved={user.data.name ?? ''} />;
+}
+
+function NameForm({ saved }: { saved: string }) {
+  const router = useRouter();
+  const update = useUpdateUser();
+  const { control, handleSubmit, setError, formState } = useForm({
+    resolver: zodResolver(nameFormSchema),
+    defaultValues: { name: saved },
+  });
+  const guard = useLeaveGuard(formState.isDirty);
+
+  const submit = handleSubmit(async ({ name }) => {
+    dismissNotification();
+    guard.allow();
+    try {
+      await update.mutateAsync({ name });
+      router.back();
+      notifySuccess(`${nameTitle} saved.`);
+    } catch (error) {
+      guard.block();
+      const formErrors = toFormErrors(error, ['name']);
+      if (formErrors.fields.name !== undefined) {
+        setError('name', { message: formErrors.fields.name });
+      }
+      if (formErrors.general) {
+        notifyFailure("Couldn't save the name. Try again.");
+      }
+    }
+  });
+
+  return (
+    <>
+      <FormPage
+        back="Settings"
+        title={nameTitle}
+        subtitle={nameSubtitle}
+        action={
+          <Button
+            label="Save name"
+            waitingLabel="Saving name"
+            waiting={update.isPending}
+            onPress={() => void submit()}
+          />
+        }
+      >
+        <Controller
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <TextField
+              ref={field.ref}
+              label={nameLabel}
+              autoComplete="name"
+              autoCapitalize="words"
+              returnKeyType="done"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={formState.errors.name?.message}
+            />
+          )}
+        />
+      </FormPage>
+      {guard.sheet}
+    </>
+  );
+}
+
+function NameSkeleton() {
+  const { size, space, text } = useTheme();
+
+  return (
+    <View
+      accessible
+      accessibilityLabel="Loading"
+      accessibilityLiveRegion="polite"
+      style={{ gap: space.sm }}
+    >
+      <Text style={text.eyebrow}>{nameLabel}</Text>
+      <Skeleton width="100%" height={size.input} />
     </View>
   );
 }

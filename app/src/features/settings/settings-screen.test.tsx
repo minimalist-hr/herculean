@@ -13,6 +13,7 @@ import { ProfileButton } from './profile-button';
 import {
   ColorScreen,
   DefaultRestScreen,
+  NameScreen,
   ThemeScreen,
   UnitsScreen,
 } from './setting-pages';
@@ -44,10 +45,19 @@ function answerWith({
   userStatus = 200,
   restStatus = 200,
   patchStatus = 200,
+  patchProblem,
+}: {
+  userStatus?: number;
+  restStatus?: number;
+  patchStatus?: number;
+  patchProblem?: object;
 } = {}) {
   mockFetch.mockImplementation(async (request) => {
     const { pathname } = new URL(request.url);
     if (request.method === 'PATCH') {
+      if (patchProblem !== undefined) {
+        return Response.json(patchProblem, { status: 400 });
+      }
       if (patchStatus !== 200) {
         return new Response(null, { status: patchStatus });
       }
@@ -115,6 +125,7 @@ async function renderAt(initialUrl: string) {
       'settings/color': ColorScreen,
       'settings/units': UnitsScreen,
       'settings/rest-time': DefaultRestScreen,
+      'settings/name': NameScreen,
       terms: Legal,
     },
     { initialUrl },
@@ -264,6 +275,7 @@ test.each([
 test.each([
   ['/settings/theme', { userStatus: 500 }, "Couldn't load your theme."],
   ['/settings/rest-time', { restStatus: 500 }, "Couldn't load your rest time."],
+  ['/settings/name', { userStatus: 500 }, "Couldn't load your name."],
 ])(
   '%s opened on its own shows that it is loading, a failure, and Try again',
   async (url, statuses, failure) => {
@@ -278,6 +290,93 @@ test.each([
     expect(await screen.findByText(/^Save /)).toBeOnTheScreen();
   },
 );
+
+test('the name is saved trimmed, and Settings shows it', async () => {
+  answerWith();
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Name, Filip Mučnjak' }),
+  );
+  await fireEvent.changeText(
+    await screen.findByLabelText('Your name'),
+    ' Filip M ',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
+
+  await expect(patchBody()).resolves.toEqual({ name: 'Filip M' });
+  expect(await screen.findByText('Name saved.')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('button', { name: 'Name, Filip M' }),
+  ).toBeOnTheScreen();
+});
+
+test('an empty name shows an error under the field and saves nothing', async () => {
+  answerWith();
+  await renderAt('/settings/name');
+
+  await fireEvent.changeText(await screen.findByLabelText('Your name'), '   ');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
+
+  expect(await screen.findByText('Enter your name.')).toBeOnTheScreen();
+  expect(patchBody()).toBeUndefined();
+});
+
+test('a name the API rejects shows its message under the field', async () => {
+  answerWith({
+    patchProblem: {
+      type: 'https://tools.ietf.org/html/rfc9110#section-15.5.1',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'One or more fields are not valid.',
+      code: 'validation',
+      errors: { name: ["'Name' must have 1 to 50 characters."] },
+      traceId: '00-1',
+    },
+  });
+  await renderAt('/settings/name');
+
+  await fireEvent.changeText(
+    await screen.findByLabelText('Your name'),
+    'Filip',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
+
+  expect(
+    await screen.findByText("'Name' must have 1 to 50 characters."),
+  ).toBeOnTheScreen();
+});
+
+test('a failed name save says so and stays', async () => {
+  answerWith({ patchStatus: 500 });
+  await renderAt('/settings/name');
+
+  await fireEvent.changeText(
+    await screen.findByLabelText('Your name'),
+    'Filip',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
+
+  expect(
+    await screen.findByText("Couldn't save the name. Try again."),
+  ).toBeOnTheScreen();
+});
+
+test('leaving with a changed name asks first', async () => {
+  answerWith();
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Name, Filip Mučnjak' }),
+  );
+  await fireEvent.changeText(
+    await screen.findByLabelText('Your name'),
+    'Filip',
+  );
+  await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
+
+  expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+});
 
 test('a failed rest time save says so and stays', async () => {
   answerWith({ patchStatus: 500 });

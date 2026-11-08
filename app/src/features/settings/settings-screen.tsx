@@ -128,8 +128,9 @@ export function SettingsScreen() {
           first
           label="Name"
           value={userValue((data) => data.name ?? '')}
-          muted
-          onPress={later('Changing your name')}
+          onPress={() => {
+            router.push('/settings/name');
+          }}
         />
         <SettingsRow
           label="Email"
