@@ -34,9 +34,22 @@ public sealed class SmtpEmailSenderTests
         (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("AUTH", StringComparison.Ordinal));
     }
 
-    private static Task SendAsync(FakeSmtpServer server, string password)
+    [Fact]
+    public async Task SendsThePasswordChangedEmail()
     {
-        SmtpEmailSender sender = new(
+        using FakeSmtpServer server = new();
+
+        await CreateSender(server, password: string.Empty).SendPasswordChangedAsync("filip@example.com", DateTimeOffset.UnixEpoch, "Europe/Zagreb", TestContext.Current.CancellationToken);
+
+        (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("RCPT TO:<filip@example.com>", StringComparison.Ordinal));
+        server.Data.ShouldContain("Subject: Your Herculean password was changed");
+    }
+
+    private static Task SendAsync(FakeSmtpServer server, string password) =>
+        CreateSender(server, password).SendPasswordResetAsync("filip@example.com", "token", TestContext.Current.CancellationToken);
+
+    private static SmtpEmailSender CreateSender(FakeSmtpServer server, string password) =>
+        new(
             Options.Create(new EmailOptions
             {
                 Host = IPAddress.Loopback.ToString(),
@@ -46,9 +59,6 @@ public sealed class SmtpEmailSenderTests
                 Password = password,
             }),
             new FakeResetLinks());
-
-        return sender.SendPasswordResetAsync("filip@example.com", "token", TestContext.Current.CancellationToken);
-    }
 
     /// <summary>Answers one SMTP conversation on a free local port and keeps what it was told.</summary>
     private sealed class FakeSmtpServer : IDisposable

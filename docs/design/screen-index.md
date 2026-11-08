@@ -1,6 +1,6 @@
 # Screen index
 
-303 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+306 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -48,8 +48,11 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H15 | Settings › Default rest time | H2 Settings | 390×844 | [png](screens/home/H15-Settings-Rest-Time.png) · [html](html/home/H15-Settings-Rest-Time.html) · [source](source/home/H15-Settings-Rest-Time.dc.html) |
 | H16 | Settings › Name | H2 Settings | 390×844 | [png](screens/home/H16-Settings-Name.png) · [html](html/home/H16-Settings-Name.html) · [source](source/home/H16-Settings-Name.dc.html) |
 | H24 | Settings › Name · empty | H2 Settings | 390×844 | [png](screens/home/H24-Settings-Name-Empty.png) · [html](html/home/H24-Settings-Name-Empty.html) · [source](source/home/H24-Settings-Name-Empty.dc.html) |
+| H25 | Settings › Change password · email | H2 Settings | 390×844 | [png](screens/home/H25-Settings-Password-Email.png) · [html](html/home/H25-Settings-Password-Email.html) · [source](source/home/H25-Settings-Password-Email.dc.html) |
 | H17 | Settings › Email · sheet | H2 Settings | 390×844 | [png](screens/home/H17-Settings-Email.png) · [html](html/home/H17-Settings-Email.html) · [source](source/home/H17-Settings-Email.dc.html) |
-| H18 | Settings › Change password · sheet | H2 Settings | 390×844 | [png](screens/home/H18-Settings-Password.png) · [html](html/home/H18-Settings-Password.html) · [source](source/home/H18-Settings-Password.dc.html) |
+| H18 | Settings › Change password | H2 Settings | 390×844 | [png](screens/home/H18-Settings-Password.png) · [html](html/home/H18-Settings-Password.html) · [source](source/home/H18-Settings-Password.dc.html) |
+| H22 | Settings › Change password · wrong current password | H2 Settings | 390×844 | [png](screens/home/H22-Settings-Password-Wrong.png) · [html](html/home/H22-Settings-Password-Wrong.html) · [source](source/home/H22-Settings-Password-Wrong.dc.html) |
+| H23 | Settings › Change password · new password errors | H2 Settings | 390×844 | [png](screens/home/H23-Settings-Password-Errors.png) · [html](html/home/H23-Settings-Password-Errors.html) · [source](source/home/H23-Settings-Password-Errors.dc.html) |
 | H19 | Settings › Delete account · confirm | H2 Settings | 390×844 | [png](screens/home/H19-Settings-Delete-Account.png) · [html](html/home/H19-Settings-Delete-Account.html) · [source](source/home/H19-Settings-Delete-Account.dc.html) |
 | H20 | Settings › Terms of service | H3 About and legal | 390×844 | [png](screens/home/H20-Settings-Terms.png) · [html](html/home/H20-Settings-Terms.html) · [source](source/home/H20-Settings-Terms.dc.html) |
 | H21 | Settings › Privacy policy | H3 About and legal | 390×844 | [png](screens/home/H21-Settings-Privacy.png) · [html](html/home/H21-Settings-Privacy.html) · [source](source/home/H21-Settings-Privacy.dc.html) |

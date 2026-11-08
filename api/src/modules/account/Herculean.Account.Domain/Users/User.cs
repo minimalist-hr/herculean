@@ -73,6 +73,13 @@ internal sealed class User : Entity<UserId>
         PasswordHash = passwordHash;
     }
 
+    /// <summary>Whoever had the old password loses access: every device but this one is signed out.</summary>
+    public void ChangePassword(string passwordHash, string keptRefreshTokenHash)
+    {
+        PasswordHash = passwordHash;
+        _refreshTokens.RemoveAll(token => token.TokenHash != keptRefreshTokenHash);
+    }
+
     public void AddRefreshToken(string tokenHash, DateTimeOffset expiresAtUtc)
     {
         _refreshTokens.Add(RefreshToken.Create(Id, tokenHash, expiresAtUtc));

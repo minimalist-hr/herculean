@@ -1,12 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { api } from '@/api/client';
+import { api, refreshTokens } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import type { components } from '@/api/schema';
+import { endSession, readRefreshToken } from '@/features/account/session';
 import { currentUserKey } from '@/features/account/use-current-user';
 import { workoutKeys } from '@/features/workout/query-keys';
 
 type UserChanges = components['schemas']['UpdateCurrentUserRequest'];
+type PasswordChange = Omit<
+  components['schemas']['ChangePasswordRequest'],
+  'refreshToken'
+>;
 
 /** Saves the user's theme, color or units, and shows them everywhere at once. */
 export function useUpdateUser() {
@@ -25,6 +30,26 @@ export function useUpdateUser() {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserKey, user);
+    },
+  });
+}
+
+/** Changes the password. This device stays signed in, and every other one is signed out. */
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (change: PasswordChange) => {
+      // With fresh tokens the request can't expire and be retried with a refresh token that was replaced, which would sign this device out too.
+      if (!(await refreshTokens())) {
+        await endSession();
+        throw new Error('The session has ended.');
+      }
+
+      const { error, response } = await api.PUT('/api/v1/users/me/password', {
+        body: { ...change, refreshToken: (await readRefreshToken()) ?? '' },
+      });
+      if (!response.ok) {
+        throw toApiError(error);
+      }
     },
   });
 }

@@ -91,6 +91,7 @@ public sealed class AccountModuleTests
 
         rateLimits.ShouldBe(new Dictionary<string, string?>
         {
+            ["/api/v1/users/me/password"] = "change-password",
             ["/api/v1/sessions"] = "sign-in",
             ["/api/v1/sessions/refresh"] = "refresh",
             ["/api/v1/password-resets"] = "password-reset",

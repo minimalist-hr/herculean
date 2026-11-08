@@ -30,6 +30,9 @@ internal sealed class FakeUserRepository : IUserRepository
     public Task<User?> GetByEmailWithPasswordResetTokensAsync(string email, CancellationToken cancellationToken) =>
         GetByEmailAsync(email, cancellationToken);
 
+    public Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
+
     public Task<User?> GetByPasswordResetTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.PasswordResetTokens.Any(token => token.TokenHash == tokenHash)));
 
@@ -127,13 +130,24 @@ internal sealed class FakeResetLinks : IResetLinks
 
 internal sealed record SentEmail(string Email, string Token);
 
+internal sealed record SentPasswordChangedEmail(string Email, DateTimeOffset ChangedAtUtc, string TimeZone);
+
 internal sealed class FakeEmailSender : IEmailSender
 {
     private readonly Channel<SentEmail> _sent = Channel.CreateUnbounded<SentEmail>();
 
     public ChannelReader<SentEmail> Sent => _sent.Reader;
 
+    public List<SentPasswordChangedEmail> PasswordChangedEmails { get; } = [];
+
     public bool FailNext { get; set; }
+
+    public Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        PasswordChangedEmails.Add(new SentPasswordChangedEmail(email, changedAtUtc, timeZone));
+
+        return Task.CompletedTask;
+    }
 
     public Task SendPasswordResetAsync(string email, string token, CancellationToken cancellationToken)
     {

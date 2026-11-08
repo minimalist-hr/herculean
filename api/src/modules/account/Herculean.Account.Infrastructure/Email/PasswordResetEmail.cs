@@ -7,10 +7,8 @@ namespace Herculean.Account.Infrastructure.Email;
 internal static class PasswordResetEmail
 {
     private const string Subject = "Reset your Herculean password";
-    private const string LogoContentId = "wordmark";
-    private const string ResourcePrefix = "Herculean.Account.Infrastructure.Email.";
 
-    private static readonly string HtmlTemplate = ReadHtmlTemplate();
+    private static readonly string HtmlTemplate = EmailResources.ReadTemplate("PasswordResetEmail.html");
 
     public static MimeMessage Create(MailboxAddress from, string email, string link)
     {
@@ -28,23 +26,10 @@ internal static class PasswordResetEmail
             HtmlBody = HtmlTemplate
                 .Replace("{{Email}}", WebUtility.HtmlEncode(email), StringComparison.Ordinal)
                 .Replace("{{Link}}", WebUtility.HtmlEncode(link), StringComparison.Ordinal)
-                .Replace("{{LogoSource}}", $"cid:{LogoContentId}", StringComparison.Ordinal),
+                .Replace("{{LogoSource}}", EmailResources.LogoSource, StringComparison.Ordinal),
         };
-
-        using Stream logo = OpenResource("wordmark-on-dark.png");
-        body.LinkedResources.Add("wordmark.png", logo, new ContentType("image", "png")).ContentId = LogoContentId;
+        EmailResources.AddLogo(body);
 
         return new MimeMessage([from], [MailboxAddress.Parse(email)], Subject, body.ToMessageBody());
     }
-
-    private static string ReadHtmlTemplate()
-    {
-        using StreamReader reader = new(OpenResource("PasswordResetEmail.html"));
-
-        return reader.ReadToEnd();
-    }
-
-    private static Stream OpenResource(string name) =>
-        typeof(PasswordResetEmail).Assembly.GetManifestResourceStream(ResourcePrefix + name)
-        ?? throw new InvalidOperationException($"The resource {name} is missing.");
 }

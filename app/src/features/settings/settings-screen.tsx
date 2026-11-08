@@ -141,8 +141,9 @@ export function SettingsScreen() {
         <SettingsRow
           label="Password"
           value="Change"
-          muted
-          onPress={later('Changing your password')}
+          onPress={() => {
+            router.push('/settings/password');
+          }}
         />
       </SettingsSection>
 

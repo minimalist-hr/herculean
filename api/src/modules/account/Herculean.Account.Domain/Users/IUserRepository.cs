@@ -4,6 +4,9 @@ internal interface IUserRepository
 {
     Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken);
 
+    /// <summary>Finds the user with all their refresh tokens loaded.</summary>
+    Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken);
+
     /// <summary>Finds the user regardless of the email's case.</summary>
     Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken);
 

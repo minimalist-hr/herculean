@@ -13,11 +13,13 @@ using Herculean.Account.Application.PasswordResets.SendPasswordResetEmail;
 using Herculean.Account.Application.Sessions;
 using Herculean.Account.Application.Sessions.CreateSession;
 using Herculean.Account.Application.Sessions.RefreshSession;
+using Herculean.Account.Application.Users.ChangePassword;
 using Herculean.Account.Application.Users.CreateUser;
 using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetCurrentUser;
 using Herculean.Account.Application.Users.GetUserCreatedAt;
 using Herculean.Account.Application.Users.GetUserTimeZone;
+using Herculean.Account.Application.Users.PasswordChanged;
 using Herculean.Account.Application.Users.UpdateCurrentUser;
 using Herculean.Account.Contracts;
 using Herculean.Account.Domain;
@@ -96,6 +98,9 @@ public static class AccountModule
         builder.Services.AddScoped<CreateUserHandler>();
         builder.Services.AddScoped<IValidator<UpdateCurrentUserRequest>, UpdateCurrentUserValidator>();
         builder.Services.AddScoped<UpdateCurrentUserHandler>();
+        builder.Services.AddScoped<IValidator<ChangePasswordRequest>, ChangePasswordValidator>();
+        builder.Services.AddScoped<ChangePasswordHandler>();
+        builder.Services.AddIntegrationEventHandler<PasswordChangedIntegrationEvent, PasswordChangedIntegrationEventHandler>();
         builder.Services.AddScoped<GetCurrentUserHandler>();
         builder.Services.AddScoped<IValidator<CreateSessionRequest>, CreateSessionValidator>();
         builder.Services.AddScoped<CreateSessionHandler>();
@@ -125,6 +130,7 @@ public static class AccountModule
             options.AddPolicy(SessionRoutes.RefreshRateLimit, AttemptsPerIp);
             options.AddPolicy(PasswordResetRoutes.CreateRateLimit, AttemptsPerIp);
             options.AddPolicy(PasswordResetRoutes.CompleteRateLimit, AttemptsPerIp);
+            options.AddPolicy(UserRoutes.ChangePasswordRateLimit, AttemptsPerIp);
         });
     }
 
@@ -139,6 +145,7 @@ public static class AccountModule
     {
         CreateUserEndpoint.Map(endpoints);
         UpdateCurrentUserEndpoint.Map(endpoints);
+        ChangePasswordEndpoint.Map(endpoints);
         GetCurrentUserEndpoint.Map(endpoints);
         CreateSessionEndpoint.Map(endpoints);
         RefreshSessionEndpoint.Map(endpoints);

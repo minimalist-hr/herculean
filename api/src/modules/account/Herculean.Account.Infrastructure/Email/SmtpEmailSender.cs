@@ -14,9 +14,21 @@ internal sealed class SmtpEmailSender(IOptions<EmailOptions> options, IResetLink
 {
     public async Task SendPasswordResetAsync(string email, string token, CancellationToken cancellationToken)
     {
-        EmailOptions emailOptions = options.Value;
-        using MimeMessage message = PasswordResetEmail.Create(MailboxAddress.Parse(emailOptions.From), email, resetLinks.Page(token));
+        using MimeMessage message = PasswordResetEmail.Create(MailboxAddress.Parse(options.Value.From), email, resetLinks.Page(token));
 
+        await SendAsync(message, cancellationToken);
+    }
+
+    public async Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        using MimeMessage message = PasswordChangedEmail.Create(MailboxAddress.Parse(options.Value.From), email, changedAtUtc, timeZone);
+
+        await SendAsync(message, cancellationToken);
+    }
+
+    private async Task SendAsync(MimeMessage message, CancellationToken cancellationToken)
+    {
+        EmailOptions emailOptions = options.Value;
         using SmtpClient client = new();
 
         // Auto uses TLS from the start on port 465, and otherwise when the server offers it.

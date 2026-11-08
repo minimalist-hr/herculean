@@ -159,6 +159,24 @@ public sealed class UserRepositoryTests : IDisposable
         (await _dbContext.Set<RefreshToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
     }
 
+    [Fact]
+    public async Task ChangePasswordKeepsOnlyTheNamedRefreshTokenOnSave()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddRefreshToken("phone", DateTimeOffset.UnixEpoch);
+        newUser.AddRefreshToken("tablet", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        User user = (await _userRepository.GetByIdWithRefreshTokensAsync(newUser.Id, TestContext.Current.CancellationToken)).ShouldNotBeNull();
+        user.RefreshTokens.Count.ShouldBe(2);
+        user.ChangePassword("new-hash", "phone");
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _dbContext.Set<RefreshToken>().SingleAsync(TestContext.Current.CancellationToken)).TokenHash.ShouldBe("phone");
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.54 · 8 November 2026 · Minimalist
+Version 0.55 · 8 November 2026 · Minimalist
+
+> Changes since 0.54: H18 Change password is built, as a page instead of a sheet. Save password goes back to H10 and says "Password saved. Other devices are signed out." Its subtitle says "You'll be signed out of other devices.", and New password has the helper "At least 8 characters." New H25: the email that says the password changed, built like A13, with no button. It says when, in the user's time zone. New H22: a wrong current password shows under its field. New H23: a new password that's too short, or doesn't match, shows under its field.
 
 > Changes since 0.53: H16 Name is built, as a page instead of a sheet. Save name goes back to H10 and says "Name saved." New H24: with an empty name, Save name shows "Enter your name." under the field, like every form.
 
@@ -465,7 +467,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 No routines, H00 Not planned yet | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
-| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H24 Name empty | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
+| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout

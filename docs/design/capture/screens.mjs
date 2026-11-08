@@ -489,6 +489,36 @@ export const screens = [
     await on.waitFor('Enter your name.');
     await on.sleep(400);
   } },
+  { id: 'H18', file: 'H18-Settings-Password', title: 'Settings › Change password', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Password, Change');
+    await on.waitFor('Save password');
+    await on.sleep(400);
+  } },
+  { id: 'H22', file: 'H22-Settings-Password-Wrong', title: 'Settings › Change password · wrong current password', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/sessions/refresh': { status: 200, body: { accessToken: 'capture', expiresIn: 3600, refreshToken: 'capture' } }, 'PUT /api/v1/users/me/password': { status: 400, body: { type: 'about:blank', title: 'Error', status: 400, detail: 'One or more fields are not valid.', code: 'validation', errors: { currentPassword: ['The current password is wrong.'] }, traceId: '00-capture' } } }, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Password, Change');
+    await on.waitFor('Save password');
+    await on.sleep(400);
+    await on.type('Current password', 'wrong-password');
+    await on.type('New password', 'password-one');
+    await on.type('Confirm new password', 'password-one');
+    await on.tap('Save password');
+    await on.waitFor('The current password is wrong.');
+    await on.sleep(400);
+  } },
+  { id: 'H23', file: 'H23-Settings-Password-Errors', title: 'Settings › Change password · new password errors', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.tap('Password, Change');
+    await on.waitFor('Save password');
+    await on.sleep(400);
+    await on.type('Current password', 'password');
+    await on.type('New password', 'short');
+    await on.type('Confirm new password', 'other');
+    await on.tap('Save password');
+    await on.waitFor("The passwords don't match.");
+    await on.sleep(400);
+  } },
   // W · Workout
   { id: 'W07', file: 'W07-Workout-Today-Loading', title: 'Workout › Today · loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold' }, steps: (on) => on.go('/workout') },
   { id: 'W08', file: 'W08-Workout-Today-Load-Failure', title: 'Workout › Today · load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {

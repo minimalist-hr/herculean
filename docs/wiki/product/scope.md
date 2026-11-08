@@ -253,11 +253,11 @@ Changes on W30 stay in the app until Save workout.
 
 **What it does:** you manage your profile photo, theme, color, units, default rest time, sound and vibrate when rest ends, name, email and password. You can sign out or delete your account.
 
-**Screens:** H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account.
+**Screens:** H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email.
 
 **Flows**
 - **Open:** the FM avatar on Home → H10.
-- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time and name are built.
+- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name and password are built.
 - **Photo:** H11 → Take photo or Choose from library. Remove photo → H10, with an undo bar.
 - **Email:** H17 → Save email → link in the email → the new email is active.
 - **Sign out:** → A01.

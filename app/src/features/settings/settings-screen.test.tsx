@@ -6,8 +6,10 @@ import { useState } from 'react';
 import { Text } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
+import { saveTokens } from '@/features/account/session';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import { ChangePasswordScreen } from './change-password-screen';
 import { initialsOf } from './settings-labels';
 import { ProfileButton } from './profile-button';
 import {
@@ -20,6 +22,7 @@ import {
 import { SettingsScreen } from './settings-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
+const mockRefreshTokens = jest.fn<Promise<boolean>, []>();
 
 jest.mock('@/api/client', () => {
   const createClient =
@@ -29,6 +32,17 @@ jest.mock('@/api/client', () => {
       baseUrl: 'http://api.test',
       fetch: (request: Request) => mockFetch(request),
     }),
+    refreshTokens: () => mockRefreshTokens(),
+  };
+});
+
+jest.mock('expo-secure-store', () => {
+  const stored = new Map<string, string>();
+  return {
+    setItemAsync: (key: string, value: string) =>
+      Promise.resolve(void stored.set(key, value)),
+    getItemAsync: (key: string) => Promise.resolve(stored.get(key) ?? null),
+    deleteItemAsync: (key: string) => Promise.resolve(void stored.delete(key)),
   };
 });
 
@@ -126,6 +140,7 @@ async function renderAt(initialUrl: string) {
       'settings/units': UnitsScreen,
       'settings/rest-time': DefaultRestScreen,
       'settings/name': NameScreen,
+      'settings/password': ChangePasswordScreen,
       terms: Legal,
     },
     { initialUrl },
@@ -376,6 +391,168 @@ test('leaving with a changed name asks first', async () => {
   await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
 
   expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+});
+
+function answerPasswordWith(answer: Response) {
+  answerWith();
+  const answerRest = mockFetch.getMockImplementation();
+  mockFetch.mockImplementation((request) =>
+    request.method === 'PUT'
+      ? Promise.resolve(answer)
+      : (answerRest?.(request) ?? Promise.reject(new Error('No answer'))),
+  );
+}
+
+const validationProblem = (errors: Record<string, string[]>) =>
+  Response.json(
+    {
+      type: 'https://tools.ietf.org/html/rfc9110#section-15.5.1',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'One or more fields are not valid.',
+      code: 'validation',
+      errors,
+      traceId: '00-1',
+    },
+    { status: 400 },
+  );
+
+async function fillPasswords(
+  current = 'old-password',
+  next = 'new-password',
+  repeat = next,
+) {
+  await fireEvent.changeText(
+    await screen.findByLabelText('Current password'),
+    current,
+  );
+  await fireEvent.changeText(screen.getByLabelText('New password'), next);
+  await fireEvent.changeText(
+    screen.getByLabelText('Confirm new password'),
+    repeat,
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save password' }));
+}
+
+function putRequest() {
+  return mockFetch.mock.calls.find(([sent]) => sent.method === 'PUT')?.[0];
+}
+
+describe('change password', () => {
+  beforeEach(async () => {
+    mockRefreshTokens.mockReset();
+    mockRefreshTokens.mockResolvedValue(true);
+    await saveTokens({
+      accessToken: 'access',
+      expiresIn: 900,
+      refreshToken: 'this-phone',
+    });
+  });
+
+  test('saves with this device’s token, after a refresh, and says other devices are signed out', async () => {
+    answerPasswordWith(new Response(null, { status: 204 }));
+    await renderSettings();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Password, Change' }),
+    );
+    await fillPasswords();
+
+    expect(
+      await screen.findByText('Password saved. Other devices are signed out.'),
+    ).toBeOnTheScreen();
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+    await expect(putRequest()?.clone().json()).resolves.toEqual({
+      currentPassword: 'old-password',
+      newPassword: 'new-password',
+      refreshToken: 'this-phone',
+    });
+  });
+
+  test('a wrong current password shows under its field', async () => {
+    answerPasswordWith(
+      validationProblem({
+        currentPassword: ['The current password is wrong.'],
+      }),
+    );
+    await renderAt('/settings/password');
+
+    await fillPasswords();
+
+    expect(
+      await screen.findByText('The current password is wrong.'),
+    ).toBeOnTheScreen();
+  });
+
+  test('a new password the API rejects shows under its field', async () => {
+    answerPasswordWith(
+      validationProblem({ newPassword: ['That password is not allowed.'] }),
+    );
+    await renderAt('/settings/password');
+
+    await fillPasswords();
+
+    expect(
+      await screen.findByText('That password is not allowed.'),
+    ).toBeOnTheScreen();
+  });
+
+  test.each([
+    ['', 'new-password', 'new-password', 'Enter your current password.'],
+    ['old-password', 'short', 'short', 'At least 8 characters.'],
+    ['old-password', 'new-password', 'other', "The passwords don't match."],
+  ])(
+    'with %p, %p and %p it shows %p and sends nothing',
+    async (current, next, repeat, message) => {
+      answerPasswordWith(new Response(null, { status: 204 }));
+      await renderAt('/settings/password');
+
+      await fillPasswords(current, next, repeat);
+
+      expect(await screen.findByText(message)).toBeOnTheScreen();
+      expect(putRequest()).toBeUndefined();
+    },
+  );
+
+  test('a failed save says so and stays', async () => {
+    answerPasswordWith(new Response(null, { status: 500 }));
+    await renderAt('/settings/password');
+
+    await fillPasswords();
+
+    expect(
+      await screen.findByText("Couldn't save the password. Try again."),
+    ).toBeOnTheScreen();
+  });
+
+  test('a session that has ended sends nothing', async () => {
+    mockRefreshTokens.mockResolvedValue(false);
+    answerPasswordWith(new Response(null, { status: 204 }));
+    await renderAt('/settings/password');
+
+    await fillPasswords();
+
+    expect(
+      await screen.findByText("Couldn't save the password. Try again."),
+    ).toBeOnTheScreen();
+    expect(putRequest()).toBeUndefined();
+  });
+
+  test('leaving with something typed asks first', async () => {
+    answerWith();
+    await renderSettings();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Password, Change' }),
+    );
+    await fireEvent.changeText(
+      await screen.findByLabelText('Current password'),
+      'old',
+    );
+    await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
+
+    expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+  });
 });
 
 test('a failed rest time save says so and stays', async () => {

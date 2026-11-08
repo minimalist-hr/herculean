@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Email\PasswordResetEmail.html" />
+    <EmbeddedResource Include="Email\PasswordChangedEmail.html" />
     <EmbeddedResource Include="Email\wordmark-on-dark.png" />
   </ItemGroup>
 

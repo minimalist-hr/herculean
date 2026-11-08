@@ -9,6 +9,11 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
     public Task<User?> GetByIdAsync(UserId userId, CancellationToken cancellationToken) =>
         dbContext.Users.SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
+    public Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .Include(user => user.RefreshTokens)
+            .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         string normalizedEmail = User.NormalizeEmail(email);

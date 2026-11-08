@@ -48,6 +48,26 @@ export interface paths {
         patch: operations["UpdateCurrentUser"];
         trace?: never;
     };
+    "/api/v1/users/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change the password
+         * @description Sets a new password after checking the current one. This device stays signed in and every other device is signed out.
+         */
+        put: operations["ChangePassword"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sessions": {
         parameters: {
             query?: never;
@@ -803,6 +823,15 @@ export interface components {
              * @description The date of the first workout that did it, in the user's time zone.
              */
             date: string;
+        };
+        /** @description The current and new passwords, and the refresh token of the device that stays signed in. */
+        ChangePasswordRequest: {
+            /** @description The password the user has now. */
+            currentPassword: string;
+            /** @description The new password, at least 8 characters. */
+            newPassword: string;
+            /** @description The refresh token this device holds now. Every other one is deleted. */
+            refreshToken: string;
         };
         /**
          * @description The accent color of buttons, links and highlights.
@@ -1962,6 +1991,64 @@ export interface operations {
             };
             /** @description The account no longer exists. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ChangePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description The password is changed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid, or the current password is wrong. The errors name each field. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

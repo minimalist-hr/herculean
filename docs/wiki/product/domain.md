@@ -48,7 +48,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Resetting the password deletes every refresh token, so every device is signed out.
 - An email change takes effect only when the link in the email is opened.
 - Sign out deletes that device's refresh token.
-- Changing the password deletes every refresh token except the current one.
+- Changing the password deletes every refresh token except the current one, and emails the user.
 - A token is deleted once it is used or revoked.
 - Deleting an account deletes all its data. There is no undo.
 - A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and no exercises.
