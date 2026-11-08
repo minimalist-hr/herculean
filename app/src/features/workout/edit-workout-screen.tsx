@@ -149,7 +149,7 @@ export function EditWorkoutScreen() {
   const router = useRouter();
   const { space } = useTheme();
   const units = useCurrentUser().data?.units ?? 'metric';
-  const { workout, exercises, setExercises } = useEditWorkoutDraft();
+  const { workout, exercises, setExercises, setPicked } = useEditWorkoutDraft();
   const save = useEditWorkout(workout.id);
   const [edit, setEdit] = useState<SetEdit | null>(null);
   const [openings, setOpenings] = useState(0);
@@ -366,6 +366,7 @@ export function EditWorkoutScreen() {
             return;
           }
 
+          setPicked([]);
           router.push(`/workout/edit/${workout.id}/add` as Href);
         }}
       />

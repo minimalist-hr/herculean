@@ -48,7 +48,8 @@ interface Answers {
 function answerWith({
   answer = summary,
   summaryStatus = 200,
-  patch = () => Response.json({ id: 'w1', status: 'completed' }),
+  patch = () =>
+    Response.json({ id: 'w1', status: 'completed', name: 'Legs day' }),
   remove = () => new Response(null, { status: 204 }),
   restore = () => Response.json({ id: 'w1', status: 'inProgress' }),
 }: Answers = {}) {
@@ -267,6 +268,7 @@ test('saving completes the workout and returns to the day', async () => {
   );
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
+  expect(await screen.findByText('Legs day saved.')).toBeOnTheScreen();
   await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
     status: 'completed',
   });

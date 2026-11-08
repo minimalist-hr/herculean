@@ -56,7 +56,7 @@ function SavedExercisesSkeleton() {
         <DashedLine />
         {[0, 1, 2].map((row) => (
           <View key={row} style={{ paddingVertical: space.sm }}>
-            <Skeleton width={260} height={18} />
+            <Skeleton width="100%" height={18} />
           </View>
         ))}
       </View>

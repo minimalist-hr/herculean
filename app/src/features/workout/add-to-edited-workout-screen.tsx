@@ -24,7 +24,6 @@ export function AddToEditedWorkoutScreen() {
       aboveTabBar
       onDone={(leave) => {
         setExercises((current) => [...current, ...picked.map(addedExercise)]);
-        setPicked([]);
         leave();
       }}
     />

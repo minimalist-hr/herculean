@@ -276,6 +276,22 @@ test('an exercise already in the routine is not offered again', async () => {
   expect(screen.queryByRole('button', { name: 'Squat' })).toBeNull();
 });
 
+test('opening Add exercise again starts with nothing picked', async () => {
+  answer();
+  await openNew();
+  await addSquat();
+
+  await openAddExercise();
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Bench press' }),
+  );
+  await pressLast('Add exercise');
+  await addExerciseClosed();
+
+  expect(await screen.findByText('Bench press')).toBeOnTheScreen();
+  expect(screen.getAllByText('Squat')).toHaveLength(1);
+});
+
 test('a new exercise from a search comes back selected and new, and its description shows', async () => {
   answer();
   await openNew();

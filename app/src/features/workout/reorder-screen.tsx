@@ -132,7 +132,7 @@ function ReorderSkeleton() {
       <Skeleton width={200} height={10} />
       <Skeleton width={240} height={28} />
       {[0, 1, 2, 3].map((row) => (
-        <Skeleton key={row} width={320} height={56} />
+        <Skeleton key={row} width="100%" height={56} />
       ))}
     </View>
   );

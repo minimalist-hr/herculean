@@ -130,7 +130,7 @@ export function DetailsSkeleton({
                 },
               ]}
             >
-              <Skeleton width={280} height={150} />
+              <Skeleton width="100%" height={150} />
             </View>
           </View>
         </>

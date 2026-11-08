@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.50 · 8 November 2026 · Minimalist
+Version 0.51 · 8 November 2026 · Minimalist
+
+> Changes since 0.50, the consistency pass after editing: W30 and L30 say "Chest and arms 2 saved." when they close, like every other page that saves. Skeleton blocks fill their card on L03, W68, E67 and L04. W40's Back to today stays hidden while today is shown, as an action with no meaning there.
 
 > Changes since 0.49: editing a workout is built. Edit on W03 and W20 opens W30, with every exercise open like L01 but without check boxes or Swap. Sets use the L10 and L11 sheets; removing one shows "Set 1 removed." with Undo (W31). The trash asks on L13, then offers Undo. Add exercise uses the L20 flow; an added exercise starts with 3 sets at 0 and the low end of the reps, with its last time before the workout's date. With every exercise removed, "No exercises left" shows and Save workout looks muted, saying "Add an exercise to save, or delete the workout." Nothing is sent until Save workout. New screens: W86 loading, W87 couldn't load, W88 saving, W89 couldn't save, and W90 discard changes on leaving. W03's exercise skeleton fills the card.
 
@@ -261,6 +263,7 @@ Says that something worked or failed, when it belongs to no field. It looks like
 - **Behavior:** it comes down, stays 4 seconds (a failure 6), and a tap dismisses it. A new one replaces it. Changing a field or trying again also dismisses it. It stays when the screen changes, so a screen can close and say why.
 - **Sheets:** a failure or an Undo shows over the top sheet, which stays with what was typed. A failure goes when the sheet closes. Any other success shows as the sheet closes.
 - **Action:** it can carry one action at its right, such as Undo on E30. It then stays 6 seconds.
+- **Saving a page:** every page whose Save or Create closes it says so: "Bench press saved." or "Bench press created." That includes W30 and L30, "Chest and arms 2 saved." Actions that change the screen in place, such as skip or start, don't.
 - **Examples:** "Bench press saved.", "Bench press created.", "Bench press deleted.", "Link sent again.", "Password changed. Sign in with the new one."
 
 **Search fields.** Every search has a search icon at the start. Once it has text, a clear button (44 × 44 px) sits at the end, and tapping it shows the whole list again right away.
@@ -394,7 +397,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 **Exercises in a routine.** An exercise in a routine can't be deleted. Its trash on E10 is muted, and tapping it says "It's in Legs and Arms. Remove it from those routines first." One routine reads "It's in Legs. Remove it from that routine first." More than three read "It's in 5 routines. Remove it from them first."
 
-**Actions that aren't available.** An action that isn't available looks muted but stays tappable, and a notification says why. It is never hidden instead, so the app stays predictable and everything stays where people remember it. Only an action that has no meaning in a state is left out, such as Undo skip on a day that wasn't skipped. For example: "Move or delete this group's exercises first." A button dimmed while another action waits is different: it can't be pressed.
+**Actions that aren't available.** An action that isn't available looks muted but stays tappable, and a notification says why. It is never hidden instead, so the app stays predictable and everything stays where people remember it. Only an action that has no meaning in a state is left out, such as Undo skip on a day that wasn't skipped, or Back to today on W40 while today is shown. For example: "Move or delete this group's exercises first." A button dimmed while another action waits is different: it can't be pressed.
 
 **Schedule.** The week plan repeats every week. Missing a day doesn't shift the schedule. Picking another routine for a day (W10) replaces only that day's plan.
 

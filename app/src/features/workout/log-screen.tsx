@@ -464,7 +464,7 @@ function LoggingSkeleton() {
         <Skeleton width={200} height={16} />
         <Skeleton width={120} height={10} />
         {[0, 1, 2].map((row) => (
-          <Skeleton key={row} width={280} height={32} />
+          <Skeleton key={row} width="100%" height={32} />
         ))}
       </View>
     </View>

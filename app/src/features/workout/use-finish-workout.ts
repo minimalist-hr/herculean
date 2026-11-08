@@ -34,7 +34,7 @@ function failureMessage(error: Error, fallback: string) {
     : fallback;
 }
 
-/** Saves a workout with what was checked, then goes back to its day. */
+/** Saves a workout with what was checked, then goes back to its day and says so. */
 export function useSaveWorkout(id: string) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -48,9 +48,12 @@ export function useSaveWorkout(id: string) {
       if (data === undefined) {
         throw toApiError(error);
       }
+
+      return data;
     },
-    onSuccess: async () => {
+    onSuccess: async (saved) => {
       router.dismiss(pagesBackToDay);
+      notifySuccess(`${saved.name} saved.`);
       await Promise.all(
         [...changedByAWorkout, workoutKeys.workout(id)].map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),
@@ -153,7 +156,7 @@ export function useDeleteWorkout(id: string) {
 
 type EditedExercise = components['schemas']['EditedWorkoutExercise'];
 
-/** Saves a corrected saved workout, then goes back to its day. */
+/** Saves a corrected saved workout, then goes back to its day and says so. */
 export function useEditWorkout(id: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -168,9 +171,12 @@ export function useEditWorkout(id: string) {
       if (data === undefined) {
         throw toApiError(error);
       }
+
+      return data;
     },
-    onSuccess: async () => {
+    onSuccess: async (saved) => {
       router.back();
+      notifySuccess(`${saved.name} saved.`);
       await Promise.all([
         refresh(),
         queryClient.invalidateQueries({ queryKey: workoutKeys.all }),

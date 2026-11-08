@@ -199,6 +199,7 @@ test('a changed value and an added set are saved together', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
+  expect(await screen.findByText('Legs saved.')).toBeOnTheScreen();
   expect(await sentBody()).toEqual({
     exercises: [
       {
