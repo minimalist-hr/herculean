@@ -76,6 +76,8 @@ interface SheetProps {
   bodyGap?: number;
   /** Says how many points the content is over the room there is, so a body can shrink to fit. */
   onOverflow?: (points: number) => void;
+  /** Keeps the actions above the keyboard, for a short form whose action should stay in reach. */
+  actionsAboveKeyboard?: boolean;
   /** The actions below the line: the main one first. The close button and a tap outside cancel. */
   children: ReactNode;
 }
@@ -91,6 +93,7 @@ export function Sheet({
   body,
   bodyGap,
   onOverflow,
+  actionsAboveKeyboard = false,
   children,
 }: SheetProps) {
   const { colors, motion, radius, size, space, text } = useTheme();
@@ -116,7 +119,7 @@ export function Sheet({
       ? space.lg
       : Math.max(insets.bottom + space.md, paddingBottomMin);
   // The actions wait behind the keyboard, so the fields keep the room.
-  const actionsShown = keyboardHeight === 0;
+  const actionsShown = keyboardHeight === 0 || actionsAboveKeyboard;
   const parts = 1 + (body === undefined ? 0 : 1) + (actionsShown ? 1 : 0);
   const bodyPull = bodyGap === undefined ? 0 : bodyGap - space.lg;
   const natural =

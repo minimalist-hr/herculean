@@ -1,6 +1,13 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
+/** Everything kept on the phone for the signed-in user. */
+export const storedKeys = {
+  appearance: 'appearance',
+  restTimer: 'restTimer',
+  resumeBarHiddenFor: 'resumeBarHiddenFor',
+} as const;
+
 // The web has no secure storage, so there values live as long as the page.
 const webStored = new Map<string, string>();
 
@@ -24,4 +31,11 @@ export async function writeStored(key: string, value: string | null) {
   } else {
     await SecureStore.setItemAsync(key, value);
   }
+}
+
+/** Removes everything kept on the phone for the signed-in user. */
+export async function clearStored() {
+  await Promise.all(
+    Object.values(storedKeys).map((key) => writeStored(key, null)),
+  );
 }

@@ -1,7 +1,27 @@
 import { api, refreshTokens } from '@/api/client';
 import { toApiError } from '@/api/problem';
+import { queryClient } from '@/api/query-client';
+import { clearStored } from '@/storage/phone-storage';
 
-import { endSession, enterApp } from './session';
+import { endSession, enterApp, readRefreshToken } from './session';
+
+/** Removes what the app holds for the user who was signed in. */
+export function clearUserData() {
+  queryClient.clear();
+  void clearStored().catch(() => undefined);
+}
+
+/** Signs out on this phone even without a connection. The token then runs out by itself. */
+export async function signOut() {
+  const refreshToken = await readRefreshToken();
+  if (refreshToken !== null) {
+    await api
+      .POST('/api/v1/sessions/revoke', { body: { refreshToken } })
+      .catch(() => undefined);
+  }
+
+  await endSession();
+}
 
 /**
  * With new tokens saved, asks the API who is signed in, then shows setup or the app.

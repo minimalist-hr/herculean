@@ -10,6 +10,12 @@ internal interface IEmailSender
     /// <param name="cancellationToken">Stops the send.</param>
     Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken);
 
+    /// <param name="email">The address the account used.</param>
+    /// <param name="deletedAtUtc">When the account was deleted.</param>
+    /// <param name="timeZone">The user's IANA time zone, which the email shows the time in.</param>
+    /// <param name="cancellationToken">Stops the send.</param>
+    Task SendAccountDeletedAsync(string email, DateTimeOffset deletedAtUtc, string timeZone, CancellationToken cancellationToken);
+
     Task SendEmailChangeAsync(string newEmail, string token, CancellationToken cancellationToken);
 
     /// <param name="oldEmail">The address the account used until now.</param>

@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +15,7 @@ import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
 import { formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
+import { DeleteAccountSheet, SignOutSheet } from './account-sheets';
 import {
   colorLabels,
   initialsOf,
@@ -41,6 +43,13 @@ export function SettingsScreen() {
   const user = useCurrentUser();
   const workoutSettings = useWorkoutSettings();
   const pendingEmail = usePendingEmailChange();
+  const [openSheet, setOpenSheet] = useState<
+    'signOut' | 'deleteAccount' | null
+  >(null);
+
+  function closeSheet() {
+    setOpenSheet(null);
+  }
 
   function userValue(read: (data: NonNullable<typeof user.data>) => string) {
     if (user.data !== undefined) {
@@ -59,144 +68,156 @@ export function SettingsScreen() {
   }
 
   return (
-    <ScrollView
-      style={[styles.screen, { backgroundColor: colors.bg }]}
-      contentContainerStyle={{
-        gap: space.xl,
-        paddingTop: size.topPaddingSubPage,
-        paddingHorizontal: size.sidePadding,
-        paddingBottom: insets.bottom + space.xl,
-      }}
-    >
-      <View style={{ gap: 2 }}>
-        <BackLink
-          label="Home"
-          onPress={() => {
-            router.back();
-          }}
-        />
-        <ScreenHeading title="Settings" />
-      </View>
+    <>
+      <ScrollView
+        style={[styles.screen, { backgroundColor: colors.bg }]}
+        contentContainerStyle={{
+          gap: space.xl,
+          paddingTop: size.topPaddingSubPage,
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: insets.bottom + space.xl,
+        }}
+      >
+        <View style={{ gap: 2 }}>
+          <BackLink
+            label="Home"
+            onPress={() => {
+              router.back();
+            }}
+          />
+          <ScreenHeading title="Settings" />
+        </View>
 
-      {user.isError ? (
-        <LoadFailure
-          message="Couldn't load your settings."
-          onRetry={() => {
-            void user.refetch();
-          }}
-        />
-      ) : (
-        <Profile name={user.data?.name} email={user.data?.email} />
-      )}
+        {user.isError ? (
+          <LoadFailure
+            message="Couldn't load your settings."
+            onRetry={() => {
+              void user.refetch();
+            }}
+          />
+        ) : (
+          <Profile name={user.data?.name} email={user.data?.email} />
+        )}
 
-      <SettingsSection title="Appearance">
-        <SettingsRow
-          first
-          label="Theme"
-          value={userValue((data) => themeLabels[data.theme])}
-          onPress={() => {
-            router.push('/settings/theme');
-          }}
-        />
-        <SettingsRow
-          label="Color"
-          value={userValue((data) => colorLabels[data.color])}
-          onPress={() => {
-            router.push('/settings/color');
-          }}
-        />
-      </SettingsSection>
+        <SettingsSection title="Appearance">
+          <SettingsRow
+            first
+            label="Theme"
+            value={userValue((data) => themeLabels[data.theme])}
+            onPress={() => {
+              router.push('/settings/theme');
+            }}
+          />
+          <SettingsRow
+            label="Color"
+            value={userValue((data) => colorLabels[data.color])}
+            onPress={() => {
+              router.push('/settings/color');
+            }}
+          />
+        </SettingsSection>
 
-      <SettingsSection title="Workout">
-        <SettingsRow
-          first
-          label="Units"
-          value={userValue((data) => unitLabels[data.units])}
-          onPress={() => {
-            router.push('/settings/units');
-          }}
-        />
-        <SettingsRow
-          label="Default rest time"
-          value={restValue()}
-          onPress={() => {
-            router.push('/settings/rest-time');
-          }}
-        />
-      </SettingsSection>
+        <SettingsSection title="Workout">
+          <SettingsRow
+            first
+            label="Units"
+            value={userValue((data) => unitLabels[data.units])}
+            onPress={() => {
+              router.push('/settings/units');
+            }}
+          />
+          <SettingsRow
+            label="Default rest time"
+            value={restValue()}
+            onPress={() => {
+              router.push('/settings/rest-time');
+            }}
+          />
+        </SettingsSection>
 
-      <SettingsSection title="Account">
-        <SettingsRow
-          first
-          label="Name"
-          value={userValue((data) => data.name ?? '')}
-          onPress={() => {
-            router.push('/settings/name');
-          }}
-        />
-        <SettingsRow
-          label="Email"
-          value={userValue((data) => data.email)}
-          attention={
-            pendingEmail.data?.newEmail ? 'Waiting for confirmation' : undefined
-          }
-          onPress={() => {
-            router.push('/settings/email');
-          }}
-        />
-        <SettingsRow
-          label="Password"
-          value="Change"
-          onPress={() => {
-            router.push('/settings/password');
-          }}
-        />
-      </SettingsSection>
+        <SettingsSection title="Account">
+          <SettingsRow
+            first
+            label="Name"
+            value={userValue((data) => data.name ?? '')}
+            onPress={() => {
+              router.push('/settings/name');
+            }}
+          />
+          <SettingsRow
+            label="Email"
+            value={userValue((data) => data.email)}
+            attention={
+              pendingEmail.data?.newEmail
+                ? 'Waiting for confirmation'
+                : undefined
+            }
+            onPress={() => {
+              router.push('/settings/email');
+            }}
+          />
+          <SettingsRow
+            label="Password"
+            value="Change"
+            onPress={() => {
+              router.push('/settings/password');
+            }}
+          />
+        </SettingsSection>
 
-      <SettingsSection title="About">
-        <SettingsRow
-          first
-          label="Terms of service"
-          hasValue={false}
-          onPress={() => {
-            router.push({ pathname: '/terms', params: { back: 'Settings' } });
-          }}
-        />
-        <SettingsRow
-          label="Privacy policy"
-          hasValue={false}
-          onPress={() => {
-            router.push({
-              pathname: '/privacy',
-              params: { back: 'Settings' },
-            });
-          }}
-        />
-        <SettingsRow
-          label="Version"
-          value={Constants.expoConfig?.version ?? ''}
-        />
-      </SettingsSection>
+        <SettingsSection title="About">
+          <SettingsRow
+            first
+            label="Terms of service"
+            hasValue={false}
+            onPress={() => {
+              router.push({ pathname: '/terms', params: { back: 'Settings' } });
+            }}
+          />
+          <SettingsRow
+            label="Privacy policy"
+            hasValue={false}
+            onPress={() => {
+              router.push({
+                pathname: '/privacy',
+                params: { back: 'Settings' },
+              });
+            }}
+          />
+          <SettingsRow
+            label="Version"
+            value={Constants.expoConfig?.version ?? ''}
+          />
+        </SettingsSection>
 
-      <SettingsSection>
-        <SettingsRow
-          first
-          label="Sign out"
-          hasValue={false}
-          action
-          muted
-          onPress={later('Signing out')}
-        />
-        <SettingsRow
-          label="Delete account"
-          hasValue={false}
-          action
-          muted
-          danger
-          onPress={later('Deleting your account')}
-        />
-      </SettingsSection>
-    </ScrollView>
+        <SettingsSection>
+          <SettingsRow
+            first
+            label="Sign out"
+            hasValue={false}
+            action
+            onPress={() => {
+              setOpenSheet('signOut');
+            }}
+          />
+          <SettingsRow
+            label="Delete account"
+            hasValue={false}
+            action
+            danger
+            onPress={() => {
+              setOpenSheet('deleteAccount');
+            }}
+          />
+        </SettingsSection>
+      </ScrollView>
+      {/* Outside the scroll view, which would close the keyboard on the first tap of a sheet's button. */}
+      <SignOutSheet visible={openSheet === 'signOut'} onClose={closeSheet} />
+      <DeleteAccountSheet
+        visible={openSheet === 'deleteAccount'}
+        onClose={closeSheet}
+      />
+    </>
   );
 }
 

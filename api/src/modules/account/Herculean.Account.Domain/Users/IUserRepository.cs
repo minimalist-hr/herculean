@@ -7,6 +7,9 @@ internal interface IUserRepository
     /// <summary>Finds the user with all their refresh tokens loaded.</summary>
     Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken);
 
+    /// <summary>Finds the user with every kind of token loaded, so removing the user removes them.</summary>
+    Task<User?> GetByIdWithAllTokensAsync(UserId userId, CancellationToken cancellationToken);
+
     /// <summary>Finds the user with their email change tokens loaded.</summary>
     Task<User?> GetByIdWithEmailChangeTokensAsync(UserId userId, CancellationToken cancellationToken);
 
@@ -29,4 +32,6 @@ internal interface IUserRepository
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
 
     void Add(User user);
+
+    void Remove(User user);
 }

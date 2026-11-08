@@ -14,6 +14,14 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
             .Include(user => user.RefreshTokens)
             .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
+    public Task<User?> GetByIdWithAllTokensAsync(UserId userId, CancellationToken cancellationToken) =>
+        dbContext.Users
+            .Include(user => user.RefreshTokens)
+            .Include(user => user.PasswordResetTokens)
+            .Include(user => user.EmailChangeTokens)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
     public Task<User?> GetByIdWithEmailChangeTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         dbContext.Users
             .Include(user => user.EmailChangeTokens)
@@ -64,5 +72,10 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
     public void Add(User user)
     {
         dbContext.Users.Add(user);
+    }
+
+    public void Remove(User user)
+    {
+        dbContext.Users.Remove(user);
     }
 }

@@ -1,6 +1,6 @@
 # Screen index
 
-314 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+319 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -16,6 +16,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | A03 | Account › Sign in · signing in | A1 Sign in | 390×844 | [png](screens/account/A03-Account-Sign-In-Signing-In.png) · [html](html/account/A03-Account-Sign-In-Signing-In.html) · [source](source/account/A03-Account-Sign-In-Signing-In.dc.html) |
 | A04 | Account › Sign in · fields missing | A1 Sign in | 390×844 | [png](screens/account/A04-Account-Sign-In-Errors.png) · [html](html/account/A04-Account-Sign-In-Errors.html) · [source](source/account/A04-Account-Sign-In-Errors.dc.html) |
 | A05 | Account › Sign in · wrong email or password | A1 Sign in | 390×844 | [png](screens/account/A05-Account-Sign-In-Wrong-Password.png) · [html](html/account/A05-Account-Sign-In-Wrong-Password.html) · [source](source/account/A05-Account-Sign-In-Wrong-Password.dc.html) |
+| A07 | Account › Sign in · account deleted | A1 Sign in | 390×844 | [png](screens/account/A07-Account-Sign-In-Account-Deleted.png) · [html](html/account/A07-Account-Sign-In-Account-Deleted.html) · [source](source/account/A07-Account-Sign-In-Account-Deleted.dc.html) |
 | A10 | Account › Reset password | A2 Reset password | 390×844 | [png](screens/account/A10-Account-Reset-Password.png) · [html](html/account/A10-Account-Reset-Password.html) · [source](source/account/A10-Account-Reset-Password.dc.html) |
 | A15 | Account › Reset password · link expired | A2 Reset password | 390×844 | [png](screens/account/A15-Account-Reset-Password-Link-Expired.png) · [html](html/account/A15-Account-Reset-Password-Link-Expired.html) · [source](source/account/A15-Account-Reset-Password-Link-Expired.dc.html) |
 | A11 | Account › Reset password · link sent | A2 Reset password | 390×844 | [png](screens/account/A11-Account-Reset-Link-Sent.png) · [html](html/account/A11-Account-Reset-Link-Sent.html) · [source](source/account/A11-Account-Reset-Link-Sent.dc.html) |
@@ -62,6 +63,10 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H22 | Settings › Change password · wrong current password | H2 Settings | 390×844 | [png](screens/home/H22-Settings-Password-Wrong.png) · [html](html/home/H22-Settings-Password-Wrong.html) · [source](source/home/H22-Settings-Password-Wrong.dc.html) |
 | H23 | Settings › Change password · new password errors | H2 Settings | 390×844 | [png](screens/home/H23-Settings-Password-Errors.png) · [html](html/home/H23-Settings-Password-Errors.html) · [source](source/home/H23-Settings-Password-Errors.dc.html) |
 | H19 | Settings › Delete account · confirm | H2 Settings | 390×844 | [png](screens/home/H19-Settings-Delete-Account.png) · [html](html/home/H19-Settings-Delete-Account.html) · [source](source/home/H19-Settings-Delete-Account.dc.html) |
+| H34 | Settings › Delete account · wrong password | H2 Settings | 390×844 | [png](screens/home/H34-Settings-Delete-Account-Wrong.png) · [html](html/home/H34-Settings-Delete-Account-Wrong.html) · [source](source/home/H34-Settings-Delete-Account-Wrong.dc.html) |
+| H35 | Settings › Delete account · could not delete | H2 Settings | 390×844 | [png](screens/home/H35-Settings-Delete-Account-Failed.png) · [html](html/home/H35-Settings-Delete-Account-Failed.html) · [source](source/home/H35-Settings-Delete-Account-Failed.dc.html) |
+| H36 | Settings › Sign out · confirm | H2 Settings | 390×844 | [png](screens/home/H36-Settings-Sign-Out.png) · [html](html/home/H36-Settings-Sign-Out.html) · [source](source/home/H36-Settings-Sign-Out.dc.html) |
+| H37 | Settings › Delete account · email | H2 Settings | 390×844 | [png](screens/home/H37-Settings-Account-Deleted-Email.png) · [html](html/home/H37-Settings-Account-Deleted-Email.html) · [source](source/home/H37-Settings-Account-Deleted-Email.dc.html) |
 | H20 | Settings › Terms of service | H3 About and legal | 390×844 | [png](screens/home/H20-Settings-Terms.png) · [html](html/home/H20-Settings-Terms.html) · [source](source/home/H20-Settings-Terms.dc.html) |
 | H21 | Settings › Privacy policy | H3 About and legal | 390×844 | [png](screens/home/H21-Settings-Privacy.png) · [html](html/home/H21-Settings-Privacy.html) · [source](source/home/H21-Settings-Privacy.dc.html) |
 | A06 | Account › Sign in · couldn't sign in | A1 Sign in | 390×844 | [png](screens/account/A06-Account-Sign-In-Failed.png) · [html](html/account/A06-Account-Sign-In-Failed.html) · [source](source/account/A06-Account-Sign-In-Failed.dc.html) |

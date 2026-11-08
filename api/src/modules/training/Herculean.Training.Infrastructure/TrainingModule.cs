@@ -5,6 +5,7 @@ using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Persistence;
 using Herculean.Training.Application.AccountCreated;
+using Herculean.Training.Application.AccountDeleted;
 using Herculean.Training.Application.Auth;
 using Herculean.Training.Application.Days;
 using Herculean.Training.Application.Days.GetDay;
@@ -108,6 +109,8 @@ public static class TrainingModule
         builder.Services.AddScoped<IWorkoutReadRepository, WorkoutReadRepository>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
+        builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
+        builder.Services.AddIntegrationEventHandler<AccountDeletedIntegrationEvent, AccountDeletedIntegrationEventHandler>();
 
         builder.Services.AddScoped<IValidator<UpdateWorkoutSettingsRequest>, UpdateWorkoutSettingsValidator>();
         builder.Services.AddScoped<UpdateWorkoutSettingsHandler>();

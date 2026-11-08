@@ -196,6 +196,31 @@ test('a pull up does nothing', async () => {
   expect(screen.getByRole('button', { name: 'Save group' })).toBeOnTheScreen();
 });
 
+test('a sheet can keep its actions above the keyboard', async () => {
+  await renderRouter({
+    _layout: Layout,
+    index: () => (
+      <Sheet
+        visible
+        title="Delete your account?"
+        onClose={onClose}
+        actionsAboveKeyboard
+        body={<Text>Field</Text>}
+      >
+        <Button label="Delete account" onPress={jest.fn()} />
+      </Sheet>
+    ),
+  });
+  await measure();
+
+  await emitKeyboard('keyboardDidShow', 300);
+
+  expect(
+    screen.getByRole('button', { name: 'Delete account' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Field')).toBeOnTheScreen();
+});
+
 test('the actions wait behind the keyboard', async () => {
   await renderSheet();
   await measure();

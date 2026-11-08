@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { readStored, writeStored } from '@/storage/phone-storage';
+import { readStored, storedKeys, writeStored } from '@/storage/phone-storage';
 import type { Rest } from './rest-timer';
 
-const storageKey = 'restTimer';
+const storageKey = storedKeys.restTimer;
 
 function restOf(stored: string | null | undefined, workoutId: string) {
   if (!stored) {

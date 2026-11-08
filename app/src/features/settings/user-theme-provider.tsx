@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import type { components } from '@/api/schema';
 import { useSessionStatus } from '@/features/account/session';
 import { useCurrentUser } from '@/features/account/use-current-user';
-import { readStored, writeStored } from '@/storage/phone-storage';
+import { readStored, storedKeys, writeStored } from '@/storage/phone-storage';
 import { ThemeProvider, useTheme } from '@/theme/theme-provider';
 
 import { colorLabels, themeLabels } from './settings-labels';
@@ -16,7 +16,7 @@ interface Appearance {
   color: Schemas['Color'];
 }
 
-const storedKey = 'appearance';
+const storedKey = storedKeys.appearance;
 
 function parse(stored: string | null): Appearance | null {
   if (stored === null) {

@@ -23,6 +23,7 @@ jest.mock('@/api/client', () => {
 });
 
 jest.mock('@/storage/phone-storage', () => ({
+  storedKeys: { appearance: 'appearance' },
   readStored: (key: string) => Promise.resolve(mockStored.get(key) ?? null),
   writeStored: (key: string, value: string) => {
     mockStored.set(key, value);

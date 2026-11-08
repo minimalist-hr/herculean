@@ -34,6 +34,14 @@ internal sealed class FakeUserRepository : IUserRepository
     public Task<User?> GetByIdWithRefreshTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
 
+    public Task<User?> GetByIdWithAllTokensAsync(UserId userId, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
+
+    public void Remove(User user)
+    {
+        Users.Remove(user);
+    }
+
     public Task<User?> GetByIdWithEmailChangeTokensAsync(UserId userId, CancellationToken cancellationToken) =>
         Task.FromResult(Users.SingleOrDefault(user => user.Id == userId));
 
@@ -167,6 +175,15 @@ internal sealed class FakeEmailSender : IEmailSender
     public List<SentPasswordChangedEmail> PasswordChangedEmails { get; } = [];
 
     public bool FailNext { get; set; }
+
+    public List<SentPasswordChangedEmail> AccountDeletedEmails { get; } = [];
+
+    public Task SendAccountDeletedAsync(string email, DateTimeOffset deletedAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        AccountDeletedEmails.Add(new SentPasswordChangedEmail(email, deletedAtUtc, timeZone));
+
+        return Task.CompletedTask;
+    }
 
     public List<SentEmail> EmailChangeLinks { get; } = [];
 

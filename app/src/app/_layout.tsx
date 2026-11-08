@@ -5,7 +5,7 @@ import {
   ChakraPetch_700Bold,
   useFonts,
 } from '@expo-google-fonts/chakra-petch';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import {
   DarkTheme,
   Stack,
@@ -16,22 +16,19 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useMemo } from 'react';
 
+import { queryClient } from '@/api/query-client';
 import { NotificationBar } from '@/components/notification-bar';
 import { usePageOptions } from '@/components/use-page-options';
 import {
   useSessionStatus,
   type SessionStatus,
 } from '@/features/account/session';
+import { clearUserData } from '@/features/account/session-flows';
 import { UserThemeProvider } from '@/features/settings/user-theme-provider';
 import { useTheme } from '@/theme/theme-provider';
 
 // Keep the splash screen up until the font is ready, so text never flashes in another font.
 void SplashScreen.preventAutoHideAsync();
-
-// A request with no answer already waits 15 seconds, so a failed read shows its error instead of trying again.
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
-});
 
 // Where each status opens. A screen the status doesn't allow sends the user here.
 const homeOf: Record<SessionStatus, Href> = {
@@ -82,6 +79,13 @@ function AppStack() {
     }),
     [colors.bg],
   );
+
+  // However the session ended, the next person on this phone sees nothing of the last one's.
+  useEffect(() => {
+    if (status === 'signedOut') {
+      clearUserData();
+    }
+  }, [status]);
 
   // The window behind the screens shows during transitions, so it takes the theme's background too.
   useEffect(() => {

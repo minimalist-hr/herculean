@@ -1,12 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { useState } from 'react';
 import { Text } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
-import { saveTokens } from '@/features/account/session';
+import {
+  getAccessToken,
+  readRefreshToken,
+  saveTokens,
+} from '@/features/account/session';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ChangeEmailScreen } from './change-email-screen';
@@ -176,12 +180,10 @@ test('a row not built yet says so', async () => {
   answerWith();
   await renderSettings();
 
-  await fireEvent.press(
-    await screen.findByRole('button', { name: 'Sign out' }),
-  );
+  await fireEvent.press(await screen.findByRole('link', { name: 'Add photo' }));
 
   expect(
-    await screen.findByText('Signing out comes in a later update.'),
+    await screen.findByText('Adding a photo comes in a later update.'),
   ).toBeOnTheScreen();
 });
 
@@ -555,6 +557,152 @@ describe('change password', () => {
     await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
 
     expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+  });
+});
+
+describe('sign out and delete account', () => {
+  beforeEach(async () => {
+    await saveTokens({
+      accessToken: 'access',
+      expiresIn: 900,
+      refreshToken: 'this-phone',
+    });
+  });
+
+  function answerRequestWith(method: string, answer: () => Promise<Response>) {
+    answerWith();
+    const answerRest = mockFetch.getMockImplementation();
+    mockFetch.mockImplementation((request) =>
+      request.method === method
+        ? answer()
+        : (answerRest?.(request) ?? Promise.reject(new Error('No answer'))),
+    );
+  }
+
+  function sent(method: string) {
+    return mockFetch.mock.calls.find(([call]) => call.method === method)?.[0];
+  }
+
+  async function openSheet(row: string) {
+    await fireEvent.press(await screen.findByRole('button', { name: row }));
+  }
+
+  async function confirmSignOut() {
+    await openSheet('Sign out');
+    const [, button] = await screen.findAllByRole('button', {
+      name: 'Sign out',
+    });
+    await fireEvent.press(button);
+  }
+
+  async function fillAndDelete(password: string) {
+    await openSheet('Delete account');
+    await fireEvent.changeText(
+      await screen.findByLabelText('Current password'),
+      password,
+    );
+    const [, button] = screen.getAllByRole('button', {
+      name: 'Delete account',
+    });
+    await fireEvent.press(button);
+  }
+
+  test('Sign out asks first and sends nothing until confirmed', async () => {
+    answerWith();
+    await renderSettings();
+
+    await openSheet('Sign out');
+
+    expect(await screen.findByText('Sign out?')).toBeOnTheScreen();
+    expect(sent('POST')).toBeUndefined();
+  });
+
+  test('confirming revokes this device’s token and forgets it', async () => {
+    answerRequestWith('POST', () =>
+      Promise.resolve(new Response(null, { status: 204 })),
+    );
+    await renderSettings();
+
+    await confirmSignOut();
+
+    await waitFor(() => {
+      expect(getAccessToken()).toBeNull();
+    });
+    await expect(readRefreshToken()).resolves.toBeNull();
+    await expect(sent('POST')?.clone().json()).resolves.toEqual({
+      refreshToken: 'this-phone',
+    });
+  });
+
+  test('without a connection it still signs out on the phone', async () => {
+    answerRequestWith('POST', () => Promise.reject(new Error('No connection')));
+    await renderSettings();
+
+    await confirmSignOut();
+
+    await waitFor(() => {
+      expect(getAccessToken()).toBeNull();
+    });
+    await expect(readRefreshToken()).resolves.toBeNull();
+  });
+
+  test('deleting sends the password, signs out and says so', async () => {
+    answerRequestWith('DELETE', () =>
+      Promise.resolve(new Response(null, { status: 204 })),
+    );
+    await renderSettings();
+
+    await fillAndDelete('password');
+
+    expect(await screen.findByText('Account deleted.')).toBeOnTheScreen();
+    await expect(sent('DELETE')?.clone().json()).resolves.toEqual({
+      currentPassword: 'password',
+    });
+    await expect(readRefreshToken()).resolves.toBeNull();
+  });
+
+  test('an empty password shows under the field and sends nothing', async () => {
+    answerWith();
+    await renderSettings();
+
+    await fillAndDelete('');
+
+    expect(
+      await screen.findByText('Enter your current password.'),
+    ).toBeOnTheScreen();
+    expect(sent('DELETE')).toBeUndefined();
+  });
+
+  test('a wrong password shows under the field and keeps the session', async () => {
+    answerRequestWith('DELETE', () =>
+      Promise.resolve(
+        validationProblem({
+          currentPassword: ['The current password is wrong.'],
+        }),
+      ),
+    );
+    await renderSettings();
+
+    await fillAndDelete('wrong');
+
+    expect(
+      await screen.findByText('The current password is wrong.'),
+    ).toBeOnTheScreen();
+    await expect(readRefreshToken()).resolves.toBe('this-phone');
+  });
+
+  test('a failed delete says so and keeps the session', async () => {
+    answerRequestWith('DELETE', () =>
+      Promise.resolve(new Response(null, { status: 500 })),
+    );
+    await renderSettings();
+
+    await fillAndDelete('password');
+
+    expect(
+      await screen.findByText("Couldn't delete your account. Try again."),
+    ).toBeOnTheScreen();
+    await expect(readRefreshToken()).resolves.toBe('this-phone');
   });
 });
 

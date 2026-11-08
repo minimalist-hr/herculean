@@ -11,4 +11,6 @@ internal static class UserRoutes
     public const string Password = Me + "/password";
 
     public const string ChangePasswordRateLimit = "change-password";
+
+    public const string DeleteCurrentUserRateLimit = "delete-account";
 }

@@ -1,8 +1,8 @@
 import { useEffect, useSyncExternalStore } from 'react';
 
-import { readStored, writeStored } from '@/storage/phone-storage';
+import { readStored, storedKeys, writeStored } from '@/storage/phone-storage';
 
-const storageKey = 'resumeBarHiddenFor';
+const storageKey = storedKeys.resumeBarHiddenFor;
 
 /** The workout the bar was hidden for. Undefined until it's read from the phone. */
 let hiddenFor: string | null | undefined;

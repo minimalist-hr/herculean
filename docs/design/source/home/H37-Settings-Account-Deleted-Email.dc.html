@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your Herculean account was deleted</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark}
+body{margin:0;padding:0;background:#050506}
+a{color:#7EA2FF}
+</style>
+</helmet>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#050506" style="background: #050506">
+<tr>
+<td align="center" style="padding: 48px 16px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 480px; font-family: 'Chakra Petch', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; color: #F2F3F5">
+<tr>
+<td style="padding-bottom: 32px"><img src="../../brand/wordmark-on-dark.png" width="146" height="20" alt="Herculean" style="display: block; border: 0"></td>
+</tr>
+<tr>
+<td style="padding-bottom: 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB6">Your account</td>
+</tr>
+<tr>
+<td style="padding-bottom: 24px"><h1 style="margin: 0; font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; color: #F2F3F5">Account deleted</h1></td>
+</tr>
+<tr>
+<td style="padding-bottom: 24px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0F1012" style="background: #0F1012; border: 1px solid #2C2F34; border-radius: 6px">
+<tr>
+<td style="padding: 16px">
+<p style="margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #F2F3F5; word-break: break-word">Account deleted for you@example.com</p>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #A9AEB6">Deleted on Fri, 23rd Oct 2026 at 18:42 (Europe/Zagreb). Your profile and every workout, routine, exercise and group were removed for good.</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td style="font-size: 14px; line-height: 1.5; color: #A9AEB6">Wasn’t you? Write to <a href="mailto:hello@minimalist.hr" style="color: #7EA2FF">hello@minimalist.hr</a>.</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark","section":"Theme"},"palette":{"editor":"enum","options":["Nitro","Chrome"],"default":"Nitro","section":"Theme"},"font":{"editor":"enum","options":["Chakra Petch","Oxanium","Exo 2","Saira"],"default":"Chakra Petch","section":"Theme"},"corners":{"editor":"enum","options":["sharp","soft"],"default":"sharp","section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = (this.props.theme ?? 'dark') === 'dark';
+    const pal = this.props.palette ?? 'Nitro';
+    const font = this.props.font ?? 'Chakra Petch';
+    const sharp = (this.props.corners ?? 'sharp') === 'sharp';
+    const r = sharp
+      ? { card: '6px', ctrl: '4px', pill: '3px', check: '3px', sheet: '10px' }
+      : { card: '16px', ctrl: '10px', pill: '999px', check: '8px', sheet: '24px' };
+    const tint = (hex, a) => {
+      let h = String(hex).replace('#', '');
+      if (h.length === 3) h = h.split('').map((x) => x + x).join('');
+      const n = parseInt(h, 16);
+      return 'rgba(' + ((n >> 16) & 255) + ', ' + ((n >> 8) & 255) + ', ' + (n & 255) + ', ' + a + ')';
+    };
+    const accents = {
+      'Nitro': { dark: { primary: '#1A55E6', primaryText: '#7EA2FF', onPrimary: '#FFFFFF' }, light: { primary: '#1446C8', primaryText: '#1446C8', onPrimary: '#FFFFFF' } },
+      'Chrome': { dark: { primary: '#C9CED6', primaryText: '#DDE1E6', onPrimary: '#050506' }, light: { primary: '#2A2D33', primaryText: '#1446C8', onPrimary: '#FFFFFF' } }
+    };
+    const neutral = dark
+      ? { bg: '#050506', card: '#0F1012', raised: '#17181B', border: '#2C2F34', text: '#F2F3F5', muted: '#A9AEB6' }
+      : { bg: '#F4F5F7', card: '#ECEEF1', raised: '#E2E5E9', border: '#D0D4DA', text: '#0A0B0D', muted: '#4F555D' };
+    const c = Object.assign({}, neutral, (accents[pal] || accents['Nitro'])[dark ? 'dark' : 'light']);
+    const primary = c.primary;
+    c.danger = dark ? '#F87171' : '#DC2626';
+    c.onDanger = '#FFFFFF';
+    const st = this.state || {};
+    const radio = (items, key, def) => {
+      const cur = st[key] || def;
+      return items.map((it) => {
+        const on = it.id === cur;
+        return Object.assign({}, it, {
+          on: on,
+          hasSub: !!it.sub,
+          edge: on ? c.primary : c.border,
+          bg: on ? c.raised : 'transparent',
+          ring: on ? c.primary : c.muted,
+          dot: on ? c.primary : 'transparent',
+          pick: () => this.setState({ [key]: it.id })
+        });
+      });
+    };
+    return { c, r, font };
+  }
+}
+</script>
+</body>
+</html>

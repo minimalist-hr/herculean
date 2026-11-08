@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.56 · 8 November 2026 · Minimalist
+Version 0.57 · 8 November 2026 · Minimalist
+
+> Changes since 0.56: Sign out and Delete account are built. Sign out asks first on the sheet H36. H19 Delete account now asks for the current password. H34 shows a wrong password under the field, and H35 a failed delete in a notification, and the sheet stays open. After deleting, A07 is A01 saying "Account deleted." New H37: the last email, built like H31.
 
 > Changes since 0.55: H17 Email is built, as a page instead of a sheet, and asks for the current password. Save email goes back to H10 and says "Link sent to new@example.com." The email stays the same until the link is opened. While a link waits, H32 shows an alert icon by the Email label. The row still opens H17, and H33 is H17 with a card above the form that says where the link went, with Send again, which then waits a minute. New H26: errors under the fields. New H27 confirming, H28 link expired and H29 could not confirm, on the screen the link opens. New H30: the confirmation email to the new address, built like A13. New H31: the notice to the old address, built like H25.
 
@@ -307,7 +309,7 @@ An email uses the same tokens as the app, in a column of at most 480 px. It is a
 - **Actions:** a 44 px close X at the top right, and the main action at the bottom. There is no Cancel: the X, a tap outside or pulling down closes it.
 - **Height:** it opens at its content's height. If the content doesn't fit, it takes all the room there is and its content scrolls.
 - **Behavior:** a sheet closes back to the screen that opened it. Pulling the grabber down closes it.
-- **Keyboard:** while it is open, the actions wait behind it so the fields keep the room. Done closes the keyboard. Dragging the fields closes the keyboard and brings the actions back.
+- **Keyboard:** while it is open, the actions wait behind it so the fields keep the room. H19 is the exception: Delete account stays above the keyboard, because its one field leaves room. Done closes the keyboard. Dragging the fields closes the keyboard and brings the actions back.
 - **Use:** deletes, other confirmations and quick picks open as sheets. Everything else that creates or edits is a page, including picking exercises (L20).
 - **Stacking:** a sheet can open another, which rises over it. Only the top one takes touches, and closing it returns to the one below. 
 
@@ -469,7 +471,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 No routines, H00 Not planned yet | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
-| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
+| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout

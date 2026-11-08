@@ -322,6 +322,17 @@ export const screens = [
     await on.type('Password', 'wrong-password');
     await on.tap('Sign in');
   } },
+  { id: 'A07', file: 'A07-Account-Sign-In-Account-Deleted', title: 'Account › Sign in · account deleted', row: 'A1 Sign in', full: false, answers: { 'DELETE /api/v1/users/me': { status: 204 } }, steps: async (on) => {
+    await openSettings(on);
+    await on.end();
+    await on.tap('Delete account');
+    await on.waitFor('Delete your account?');
+    await on.sleep(600);
+    await on.type('Current password', 'password');
+    await on.tap('Delete account');
+    await on.waitFor('Account deleted.');
+    await on.sleep(600);
+  } },
   { id: 'A10', file: 'A10-Account-Reset-Password', title: 'Account › Reset password', row: 'A2 Reset password', signedIn: false, steps: (on) => on.tap('Forgot password?') },
   { id: 'A15', file: 'A15-Account-Reset-Password-Link-Expired', title: 'Account › Reset password · link expired', row: 'A2 Reset password', signedIn: false, steps: (on) => on.go('/forgot-password?linkExpired=true') },
   { id: 'A11', file: 'A11-Account-Reset-Link-Sent', title: 'Account › Reset password · link sent', row: 'A2 Reset password', signedIn: false, steps: async (on) => {
@@ -518,6 +529,42 @@ export const screens = [
     await on.tap('Save password');
     await on.waitFor("The passwords don't match.");
     await on.sleep(400);
+  } },
+  { id: 'H19', file: 'H19-Settings-Delete-Account', title: 'Settings › Delete account · confirm', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.end();
+    await on.tap('Delete account');
+    await on.waitFor('Delete your account?');
+    await on.sleep(600);
+  } },
+  { id: 'H34', file: 'H34-Settings-Delete-Account-Wrong', title: 'Settings › Delete account · wrong password', row: 'H2 Settings', full: false, answers: { 'DELETE /api/v1/users/me': { status: 400, body: { type: 'about:blank', title: 'Error', status: 400, detail: 'One or more fields are not valid.', code: 'validation', errors: { currentPassword: ['The current password is wrong.'] }, traceId: '00-capture' } } }, steps: async (on) => {
+    await openSettings(on);
+    await on.end();
+    await on.tap('Delete account');
+    await on.waitFor('Delete your account?');
+    await on.sleep(600);
+    await on.type('Current password', 'wrong-password');
+    await on.tap('Delete account');
+    await on.waitFor('The current password is wrong.');
+    await on.sleep(400);
+  } },
+  { id: 'H35', file: 'H35-Settings-Delete-Account-Failed', title: 'Settings › Delete account · could not delete', row: 'H2 Settings', full: false, answers: { 'DELETE /api/v1/users/me': 'fail' }, steps: async (on) => {
+    await openSettings(on);
+    await on.end();
+    await on.tap('Delete account');
+    await on.waitFor('Delete your account?');
+    await on.sleep(600);
+    await on.type('Current password', 'password');
+    await on.tap('Delete account');
+    await on.waitFor("Couldn't delete your account. Try again.");
+    await on.sleep(400);
+  } },
+  { id: 'H36', file: 'H36-Settings-Sign-Out', title: 'Settings › Sign out · confirm', row: 'H2 Settings', full: false, steps: async (on) => {
+    await openSettings(on);
+    await on.end();
+    await on.tap('Sign out');
+    await on.waitFor('Sign out?');
+    await on.sleep(600);
   } },
   { id: 'H17', file: 'H17-Settings-Email', title: 'Settings › Email', row: 'H2 Settings', full: false, steps: async (on) => {
     await openSettings(on);

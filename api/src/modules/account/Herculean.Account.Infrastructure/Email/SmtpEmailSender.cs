@@ -13,6 +13,13 @@ namespace Herculean.Account.Infrastructure.Email;
 
 internal sealed class SmtpEmailSender(IOptions<EmailOptions> options, IResetLinks resetLinks, IEmailChangeLinks emailChangeLinks) : IEmailSender
 {
+    public async Task SendAccountDeletedAsync(string email, DateTimeOffset deletedAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        using MimeMessage message = AccountDeletedEmail.Create(MailboxAddress.Parse(options.Value.From), email, deletedAtUtc, timeZone);
+
+        await SendAsync(message, cancellationToken);
+    }
+
     public async Task SendEmailChangeAsync(string newEmail, string token, CancellationToken cancellationToken)
     {
         using MimeMessage message = EmailChangeLinkEmail.Create(MailboxAddress.Parse(options.Value.From), newEmail, emailChangeLinks.Page(token));

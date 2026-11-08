@@ -178,6 +178,27 @@ public sealed class UserRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task RemovingAUserRemovesEveryToken()
+    {
+        User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");
+        newUser.AddRefreshToken("phone", DateTimeOffset.UnixEpoch);
+        newUser.AddPasswordResetToken("reset-hash", DateTimeOffset.UnixEpoch);
+        newUser.AddEmailChangeToken("new@example.com", "token-hash", DateTimeOffset.UnixEpoch);
+        _userRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+        _dbContext.ChangeTracker.Clear();
+
+        User user = (await _userRepository.GetByIdWithAllTokensAsync(newUser.Id, TestContext.Current.CancellationToken)).ShouldNotBeNull();
+        _userRepository.Remove(user);
+        await _unitOfWork.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        (await _dbContext.Users.CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+        (await _dbContext.Set<RefreshToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+        (await _dbContext.Set<PasswordResetToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+        (await _dbContext.Set<EmailChangeToken>().CountAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+    }
+
+    [Fact]
     public async Task EmailChangeTokensLoadAndGoAwayWhenTheEmailChanges()
     {
         User newUser = User.Create("filip@example.com", "hash", "Europe/Zagreb");

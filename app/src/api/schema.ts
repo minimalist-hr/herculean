@@ -38,7 +38,11 @@ export interface paths {
         get: operations["GetCurrentUser"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete the signed-in user
+         * @description Checks the current password and deletes the account and everything in it, for good. A last email tells the user.
+         */
+        delete: operations["DeleteCurrentUser"];
         options?: never;
         head?: never;
         /**
@@ -102,6 +106,26 @@ export interface paths {
          * @description Swaps a refresh token for a new access token and a new refresh token. The old refresh token stops working.
          */
         post: operations["RefreshSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign out
+         * @description Deletes the refresh token of the device signing out. It needs no access token, because the refresh token proves it.
+         */
+        post: operations["RevokeSession"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1093,6 +1117,11 @@ export interface components {
             /** @description The name of the routine planned on it. Null on a rest day. */
             routineName: null | string;
         };
+        /** @description The password that proves it's the user asking. */
+        DeleteCurrentUserRequest: {
+            /** @description The password the user has now. */
+            currentPassword: string;
+        };
         /** @description An exercise of the edited workout. */
         EditedWorkoutExercise: {
             /**
@@ -1481,6 +1510,11 @@ export interface components {
             newEmail: string;
             /** @description The password the user has now. */
             currentPassword: string;
+        };
+        /** @description The refresh token of the device signing out. */
+        RevokeSessionRequest: {
+            /** @description The refresh token this device holds now. */
+            refreshToken: string;
         };
         /** @description A routine, its days and its exercises. */
         RoutineDetailsResponse: {
@@ -2066,6 +2100,64 @@ export interface operations {
             };
         };
     };
+    DeleteCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteCurrentUserRequest"];
+            };
+        };
+        responses: {
+            /** @description The account is deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The password is missing or wrong. The errors name the field. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account no longer exists. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     UpdateCurrentUser: {
         parameters: {
             query?: never;
@@ -2259,6 +2351,46 @@ export interface operations {
             };
             /** @description The refresh token is unknown, already used or expired. Sign in again. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RevokeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description The token no longer works. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The token is missing. */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
