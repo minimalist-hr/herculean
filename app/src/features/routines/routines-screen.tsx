@@ -13,7 +13,7 @@ import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { useTheme } from '@/theme/theme-provider';
 
-import { counted, dayNames } from './formats';
+import { counted, dayNames } from '@/formats/formats';
 import { RoutineRow, RoutineRowSkeleton } from './routine-row';
 import { useRoutines } from './use-routines';
 import { useWeekPlan } from './use-week-plan';
@@ -67,7 +67,7 @@ export function RoutinesScreen() {
       return null;
     }
 
-    return weekPlan.isError ? (
+    return weekPlan.isLoadingError ? (
       <WeekPlanCard
         onRetry={() => {
           void weekPlan.refetch();
@@ -105,7 +105,7 @@ export function RoutinesScreen() {
       return <View style={{ gap: space.sm }}>{shown.map(renderRoutine)}</View>;
     }
 
-    if (routines.isError) {
+    if (routines.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load your routines."

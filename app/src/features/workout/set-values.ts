@@ -1,5 +1,5 @@
 import type { components } from '@/api/schema';
-import { weightIn } from '@/formats/formats';
+import { formatNumber, weightIn } from '@/formats/formats';
 
 type Units = components['schemas']['Units'];
 
@@ -90,7 +90,7 @@ export function problemWith(value: string, field: SetField, units: Units) {
 
   return field === 'reps'
     ? `Reps are ${String(min)} to ${String(max)}.`
-    : `Weight is ${String(min)} to ${max.toLocaleString('en-US')} ${units === 'metric' ? 'kg' : 'lb'}.`;
+    : `Weight is ${String(min)} to ${formatNumber(max)} ${units === 'metric' ? 'kg' : 'lb'}.`;
 }
 
 /** A weight in the user's units, as the API stores it: kg with two decimals. */

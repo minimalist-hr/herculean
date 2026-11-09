@@ -1,6 +1,6 @@
 import { LoadFailure } from '@/components/load-failure';
 
-import { addDays, dateText, weekOf } from './dates';
+import { addDays, dateText, weekOf } from '@/formats/dates';
 import { SwipePager } from './swipe-pager';
 import { useDays } from './use-days';
 import { WeekStrip } from './week-strip';
@@ -54,7 +54,7 @@ export function WeekPager({
         canGoForward={canGoForward}
         onChange={onChangeWeek}
       />
-      {days.isError && (
+      {days.isLoadingError && (
         <LoadFailure
           message="Couldn't load the week."
           onRetry={() => {

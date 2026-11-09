@@ -1,6 +1,16 @@
 import { QueryClient } from '@tanstack/react-query';
 
-// A request with no answer already waits 15 seconds, so a failed read shows its error instead of trying again.
+import { ApiProblemError } from './problem';
+
+/** A read that fails quickly gets one more try, for a blip in the connection. One that already waited out its time, or that the API refused, doesn't. */
+export function retryOnce(failureCount: number, error: Error) {
+  if (failureCount > 0 || error.name === 'AbortError') {
+    return false;
+  }
+
+  return !(error instanceof ApiProblemError && error.problem.status < 500);
+}
+
 export const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
+  defaultOptions: { queries: { retry: retryOnce } },
 });

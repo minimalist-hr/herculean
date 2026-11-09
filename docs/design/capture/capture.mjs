@@ -91,7 +91,13 @@ function findCenter(page, name) {
     };
     const labelled = [...document.querySelectorAll('[aria-label]')].filter((element) => element.getAttribute('aria-label') === wanted && visible(element));
     const texts = labelled.length > 0 ? labelled : [...document.querySelectorAll('body *')].filter((element) => element.children.length === 0 && element.textContent.trim() === wanted && visible(element));
-    const target = texts.at(-1);
+    // A pager keeps pages beside the screen. Scrolling to one of those would shift the page shown.
+    const onScreen = texts.filter((element) => {
+      const box = element.getBoundingClientRect();
+
+      return box.right > 0 && box.left < innerWidth;
+    });
+    const target = onScreen.at(-1) ?? texts.at(-1);
     if (target === undefined) {
       return null;
     }

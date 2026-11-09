@@ -1,6 +1,5 @@
 import type { components } from '@/api/schema';
-import { counted } from '@/features/routines/formats';
-import { formatVolume } from '@/formats/formats';
+import { counted, formatVolume, minutesText } from '@/formats/formats';
 
 type Summary = components['schemas']['WorkoutSummaryResponse'];
 type Exercise = components['schemas']['WorkoutExerciseResponse'];
@@ -27,11 +26,6 @@ export function savedExercises(workout: Workout, units: Units) {
     ...exercise,
     done: `${counted(exercise.sets.length, 'set', 'sets')} · ${exerciseTotal(exercise, units)}`,
   }));
-}
-
-/** A duration in whole minutes, for example "64 min". */
-export function minutesText(durationSeconds: number) {
-  return `${String(Math.round(durationSeconds / 60))} min`;
 }
 
 /** The line under a saved workout's name. A past day logged later has no time. */

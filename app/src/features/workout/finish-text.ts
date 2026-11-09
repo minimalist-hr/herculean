@@ -1,5 +1,5 @@
 import type { components } from '@/api/schema';
-import { counted, joined } from '@/features/routines/formats';
+import { counted, joined } from '@/formats/formats';
 
 type Summary = components['schemas']['WorkoutSummaryResponse'];
 type UncheckedExercise = components['schemas']['UncheckedExerciseResponse'];

@@ -57,7 +57,7 @@ export function ExerciseChart({
       return <BoxMessage>No sessions yet</BoxMessage>;
     }
     if (progress.data === undefined) {
-      return progress.isError ? (
+      return progress.isLoadingError ? (
         <BoxMessage
           onRetry={() => {
             void progress.refetch();

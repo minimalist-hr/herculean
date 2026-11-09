@@ -2,25 +2,18 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { SkeletonLine, textLine } from '@/components/skeleton';
-import { counted } from '@/features/routines/formats';
+import {
+  counted,
+  formatVolume,
+  hoursAndMinutesText,
+  noValue,
+} from '@/formats/formats';
 import { SectionTitle } from '@/components/section-title';
-import { useCurrentUser } from '@/features/account/use-current-user';
-import { formatVolume } from '@/formats/formats';
+import { useUnits } from '@/features/account/use-units';
 import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
 type MonthSummary = components['schemas']['MonthSummaryResponse'];
-
-/** Shown for a number there's nothing to work out from yet. */
-export const noValue = '–';
-
-function timeText(minutes: number) {
-  const hours = Math.floor(minutes / 60);
-
-  return hours === 0
-    ? `${String(minutes)} min`
-    : `${String(hours)} h ${String(minutes % 60)} min`;
-}
 
 function CountTile({
   label,
@@ -29,7 +22,7 @@ function CountTile({
 }: {
   label: string;
   color: string;
-  value?: number;
+  value?: number | string;
 }) {
   const { colors, radius, size, space, text } = useTheme();
 
@@ -57,18 +50,33 @@ function CountTile({
   );
 }
 
-/** The done, missed and skipped tiles. Nothing while it loads: the labels still show. */
-export function MonthCounts({ summary }: { summary?: MonthSummary }) {
+/** The done, missed and skipped tiles. Nothing while it loads, and a dash if it failed: the labels still show. */
+export function MonthCounts({
+  summary,
+  failed = false,
+}: {
+  summary?: MonthSummary;
+  failed?: boolean;
+}) {
   const { colors, space } = useTheme();
+  const shown = (count?: number) => (failed ? noValue : count);
 
   return (
     <View style={[styles.row, { gap: space.sm }]}>
-      <CountTile label="Done" color={colors.success} value={summary?.done} />
-      <CountTile label="Missed" color={colors.danger} value={summary?.missed} />
+      <CountTile
+        label="Done"
+        color={colors.success}
+        value={shown(summary?.done)}
+      />
+      <CountTile
+        label="Missed"
+        color={colors.danger}
+        value={shown(summary?.missed)}
+      />
       <CountTile
         label="Skipped"
         color={colors.skipped}
-        value={summary?.skipped}
+        value={shown(summary?.skipped)}
       />
     </View>
   );
@@ -135,8 +143,7 @@ export function MonthTotals({
   summary?: MonthSummary;
 }) {
   const { space } = useTheme();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const averageMinutes =
     summary !== undefined && summary.done > 0
       ? Math.round(summary.minutesTrained / summary.done)
@@ -148,7 +155,7 @@ export function MonthTotals({
       <View style={[styles.row, { gap: space.sm }]}>
         <TotalTile
           label="Time trained"
-          value={summary && timeText(summary.minutesTrained)}
+          value={summary && hoursAndMinutesText(summary.minutesTrained)}
           hint={
             averageMinutes === null
               ? 'No workouts yet'

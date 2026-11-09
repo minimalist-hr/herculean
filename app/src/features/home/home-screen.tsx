@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFloatingRoom } from '@/components/above-tab-bar';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { ProfileButton } from '@/features/settings/profile-button';
-import { dateText } from '@/features/workout/dates';
+import { dateText } from '@/formats/dates';
 import { useDayRefresh } from '@/features/workout/use-day-refresh';
 import { useTheme } from '@/theme/theme-provider';
 

@@ -14,7 +14,7 @@ import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseTargets } from './exercise-targets';
-import { counted, dayNames, joined } from './formats';
+import { counted, dayNames, joined } from '@/formats/formats';
 import { useDeleteRoutine } from './use-delete-routine';
 import { useRoutine } from './use-routine';
 import { useFloatingRoom } from '@/components/above-tab-bar';
@@ -32,7 +32,7 @@ export function RoutineScreen({ id }: { id: string }) {
       return <Details routine={routine.data} />;
     }
 
-    if (routine.isError) {
+    if (routine.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this routine."

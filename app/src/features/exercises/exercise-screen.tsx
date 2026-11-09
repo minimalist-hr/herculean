@@ -17,11 +17,15 @@ import { useGoBack } from '@/features/home/use-go-back';
 import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
-import { joined } from '@/features/routines/formats';
+import {
+  formatSet,
+  formatShortDate,
+  formatSince,
+  joined,
+} from '@/formats/formats';
 import { SectionTitle } from '@/components/section-title';
 import { StatTile } from '@/components/stat-tile';
-import { useCurrentUser } from '@/features/account/use-current-user';
-import { formatSet, formatShortDate, formatSince } from '@/formats/formats';
+import { useUnits } from '@/features/account/use-units';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
@@ -76,7 +80,7 @@ export function ExerciseScreen({
       return <Details exercise={exercise.data} sessions={sessions} />;
     }
 
-    if (exercise.isError) {
+    if (exercise.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this exercise."
@@ -116,8 +120,7 @@ function Details({
 }) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const router = useRouter();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const inUse = exercise.routines.length > 0;
 

@@ -1,17 +1,12 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
-import { Text } from 'react-native';
+import { AppState, Text } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
-import {
-  addMonths,
-  dateText,
-  dayNameOf,
-  monthText,
-  weekOf,
-} from '@/features/workout/dates';
+import { addMonths, dateText, monthText, weekOf } from '@/formats/dates';
+import { dayNameOf } from '@/formats/formats';
 import { createTestQueryClient } from '@/test-utils/query-client';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -135,9 +130,11 @@ function answerWith(overrides: Record<string, unknown> = {}) {
   });
 }
 
+let client = createTestQueryClient();
+
 function Layout() {
   return (
-    <QueryClientProvider client={createTestQueryClient()}>
+    <QueryClientProvider client={client}>
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
@@ -174,6 +171,7 @@ async function renderHome() {
 
 beforeEach(() => {
   mockFetch.mockReset();
+  client = createTestQueryClient();
 });
 
 test('greets by first name and shows every section', async () => {
@@ -188,7 +186,7 @@ test('greets by first name and shows every section', async () => {
     screen.getByRole('button', { name: 'Start workout' }),
   ).toBeOnTheScreen();
   expect(await screen.findByText('4 of 4 done')).toBeOnTheScreen();
-  expect(await screen.findByText('9')).toBeOnTheScreen();
+  expect(await screen.findByText('90%')).toBeOnTheScreen();
   expect(await screen.findByText('6 weeks on plan')).toBeOnTheScreen();
   expect(await screen.findByText('Bench press')).toBeOnTheScreen();
 });
@@ -406,6 +404,44 @@ test.each([
     });
   },
 );
+
+test('a refresh that fails keeps what is showing', async () => {
+  const listeners: ((state: string) => void)[] = [];
+  // Once: restoring a spy on React Native's own mock would leave it empty.
+  jest.spyOn(AppState, 'addEventListener').mockImplementationOnce(((
+    _type: string,
+    listener: (state: string) => void,
+  ) => {
+    listeners.push(listener);
+    return { remove: jest.fn() };
+  }) as never);
+  answerWith();
+  await renderHome();
+  expect(await screen.findByText('6 weeks on plan')).toBeOnTheScreen();
+  expect(await screen.findByText('Bench press')).toBeOnTheScreen();
+
+  answerWith({
+    '/api/v1/days': 500,
+    [`/api/v1/month-summaries/${thisMonth}`]: 500,
+    '/api/v1/streak': 500,
+    '/api/v1/records/recent': 500,
+  });
+  await act(() => {
+    listeners.forEach((listener) => {
+      listener('active');
+    });
+  });
+  await waitFor(() => {
+    expect(client.isFetching()).toBe(0);
+  });
+
+  // The screen updates a moment after the query, so this watches for a while.
+  await expect(
+    screen.findByRole('link', { name: 'Try again' }, { timeout: 300 }),
+  ).rejects.toThrow();
+  expect(screen.getByText('6 weeks on plan')).toBeOnTheScreen();
+  expect(screen.getByText('Bench press')).toBeOnTheScreen();
+});
 
 test('the links open the day, the month and an exercise', async () => {
   answerWith();

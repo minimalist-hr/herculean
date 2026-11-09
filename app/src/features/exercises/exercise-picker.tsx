@@ -15,7 +15,7 @@ import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -106,8 +106,7 @@ export function ExercisePicker({
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   const search = typedSearch === '' ? '' : debouncedSearch;
   const groups = useGroups();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const found = useExercises(search === '' ? undefined : search, groupId);
   const list = (found.data ?? []).filter(
     (exercise) => !excludedIds.includes(exercise.id),
@@ -212,7 +211,7 @@ export function ExercisePicker({
   }
 
   function renderEmpty() {
-    if (found.isError) {
+    if (found.isLoadingError) {
       return (
         <View style={{ paddingHorizontal: size.sidePadding }}>
           <LoadFailure

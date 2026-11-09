@@ -228,7 +228,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 **Flows**
 - **Edit:** Edit on W03 or W20 → W30. Sets use the L10 and L11 sheets. Remove set → W31 undo bar. The trash on an exercise → L13 → undo bar. Add exercise → the L20 flow; an added exercise starts with 3 sets of 0 kg and the low end of the reps, and shows its last time before the workout's date. Save workout → back to the day, which says so in a notification.
 - **Delete:** Delete on W03 or W20 → W32 → the day, with an undo bar.
-- **Month:** the calendar icon on W01 → W41 → W40. Swipe to change month, from the first day's month to the month holding the last day the week strip reaches. Days past those limits look muted, and tapping one says why (W47). Back to today returns to today, and shows when another day or month is selected. A tapped day stays selected (W48). A day → W43 to W46 → Open day → that day on the Workout tab, in its week, with "Back to month" (W29). W40's back link, named Workout, goes to the Workout tab. If the month can't load → W49.
+- **Month:** the calendar icon on W01 → W41 → W40. Swipe to change month, from the first day's month to the month holding the last day the week strip reaches. Days past those limits look muted, and tapping one says why (W47). Back to today returns to today, and shows when another day or month is selected. A tapped day stays selected (W48). A day → W43 to W46 → Open day → that day on the Workout tab, in its week, with "Back to month" (W29). W40's back link, named Workout, goes to the Workout tab. The calendar and the totals fail apart: W96, W97, and W49 for both.
 
 Changes on W30 stay in the app until Save workout.
 

@@ -279,8 +279,59 @@ test('no exercises at all shows the empty state, without search or chips', async
   expect(await screen.findByText('New exercise page')).toBeOnTheScreen();
 });
 
+function failing(path: string, then: () => void) {
+  then();
+  const answered = mockFetch.getMockImplementation();
+  if (answered === undefined) {
+    throw new Error('Answer before making one path fail.');
+  }
+  mockFetch.mockImplementation((request) =>
+    new URL(request.url).pathname === path
+      ? Promise.reject(new TypeError('Network request failed'))
+      : answered(request),
+  );
+}
+
+test('if only the groups fail, the list stays and the chips say so', async () => {
+  const exercises = () => {
+    answer(() => [exercise('Bench press', chest)]);
+  };
+  failing('/api/v1/groups', exercises);
+  await renderExercises();
+
+  expect(await screen.findByText('Bench press')).toBeOnTheScreen();
+  expect(
+    await screen.findByText("Couldn't load your groups."),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('link', { name: 'Groups' })).toBeOnTheScreen();
+
+  exercises();
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(
+    await screen.findByRole('button', { name: 'Chest' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText("Couldn't load your groups.")).toBeNull();
+});
+
+test('if only the exercises fail, the chips stay', async () => {
+  failing('/api/v1/exercises', () => {
+    answer(() => []);
+  });
+  await renderExercises();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "Couldn't load your exercises.",
+  );
+  expect(
+    await screen.findByRole('button', { name: 'Chest' }),
+  ).toBeOnTheScreen();
+});
+
 test('a failed load says so, and Try again loads the list', async () => {
-  mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+  failing('/api/v1/exercises', () => {
+    answer(() => []);
+  });
   await renderExercises();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(

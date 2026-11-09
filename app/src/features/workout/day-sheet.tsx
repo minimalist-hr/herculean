@@ -5,17 +5,17 @@ import { Button } from '@/components/button';
 import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnits } from '@/features/account/use-units';
 import {
   ExerciseTargets,
   ExerciseTargetsSkeleton,
 } from '@/features/routines/exercise-targets';
-import { formatVolume } from '@/formats/formats';
+import { formatVolume, minutesText, shortWeekdayDate } from '@/formats/formats';
 import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, shortWeekdayDate } from './dates';
-import { minutesText, savedExercises } from './saved-workout';
+import { dateFromText } from '@/formats/dates';
+import { savedExercises } from './saved-workout';
 import { useDay } from './use-day';
 import { useWorkout } from './use-workout';
 import { useWorkoutSummary } from './use-workout-summary';
@@ -50,8 +50,7 @@ function SheetTile({ label, value }: { label: string; value?: string }) {
 
 function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
   const { colors, space } = useTheme();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const workout = useWorkout(workoutId);
   const summary = useWorkoutSummary(workoutId);
   const data = summary.data;
@@ -72,7 +71,7 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
         label={`Done · ${shortWeekdayDate(dateFromText(day.date))}`}
         color={colors.success}
       />
-      {summary.isError ? (
+      {summary.isLoadingError ? (
         <LoadFailure
           message="Couldn't load the summary."
           onRetry={() => {
@@ -89,7 +88,7 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
           />
         </View>
       )}
-      {workout.isError && (
+      {workout.isLoadingError && (
         <LoadFailure
           message="Couldn't load the exercises."
           onRetry={() => {
@@ -97,7 +96,7 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
           }}
         />
       )}
-      {workout.isError ? null : workout.data === undefined ? (
+      {workout.isLoadingError ? null : workout.data === undefined ? (
         <ExerciseTargetsSkeleton />
       ) : (
         <ExerciseTargets
@@ -185,7 +184,7 @@ export function DaySheet({
       return <DayDetails day={day.data} today={today} />;
     }
 
-    if (day.isError) {
+    if (day.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this day."

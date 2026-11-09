@@ -7,13 +7,18 @@ import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
-import { useCurrentUser } from '@/features/account/use-current-user';
-import { groupBlocks } from '@/features/routines/formats';
+import { useUnits } from '@/features/account/use-units';
+import { groupBlocks } from '@/features/routines/group-blocks';
 import { GroupStripe } from '@/features/routines/group-stripe';
-import { formatLastTime, weightIn, weightUnitOf } from '@/formats/formats';
+import {
+  formatLastTime,
+  shortWeekdayDate,
+  weightIn,
+  weightUnitOf,
+} from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, shortWeekdayDate } from './dates';
+import { dateFromText } from '@/formats/dates';
 import { exerciseTotal } from './saved-workout';
 import { useWorkout } from './use-workout';
 import { useWorkoutSummary } from './use-workout-summary';
@@ -138,15 +143,14 @@ export function WorkoutDetailsScreen({
   const router = useRouter();
   const { colors, radius, size, space, text } = useTheme();
   const floatingRoom = useFloatingRoom();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const workout = useWorkout(id);
   const summary = useWorkoutSummary(id);
   // Either call names the workout, so the heading shows with whichever comes first.
   const named = summary.data ?? workout.data;
 
   function renderSummary() {
-    if (summary.isError) {
+    if (summary.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load the summary."
@@ -166,7 +170,7 @@ export function WorkoutDetailsScreen({
   }
 
   function renderExercises() {
-    if (workout.isError) {
+    if (workout.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load the exercises."

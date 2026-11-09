@@ -1,17 +1,4 @@
-const monthNames = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
+import { shortMonthNames } from '@/formats/formats';
 
 /** Steps that read well on a weight axis, smallest first. */
 const steps = [0.5, 1, 2, 2.5, 5, 10, 20, 25, 50, 100, 200, 250, 500];
@@ -71,7 +58,7 @@ export function monthLabels(first: string, last: string) {
 
   // A range inside one month still says which month it is.
   if (starts.length === 0) {
-    return [{ day: dayNumber(first), label: monthNames[firstMonth - 1] }];
+    return [{ day: dayNumber(first), label: shortMonthNames[firstMonth - 1] }];
   }
 
   const byYear = starts.length > 12;
@@ -79,7 +66,7 @@ export function monthLabels(first: string, last: string) {
     byYear ? starts.filter((start) => start.month === 1) : starts
   ).map((start) => ({
     day: start.day,
-    label: byYear ? String(start.year) : monthNames[start.month - 1],
+    label: byYear ? String(start.year) : shortMonthNames[start.month - 1],
   }));
   const every = Math.ceil(shown.length / maxMonthLabels);
 

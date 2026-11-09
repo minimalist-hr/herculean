@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateText, dayNameOf } from './dates';
+import { dateText } from '@/formats/dates';
+import { dayNameOf } from '@/formats/formats';
 import { DayMarker } from './day-marker';
 import { Tappable } from '@/components/tappable';
 

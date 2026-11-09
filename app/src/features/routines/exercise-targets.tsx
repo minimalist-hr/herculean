@@ -4,7 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Skeleton } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
-import { groupBlocks, targetText } from './formats';
+import { groupBlocks } from './group-blocks';
+import { targetText } from '@/formats/formats';
 import { GroupStripe } from './group-stripe';
 
 interface ExerciseTarget {

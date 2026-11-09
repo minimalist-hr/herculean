@@ -66,22 +66,19 @@ export function ConfirmEmailScreen() {
     }
   }, [confirmed, status, router]);
 
+  const leave = (
+    <Button
+      label={status === 'signedOut' ? 'Go to sign in' : 'Back to Settings'}
+      onPress={() => {
+        router.replace(status === 'signedOut' ? '/sign-in' : '/settings');
+      }}
+    />
+  );
+
   const linkProblem = token ? linkProblemOf(confirm.error) : expired;
   if (linkProblem !== null) {
     return (
-      <Page
-        title={linkProblem.title}
-        action={
-          <Button
-            label={
-              status === 'signedOut' ? 'Go to sign in' : 'Back to Settings'
-            }
-            onPress={() => {
-              router.replace(status === 'signedOut' ? '/sign-in' : '/settings');
-            }}
-          />
-        }
-      >
+      <Page title={linkProblem.title} action={leave}>
         <Message>{linkProblem.message}</Message>
       </Page>
     );
@@ -89,7 +86,7 @@ export function ConfirmEmailScreen() {
 
   if (confirm.isError) {
     return (
-      <Page title="Confirm email">
+      <Page title="Confirm email" action={leave}>
         <LoadFailure
           message="Couldn't confirm your email."
           onRetry={() => {

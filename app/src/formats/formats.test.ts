@@ -1,10 +1,97 @@
 import {
+  counted,
+  dayHeading,
   formatClock,
+  formatNumber,
   formatSpokenDuration,
   formatSet,
   formatShortDate,
   formatSince,
+  hoursAndMinutesText,
+  joined,
+  minutesText,
+  monthTitle,
+  shortWeekdayDate,
+  targetText,
 } from './formats';
+
+test.each([
+  [1, 'Sun, 1st November'],
+  [2, 'Mon, 2nd November'],
+  [3, 'Tue, 3rd November'],
+  [4, 'Wed, 4th November'],
+  [11, 'Wed, 11th November'],
+  [12, 'Thu, 12th November'],
+  [13, 'Fri, 13th November'],
+  [21, 'Sat, 21st November'],
+  [22, 'Sun, 22nd November'],
+  [23, 'Mon, 23rd November'],
+  [30, 'Mon, 30th November'],
+])('the %ith of the month reads correctly', (day, words) => {
+  expect(shortWeekdayDate(new Date(2026, 10, day))).toBe(words);
+});
+
+test('a day in another year says the year', () => {
+  expect(dayHeading(new Date(2025, 2, 3), '2026-11-03').label).toBe(
+    '3rd March 2025',
+  );
+});
+
+test('a day this year leaves the year out', () => {
+  expect(dayHeading(new Date(2026, 2, 3), '2026-11-03').label).toBe(
+    '3rd March',
+  );
+});
+
+test('a day next to today is named', () => {
+  expect(dayHeading(new Date(2026, 10, 4), '2026-11-03')).toEqual({
+    label: 'Wed, 4th November',
+    title: 'Tomorrow',
+  });
+});
+
+test('a month reads with its year', () => {
+  expect(monthTitle('2026-10')).toBe('October 2026');
+});
+
+test.each([
+  [1, '1 set'],
+  [19, '19 sets'],
+])('%i reads %s', (count, text) => {
+  expect(counted(count, 'set', 'sets')).toBe(text);
+});
+
+test.each([
+  [['Legs'], 'Legs'],
+  [['Legs', 'Arms'], 'Legs and Arms'],
+  [['Legs', 'Arms', 'Back'], 'Legs, Arms and Back'],
+])('%j reads %s', (words, text) => {
+  expect(joined(words)).toBe(text);
+});
+
+test('a large number has separators', () => {
+  expect(formatNumber(9840)).toBe('9,840');
+});
+
+test.each([
+  [3, 8, 10, '3 × 8–10'],
+  [4, 6, 6, '4 × 6'],
+])('a target of %i sets, %i to %i reps reads %s', (sets, from, to, text) => {
+  expect(
+    targetText({ targetSets: sets, targetRepsFrom: from, targetRepsTo: to }),
+  ).toBe(text);
+});
+
+test('a duration reads in whole minutes', () => {
+  expect(minutesText(3850)).toBe('64 min');
+});
+
+test.each([
+  [45, '45 min'],
+  [793, '13 h 13 min'],
+])('%i minutes in total read %s', (minutes, text) => {
+  expect(hoursAndMinutesText(minutes)).toBe(text);
+});
 
 test.each([
   [15, '0:15'],

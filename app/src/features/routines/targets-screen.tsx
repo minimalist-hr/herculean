@@ -8,7 +8,7 @@ import { Stepper } from '@/components/stepper';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
-import { counted, targetText } from './formats';
+import { counted, targetText } from '@/formats/formats';
 import {
   useRoutineDraft,
   type RoutineExerciseDraft,

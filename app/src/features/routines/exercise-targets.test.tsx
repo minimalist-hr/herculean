@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react-native';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ExerciseTargets } from './exercise-targets';
-import { groupBlocks } from './formats';
+import { groupBlocks } from './group-blocks';
 
 function exercise(id: string, groupName: string, done?: string) {
   return {

@@ -9,15 +9,19 @@ import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 import { ProgressBar } from '@/components/progress-bar';
 import { Skeleton } from '@/components/skeleton';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnits } from '@/features/account/use-units';
 import { ExerciseTargets } from '@/features/routines/exercise-targets';
-import { counted } from '@/features/routines/formats';
+import {
+  counted,
+  dayNameOf,
+  formatClock,
+  formatShortDate,
+} from '@/formats/formats';
 import { SectionTitle } from '@/components/section-title';
 import { StatusLabel } from '@/components/status-label';
-import { formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, dayNameOf, daysFrom, shortDate } from './dates';
+import { dateFromText, daysFrom } from '@/formats/dates';
 import { useElapsed } from './use-elapsed';
 import { useFirstDay } from './use-first-day';
 import { useSkipWorkout } from './use-skip-workout';
@@ -497,7 +501,7 @@ function CompletedCard({
 }) {
   const { colors, space } = useTheme();
   const router = useRouter();
-  const user = useCurrentUser();
+  const units = useUnits();
   const workout = useWorkout(workoutId);
   const summary = useWorkoutSummary(workoutId);
 
@@ -505,13 +509,13 @@ function CompletedCard({
     if (workout.data !== undefined) {
       return (
         <ExerciseTargets
-          exercises={savedExercises(workout.data, user.data?.units ?? 'metric')}
+          exercises={savedExercises(workout.data, units)}
           background={colors.bg}
         />
       );
     }
 
-    if (workout.isError) {
+    if (workout.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this workout."
@@ -580,7 +584,7 @@ function upNextWhen(date: string, today: string) {
     return 'Today';
   }
 
-  return days === 1 ? 'Tomorrow' : shortDate(dateFromText(date));
+  return days === 1 ? 'Tomorrow' : formatShortDate(date);
 }
 
 export function UpNext({

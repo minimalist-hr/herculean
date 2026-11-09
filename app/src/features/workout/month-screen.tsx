@@ -7,6 +7,7 @@ import { Button } from '@/components/button';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
+import { SectionTitle } from '@/components/section-title';
 import { useGoBack } from '@/features/home/use-go-back';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -16,11 +17,10 @@ import {
   dateText,
   lastDayReached,
   monthDates,
-  monthName,
   monthText,
-  shortDate,
   weeksAhead,
-} from './dates';
+} from '@/formats/dates';
+import { formatShortDate, monthName } from '@/formats/formats';
 import { DaySheet } from './day-sheet';
 import { MonthCalendar } from './month-calendar';
 import { MonthCounts, MonthTotals } from './month-totals';
@@ -40,10 +40,20 @@ function useMonthDays(month: string) {
 function MonthPage({
   month,
   ...calendar
-}: Omit<Parameters<typeof MonthCalendar>[0], 'days'>) {
+}: Omit<Parameters<typeof MonthCalendar>[0], 'days' | 'failed' | 'onRetry'>) {
   const days = useMonthDays(month);
 
-  return <MonthCalendar month={month} days={days.data} {...calendar} />;
+  return (
+    <MonthCalendar
+      month={month}
+      days={days.data}
+      failed={days.isLoadingError}
+      onRetry={() => {
+        void days.refetch();
+      }}
+      {...calendar}
+    />
+  );
 }
 
 export function MonthScreen({
@@ -55,18 +65,18 @@ export function MonthScreen({
   const goBack = useGoBack(openedFromHome);
   const { colors, size, space } = useTheme();
   const floatingRoom = useFloatingRoom();
-  const { now, refresh } = useDayRefresh();
+  const { now } = useDayRefresh();
   const today = dateText(now);
   const [month, setMonth] = useState(() => monthText(now));
   const [picked, setPicked] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const firstDay = useFirstDay();
   const summary = useMonthSummary(month);
-  const days = useMonthDays(month);
 
   const selected = picked ?? today;
   const thisMonth = monthText(now);
   const monthStart = dateFromText(`${month}-01`);
+  const totalsTitle = `${monthName(monthStart)} totals`;
   const firstDate = firstDay.data ?? today;
   const lastDate = dateText(lastDayReached(now));
   const canGoBack = month > firstDate.slice(0, 7);
@@ -96,7 +106,7 @@ export function MonthScreen({
           onOutOfReach={(date) => {
             notifyFailure(
               date < firstDate
-                ? `Your first day is ${shortDate(dateFromText(firstDate))}.`
+                ? `Your first day is ${formatShortDate(firstDate)}.`
                 : `Days reach ${String(weeksAhead)} weeks ahead.`,
             );
           }}
@@ -139,25 +149,28 @@ export function MonthScreen({
           )}
         </View>
       </View>
-      {summary.isError || days.isError ? (
-        <LoadFailure message="Couldn't load this month." onRetry={refresh} />
+      <MonthCounts summary={summary.data} failed={summary.isLoadingError} />
+      <SwipePager
+        testID="month-calendar"
+        previous={page(addMonths(month, -1), canGoBack)}
+        current={page(month, true)}
+        next={page(addMonths(month, 1), canGoForward)}
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        onChange={changeMonth}
+      />
+      {summary.isLoadingError ? (
+        <View style={{ gap: space.sm }}>
+          <SectionTitle>{totalsTitle}</SectionTitle>
+          <LoadFailure
+            message="Couldn't load the totals."
+            onRetry={() => {
+              void summary.refetch();
+            }}
+          />
+        </View>
       ) : (
-        <>
-          <MonthCounts summary={summary.data} />
-          <SwipePager
-            testID="month-calendar"
-            previous={page(addMonths(month, -1), canGoBack)}
-            current={page(month, true)}
-            next={page(addMonths(month, 1), canGoForward)}
-            canGoBack={canGoBack}
-            canGoForward={canGoForward}
-            onChange={changeMonth}
-          />
-          <MonthTotals
-            title={`${monthName(monthStart)} totals`}
-            summary={summary.data}
-          />
-        </>
+        <MonthTotals title={totalsTitle} summary={summary.data} />
       )}
       <DaySheet
         date={selected}

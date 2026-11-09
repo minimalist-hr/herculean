@@ -158,6 +158,27 @@ test('a link without a token counts as expired and sends nothing', async () => {
   expect(confirmCalls()).toBe(0);
 });
 
+test.each([
+  [true, 'Back to Settings', 'Settings page'],
+  [false, 'Go to sign in', 'Sign in page'],
+])(
+  'a failure can be left (signed in: %s)',
+  async (signedIn, button, destination) => {
+    if (signedIn) {
+      enterApp(true);
+    } else {
+      await endSession();
+    }
+    mockFetch.mockResolvedValueOnce(new Response(null, { status: 500 }));
+
+    await renderLink();
+    await screen.findByText("Couldn't confirm your email.");
+    await fireEvent.press(screen.getByRole('button', { name: button }));
+
+    expect(await screen.findByText(destination)).toBeOnTheScreen();
+  },
+);
+
 test('no connection offers Try again, which confirms', async () => {
   enterApp(true);
   mockFetch.mockResolvedValueOnce(new Response(null, { status: 500 }));

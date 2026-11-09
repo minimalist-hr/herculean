@@ -6,7 +6,7 @@ import { notifySuccess } from '@/components/notifications';
 import { usePageOptions } from '@/components/use-page-options';
 import { DetailsSkeleton } from '@/features/exercises/exercises-skeleton';
 
-import { savedMessage } from './formats';
+import { savedMessage } from './saved-message';
 import { RoutineDraftProvider } from './routine-draft';
 import { RoutineEditor } from './routine-editor';
 import { useRoutine } from './use-routine';
@@ -22,7 +22,7 @@ export function EditRoutineDraft({ id }: { id: string }) {
   if (routine.data === undefined) {
     return (
       <FormPage back="Routine" title={title}>
-        {routine.isError ? (
+        {routine.isLoadingError ? (
           <LoadFailure
             message="Couldn't load this routine."
             onRetry={() => {

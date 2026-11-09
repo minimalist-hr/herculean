@@ -11,7 +11,7 @@ import { PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -37,7 +37,7 @@ export function GroupScreen({ id }: { id: string }) {
       return <Details group={group.data} />;
     }
 
-    if (group.isError) {
+    if (group.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this group."
@@ -74,8 +74,7 @@ export function GroupScreen({ id }: { id: string }) {
 function Details({ group }: { group: Group }) {
   const { colors, opacity, size, space, text } = useTheme();
   const router = useRouter();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const deleteGroup = useDeleteGroup();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const exerciseCount =

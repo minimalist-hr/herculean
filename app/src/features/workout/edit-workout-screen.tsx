@@ -20,11 +20,12 @@ import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { usePageOptions } from '@/components/use-page-options';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnits } from '@/features/account/use-units';
 import { useExerciseLastTime } from '@/features/exercises/use-exercise-last-time';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, shortWeekdayDate } from './dates';
+import { dateFromText } from '@/formats/dates';
+import { shortWeekdayDate } from '@/formats/formats';
 import {
   EditWorkoutDraftProvider,
   localId,
@@ -48,7 +49,7 @@ export function EditWorkoutDraft({ id }: { id: string }) {
     return (
       // A blank line keeps the room for the workout's name while it loads.
       <EditWorkoutPage label=" ">
-        {workout.isError ? (
+        {workout.isLoadingError ? (
           <LoadFailure
             message="Couldn't load this workout."
             onRetry={() => {
@@ -148,7 +149,7 @@ function EditWorkoutSkeleton() {
 export function EditWorkoutScreen() {
   const router = useRouter();
   const { space } = useTheme();
-  const units = useCurrentUser().data?.units ?? 'metric';
+  const units = useUnits();
   const { workout, exercises, setExercises, setPicked } = useEditWorkoutDraft();
   const save = useEditWorkout(workout.id);
   const [edit, setEdit] = useState<SetEdit | null>(null);
@@ -392,7 +393,7 @@ function EditedExercise({
   onAddSet: () => void;
   onRemove: () => void;
 }) {
-  const units = useCurrentUser().data?.units ?? 'metric';
+  const units = useUnits();
   const lastTime = useExerciseLastTime(exercise.exerciseId, before, added);
   const shown = added
     ? { ...exercise, lastTime: lastTime.data ?? null }

@@ -25,7 +25,8 @@ import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DayChips } from './day-chips';
-import { counted, sameGroup, targetText, type Weekday } from './formats';
+import { counted, targetText, type Weekday } from '@/formats/formats';
+import { sameGroup } from './group-blocks';
 import { useRoutineDraft, type RoutineExerciseDraft } from './routine-draft';
 import { Tappable } from '@/components/tappable';
 

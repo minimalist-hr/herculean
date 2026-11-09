@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
-import { dayNames, weekdays, type Weekday } from './formats';
+import { dayNames, weekdays, type Weekday } from '@/formats/formats';
 import { Tappable } from '@/components/tappable';
 
 interface DayChipsProps {

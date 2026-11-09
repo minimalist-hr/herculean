@@ -9,31 +9,21 @@ import { SectionTitle } from '@/components/section-title';
 import { SkeletonGroup, SkeletonLine, textLine } from '@/components/skeleton';
 import { Tappable } from '@/components/tappable';
 import { TextLink } from '@/components/text-link';
-import { useCurrentUser } from '@/features/account/use-current-user';
-import { counted } from '@/features/routines/formats';
+import { useUnits } from '@/features/account/use-units';
 import {
-  addMonths,
-  dateFromText,
-  dateText,
-  monthText,
-  shortDate,
-  weekOf,
-} from '@/features/workout/dates';
-import { Card } from '@/features/workout/day-card';
-import {
-  consistencyText,
+  counted,
+  formatCompactVolume,
+  formatSet,
+  formatShortDate,
   noValue,
-  TotalTile,
-} from '@/features/workout/month-totals';
+} from '@/formats/formats';
+import { addMonths, dateText, monthText, weekOf } from '@/formats/dates';
+import { Card } from '@/features/workout/day-card';
+import { consistencyText, TotalTile } from '@/features/workout/month-totals';
 import { useDay } from '@/features/workout/use-day';
 import { useDays } from '@/features/workout/use-days';
 import { useMonthSummary } from '@/features/workout/use-month-summary';
 import { WeekStrip } from '@/features/workout/week-strip';
-import {
-  formatCompactVolume,
-  formatSet,
-  formatShortDate,
-} from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { TodayCard, TodayCardSkeleton } from './today-card';
@@ -97,7 +87,7 @@ export function TodaySection({ today }: { today: string }) {
       return <TodayCard day={day.data} />;
     }
 
-    return day.isError ? (
+    return day.isLoadingError ? (
       <LoadFailure
         message="Couldn't load today."
         onRetry={() => {
@@ -111,7 +101,7 @@ export function TodaySection({ today }: { today: string }) {
 
   return (
     <Section
-      title={`Today · ${shortDate(dateFromText(today))}`}
+      title={`Today · ${formatShortDate(today)}`}
       trailing={
         <SectionLink
           label="Open day"
@@ -147,7 +137,7 @@ export function WeekSection({ now }: { now: Date }) {
         )
       }
     >
-      {days.isError ? (
+      {days.isLoadingError ? (
         <LoadFailure
           message="Couldn't load this week."
           onRetry={() => {
@@ -228,7 +218,7 @@ function volumeChange(current: MonthSummary, previous?: MonthSummary) {
 export function MonthSection({ now }: { now: Date }) {
   const { space, text } = useTheme();
   const router = useRouter();
-  const units = useCurrentUser().data?.units ?? 'metric';
+  const units = useUnits();
   const month = monthText(now);
   const current = useMonthSummary(month);
   const previous = useMonthSummary(addMonths(month, -1)).data;
@@ -249,7 +239,7 @@ export function MonthSection({ now }: { now: Date }) {
         />
       }
     >
-      {current.isError ? (
+      {current.isLoadingError ? (
         <LoadFailure
           message="Couldn't load this month."
           onRetry={() => {
@@ -293,7 +283,7 @@ export function StreakSection() {
   const streak = useStreak();
 
   function renderContent() {
-    if (streak.isError) {
+    if (streak.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load your streak."
@@ -359,10 +349,10 @@ export function RecordsSection() {
   const { colors, size, space, text } = useTheme();
   const router = useRouter();
   const records = useRecentRecords();
-  const units = useCurrentUser().data?.units ?? 'metric';
+  const units = useUnits();
 
   function renderContent() {
-    if (records.isError) {
+    if (records.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load your records."

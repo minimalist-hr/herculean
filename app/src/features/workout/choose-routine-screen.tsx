@@ -13,7 +13,7 @@ import {
   ExerciseTargets,
   ExerciseTargetsSkeleton,
 } from '@/features/routines/exercise-targets';
-import { counted } from '@/features/routines/formats';
+import { counted, formatShortDate } from '@/formats/formats';
 import {
   RoutineRow,
   RoutineRowSkeleton,
@@ -22,7 +22,7 @@ import { useRoutine } from '@/features/routines/use-routine';
 import { useRoutines } from '@/features/routines/use-routines';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, dateText, shortDate } from './dates';
+import { dateText } from '@/formats/dates';
 import { useDay } from './use-day';
 import { useDayRefresh } from './use-day-refresh';
 import { useStartWorkout } from './use-start-workout';
@@ -34,7 +34,7 @@ function summaryOf(routine: Routine) {
   const done =
     routine.lastDoneOn === null
       ? 'not done yet'
-      : `last done ${shortDate(dateFromText(routine.lastDoneOn))}`;
+      : `last done ${formatShortDate(routine.lastDoneOn)}`;
 
   return `${counted(routine.exerciseCount, 'exercise', 'exercises')} · ${done}`;
 }
@@ -79,7 +79,7 @@ function ConfirmSheet({
       );
     }
 
-    if (details.isError) {
+    if (details.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this routine."
@@ -127,7 +127,8 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
   const plannedId = day.data?.routine?.id;
   // The day only puts its planned routine first, so if it fails, the routines show in their usual order.
   const loaded =
-    routines.data !== undefined && (day.data !== undefined || day.isError);
+    routines.data !== undefined &&
+    (day.data !== undefined || day.isLoadingError);
   const shown = loaded ? routinesToPick(routines.data, plannedId) : [];
   const empty = loaded && shown.length === 0;
 
@@ -168,7 +169,7 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
       });
     }
 
-    if (routines.isError) {
+    if (routines.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load your routines."

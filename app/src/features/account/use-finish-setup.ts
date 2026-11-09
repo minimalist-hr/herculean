@@ -1,10 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import type { components } from '@/api/schema';
 
 import { enterApp } from './session';
+import { currentUserKey } from './use-current-user';
 
 type Units = components['schemas']['Units'];
 
@@ -16,6 +17,8 @@ interface FinishSetup {
 
 /** Saves the name, units and default rest time. Both changes can be sent again safely. */
 export function useFinishSetup() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ name, units, defaultRestSeconds }: FinishSetup) => {
       const [user, workoutSettings] = await Promise.all([
@@ -29,6 +32,8 @@ export function useFinishSetup() {
         throw toApiError(workoutSettings.error);
       }
 
+      // Kept for the first screen, which then knows the units and the name.
+      queryClient.setQueryData(currentUserKey, user.data);
       enterApp(true);
     },
   });

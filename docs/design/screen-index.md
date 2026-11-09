@@ -1,6 +1,6 @@
 # Screen index
 
-379 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+383 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -100,6 +100,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H73 | Settings · email confirmed | H2 Settings | 390×844 | [png](screens/home/H73-Settings-Email-Confirmed.png) · [html](html/home/H73-Settings-Email-Confirmed.html) · [source](source/home/H73-Settings-Email-Confirmed.dc.html) |
 | H74 | Account › Sign in · email confirmed | H2 Settings | 390×844 | [png](screens/home/H74-Settings-Email-Confirmed-Signed-Out.png) · [html](html/home/H74-Settings-Email-Confirmed-Signed-Out.html) · [source](source/home/H74-Settings-Email-Confirmed-Signed-Out.dc.html) |
 | H75 | Settings › Email · link expired, signed out | H2 Settings | 390×844 | [png](screens/home/H75-Settings-Email-Link-Expired-Signed-Out.png) · [html](html/home/H75-Settings-Email-Link-Expired-Signed-Out.html) · [source](source/home/H75-Settings-Email-Link-Expired-Signed-Out.dc.html) |
+| H76 | Settings › Email · could not confirm, signed out | H2 Settings | 390×844 | [png](screens/home/H76-Settings-Email-Confirm-Failed-Signed-Out.png) · [html](html/home/H76-Settings-Email-Confirm-Failed-Signed-Out.html) · [source](source/home/H76-Settings-Email-Confirm-Failed-Signed-Out.dc.html) |
 | H18 | Settings › Change password | H2 Settings | 390×844 | [png](screens/home/H18-Settings-Password.png) · [html](html/home/H18-Settings-Password.html) · [source](source/home/H18-Settings-Password.dc.html) |
 | H22 | Settings › Change password · wrong current password | H2 Settings | 390×844 | [png](screens/home/H22-Settings-Password-Wrong.png) · [html](html/home/H22-Settings-Password-Wrong.html) · [source](source/home/H22-Settings-Password-Wrong.dc.html) |
 | H23 | Settings › Change password · new password errors | H2 Settings | 390×844 | [png](screens/home/H23-Settings-Password-Errors.png) · [html](html/home/H23-Settings-Password-Errors.html) · [source](source/home/H23-Settings-Password-Errors.dc.html) |
@@ -195,7 +196,9 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W46 | Workout › Month › Day summary · rest day, sheet | W5 Month | 390×844 | [png](screens/workout/W46-Workout-Month-Day-Rest.png) · [html](html/workout/W46-Workout-Month-Day-Rest.html) · [source](source/workout/W46-Workout-Month-Day-Rest.dc.html) |
 | W47 | Workout › Month · first month · full scroll | W5 Month | 390×1048 | [png](screens/workout/W47-Workout-Month-First.png) · [html](html/workout/W47-Workout-Month-First.html) · [source](source/workout/W47-Workout-Month-First.dc.html) |
 | W48 | Workout › Month · another day selected · full scroll | W5 Month | 390×1048 | [png](screens/workout/W48-Workout-Month-Day-Selected.png) · [html](html/workout/W48-Workout-Month-Day-Selected.html) · [source](source/workout/W48-Workout-Month-Day-Selected.dc.html) |
-| W49 | Workout › Month · load failure | W5 Month | 390×844 | [png](screens/workout/W49-Workout-Month-Load-Failure.png) · [html](html/workout/W49-Workout-Month-Load-Failure.html) · [source](source/workout/W49-Workout-Month-Load-Failure.dc.html) |
+| W49 | Workout › Month · calendar and totals failed · full scroll | W5 Month | 390×927 | [png](screens/workout/W49-Workout-Month-Load-Failure.png) · [html](html/workout/W49-Workout-Month-Load-Failure.html) · [source](source/workout/W49-Workout-Month-Load-Failure.dc.html) |
+| W96 | Workout › Month · calendar failed · full scroll | W5 Month | 390×1064 | [png](screens/workout/W96-Workout-Month-Calendar-Failed.png) · [html](html/workout/W96-Workout-Month-Calendar-Failed.html) · [source](source/workout/W96-Workout-Month-Calendar-Failed.dc.html) |
+| W97 | Workout › Month · totals failed · full scroll | W5 Month | 390×927 | [png](screens/workout/W97-Workout-Month-Totals-Failed.png) · [html](html/workout/W97-Workout-Month-Totals-Failed.html) · [source](source/workout/W97-Workout-Month-Totals-Failed.dc.html) |
 | W13 | Workout › Skip workout · skipping | W1 Today states | 390×844 | [png](screens/workout/W13-Workout-Skip-Skipping.png) · [html](html/workout/W13-Workout-Skip-Skipping.html) · [source](source/workout/W13-Workout-Skip-Skipping.dc.html) |
 | W14 | Workout › Skip workout · couldn't skip | W1 Today states | 390×844 | [png](screens/workout/W14-Workout-Skip-Failed.png) · [html](html/workout/W14-Workout-Skip-Failed.html) · [source](source/workout/W14-Workout-Skip-Failed.dc.html) |
 | W15 | Workout › Undo skip · undoing | W1 Today states | 390×844 | [png](screens/workout/W15-Workout-Undo-Skip-Undoing.png) · [html](html/workout/W15-Workout-Undo-Skip-Undoing.html) · [source](source/workout/W15-Workout-Undo-Skip-Undoing.dc.html) |
@@ -343,6 +346,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | E03 | Exercises · no search matches | E1 Exercises tab | 390×844 | [png](screens/exercises/E03-Exercises-No-Matches.png) · [html](html/exercises/E03-Exercises-No-Matches.html) · [source](source/exercises/E03-Exercises-No-Matches.dc.html) |
 | E04 | Exercises · no exercises yet | E1 Exercises tab | 390×844 | [png](screens/exercises/E04-Exercises-Empty.png) · [html](html/exercises/E04-Exercises-Empty.html) · [source](source/exercises/E04-Exercises-Empty.dc.html) |
 | E05 | Exercises · load failure | E1 Exercises tab | 390×844 | [png](screens/exercises/E05-Exercises-Load-Failure.png) · [html](html/exercises/E05-Exercises-Load-Failure.html) · [source](source/exercises/E05-Exercises-Load-Failure.dc.html) |
+| E77 | Exercises · groups couldn't load · full scroll | E1 Exercises tab | 390×1325 | [png](screens/exercises/E77-Exercises-Groups-Failed.png) · [html](html/exercises/E77-Exercises-Groups-Failed.html) · [source](source/exercises/E77-Exercises-Groups-Failed.dc.html) |
 | E06 | Exercises · exercise deleted, with Undo | E1 Exercises tab | 390×844 | [png](screens/exercises/E06-Exercises-Deleted-Undo.png) · [html](html/exercises/E06-Exercises-Deleted-Undo.html) · [source](source/exercises/E06-Exercises-Deleted-Undo.dc.html) |
 | E10 | Exercises › Exercise · full scroll | E2 Exercise details | 390×2357 | [png](screens/exercises/E10-Exercises-Detail.png) · [html](html/exercises/E10-Exercises-Detail.html) · [source](source/exercises/E10-Exercises-Detail.dc.html) |
 | E11 | Exercises › Exercise · never done · full scroll | E2 Exercise details | 390×918 | [png](screens/exercises/E11-Exercises-Detail-Never-Done.png) · [html](html/exercises/E11-Exercises-Detail-Never-Done.html) · [source](source/exercises/E11-Exercises-Detail-Never-Done.dc.html) |

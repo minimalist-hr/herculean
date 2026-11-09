@@ -80,7 +80,7 @@ export function GroupsScreen() {
       );
     }
 
-    if (groups.isError) {
+    if (groups.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load your groups."

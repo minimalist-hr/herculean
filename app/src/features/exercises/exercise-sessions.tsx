@@ -5,10 +5,11 @@ import type { components } from '@/api/schema';
 import { LoadFailure } from '@/components/load-failure';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
-import { dateFromText, monthName } from '@/features/workout/dates';
+import { dateFromText } from '@/formats/dates';
 import {
   formatLastTime,
   formatShortDate,
+  monthName,
   weightUnitOf,
 } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
@@ -32,7 +33,7 @@ export function ExerciseSessions({
 
   function renderContent() {
     if (sessions.data === undefined) {
-      return sessions.isError ? (
+      return sessions.isLoadingError ? (
         <LoadFailure
           message="Couldn't load the sessions."
           onRetry={() => {

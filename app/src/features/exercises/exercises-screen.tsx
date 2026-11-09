@@ -4,6 +4,7 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
+  Text,
   View,
   type FlatListInstance,
 } from 'react-native';
@@ -18,7 +19,8 @@ import { PlusIcon } from '@/components/icons';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { TextLink } from '@/components/text-link';
+import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -59,11 +61,10 @@ export function ExercisesScreen() {
   const search = typedSearch === '' ? '' : debouncedSearch;
   const groups = useGroups();
   const exercises = useExercises(search === '' ? undefined : search, groupId);
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
 
-  const failed = groups.isError || exercises.isError;
-  const loading = !failed && (groups.isPending || exercises.isPending);
+  const failed = exercises.isLoadingError;
+  const loading = exercises.isPending;
   const list = failed ? [] : (exercises.data ?? []);
   const noFilter = search === '' && groupId === undefined;
   const noGroups = groups.data?.length === 0;
@@ -142,7 +143,14 @@ export function ExercisesScreen() {
               router.push('/exercises/groups');
             }}
           />
-          {groups.data === undefined && <ChipsSkeleton />}
+          {groups.isPending && <ChipsSkeleton />}
+          {groups.isLoadingError && (
+            <ChipsFailure
+              onRetry={() => {
+                void groups.refetch();
+              }}
+            />
+          )}
           {groups.data !== undefined && !noExercises && (
             <>
               <Chip
@@ -179,7 +187,6 @@ export function ExercisesScreen() {
         <LoadFailure
           message="Couldn't load your exercises."
           onRetry={() => {
-            void groups.refetch();
             void exercises.refetch();
           }}
         />
@@ -287,6 +294,28 @@ export function ExercisesScreen() {
   );
 }
 
+/** The groups couldn't load: the exercises still show, and this takes the chips' place. */
+function ChipsFailure({ onRetry }: { onRetry: () => void }) {
+  const { colors, size, space, text } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.chipsFailure,
+        { height: size.chip, gap: space.xs, paddingLeft: space.sm },
+      ]}
+    >
+      <Text
+        accessibilityRole="alert"
+        style={[text.meta, { color: colors.muted }]}
+      >
+        Couldn&apos;t load your groups.
+      </Text>
+      <TextLink label="Try again" onPress={onRetry} />
+    </View>
+  );
+}
+
 /** The API sorts by group, so each group's exercises are already together. */
 function toItems(exercises: readonly Exercise[]) {
   const items: ListItem[] = [];
@@ -320,5 +349,9 @@ function keyOf(item: ListItem) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  chipsFailure: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

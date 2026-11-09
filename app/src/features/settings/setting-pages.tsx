@@ -52,7 +52,7 @@ export function ThemeScreen() {
         { value: 'light', label: themeLabels.light },
       ]}
       saved={user.data?.theme}
-      loadFailed={user.isError}
+      loadFailed={user.isLoadingError}
       onRetry={() => {
         void user.refetch();
       }}
@@ -75,7 +75,7 @@ export function ColorScreen() {
         { value: 'chrome', label: colorLabels.chrome },
       ]}
       saved={user.data?.color}
-      loadFailed={user.isError}
+      loadFailed={user.isLoadingError}
       onRetry={() => {
         void user.refetch();
       }}
@@ -98,7 +98,7 @@ export function UnitsScreen() {
         { value: 'imperial', label: unitLabels.imperial, detail: 'lb, in' },
       ]}
       saved={user.data?.units}
-      loadFailed={user.isError}
+      loadFailed={user.isLoadingError}
       onRetry={() => {
         void user.refetch();
       }}
@@ -118,7 +118,7 @@ export function DefaultRestScreen() {
   if (settings.data === undefined) {
     return (
       <FormPage back="Settings" title={restTitle} subtitle={restSubtitle}>
-        {settings.isError ? (
+        {settings.isLoadingError ? (
           <LoadFailure
             message="Couldn't load your rest time."
             onRetry={() => {
@@ -227,7 +227,7 @@ export function NameScreen() {
   if (user.data === undefined) {
     return (
       <FormPage back="Settings" title={nameTitle} subtitle={nameSubtitle}>
-        {user.isError ? (
+        {user.isLoadingError ? (
           <LoadFailure
             message="Couldn't load your name."
             onRetry={() => {

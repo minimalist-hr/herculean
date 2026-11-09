@@ -2,10 +2,11 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Tappable } from '@/components/tappable';
-import { dayNames, weekdays } from '@/features/routines/formats';
+import { TextLink } from '@/components/text-link';
+import { dayNames, monthName, monthTitle, weekdays } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateText, monthDates, monthName, monthTitle } from './dates';
+import { dateText, monthDates } from '@/formats/dates';
 import { DayMarker, MarkerBar } from './day-marker';
 
 type DaySummary = components['schemas']['DaySummaryResponse'];
@@ -13,6 +14,7 @@ type DaySummary = components['schemas']['DaySummaryResponse'];
 const daysInWeek = 7;
 /** The most weeks a month touches. Every month takes this many, so it doesn't move what is below it. */
 const weeksShown = 6;
+const dayHeight = 48;
 
 function dayLabel(date: Date, day: DaySummary | undefined, today: string) {
   const parts = [`${String(date.getDate())} ${monthName(date)}`];
@@ -56,6 +58,8 @@ export function MonthCalendar({
   firstDate,
   lastDate,
   days,
+  failed,
+  onRetry,
   onSelect,
   onChangeMonth,
   onOutOfReach,
@@ -67,6 +71,9 @@ export function MonthCalendar({
   lastDate: string;
   /** Nothing while it loads: the dates still show. */
   days?: DaySummary[];
+  /** The days couldn't load: the card keeps its size and says so. */
+  failed: boolean;
+  onRetry: () => void;
   onSelect: (date: string) => void;
   /** 1 is the next month, and -1 the previous. Screen readers can't swipe, so each day offers these. */
   onChangeMonth: (direction: number) => void;
@@ -110,79 +117,101 @@ export function MonthCalendar({
           </Text>
         ))}
       </View>
-      {weeksOf(month).map((week, index) => (
+      {failed && (
         <View
-          key={index}
-          testID="calendar-week"
-          style={[styles.row, { gap: space.xs }]}
+          style={[
+            styles.failure,
+            {
+              height: weeksShown * dayHeight + (weeksShown - 1) * space.xs,
+              gap: space.xs,
+            },
+          ]}
         >
-          {week.map((date, cell) => {
-            if (date === null) {
-              return <View key={cell} style={[styles.cell, styles.emptyDay]} />;
-            }
+          <Text
+            accessibilityRole="alert"
+            style={[text.body, { color: colors.muted }]}
+          >
+            Couldn&apos;t load the calendar.
+          </Text>
+          <TextLink label="Try again" onPress={onRetry} />
+        </View>
+      )}
+      {!failed &&
+        weeksOf(month).map((week, index) => (
+          <View
+            key={index}
+            testID="calendar-week"
+            style={[styles.row, { gap: space.xs }]}
+          >
+            {week.map((date, cell) => {
+              if (date === null) {
+                return (
+                  <View key={cell} style={[styles.cell, styles.emptyDay]} />
+                );
+              }
 
-            const dateKey = dateText(date);
-            const day = days?.find((item) => item.date === dateKey);
-            const isSelected = dateKey === selected;
-            const isToday = dateKey === today;
-            const inReach = dateKey >= firstDate && dateKey <= lastDate;
-            const numberColor = isToday ? colors.primaryText : colors.text;
+              const dateKey = dateText(date);
+              const day = days?.find((item) => item.date === dateKey);
+              const isSelected = dateKey === selected;
+              const isToday = dateKey === today;
+              const inReach = dateKey >= firstDate && dateKey <= lastDate;
+              const numberColor = isToday ? colors.primaryText : colors.text;
 
-            return (
-              <Tappable
-                key={cell}
-                accessibilityRole="button"
-                accessibilityLabel={dayLabel(date, day, today)}
-                accessibilityState={{
-                  selected: isSelected,
-                  disabled: !inReach,
-                }}
-                accessibilityActions={monthActions}
-                onAccessibilityAction={({ nativeEvent }) => {
-                  onChangeMonth(
-                    nativeEvent.actionName === 'nextMonth' ? 1 : -1,
-                  );
-                }}
-                onPress={() => {
-                  if (inReach) {
-                    onSelect(dateKey);
-                  } else {
-                    onOutOfReach(dateKey);
-                  }
-                }}
-                style={[
-                  styles.cell,
-                  styles.day,
-                  {
-                    gap: space.xs,
-                    borderRadius: radius.control,
-                    borderColor:
-                      isSelected || isToday ? colors.primary : colors.border,
-                    backgroundColor: isSelected
-                      ? colors.primary
-                      : 'transparent',
-                    opacity: inReach ? 1 : opacity.dimmed,
-                  },
-                ]}
-              >
-                <Text
+              return (
+                <Tappable
+                  key={cell}
+                  accessibilityRole="button"
+                  accessibilityLabel={dayLabel(date, day, today)}
+                  accessibilityState={{
+                    selected: isSelected,
+                    disabled: !inReach,
+                  }}
+                  accessibilityActions={monthActions}
+                  onAccessibilityAction={({ nativeEvent }) => {
+                    onChangeMonth(
+                      nativeEvent.actionName === 'nextMonth' ? 1 : -1,
+                    );
+                  }}
+                  onPress={() => {
+                    if (inReach) {
+                      onSelect(dateKey);
+                    } else {
+                      onOutOfReach(dateKey);
+                    }
+                  }}
                   style={[
-                    text.listItemName,
-                    { color: isSelected ? colors.onPrimary : numberColor },
+                    styles.cell,
+                    styles.day,
+                    {
+                      gap: space.xs,
+                      borderRadius: radius.control,
+                      borderColor:
+                        isSelected || isToday ? colors.primary : colors.border,
+                      backgroundColor: isSelected
+                        ? colors.primary
+                        : 'transparent',
+                      opacity: inReach ? 1 : opacity.dimmed,
+                    },
                   ]}
                 >
-                  {date.getDate()}
-                </Text>
-                <DayMarker
-                  date={dateKey}
-                  status={inReach ? (day?.status ?? 'rest') : 'rest'}
-                  selected={isSelected}
-                />
-              </Tappable>
-            );
-          })}
-        </View>
-      ))}
+                  <Text
+                    style={[
+                      text.listItemName,
+                      { color: isSelected ? colors.onPrimary : numberColor },
+                    ]}
+                  >
+                    {date.getDate()}
+                  </Text>
+                  <DayMarker
+                    date={dateKey}
+                    status={inReach ? (day?.status ?? 'rest') : 'rest'}
+                    selected={isSelected}
+                  />
+                </Tappable>
+              );
+            })}
+          </View>
+        ))}
       <View
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -233,11 +262,15 @@ const styles = StyleSheet.create({
   weekday: {
     textAlign: 'center',
   },
+  failure: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   emptyDay: {
-    height: 48,
+    height: dayHeight,
   },
   day: {
-    height: 48,
+    height: dayHeight,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

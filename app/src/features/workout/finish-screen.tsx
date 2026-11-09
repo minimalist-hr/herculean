@@ -10,10 +10,11 @@ import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
-import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnits } from '@/features/account/use-units';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, shortWeekdayDate } from './dates';
+import { dateFromText } from '@/formats/dates';
+import { shortWeekdayDate } from '@/formats/formats';
 import { discardMessage, finishCounts, finishWarning } from './finish-text';
 import { useDiscardWorkout, useSaveWorkout } from './use-finish-workout';
 import { useWorkout } from './use-workout';
@@ -49,8 +50,7 @@ function Warning({ title, message }: { title: string; message: string }) {
 export function FinishScreen({ id }: { id: string }) {
   const router = useRouter();
   const { colors, size, space } = useTheme();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const summary = useWorkoutSummary(id);
   const save = useSaveWorkout(id);
   const discard = useDiscardWorkout(id);
@@ -62,7 +62,7 @@ export function FinishScreen({ id }: { id: string }) {
   const warning = counts && finishWarning(counts);
 
   function renderContent() {
-    if (summary.data === undefined && summary.isError) {
+    if (summary.data === undefined && summary.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this workout."

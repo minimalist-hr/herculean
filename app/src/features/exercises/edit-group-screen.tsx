@@ -28,7 +28,7 @@ export function EditGroupScreen({ id }: { id: string }) {
 
   return (
     <FormPage back="Group" title={title}>
-      {group.isError ? (
+      {group.isLoadingError ? (
         <LoadFailure
           message="Couldn't load this group."
           onRetry={() => {

@@ -17,7 +17,7 @@ app/
       workout/
     components/   shared components from design section 5
     theme/        theme built from design-tokens.json
-    formats/      every format from design section 8
+    formats/      every format from design section 8, and date arithmetic
     api/          client generated from the API's OpenAPI document
     storage/      what the phone keeps
     test-utils/   helpers for tests
@@ -50,6 +50,8 @@ app/
 - **API client:** every API build writes `api/openapi.json`. `npm run api:generate` turns it into `src/api/schema.ts`, which is never edited by hand. CI fails if either file is out of date. Steps are in [Setup](/development/setup#change-an-endpoint).
 - Each endpoint has a TanStack Query hook in its feature.
 - A request with no answer fails after 15 seconds and shows a notification or the screen's error, so no screen waits forever.
+- A read that fails quickly is tried once more, for a blip in the connection. One that waited out its 15 seconds, or that the API refused, is not.
+- A refresh that fails keeps what is showing. A failure shows only when there is nothing to show.
 - Query keys are defined once per feature.
 - The screen updates before the server answers only in logging (checking, editing and removing sets) and for undo. Everything else waits for the server and shows the design's waiting state.
 
@@ -57,6 +59,7 @@ app/
 
 - The access token is kept in memory. The refresh token is kept in secure storage on the phone, and in memory on the web, which has no secure storage. `features/account/session.ts` holds both, and the session status.
 - At launch, A00 refreshes the stored token, then reads the current user. A user without a name still needs setup. No token, or a refused one, signs the user out. With no answer, the token is kept and A02 offers to try again.
+- The user read at launch or at sign in is kept in the query cache, so the first screen already knows the units and the name. `useUnits` gives screens the units.
 - The API client adds the access token to every request.
 - On a 401 the client refreshes once and retries. Requests that fail together share one refresh. If the refresh is refused, the user is signed out and A01 opens.
 

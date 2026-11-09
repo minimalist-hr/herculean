@@ -1,4 +1,4 @@
-import { minutesText, savedMeta } from './saved-workout';
+import { savedMeta } from './saved-workout';
 
 const summary = {
   name: 'Legs',
@@ -10,10 +10,6 @@ const summary = {
   uncheckedExercises: [],
   records: [],
 };
-
-test('a duration rounds to whole minutes', () => {
-  expect(minutesText(3850)).toBe('64 min');
-});
 
 test('the line names exercises, sets and time', () => {
   expect(savedMeta(6, summary)).toBe('6 exercises · 17 sets · 64 min');

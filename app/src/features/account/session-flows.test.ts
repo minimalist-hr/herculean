@@ -1,5 +1,7 @@
 import { renderHook } from '@testing-library/react-native';
 
+import { queryClient } from '@/api/query-client';
+
 import { restoreSession } from './session-flows';
 import {
   endSession,
@@ -7,6 +9,7 @@ import {
   saveTokens,
   useSessionStatus,
 } from './session';
+import { currentUserKey } from './use-current-user';
 
 jest.mock('expo-secure-store', () => {
   const stored = new Map<string, string>();
@@ -52,6 +55,28 @@ async function status() {
 afterEach(async () => {
   jest.restoreAllMocks();
   await endSession();
+});
+
+test('the user it reads is kept, so the first screen knows the units', async () => {
+  const user = {
+    email: 'filip@example.com',
+    name: 'Filip',
+    units: 'imperial',
+    timeZone: 'Europe/Zagreb',
+  };
+  await saveTokens({
+    accessToken: 'access',
+    expiresIn: 900,
+    refreshToken: 'refresh',
+  });
+  answer({
+    '/api/v1/sessions/refresh': () => Response.json(newTokens),
+    '/api/v1/users/me': () => Response.json(user),
+  });
+
+  await restoreSession();
+
+  expect(queryClient.getQueryData(currentUserKey)).toEqual(user);
 });
 
 test('a stored refresh token opens the app for a user who finished setup', async () => {

@@ -87,17 +87,22 @@ function answer({
   monthSummary = summary,
   first = '2026-01-01',
   failing = '',
+  calendarFails = false,
   units = 'metric',
 }: {
   monthSummary?: unknown;
   first?: string;
   failing?: string;
+  calendarFails?: boolean;
   units?: string;
 } = {}) {
   mockFetch.mockImplementation((request) => {
     const url = new URL(request.url);
     const path = url.pathname;
     if (failing !== '' && path.includes(failing)) {
+      return Promise.resolve(Response.json({ status: 500 }, { status: 500 }));
+    }
+    if (calendarFails && path === '/api/v1/days') {
       return Promise.resolve(Response.json({ status: 500 }, { status: 500 }));
     }
     if (path === '/api/v1/days') {
@@ -250,26 +255,72 @@ describe('totals', () => {
     expect(dayButton('3 November, today')).toBeTruthy();
   });
 
-  test.each(['month-summaries', '/days'])(
-    'if %s fails, it says so and can try again',
-    async (failing) => {
-      answer({ failing: failing === '/days' ? 'api/v1/days' : failing });
-      await renderRouter(
-        { _layout: Layout, index: () => <MonthScreen /> },
-        { initialUrl: '/' },
-      );
+  async function renderOnlyMonth() {
+    await renderRouter(
+      { _layout: Layout, index: () => <MonthScreen /> },
+      { initialUrl: '/' },
+    );
+  }
 
-      expect(
-        await screen.findByText("Couldn't load this month."),
-      ).toBeOnTheScreen();
-      expect(screen.queryByText('Time trained')).toBeNull();
+  async function tryAgain() {
+    for (const link of screen.getAllByRole('link', { name: 'Try again' })) {
+      await fireEvent.press(link);
+    }
+  }
 
-      answer();
-      await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+  test('if the calendar fails, the tiles and totals stay, and it can try again', async () => {
+    answer({ calendarFails: true });
+    await renderOnlyMonth();
 
-      expect(await screen.findByText('Time trained')).toBeOnTheScreen();
-    },
-  );
+    expect(
+      (await screen.findAllByText("Couldn't load the calendar.")).length,
+    ).toBeGreaterThan(0);
+    expect(await screen.findByText('Of 228 planned')).toBeOnTheScreen();
+    expect(screen.getByText('Mon')).toBeOnTheScreen();
+    expect(screen.queryByText("Couldn't load the totals.")).toBeNull();
+
+    answer();
+    await tryAgain();
+
+    expect(
+      await screen.findByRole('button', { name: '2 November, Legs, missed' }),
+    ).toBeOnTheScreen();
+    expect(screen.queryByText("Couldn't load the calendar.")).toBeNull();
+  });
+
+  test('if the totals fail, the calendar stays, the tiles show a dash, and it can try again', async () => {
+    answer({ failing: 'month-summaries' });
+    await renderOnlyMonth();
+
+    expect(
+      await screen.findByText("Couldn't load the totals."),
+    ).toBeOnTheScreen();
+    expect(screen.getAllByText('–')).toHaveLength(3);
+    expect(screen.getByText('Done')).toBeOnTheScreen();
+    expect(screen.getByText('November totals')).toBeOnTheScreen();
+    expect(
+      await screen.findByRole('button', { name: '2 November, Legs, missed' }),
+    ).toBeOnTheScreen();
+
+    answer();
+    await tryAgain();
+
+    expect(await screen.findByText('Of 228 planned')).toBeOnTheScreen();
+    expect(screen.queryByText("Couldn't load the totals.")).toBeNull();
+  });
+
+  test('if both fail, each says so in its place', async () => {
+    answer({ failing: 'month-summaries', calendarFails: true });
+    await renderOnlyMonth();
+
+    expect(
+      await screen.findByText("Couldn't load the totals."),
+    ).toBeOnTheScreen();
+    expect(
+      (await screen.findAllByText("Couldn't load the calendar.")).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getByText('Done')).toBeOnTheScreen();
+  });
 });
 
 describe('calendar', () => {

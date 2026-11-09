@@ -40,7 +40,7 @@ export function ChangeEmailScreen() {
   if (user.data === undefined) {
     return (
       <FormPage back="Settings" title={title} subtitle={subtitle}>
-        {user.isError ? (
+        {user.isLoadingError ? (
           <LoadFailure
             message="Couldn't load your email."
             onRetry={() => {

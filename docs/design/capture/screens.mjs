@@ -952,6 +952,10 @@ export const screens = [
     await on.go('/confirm-email?token=sample');
     await on.waitFor('Go to sign in');
   } },
+  { id: 'H76', file: 'H76-Settings-Email-Confirm-Failed-Signed-Out', title: 'Settings › Email · could not confirm, signed out', row: 'H2 Settings', signedIn: false, full: false, answers: { 'POST /api/v1/email-changes/confirm': 'fail' }, steps: async (on) => {
+    await on.go('/confirm-email?token=sample');
+    await on.waitFor('Go to sign in');
+  } },
   // W · Workout
   { id: 'W07', file: 'W07-Workout-Today-Loading', title: 'Workout › Today · loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold' }, steps: (on) => on.go('/workout') },
   { id: 'W08', file: 'W08-Workout-Today-Load-Failure', title: 'Workout › Today · load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {
@@ -1084,9 +1088,18 @@ export const screens = [
     await on.tap('Close');
     await on.sleep(400);
   } },
-  { id: 'W49', file: 'W49-Workout-Month-Load-Failure', title: 'Workout › Month · load failure', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'fail' }, steps: async (on) => {
+  { id: 'W49', file: 'W49-Workout-Month-Load-Failure', title: 'Workout › Month · calendar and totals failed', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {
     await on.go('/workout/month');
-    await on.waitFor("Couldn't load this month.");
+    await on.waitFor("Couldn't load the totals.");
+    await on.waitFor("Couldn't load the calendar.");
+  } },
+  { id: 'W96', file: 'W96-Workout-Month-Calendar-Failed', title: 'Workout › Month · calendar failed', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/days': 'fail' }, steps: async (on) => {
+    await on.go('/workout/month');
+    await on.waitFor("Couldn't load the calendar.");
+  } },
+  { id: 'W97', file: 'W97-Workout-Month-Totals-Failed', title: 'Workout › Month · totals failed', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'fail' }, steps: async (on) => {
+    await on.go('/workout/month');
+    await on.waitFor("Couldn't load the totals.");
   } },
   { id: 'W10', file: 'W10-Workout-Choose-Routine', title: 'Workout › Choose a routine', row: 'W2 Choose a routine', today: friday, answers: { 'GET /api/v1/routines': { status: 200, body: routineList.map((routine) => (routine.name === 'Back and shoulders 2' ? { ...routine, lastDoneOn: null } : routine)) } }, steps: async (on) => {
     await on.go(choosePath);
@@ -1348,6 +1361,10 @@ export const screens = [
   { id: 'E05', file: 'E05-Exercises-Load-Failure', title: 'Exercises · load failure', row: 'E1 Exercises tab', answers: lists('fail'), steps: async (on) => {
     await on.go('/exercises');
     await on.waitFor('Try again');
+  } },
+  { id: 'E77', file: 'E77-Exercises-Groups-Failed', title: "Exercises · groups couldn't load", row: 'E1 Exercises tab', answers: { 'GET /api/v1/groups': 'fail' }, steps: async (on) => {
+    await on.go('/exercises');
+    await on.waitFor("Couldn't load your groups.");
   } },
   { id: 'E06', file: 'E06-Exercises-Deleted-Undo', title: 'Exercises · exercise deleted, with Undo', row: 'E1 Exercises tab', full: false, steps: async (on) => {
     await on.tap('Exercises');

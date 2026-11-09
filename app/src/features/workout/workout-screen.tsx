@@ -14,10 +14,10 @@ import {
   addDays,
   dateFromText,
   dateText,
-  dayHeading,
   weekOf,
   weeksAhead,
-} from './dates';
+} from '@/formats/dates';
+import { dayHeading } from '@/formats/formats';
 import { DayCard, DayCardSkeleton } from './day-card';
 import { useDay } from './use-day';
 import { useDayRefresh } from './use-day-refresh';
@@ -66,7 +66,7 @@ export function WorkoutScreen({
       return <DayCard day={day.data} today={today} />;
     }
 
-    if (day.isError) {
+    if (day.isLoadingError) {
       return (
         <LoadFailure message="Couldn't load this day." onRetry={refresh} />
       );

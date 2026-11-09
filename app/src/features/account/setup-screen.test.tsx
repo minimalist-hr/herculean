@@ -2,6 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
+import { useState } from 'react';
 
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { NotificationBar } from '@/components/notification-bar';
@@ -9,6 +10,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { enterApp, useSessionStatus } from './session';
 import { SetupScreen } from './setup-screen';
+import { useUnits } from './use-units';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -38,8 +40,10 @@ const workoutSettings = {
 
 function Layout() {
   const status = useSessionStatus();
+  const [client] = useState(createTestQueryClient);
+
   return (
-    <QueryClientProvider client={createTestQueryClient()}>
+    <QueryClientProvider client={client}>
       <ThemeProvider theme="dark">
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={status === 'needsSetup'}>
@@ -105,6 +109,27 @@ test('finishing setup saves the name, units and rest time, then opens Home', asy
     '/api/v1/users/me': { name: 'Filip', units: 'imperial' },
     '/api/v1/workout-settings': { defaultRestSeconds: 195 },
   });
+});
+
+test('the first screen after setup already knows the units', async () => {
+  function Units() {
+    return <PlaceholderScreen title={`Units: ${useUnits()}`} />;
+  }
+  // The read never answers, so the units can only come from saving setup.
+  mockFetch.mockImplementation((request) =>
+    request.method === 'GET'
+      ? new Promise<Response>(() => undefined)
+      : answerEach(request),
+  );
+  await renderRouter(
+    { _layout: Layout, setup: SetupScreen, index: Units },
+    { initialUrl: '/setup' },
+  );
+
+  await fireEvent.changeText(screen.getByLabelText('Name'), 'Filip');
+  await fireEvent.press(screen.getByRole('button', { name: 'Finish setup' }));
+
+  expect(await screen.findByText('Units: imperial')).toBeOnTheScreen();
 });
 
 test('setup starts at metric and 3:00, with the 3:00 pick filled', async () => {

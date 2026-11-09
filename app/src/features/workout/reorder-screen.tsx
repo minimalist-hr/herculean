@@ -9,7 +9,7 @@ import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
 import { ExerciseTargetLine } from '@/features/routines/exercise-targets';
-import { sameGroup } from '@/features/routines/formats';
+import { sameGroup } from '@/features/routines/group-blocks';
 import { formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -32,7 +32,7 @@ export function ReorderScreen({ id }: { id: string }) {
       return <Exercises workout={workout.data} onDragChange={setDragging} />;
     }
 
-    if (workout.isError) {
+    if (workout.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this workout."

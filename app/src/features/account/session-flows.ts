@@ -4,6 +4,7 @@ import { queryClient } from '@/api/query-client';
 import { clearStored } from '@/storage/phone-storage';
 
 import { endSession, enterApp, readRefreshToken } from './session';
+import { currentUserKey } from './use-current-user';
 
 /** Removes what the app holds for the user who was signed in. */
 export function clearUserData() {
@@ -30,6 +31,8 @@ export async function signOut() {
 export async function enterSignedIn() {
   const { data, error, response } = await api.GET('/api/v1/users/me');
   if (data !== undefined) {
+    // Kept for the first screen, which then knows the units and the name.
+    queryClient.setQueryData(currentUserKey, data);
     // A user without a name has not finished setup.
     enterApp(data.name !== null);
     return;

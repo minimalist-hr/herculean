@@ -12,12 +12,12 @@ import { notifyFailure } from '@/components/notifications';
 import { ProgressBar } from '@/components/progress-bar';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
-import { useCurrentUser } from '@/features/account/use-current-user';
-import { sameGroup } from '@/features/routines/formats';
-import { formatClock } from '@/formats/formats';
+import { useUnits } from '@/features/account/use-units';
+import { sameGroup } from '@/features/routines/group-blocks';
+import { formatClock, shortWeekdayDate } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, shortWeekdayDate } from './dates';
+import { dateFromText } from '@/formats/dates';
 import { ClosedExercise, OpenExercise } from './log-exercise';
 import { useAddSet } from './use-add-set';
 import { SetSheet, type SetEdit } from './set-sheet';
@@ -92,7 +92,7 @@ export function LogScreen({ id }: { id: string }) {
       );
     }
 
-    if (workout.isError) {
+    if (workout.isLoadingError) {
       return (
         <LoadFailure
           message="Couldn't load this workout."
@@ -196,8 +196,7 @@ function Logging({
 }) {
   const { space } = useTheme();
   const router = useRouter();
-  const user = useCurrentUser();
-  const units = user.data?.units ?? 'metric';
+  const units = useUnits();
   const updateSet = useUpdateSet(workout.id);
   const addSet = useAddSet(workout.id);
   const removeExercise = useRemoveExercise(workout.id);

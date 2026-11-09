@@ -144,7 +144,7 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
         )}
       />
 
-      {groups.isError ? (
+      {groups.isLoadingError ? (
         <View style={styles.groupsFailed}>
           <FormError message="Couldn't load your groups." />
           <TextLink

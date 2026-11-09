@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/skeleton';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
-import { formatClock } from '@/formats/formats';
+import { formatClock, noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteAccountSheet, SignOutSheet } from './account-sheets';
@@ -28,7 +28,6 @@ import { usePendingEmailChange } from './use-email-change';
 import { photoUri, savePhotoKey, useUserPhoto } from './use-user-photo';
 
 /** Shown in place of a value that couldn't load. */
-const noValue = '–';
 
 /** The user's profile, preferences and account. */
 export function SettingsScreen() {
@@ -51,7 +50,7 @@ export function SettingsScreen() {
       return read(user.data);
     }
 
-    return user.isError ? noValue : undefined;
+    return user.isLoadingError ? noValue : undefined;
   }
 
   function restValue() {
@@ -59,7 +58,7 @@ export function SettingsScreen() {
       return formatClock(workoutSettings.data.defaultRestSeconds);
     }
 
-    return workoutSettings.isError ? noValue : undefined;
+    return workoutSettings.isLoadingError ? noValue : undefined;
   }
 
   return (
@@ -83,7 +82,7 @@ export function SettingsScreen() {
           <ScreenHeading title="Settings" />
         </View>
 
-        {user.isError ? (
+        {user.isLoadingError ? (
           <LoadFailure
             message="Couldn't load your settings."
             onRetry={() => {

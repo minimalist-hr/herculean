@@ -4,7 +4,7 @@ import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import { exerciseKeys } from '@/features/exercises/query-keys';
 
-import type { Weekday } from './formats';
+import type { Weekday } from '@/formats/formats';
 import { routineKeys } from './query-keys';
 import type { RoutineExerciseDraft } from './routine-draft';
 

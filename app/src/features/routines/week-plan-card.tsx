@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/skeleton';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dayNames, weekdays } from './formats';
+import { dayNames, weekdays } from '@/formats/formats';
 import { Tappable } from '@/components/tappable';
 
 const mark = 14;
