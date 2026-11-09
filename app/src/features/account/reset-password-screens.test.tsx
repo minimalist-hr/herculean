@@ -133,7 +133,7 @@ describe('reset password', () => {
     await press('Send reset link');
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "Couldn't send the link. Try again.",
+      'Couldn’t send the link. Try again.',
     );
 
     await fireEvent.changeText(
@@ -260,7 +260,7 @@ describe('link sent', () => {
     await press('Send link again');
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "Couldn't send the link. Try again.",
+      'Couldn’t send the link. Try again.',
     );
     expect(
       screen.getByRole('button', { name: 'Send link again' }),
@@ -309,7 +309,7 @@ describe('new password', () => {
     await press('Save password');
 
     expect(await screen.findByText('At least 8 characters.')).toBeOnTheScreen();
-    expect(screen.getByText("The passwords don't match.")).toBeOnTheScreen();
+    expect(screen.getByText('The passwords don’t match.')).toBeOnTheScreen();
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
@@ -336,7 +336,7 @@ describe('new password', () => {
     await press('Save password');
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "Couldn't save the password. Try again.",
+      'Couldn’t save the password. Try again.',
     );
 
     await fireEvent.changeText(

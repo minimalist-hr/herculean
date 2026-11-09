@@ -20,7 +20,7 @@ function undoFailureOf(error: unknown) {
   return error instanceof ApiProblemError &&
     error.problem.code === 'exercise.name_taken'
     ? error.problem.detail
-    : "Couldn't undo. Try again.";
+    : 'Couldn’t undo. Try again.';
 }
 
 /** Deletes an exercise and says so, with an Undo that restores it. It runs on after the screen closes. */
@@ -70,7 +70,7 @@ export function useDeleteExercise() {
       });
     },
     onError: () => {
-      notifyFailure("Couldn't delete the exercise. Try again.");
+      notifyFailure('Couldn’t delete the exercise. Try again.');
     },
   });
 }

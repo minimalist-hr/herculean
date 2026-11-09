@@ -25,8 +25,8 @@ import { useRequestEmailChange } from './use-email-change';
 
 const title = 'Email';
 const subtitle = 'Used to sign in.';
-const emailLabel = 'Email address';
-const emailHelper = "We'll send a link to confirm the new address.";
+const emailLabel = 'Email';
+const emailHelper = 'We’ll send a link to confirm the new address.';
 const passwordLabel = 'Current password';
 
 const changeEmailSchema = z.object({
@@ -42,7 +42,7 @@ export function ChangeEmailScreen() {
       <FormPage back="Settings" title={title} subtitle={subtitle}>
         {user.isLoadingError ? (
           <LoadFailure
-            message="Couldn't load your email."
+            message="Couldn’t load your email."
             onRetry={() => {
               void user.refetch();
             }}
@@ -88,7 +88,7 @@ function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
         setError('currentPassword', { message: currentPassword });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't send the link. Try again.");
+        notifyFailure('Couldn’t send the link. Try again.');
       }
     }
   });

@@ -202,7 +202,7 @@ test('a failed add says so, and stays with the picks', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Add exercise' }));
 
   expect(
-    await screen.findByText("Couldn't add the exercises. Try again."),
+    await screen.findByText('Couldn’t add the exercises. Try again.'),
   ).toBeOnTheScreen();
   expect(
     screen.getByRole('button', { name: 'Lunge', selected: true }),

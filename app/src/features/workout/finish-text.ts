@@ -58,7 +58,7 @@ export function finishWarning({
     return {
       title: 'No sets checked off',
       message:
-        "There's nothing to save. Go back and check off your sets, or discard the workout.",
+        'There’s nothing to save. Go back and check off your sets, or discard the workout.',
     };
   }
 
@@ -71,8 +71,8 @@ export function finishWarning({
     title: `${counted(unchecked, 'set', 'sets')} not checked off`,
     message: `${whereUnchecked(uncheckedExercises)} ${
       unchecked === 1
-        ? "It won't be saved unless you go back and log it."
-        : "They won't be saved unless you go back and log them."
+        ? 'It won’t be saved unless you go back and check it off.'
+        : 'They won’t be saved unless you go back and check them off.'
     }`,
   };
 }
@@ -82,7 +82,7 @@ export function discardMessage(setsChecked: number) {
   const lost =
     setsChecked === 0
       ? 'No sets are checked off.'
-      : `Its ${counted(setsChecked, 'checked set', 'checked sets')} won't be saved.`;
+      : `Its ${counted(setsChecked, 'checked set', 'checked sets')} won’t be saved.`;
 
   return `${lost} You can undo this right after.`;
 }

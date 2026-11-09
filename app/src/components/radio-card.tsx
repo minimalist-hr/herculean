@@ -5,7 +5,7 @@ import { Tappable } from './tappable';
 
 interface RadioCardProps {
   label: string;
-  /** A second line, for example "kg, cm". */
+  /** A second line, for example "kg". */
   detail?: string;
   selected: boolean;
   onSelect: () => void;

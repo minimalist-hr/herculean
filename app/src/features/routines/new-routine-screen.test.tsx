@@ -326,7 +326,7 @@ test('a failed read on Add exercise says so', async () => {
   await openAddExercise();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load your exercises.",
+    'Couldn’t load your exercises.',
   );
 });
 
@@ -540,7 +540,7 @@ test('the limit shows the API message, and other failures a general one', async 
   await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't save the routine. Try again.",
+    'Couldn’t save the routine. Try again.',
   );
 });
 

@@ -10,7 +10,12 @@ import {
   ExerciseTargets,
   ExerciseTargetsSkeleton,
 } from '@/features/routines/exercise-targets';
-import { formatVolume, minutesText, shortWeekdayDate } from '@/formats/formats';
+import {
+  formatVolume,
+  minutesText,
+  noValue,
+  shortWeekdayDate,
+} from '@/formats/formats';
 import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -55,13 +60,13 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
   const summary = useWorkoutSummary(workoutId);
   const data = summary.data;
 
-  function time() {
+  function duration() {
     if (data === undefined) {
       return undefined;
     }
 
     return data.durationSeconds === null
-      ? '—'
+      ? noValue
       : minutesText(data.durationSeconds);
   }
 
@@ -73,14 +78,14 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
       />
       {summary.isLoadingError ? (
         <LoadFailure
-          message="Couldn't load the summary."
+          message="Couldn’t load the summary."
           onRetry={() => {
             void summary.refetch();
           }}
         />
       ) : (
         <View style={[styles.tiles, { gap: space.sm }]}>
-          <SheetTile label="Time" value={time()} />
+          <SheetTile label="Duration" value={duration()} />
           <SheetTile label="Sets" value={data && String(data.setsChecked)} />
           <SheetTile
             label="Volume"
@@ -90,7 +95,7 @@ function SavedWorkout({ day, workoutId }: { day: Day; workoutId: string }) {
       )}
       {workout.isLoadingError && (
         <LoadFailure
-          message="Couldn't load the exercises."
+          message="Couldn’t load the exercises."
           onRetry={() => {
             void workout.refetch();
           }}
@@ -187,7 +192,7 @@ export function DaySheet({
     if (day.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this day."
+          message="Couldn’t load this day."
           onRetry={() => {
             void day.refetch();
           }}

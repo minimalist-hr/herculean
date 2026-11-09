@@ -275,7 +275,7 @@ export function SetEditorSheet({
   function remove() {
     if (onlySet) {
       notifyFailure(
-        "An exercise keeps at least one set. Use the exercise's trash to remove it.",
+        'An exercise keeps at least one set. Use the exercise’s trash to remove it.',
       );
       return;
     }

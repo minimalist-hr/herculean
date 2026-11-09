@@ -29,7 +29,7 @@ export function Glow({ radiusX, radiusY, fadeAt }: GlowProps) {
           ry={`${String(radiusY * 100)}%`}
         >
           {/* The light eases out to nothing. A straight fade shows a ring where it ends.
-              The strength goes in stopOpacity: react-native-svg drops the alpha of a stop's color. */}
+              The strength goes in stopOpacity: react-native-svg drops the alpha of a stop’s color. */}
           {Array.from({ length: steps + 1 }, (_, step) => {
             const along = step / steps;
             return (

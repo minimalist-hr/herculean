@@ -90,7 +90,7 @@ test('no connection offers to try again, which restores the session', async () =
   await renderLaunch();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't connect.",
+    'Couldn’t connect.',
   );
 
   answerSignedIn();

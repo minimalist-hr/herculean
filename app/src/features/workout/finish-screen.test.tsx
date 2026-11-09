@@ -156,7 +156,7 @@ test('shows what the workout comes to', async () => {
 
   expect(await screen.findByText('1:04:10')).toBeOnTheScreen();
   expect(screen.getByText('Legs · Tue, 3rd November')).toBeOnTheScreen();
-  expect(screen.getByText('17 / 19')).toBeOnTheScreen();
+  expect(screen.getByText('17 of 19')).toBeOnTheScreen();
   expect(screen.getByText('9,840 kg')).toBeOnTheScreen();
   expect(screen.getByText('2')).toBeOnTheScreen();
 });
@@ -168,7 +168,7 @@ test('warns about unchecked sets', async () => {
   expect(await screen.findByText('2 sets not checked off')).toBeOnTheScreen();
   expect(
     screen.getByText(
-      "Leg curl, both sets. They won't be saved unless you go back and log them.",
+      'Leg curl, both sets. They won’t be saved unless you go back and check them off.',
     ),
   ).toBeOnTheScreen();
 });
@@ -196,7 +196,7 @@ test('a past day with every set checked has a dash, no warning and no records', 
   });
   await renderFinish();
 
-  expect(await screen.findByText('—')).toBeOnTheScreen();
+  expect(await screen.findByText('–')).toBeOnTheScreen();
   expect(screen.queryByText(/not checked off/)).toBeNull();
   expect(screen.getByText('No new records this time.')).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: 'Save workout' })).toBeTruthy();
@@ -232,7 +232,7 @@ test('a load failure can be tried again', async () => {
   await renderFinish();
 
   expect(
-    await screen.findByText("Couldn't load this workout."),
+    await screen.findByText('Couldn’t load this workout.'),
   ).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: 'Discard workout' })).toBeNull();
 
@@ -275,7 +275,7 @@ test('a save that fails says so and stays', async () => {
   );
 
   expect(
-    await screen.findByText("Couldn't save the workout. Try again."),
+    await screen.findByText('Couldn’t save the workout. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByText('Finish workout')).toBeOnTheScreen();
 });
@@ -288,7 +288,7 @@ test('discarding asks first, and closing the sheet changes nothing', async () =>
 
   expect(
     screen.getByText(
-      "Its 17 checked sets won't be saved. You can undo this right after.",
+      'Its 17 checked sets won’t be saved. You can undo this right after.',
     ),
   ).toBeOnTheScreen();
 
@@ -308,7 +308,7 @@ test('discarding returns to the day and offers an undo, which stays there', asyn
   await confirmDiscard();
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
-  expect(await screen.findByText('Workout discarded.')).toBeOnTheScreen();
+  expect(await screen.findByText('Legs discarded.')).toBeOnTheScreen();
 
   await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
 
@@ -330,7 +330,7 @@ test('an undo that fails says so', async () => {
   await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
 
   expect(
-    await screen.findByText("Couldn't undo. Try again."),
+    await screen.findByText('Couldn’t undo. Try again.'),
   ).toBeOnTheScreen();
 });
 
@@ -342,7 +342,7 @@ test('a discard that fails says so and stays', async () => {
   await confirmDiscard();
 
   expect(
-    await screen.findByText("Couldn't discard the workout. Try again."),
+    await screen.findByText('Couldn’t discard the workout. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByText('Discard this workout?')).toBeOnTheScreen();
 });

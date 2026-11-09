@@ -59,7 +59,7 @@ export function ResetPasswordScreen() {
         setError('email', { message: formErrors.fields.email });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't send the link. Try again.");
+        notifyFailure('Couldn’t send the link. Try again.');
       }
     }
   });

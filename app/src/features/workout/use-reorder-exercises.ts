@@ -39,7 +39,7 @@ export function useReorderExercises(workoutId: string) {
     },
     onError: (_error, _exercises, context) => {
       queryClient.setQueryData(key, context?.before);
-      notifyFailure("Couldn't save the order. Try again.");
+      notifyFailure('Couldn’t save the order. Try again.');
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: dayKeys.allDay }),

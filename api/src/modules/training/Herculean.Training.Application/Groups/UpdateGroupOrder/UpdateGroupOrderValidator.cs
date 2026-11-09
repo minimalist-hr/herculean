@@ -8,6 +8,6 @@ internal sealed class UpdateGroupOrderValidator : AbstractValidator<UpdateGroupO
     {
         RuleFor(request => request.GroupIds)
             .Must(groupIds => groupIds is not null && groupIds.Distinct().Count() == groupIds.Count)
-            .WithMessage("'{PropertyName}' can't repeat a group.");
+            .WithMessage("'{PropertyName}' can’t repeat a group.");
     }
 }

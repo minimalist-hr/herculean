@@ -1,5 +1,10 @@
 import type { components } from '@/api/schema';
-import { formatNumber, weightIn } from '@/formats/formats';
+import {
+  counted,
+  formatNumber,
+  weightIn,
+  weightUnitOf,
+} from '@/formats/formats';
 
 type Units = components['schemas']['Units'];
 
@@ -88,9 +93,15 @@ export function problemWith(value: string, field: SetField, units: Units) {
     return null;
   }
 
+  return number > max
+    ? `At most ${limitText(max, field, units)}.`
+    : `At least ${limitText(min, field, units)}.`;
+}
+
+function limitText(limit: number, field: SetField, units: Units) {
   return field === 'reps'
-    ? `Reps are ${String(min)} to ${String(max)}.`
-    : `Weight is ${String(min)} to ${formatNumber(max)} ${units === 'metric' ? 'kg' : 'lb'}.`;
+    ? counted(limit, 'rep', 'reps')
+    : `${formatNumber(limit)} ${weightUnitOf(units)}`;
 }
 
 /** A weight in the user's units, as the API stores it: kg with two decimals. */

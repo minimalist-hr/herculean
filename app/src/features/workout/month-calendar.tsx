@@ -3,7 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { Tappable } from '@/components/tappable';
 import { TextLink } from '@/components/text-link';
-import { dayNames, monthName, monthTitle, weekdays } from '@/formats/formats';
+import {
+  dayNames,
+  dayStatusWord,
+  monthName,
+  monthTitle,
+  weekdays,
+} from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateText, monthDates } from '@/formats/dates';
@@ -21,8 +27,9 @@ function dayLabel(date: Date, day: DaySummary | undefined, today: string) {
   if (day !== undefined) {
     parts.push(day.routineName ?? 'rest day');
   }
-  if (day?.status === 'missed' || day?.status === 'skipped') {
-    parts.push(day.status);
+  const word = day && dayStatusWord(day.status);
+  if (word) {
+    parts.push(word);
   }
   if (dateText(date) === today) {
     parts.push('today');
@@ -131,7 +138,7 @@ export function MonthCalendar({
             accessibilityRole="alert"
             style={[text.body, { color: colors.muted }]}
           >
-            Couldn&apos;t load the calendar.
+            Couldn’t load the calendar.
           </Text>
           <TextLink label="Try again" onPress={onRetry} />
         </View>

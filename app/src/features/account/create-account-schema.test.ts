@@ -38,6 +38,6 @@ test('password needs 8 characters', () => {
 
 test('the passwords must match', () => {
   expect(errorsFor({ ...valid, repeatPassword: 'password2' })).toEqual({
-    repeatPassword: "The passwords don't match.",
+    repeatPassword: 'The passwords don’t match.',
   });
 });

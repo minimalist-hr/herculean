@@ -84,7 +84,7 @@ export function SettingsScreen() {
 
         {user.isLoadingError ? (
           <LoadFailure
-            message="Couldn't load your settings."
+            message="Couldn’t load your settings."
             onRetry={() => {
               void user.refetch();
             }}

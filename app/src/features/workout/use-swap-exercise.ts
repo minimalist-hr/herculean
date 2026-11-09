@@ -55,7 +55,7 @@ export function useSwapExercise(workoutId: string) {
       notifyFailure(
         error instanceof ApiProblemError && error.problem.status === 409
           ? error.message
-          : "Couldn't undo the swap. Try again.",
+          : 'Couldn’t undo. Try again.',
       );
     },
   });
@@ -84,7 +84,7 @@ export function useSwapExercise(workoutId: string) {
       notifyFailure(
         error instanceof ApiProblemError && error.problem.status === 409
           ? error.message
-          : "Couldn't swap the exercise. Try again.",
+          : 'Couldn’t swap the exercise. Try again.',
       );
     },
   });

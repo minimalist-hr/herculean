@@ -45,13 +45,13 @@ internal static class RoutineFieldRules
         validator.RuleFor(request => request.Weekdays)
             .NotNull()
             .Must(weekdays => weekdays is null || weekdays.Distinct().Count() == weekdays.Count)
-            .WithMessage("'{PropertyName}' can't repeat a weekday.");
+            .WithMessage("'{PropertyName}' can’t repeat a weekday.");
         validator.RuleForEach(request => request.Weekdays).IsInEnum();
         validator.RuleFor(request => request.Exercises)
             .Must(exercises => exercises is { Count: > 0 and <= Routine.MaxExercises })
             .WithMessage($"'{{PropertyName}}' must have 1 to {Routine.MaxExercises} exercises.")
             .Must(exercises => exercises is null || exercises.Select(exercise => exercise.ExerciseId).Distinct().Count() == exercises.Count)
-            .WithMessage("'{PropertyName}' can't repeat an exercise.");
+            .WithMessage("'{PropertyName}' can’t repeat an exercise.");
         validator.RuleForEach(request => request.Exercises).ChildRules(exercise =>
         {
             exercise.RuleFor(item => item.TargetSets).InclusiveBetween(1, Routine.MaxTargetSets);

@@ -169,7 +169,7 @@ test('a failed save says so and puts the order back', async () => {
   await dragBy(screen.getByRole('button', { name: 'Move Barbell squat' }), 70);
 
   expect(
-    await screen.findByText("Couldn't save the order. Try again."),
+    await screen.findByText('Couldn’t save the order. Try again.'),
   ).toBeOnTheScreen();
   await waitFor(() => {
     expect(order()).toEqual([
@@ -185,7 +185,7 @@ test('a failed load offers to try again', async () => {
   await renderReorder();
 
   expect(
-    await screen.findByText("Couldn't load this workout."),
+    await screen.findByText('Couldn’t load this workout.'),
   ).toBeOnTheScreen();
 
   loading = 'ok';

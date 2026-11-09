@@ -138,7 +138,7 @@ test('a day logged later has a dash for its time', async () => {
   answer({ summaryAnswer: { ...summary, durationSeconds: null } });
   await renderSheet();
 
-  expect(await screen.findByText('—')).toBeOnTheScreen();
+  expect(await screen.findByText('–')).toBeOnTheScreen();
 });
 
 test('volume follows the units setting', async () => {
@@ -173,9 +173,9 @@ test('details that fail to load can be tried again', async () => {
   await renderSheet();
 
   expect(
-    await screen.findByText("Couldn't load the summary."),
+    await screen.findByText('Couldn’t load the summary.'),
   ).toBeOnTheScreen();
-  expect(screen.getByText("Couldn't load the exercises.")).toBeOnTheScreen();
+  expect(screen.getByText('Couldn’t load the exercises.')).toBeOnTheScreen();
 
   answer();
   for (const retry of screen.getAllByRole('link', { name: 'Try again' })) {

@@ -64,7 +64,7 @@ export function ChangePasswordScreen() {
         setError('password', { message: rejected });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't save the password. Try again.");
+        notifyFailure('Couldn’t save the password. Try again.');
       }
     }
   });
@@ -74,7 +74,7 @@ export function ChangePasswordScreen() {
       <FormPage
         back="Settings"
         title="Change password"
-        subtitle="You'll be signed out of other devices."
+        subtitle="You’ll be signed out of other devices."
         action={
           <Button
             label="Save password"

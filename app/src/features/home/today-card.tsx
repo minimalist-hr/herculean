@@ -1,4 +1,5 @@
 import { useRouter, type Href } from 'expo-router';
+import { dayNameOf } from '@/formats/formats';
 import { View } from 'react-native';
 
 import type { components } from '@/api/schema';
@@ -21,6 +22,7 @@ import {
 } from '@/features/workout/day-card';
 import { savedMeta } from '@/features/workout/saved-workout';
 import { useWorkoutSummary } from '@/features/workout/use-workout-summary';
+import { dateFromText } from '@/formats/dates';
 import { useTheme } from '@/theme/theme-provider';
 
 type Day = components['schemas']['DayResponse'];
@@ -149,7 +151,11 @@ export function TodayCard({ day }: { day: Day }) {
 
   return (
     <Card>
-      <CardHeading label="Planned" title={routine.name} meta={meta} />
+      <CardHeading
+        label={`Planned for ${dayNameOf(dateFromText(day.date)).full}`}
+        title={routine.name}
+        meta={meta}
+      />
       <StartButton
         date={day.date}
         label="Start workout"

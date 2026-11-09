@@ -193,7 +193,7 @@ describe('an account waiting to be deleted', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Keep account' }));
 
     expect(
-      await screen.findByText("Couldn't keep your account. Try again."),
+      await screen.findByText('Couldn’t keep your account. Try again.'),
     ).toBeOnTheScreen();
   });
 });
@@ -280,7 +280,7 @@ test('no connection shows a notification until a field changes', async () => {
   await pressSignIn();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't sign in. Try again.",
+    'Couldn’t sign in. Try again.',
   );
 
   await fireEvent.changeText(screen.getByLabelText('Password'), 'passwords');

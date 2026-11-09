@@ -86,7 +86,7 @@ test.each([
   expect(screen.queryByText(chromeLight)).toBeNull();
 });
 
-test("the signed-in user's theme and color show, and are kept on the phone", async () => {
+test('the signed-in user’s theme and color show, and are kept on the phone', async () => {
   mockStatus = 'ready';
   mockStored.set('appearance', '{"theme":"light","color":"chrome"}');
   mockFetch.mockResolvedValue(

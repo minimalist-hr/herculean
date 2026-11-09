@@ -83,7 +83,7 @@ export function GroupsScreen() {
     if (groups.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load your groups."
+          message="Couldn’t load your groups."
           onRetry={() => {
             void groups.refetch();
           }}

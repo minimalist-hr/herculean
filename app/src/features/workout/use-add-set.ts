@@ -61,8 +61,8 @@ export function useAddSet(workoutId: string) {
     onError: (_error, { removed }) => {
       notifyFailure(
         removed
-          ? "Couldn't bring the set back. Try again."
-          : "Couldn't add the set. Try again.",
+          ? 'Couldn’t undo. Try again.'
+          : 'Couldn’t add the set. Try again.',
       );
     },
   });

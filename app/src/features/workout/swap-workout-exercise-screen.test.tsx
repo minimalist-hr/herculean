@@ -251,7 +251,7 @@ test('a failed swap says so, and stays with the pick', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Swap exercise' }));
 
   expect(
-    await screen.findByText("Couldn't swap the exercise. Try again."),
+    await screen.findByText('Couldn’t swap the exercise. Try again.'),
   ).toBeOnTheScreen();
   expect(
     screen.getByRole('button', { name: 'Lunge', selected: true }),
@@ -265,7 +265,7 @@ test('a conflict says what stands in the way', async () => {
         code: 'workout.exercise_has_checked_sets',
         status: 409,
         detail:
-          "An exercise with checked sets can't be swapped. Uncheck them first.",
+          'An exercise with checked sets can’t be swapped. Uncheck them first.',
       },
       { status: 409 },
     );
@@ -276,7 +276,7 @@ test('a conflict says what stands in the way', async () => {
 
   expect(
     await screen.findByText(
-      "An exercise with checked sets can't be swapped. Uncheck them first.",
+      'An exercise with checked sets can’t be swapped. Uncheck them first.',
     ),
   ).toBeOnTheScreen();
 });
@@ -292,6 +292,6 @@ test('a failed Undo says so', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
 
   expect(
-    await screen.findByText("Couldn't undo the swap. Try again."),
+    await screen.findByText('Couldn’t undo. Try again.'),
   ).toBeOnTheScreen();
 });

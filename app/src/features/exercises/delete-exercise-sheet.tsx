@@ -22,7 +22,7 @@ export function DeleteExerciseSheet({
     <Sheet
       visible={visible}
       title={`Delete ${exercise.name}?`}
-      message="It's removed from your list. Workouts you already logged keep it."
+      message="It’s removed from your list. Workouts you already logged keep it."
       onClose={onClose}
     >
       <Button

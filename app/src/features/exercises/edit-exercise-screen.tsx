@@ -23,7 +23,7 @@ export function EditExerciseScreen({ id }: { id: string }) {
     <FormPage back="Exercise" title={title}>
       {exercise.isLoadingError ? (
         <LoadFailure
-          message="Couldn't load this exercise."
+          message="Couldn’t load this exercise."
           onRetry={() => {
             void exercise.refetch();
           }}

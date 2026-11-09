@@ -137,7 +137,7 @@ test('shows what the workout came to, with Sets as one number', async () => {
 
   expect(await screen.findByRole('header', { name: 'Back' })).toBeOnTheScreen();
   expect(screen.getByText('Done · Tue, 20th October')).toBeOnTheScreen();
-  expect(await screen.findByText('52:10')).toBeOnTheScreen();
+  expect(await screen.findByText('52 min')).toBeOnTheScreen();
   expect(screen.getByText('4')).toBeOnTheScreen();
   expect(screen.queryByText('4 / 4')).toBeNull();
   expect(screen.getAllByText('1,210 kg').length).toBeGreaterThan(0);
@@ -147,8 +147,8 @@ test('a past day has a dash for its duration', async () => {
   answer({ summaryAnswer: { ...summary, durationSeconds: null } });
   await renderDetails();
 
-  expect((await screen.findAllByText('—')).length).toBeGreaterThan(0);
-  expect(screen.queryByText('52:10')).toBeNull();
+  expect((await screen.findAllByText('–')).length).toBeGreaterThan(0);
+  expect(screen.queryByText('52 min')).toBeNull();
 });
 
 test('lists new records', async () => {
@@ -231,9 +231,9 @@ test('a load failure can be tried again', async () => {
   await renderDetails();
 
   expect(
-    await screen.findByText("Couldn't load the summary."),
+    await screen.findByText('Couldn’t load the summary.'),
   ).toBeOnTheScreen();
-  expect(screen.getByText("Couldn't load the exercises.")).toBeOnTheScreen();
+  expect(screen.getByText('Couldn’t load the exercises.')).toBeOnTheScreen();
 
   answer();
   for (const retry of screen.getAllByRole('link', { name: 'Try again' })) {
@@ -241,5 +241,5 @@ test('a load failure can be tried again', async () => {
   }
 
   expect(await screen.findByText('70 kg × 8')).toBeOnTheScreen();
-  expect(screen.queryByText(/Couldn't load/)).toBeNull();
+  expect(screen.queryByText(/Couldn’t load/)).toBeNull();
 });

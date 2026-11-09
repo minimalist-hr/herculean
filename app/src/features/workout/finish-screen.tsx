@@ -53,7 +53,7 @@ export function FinishScreen({ id }: { id: string }) {
   const units = useUnits();
   const summary = useWorkoutSummary(id);
   const save = useSaveWorkout(id);
-  const discard = useDiscardWorkout(id);
+  const discard = useDiscardWorkout(id, summary.data?.name ?? 'Workout');
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
   // Logging already holds the workout, so the warning shows at once, before the summary.
@@ -65,7 +65,7 @@ export function FinishScreen({ id }: { id: string }) {
     if (summary.data === undefined && summary.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this workout."
+          message="Couldn’t load this workout."
           onRetry={() => {
             void summary.refetch();
           }}

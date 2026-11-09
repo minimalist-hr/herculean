@@ -92,10 +92,10 @@ export function UnitsScreen() {
   return (
     <ChoicePage<Schemas['Units']>
       title="Units"
-      subtitle="Changes how weights and body measurements are shown. Your logged data stays the same."
+      subtitle="Changes how weights are shown. Your logged data stays the same."
       choices={[
-        { value: 'metric', label: unitLabels.metric, detail: 'kg, cm' },
-        { value: 'imperial', label: unitLabels.imperial, detail: 'lb, in' },
+        { value: 'metric', label: unitLabels.metric, detail: 'kg' },
+        { value: 'imperial', label: unitLabels.imperial, detail: 'lb' },
       ]}
       saved={user.data?.units}
       loadFailed={user.isLoadingError}
@@ -110,7 +110,7 @@ export function UnitsScreen() {
 
 const restTitle = 'Default rest time';
 const restSubtitle =
-  'Starts after every checked set. You can still change it during rest.';
+  'Ready to start after every checked set. You can still change it during rest.';
 
 export function DefaultRestScreen() {
   const settings = useWorkoutSettings();
@@ -120,7 +120,7 @@ export function DefaultRestScreen() {
       <FormPage back="Settings" title={restTitle} subtitle={restSubtitle}>
         {settings.isLoadingError ? (
           <LoadFailure
-            message="Couldn't load your rest time."
+            message="Couldn’t load your rest time."
             onRetry={() => {
               void settings.refetch();
             }}
@@ -151,7 +151,7 @@ function DefaultRestForm({ saved }: { saved: number }) {
       notifySuccess(`${restTitle} saved.`);
     } catch {
       guard.block();
-      notifyFailure("Couldn't save the rest time. Try again.");
+      notifyFailure('Couldn’t save the rest time. Try again.');
     }
   }
 
@@ -218,7 +218,7 @@ function RestSkeleton() {
 
 const nameTitle = 'Name';
 const nameSubtitle = 'Shown on Home and in Settings.';
-const nameLabel = 'Your name';
+const nameLabel = 'Name';
 const nameFormSchema = z.object({ name: userNameSchema });
 
 export function NameScreen() {
@@ -229,7 +229,7 @@ export function NameScreen() {
       <FormPage back="Settings" title={nameTitle} subtitle={nameSubtitle}>
         {user.isLoadingError ? (
           <LoadFailure
-            message="Couldn't load your name."
+            message="Couldn’t load your name."
             onRetry={() => {
               void user.refetch();
             }}
@@ -267,7 +267,7 @@ function NameForm({ saved }: { saved: string }) {
         setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't save the name. Try again.");
+        notifyFailure('Couldn’t save the name. Try again.');
       }
     }
   });

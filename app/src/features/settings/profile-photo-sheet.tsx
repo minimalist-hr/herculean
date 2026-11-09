@@ -19,8 +19,8 @@ import {
 } from './use-user-photo';
 
 const deniedMessages: Record<PhotoSource, string> = {
-  camera: "Allow camera access in your phone's settings.",
-  library: "Allow photo access in your phone's settings.",
+  camera: 'Allow camera access in your phone’s settings.',
+  library: 'Allow photo access in your phone’s settings.',
 };
 
 /** Take, choose or remove the profile photo. It stays open behind the picker, and closes once a photo is chosen. */
@@ -43,7 +43,7 @@ export function ProfilePhotoSheet({
         notifySuccess('Photo saved.');
       },
       onError: () => {
-        notifyFailure("Couldn't save the photo. Try again.");
+        notifyFailure('Couldn’t save the photo. Try again.');
       },
     });
   }
@@ -60,7 +60,7 @@ export function ProfilePhotoSheet({
       }
     } catch {
       onClose();
-      notifyFailure("Couldn't save the photo. Try again.");
+      notifyFailure('Couldn’t save the photo. Try again.');
     }
   }
 
@@ -82,7 +82,7 @@ export function ProfilePhotoSheet({
         });
       },
       onError: () => {
-        notifyFailure("Couldn't remove the photo. Try again.");
+        notifyFailure('Couldn’t remove the photo. Try again.');
       },
     });
   }

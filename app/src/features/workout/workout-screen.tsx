@@ -68,7 +68,7 @@ export function WorkoutScreen({
 
     if (day.isLoadingError) {
       return (
-        <LoadFailure message="Couldn't load this day." onRetry={refresh} />
+        <LoadFailure message="Couldn’t load this day." onRetry={refresh} />
       );
     }
 

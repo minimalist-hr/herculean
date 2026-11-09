@@ -39,7 +39,7 @@ export function ResetLinkSentScreen() {
         restart();
       },
       onError: () => {
-        notifyFailure("Couldn't send the link. Try again.");
+        notifyFailure('Couldn’t send the link. Try again.');
       },
     });
   }

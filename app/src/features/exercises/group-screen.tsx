@@ -40,7 +40,7 @@ export function GroupScreen({ id }: { id: string }) {
     if (group.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this group."
+          message="Couldn’t load this group."
           onRetry={() => {
             void group.refetch();
           }}
@@ -126,7 +126,7 @@ function Details({ group }: { group: Group }) {
             }
             onPress={() => {
               if (inUse) {
-                notifyFailure("Move or delete this group's exercises first.");
+                notifyFailure('Move or delete this group’s exercises first.');
               } else {
                 setConfirmingDelete(true);
               }
@@ -144,7 +144,7 @@ function Details({ group }: { group: Group }) {
       </View>
 
       {!done && (
-        <NoSessionsCard message="Finish a workout with an exercise in this group and its progress shows up here." />
+        <NoSessionsCard message="Finish a workout with an exercise in this group and its best set shows below." />
       )}
 
       <View style={{ gap: space.sm }}>

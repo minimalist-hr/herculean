@@ -13,7 +13,7 @@ internal sealed class EditWorkoutValidator : AbstractValidator<EditWorkoutReques
             .Must(exercises => exercises is { Count: > 0 and <= Routine.MaxExercises })
             .WithMessage($"'{{PropertyName}}' must have 1 to {Routine.MaxExercises} exercises.")
             .Must(exercises => exercises is null || exercises.DistinctBy(exercise => exercise.ExerciseId).Count() == exercises.Count)
-            .WithMessage("'{PropertyName}' can't repeat an exercise.");
+            .WithMessage("'{PropertyName}' can’t repeat an exercise.");
         RuleForEach(request => request.Exercises).ChildRules(exercise =>
         {
             exercise.RuleFor(item => item.Sets)

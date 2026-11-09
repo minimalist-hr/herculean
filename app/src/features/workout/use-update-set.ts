@@ -49,7 +49,7 @@ export function useUpdateSet(workoutId: string) {
       );
     },
     onError: () => {
-      notifyFailure("Couldn't save the set. Try again.");
+      notifyFailure('Couldn’t save the set. Try again.');
     },
   });
 }

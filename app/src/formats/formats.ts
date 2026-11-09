@@ -6,6 +6,7 @@ import { dateFromText, dateText, daysFrom } from './dates';
 
 type Units = components['schemas']['Units'];
 export type Weekday = components['schemas']['Weekday'];
+type DayStatus = components['schemas']['DayStatus'];
 
 const poundsPerKg = 2.20462;
 
@@ -213,6 +214,18 @@ export function monthTitle(month: string) {
 /** A date with a short weekday, for example "Sun, 25th October". */
 export function shortWeekdayDate(date: Date) {
   return `${dayNameOf(date).short}, ${ordinal(date.getDate())} ${monthName(date)}`;
+}
+
+/** How a day went, in the words a day cell gives screen readers. Planned and rest days say so elsewhere. */
+export function dayStatusWord(status: DayStatus) {
+  return {
+    completed: 'done',
+    missed: 'missed',
+    skipped: 'skipped',
+    inProgress: 'in progress',
+    planned: null,
+    rest: null,
+  }[status];
 }
 
 /** The small line and the title above a day. Another year says which. */

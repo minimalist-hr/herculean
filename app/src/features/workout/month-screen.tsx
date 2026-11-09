@@ -106,8 +106,8 @@ export function MonthScreen({
           onOutOfReach={(date) => {
             notifyFailure(
               date < firstDate
-                ? `Your first day is ${formatShortDate(firstDate)}.`
-                : `Days reach ${String(weeksAhead)} weeks ahead.`,
+                ? `Your history starts on ${formatShortDate(firstDate)}.`
+                : `You can look ${String(weeksAhead)} weeks ahead.`,
             );
           }}
         />
@@ -163,7 +163,7 @@ export function MonthScreen({
         <View style={{ gap: space.sm }}>
           <SectionTitle>{totalsTitle}</SectionTitle>
           <LoadFailure
-            message="Couldn't load the totals."
+            message="Couldn’t load the totals."
             onRetry={() => {
               void summary.refetch();
             }}

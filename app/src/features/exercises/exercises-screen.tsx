@@ -185,7 +185,7 @@ export function ExercisesScreen() {
     if (failed) {
       return (
         <LoadFailure
-          message="Couldn't load your exercises."
+          message="Couldn’t load your exercises."
           onRetry={() => {
             void exercises.refetch();
           }}
@@ -309,7 +309,7 @@ function ChipsFailure({ onRetry }: { onRetry: () => void }) {
         accessibilityRole="alert"
         style={[text.meta, { color: colors.muted }]}
       >
-        Couldn&apos;t load your groups.
+        Couldn’t load your groups.
       </Text>
       <TextLink label="Try again" onPress={onRetry} />
     </View>

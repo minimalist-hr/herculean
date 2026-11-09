@@ -30,7 +30,7 @@ export function EditGroupScreen({ id }: { id: string }) {
     <FormPage back="Group" title={title}>
       {group.isLoadingError ? (
         <LoadFailure
-          message="Couldn't load this group."
+          message="Couldn’t load this group."
           onRetry={() => {
             void group.refetch();
           }}

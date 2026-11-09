@@ -8,6 +8,6 @@ internal sealed class UpdateWorkoutExerciseOrderValidator : AbstractValidator<Up
     {
         RuleFor(request => request.WorkoutExerciseIds)
             .Must(ids => ids is not null && ids.Distinct().Count() == ids.Count)
-            .WithMessage("'{PropertyName}' can't repeat an exercise.");
+            .WithMessage("'{PropertyName}' can’t repeat an exercise.");
     }
 }

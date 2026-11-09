@@ -19,6 +19,9 @@ const expired = {
   message: 'This link has expired. Send a new one.',
 };
 
+const expiredSignedOut =
+  'This link has expired. Sign in and send a new one from Settings.';
+
 /** What to say when the link won't work again, so trying again can't help. */
 function linkProblemOf(error: unknown) {
   if (!(error instanceof ApiProblemError)) {
@@ -79,7 +82,11 @@ export function ConfirmEmailScreen() {
   if (linkProblem !== null) {
     return (
       <Page title={linkProblem.title} action={leave}>
-        <Message>{linkProblem.message}</Message>
+        <Message>
+          {linkProblem === expired && status === 'signedOut'
+            ? expiredSignedOut
+            : linkProblem.message}
+        </Message>
       </Page>
     );
   }
@@ -88,7 +95,7 @@ export function ConfirmEmailScreen() {
     return (
       <Page title="Confirm email" action={leave}>
         <LoadFailure
-          message="Couldn't confirm your email."
+          message="Couldn’t confirm your email."
           onRetry={() => {
             if (token) {
               confirm.mutate(token);

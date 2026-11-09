@@ -174,7 +174,7 @@ test('failed routines say so in their place, and Try again reads them again', as
   await renderRoutines();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load your routines.",
+    'Couldn’t load your routines.',
   );
   expect(screen.getByText('Week plan')).toBeOnTheScreen();
 
@@ -189,7 +189,7 @@ test('a failed week plan says so in its place, and the routines still show', asy
   await renderRoutines();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load the week plan.",
+    'Couldn’t load the week plan.',
   );
   expect(screen.getByText('Legs')).toBeOnTheScreen();
 

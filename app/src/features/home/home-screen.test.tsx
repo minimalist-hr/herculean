@@ -382,11 +382,11 @@ test('an empty account keeps every section with empty copy', async () => {
 });
 
 test.each([
-  [`/api/v1/days/${today}`, "Couldn't load today."],
-  ['/api/v1/days', "Couldn't load this week."],
-  [`/api/v1/month-summaries/${thisMonth}`, "Couldn't load this month."],
-  ['/api/v1/streak', "Couldn't load your streak."],
-  ['/api/v1/records/recent', "Couldn't load your records."],
+  [`/api/v1/days/${today}`, 'Couldn’t load today.'],
+  ['/api/v1/days', 'Couldn’t load the week.'],
+  [`/api/v1/month-summaries/${thisMonth}`, 'Couldn’t load this month.'],
+  ['/api/v1/streak', 'Couldn’t load your streak.'],
+  ['/api/v1/records/recent', 'Couldn’t load your records.'],
 ])(
   '%s failing leaves the rest, and Try again reloads it',
   async (path, message) => {
@@ -404,6 +404,24 @@ test.each([
     });
   },
 );
+
+test('a planned day names its weekday, like the Workout tab', async () => {
+  answerWith();
+  await renderHome();
+
+  expect(
+    await screen.findByText(`Planned for ${dayNameOf(now).full}`),
+  ).toBeOnTheScreen();
+});
+
+test('a day that was done says so to screen readers', async () => {
+  answerWith();
+  await renderHome();
+
+  expect(
+    (await screen.findAllByRole('button', { name: /, Legs, done/ })).length,
+  ).toBeGreaterThan(0);
+});
 
 test('a refresh that fails keeps what is showing', async () => {
   const listeners: ((state: string) => void)[] = [];

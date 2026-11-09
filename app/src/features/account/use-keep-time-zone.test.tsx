@@ -59,7 +59,7 @@ beforeEach(() => {
   mockFetch.mockReset();
 });
 
-test("a stored zone that isn't the phone's is updated", async () => {
+test('a stored zone that isn’t the phone’s is updated', async () => {
   answerWith('Europe/Zagreb');
   await render();
 
@@ -71,7 +71,7 @@ test("a stored zone that isn't the phone's is updated", async () => {
   });
 });
 
-test("the phone's zone already stored sends nothing", async () => {
+test('the phone’s zone already stored sends nothing', async () => {
   answerWith('Europe/London');
   await render();
 

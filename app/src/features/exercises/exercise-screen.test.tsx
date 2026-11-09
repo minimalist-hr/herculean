@@ -185,7 +185,7 @@ test('adds the also works groups in lower case', async () => {
   await renderExercise();
 
   expect(
-    await screen.findByText('Chest · shoulders · triceps'),
+    await screen.findByText('Chest · Shoulders · Triceps'),
   ).toBeOnTheScreen();
 });
 
@@ -198,7 +198,7 @@ test('never done, every section is in its place and says so', async () => {
       'Finish a workout with this exercise and its sessions show up here.',
     ),
   ).toBeOnTheScreen();
-  expect(screen.getByText('—')).toBeOnTheScreen();
+  expect(screen.getByText('–')).toBeOnTheScreen();
   expect(screen.getByText('Not done yet')).toBeOnTheScreen();
   expect(screen.getByText('0 times')).toBeOnTheScreen();
   // The chart's box and the sessions both say so.
@@ -233,7 +233,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   await renderExercise();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load this exercise.",
+    'Couldn’t load this exercise.',
   );
 
   answer(exercise('Shoulders'));
@@ -273,18 +273,18 @@ function inRoutines(...names: string[]) {
 }
 
 test.each([
-  [['Legs'], "It's in Legs. Remove it from that routine first."],
+  [['Legs'], 'It’s in Legs. Remove it from that routine first.'],
   [
     ['Arms', 'Legs'],
-    "It's in Arms and Legs. Remove it from those routines first.",
+    'It’s in Arms and Legs. Remove it from those routines first.',
   ],
   [
     ['Arms', 'Back', 'Legs'],
-    "It's in Arms, Back and Legs. Remove it from those routines first.",
+    'It’s in Arms, Back and Legs. Remove it from those routines first.',
   ],
   [
     ['Arms', 'Back', 'Chest', 'Legs', 'Push'],
-    "It's in 5 routines. Remove it from them first.",
+    'It’s in 5 routines. Remove it from them first.',
   ],
 ])(
   'in routines %j, the trash is muted and says why',
@@ -385,7 +385,7 @@ test('a failed delete and a failed Undo say so', async () => {
   await fireEvent.press(buttons[buttons.length - 1]);
 
   expect(
-    await screen.findByText("Couldn't delete the exercise. Try again."),
+    await screen.findByText('Couldn’t delete the exercise. Try again.'),
   ).toBeOnTheScreen();
 
   buttons = screen.getAllByRole('button', { name: 'Delete exercise' });
@@ -496,7 +496,7 @@ test('a page that fails says so, and Try again loads it', async () => {
   await scrollToTheEnd();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load more sessions.",
+    'Couldn’t load more sessions.',
   );
 
   failing = false;
@@ -522,7 +522,7 @@ test('sessions that fail to load say so, and Try again reads them', async () => 
   await renderExercise();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load the sessions.",
+    'Couldn’t load the sessions.',
   );
   expect(screen.getByText('82.5 kg × 10')).toBeOnTheScreen();
 
@@ -618,7 +618,7 @@ test('a chart that fails says so in the box, and Try again reads it', async () =
   mockProgress.mockRejectedValueOnce(new TypeError('Network request failed'));
   await renderExercise();
 
-  expect(await screen.findByText("Couldn't load the chart.")).toBeOnTheScreen();
+  expect(await screen.findByText('Couldn’t load the chart.')).toBeOnTheScreen();
   // The sessions still show, because the chart loads on its own.
   expect(screen.getByText('All sessions')).toBeOnTheScreen();
 

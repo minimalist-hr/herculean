@@ -63,7 +63,7 @@ function useExerciseForm(
         form.setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't save the exercise. Try again.");
+        notifyFailure('Couldn’t save the exercise. Try again.');
       }
     }
   });
@@ -146,7 +146,7 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
 
       {groups.isLoadingError ? (
         <View style={styles.groupsFailed}>
-          <FormError message="Couldn't load your groups." />
+          <FormError message="Couldn’t load your groups." />
           <TextLink
             label="Try again"
             onPress={() => {

@@ -39,7 +39,7 @@ export function useDeleteGroup() {
     },
     onSuccess: refresh,
     onError: (error) => {
-      notifyFailure(failureOf(error, "Couldn't undo. Try again."));
+      notifyFailure(failureOf(error, 'Couldn’t undo. Try again.'));
     },
   });
 
@@ -64,7 +64,7 @@ export function useDeleteGroup() {
     },
     onError: (error) => {
       void refresh();
-      notifyFailure(failureOf(error, "Couldn't delete the group. Try again."));
+      notifyFailure(failureOf(error, 'Couldn’t delete the group. Try again.'));
     },
   });
 }

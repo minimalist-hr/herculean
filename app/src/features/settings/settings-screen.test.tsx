@@ -185,7 +185,7 @@ function patchBody() {
 test.each([
   ['Theme, Match my phone', 'Light', 'Save theme', { theme: 'light' }],
   ['Color, Nitro', 'Chrome', 'Save color', { color: 'chrome' }],
-  ['Units, Metric', 'Imperial, lb, in', 'Save units', { units: 'imperial' }],
+  ['Units, Metric', 'Imperial, lb', 'Save units', { units: 'imperial' }],
 ])(
   '%s: a picked choice is saved, and Settings shows it',
   async (row, choice, save, body) => {
@@ -231,7 +231,7 @@ test('a failed save says so and stays', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Save theme' }));
 
   expect(
-    await screen.findByText("Couldn't save the theme. Try again."),
+    await screen.findByText('Couldn’t save the theme. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: 'Save theme' })).toBeOnTheScreen();
 });
@@ -265,7 +265,7 @@ test('a failed load says so in place of the profile', async () => {
   await renderSettings();
 
   expect(
-    await screen.findByText("Couldn't load your settings."),
+    await screen.findByText('Couldn’t load your settings.'),
   ).toBeOnTheScreen();
 });
 
@@ -279,10 +279,10 @@ test.each([
 });
 
 test.each([
-  ['/settings/theme', { userStatus: 500 }, "Couldn't load your theme."],
-  ['/settings/rest-time', { restStatus: 500 }, "Couldn't load your rest time."],
-  ['/settings/name', { userStatus: 500 }, "Couldn't load your name."],
-  ['/settings/email', { userStatus: 500 }, "Couldn't load your email."],
+  ['/settings/theme', { userStatus: 500 }, 'Couldn’t load your theme.'],
+  ['/settings/rest-time', { restStatus: 500 }, 'Couldn’t load your rest time.'],
+  ['/settings/name', { userStatus: 500 }, 'Couldn’t load your name.'],
+  ['/settings/email', { userStatus: 500 }, 'Couldn’t load your email.'],
 ])(
   '%s opened on its own shows that it is loading, a failure, and Try again',
   async (url, statuses, failure) => {
@@ -305,10 +305,7 @@ test('the name is saved trimmed, and Settings shows it', async () => {
   await fireEvent.press(
     await screen.findByRole('button', { name: 'Name, Filip Mučnjak' }),
   );
-  await fireEvent.changeText(
-    await screen.findByLabelText('Your name'),
-    ' Filip M ',
-  );
+  await fireEvent.changeText(await screen.findByLabelText('Name'), ' Filip M ');
   await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
 
   await expect(patchBody()).resolves.toEqual({ name: 'Filip M' });
@@ -322,7 +319,7 @@ test('an empty name shows an error under the field and saves nothing', async () 
   answerWith();
   await renderAt('/settings/name');
 
-  await fireEvent.changeText(await screen.findByLabelText('Your name'), '   ');
+  await fireEvent.changeText(await screen.findByLabelText('Name'), '   ');
   await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
 
   expect(await screen.findByText('Enter your name.')).toBeOnTheScreen();
@@ -343,10 +340,7 @@ test('a name the API rejects shows its message under the field', async () => {
   });
   await renderAt('/settings/name');
 
-  await fireEvent.changeText(
-    await screen.findByLabelText('Your name'),
-    'Filip',
-  );
+  await fireEvent.changeText(await screen.findByLabelText('Name'), 'Filip');
   await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
 
   expect(
@@ -358,14 +352,11 @@ test('a failed name save says so and stays', async () => {
   answerWith({ patchStatus: 500 });
   await renderAt('/settings/name');
 
-  await fireEvent.changeText(
-    await screen.findByLabelText('Your name'),
-    'Filip',
-  );
+  await fireEvent.changeText(await screen.findByLabelText('Name'), 'Filip');
   await fireEvent.press(screen.getByRole('button', { name: 'Save name' }));
 
   expect(
-    await screen.findByText("Couldn't save the name. Try again."),
+    await screen.findByText('Couldn’t save the name. Try again.'),
   ).toBeOnTheScreen();
 });
 
@@ -376,10 +367,7 @@ test('leaving with a changed name asks first', async () => {
   await fireEvent.press(
     await screen.findByRole('button', { name: 'Name, Filip Mučnjak' }),
   );
-  await fireEvent.changeText(
-    await screen.findByLabelText('Your name'),
-    'Filip',
-  );
+  await fireEvent.changeText(await screen.findByLabelText('Name'), 'Filip');
   await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
 
   expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
@@ -494,7 +482,7 @@ describe('change password', () => {
   test.each([
     ['', 'new-password', 'new-password', 'Enter your current password.'],
     ['old-password', 'short', 'short', 'At least 8 characters.'],
-    ['old-password', 'new-password', 'other', "The passwords don't match."],
+    ['old-password', 'new-password', 'other', 'The passwords don’t match.'],
   ])(
     'with %p, %p and %p it shows %p and sends nothing',
     async (current, next, repeat, message) => {
@@ -515,7 +503,7 @@ describe('change password', () => {
     await fillPasswords();
 
     expect(
-      await screen.findByText("Couldn't save the password. Try again."),
+      await screen.findByText('Couldn’t save the password. Try again.'),
     ).toBeOnTheScreen();
   });
 
@@ -527,7 +515,7 @@ describe('change password', () => {
     await fillPasswords();
 
     expect(
-      await screen.findByText("Couldn't save the password. Try again."),
+      await screen.findByText('Couldn’t save the password. Try again.'),
     ).toBeOnTheScreen();
     expect(putRequest()).toBeUndefined();
   });
@@ -619,7 +607,7 @@ describe('profile photo', () => {
     );
 
     expect(
-      await screen.findByText("Allow photo access in your phone's settings."),
+      await screen.findByText('Allow photo access in your phone’s settings.'),
     ).toBeOnTheScreen();
     expect(sentWith('PUT')).toBeUndefined();
   });
@@ -662,7 +650,7 @@ describe('profile photo', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Take photo' }));
 
     expect(
-      await screen.findByText("Couldn't save the photo. Try again."),
+      await screen.findByText('Couldn’t save the photo. Try again.'),
     ).toBeOnTheScreen();
   });
 
@@ -712,7 +700,7 @@ describe('profile photo', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Remove photo' }));
 
     expect(
-      await screen.findByText("Couldn't remove the photo. Try again."),
+      await screen.findByText('Couldn’t remove the photo. Try again.'),
     ).toBeOnTheScreen();
   });
 });
@@ -859,7 +847,7 @@ describe('sign out and delete account', () => {
     await fillAndDelete('password');
 
     expect(
-      await screen.findByText("Couldn't delete your account. Try again."),
+      await screen.findByText('Couldn’t delete your account. Try again.'),
     ).toBeOnTheScreen();
     await expect(readRefreshToken()).resolves.toBe('this-phone');
   });
@@ -908,10 +896,7 @@ describe('change email', () => {
   }
 
   async function fillEmail(newEmail: string, password = 'password') {
-    await fireEvent.changeText(
-      await screen.findByLabelText('Email address'),
-      newEmail,
-    );
+    await fireEvent.changeText(await screen.findByLabelText('Email'), newEmail);
     await fireEvent.changeText(
       screen.getByLabelText('Current password'),
       password,
@@ -983,8 +968,8 @@ describe('change email', () => {
     ],
     [
       'the same email',
-      () => validationProblem({ newEmail: ["That's already your email."] }),
-      "That's already your email.",
+      () => validationProblem({ newEmail: ['That’s already your email.'] }),
+      'That’s already your email.',
     ],
   ])('%s shows under its field', async (_, request, message) => {
     answerEmailWith({ request });
@@ -1002,17 +987,17 @@ describe('change email', () => {
     await fillEmail('new@example.com');
 
     expect(
-      await screen.findByText("Couldn't send the link. Try again."),
+      await screen.findByText('Couldn’t send the link. Try again.'),
     ).toBeOnTheScreen();
 
     await fireEvent.changeText(
-      screen.getByLabelText('Email address'),
+      screen.getByLabelText('Email'),
       'other@example.com',
     );
 
     await waitFor(() => {
       expect(
-        screen.queryByText("Couldn't send the link. Try again."),
+        screen.queryByText('Couldn’t send the link. Try again.'),
       ).toBeNull();
     });
   });
@@ -1056,7 +1041,7 @@ describe('change email', () => {
     );
 
     expect(
-      await screen.findByText("Couldn't send the link. Try again."),
+      await screen.findByText('Couldn’t send the link. Try again.'),
     ).toBeOnTheScreen();
   });
 
@@ -1067,7 +1052,7 @@ describe('change email', () => {
     await openWaitingPage();
 
     expect(screen.getByText('Waiting for confirmation')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Email address')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Email')).toBeOnTheScreen();
   });
 
   test('with nothing waiting, the row is plain and the page has no message', async () => {
@@ -1078,7 +1063,7 @@ describe('change email', () => {
       await screen.findByRole('button', { name: 'Email, filip@example.com' }),
     );
 
-    await screen.findByLabelText('Email address');
+    await screen.findByLabelText('Email');
     expect(screen.queryByText('Waiting for confirmation')).toBeNull();
   });
 });
@@ -1093,6 +1078,6 @@ test('a failed rest time save says so and stays', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Save rest time' }));
 
   expect(
-    await screen.findByText("Couldn't save the rest time. Try again."),
+    await screen.findByText('Couldn’t save the rest time. Try again.'),
   ).toBeOnTheScreen();
 });

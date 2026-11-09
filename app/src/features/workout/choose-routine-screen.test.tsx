@@ -239,7 +239,7 @@ test('if the day fails to load, the routines still show, without a planned one',
 
   expect(await screen.findByText('Push')).toBeOnTheScreen();
   expect(screen.queryByText('Planned')).toBeNull();
-  expect(screen.queryByText("Couldn't load your routines.")).toBeNull();
+  expect(screen.queryByText('Couldn’t load your routines.')).toBeNull();
 });
 
 test('a list that fails to load can be tried again', async () => {
@@ -247,7 +247,7 @@ test('a list that fails to load can be tried again', async () => {
   await renderChoose();
 
   expect(
-    await screen.findByText("Couldn't load your routines."),
+    await screen.findByText('Couldn’t load your routines.'),
   ).toBeOnTheScreen();
 
   answer({});
@@ -286,7 +286,7 @@ test('exercises that fail to load can be tried again, and it can still start', a
   await pick(/^Push/);
 
   expect(
-    await screen.findByText("Couldn't load this routine."),
+    await screen.findByText('Couldn’t load this routine.'),
   ).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: 'Start workout' })).toBeTruthy();
 
@@ -324,7 +324,7 @@ test('a start that fails says why, and the sheet stays open', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
 
   expect(
-    await screen.findByText("Couldn't start the workout. Try again."),
+    await screen.findByText('Couldn’t start the workout. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByText('Start Push?')).toBeOnTheScreen();
 });

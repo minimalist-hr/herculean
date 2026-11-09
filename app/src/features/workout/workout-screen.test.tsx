@@ -191,7 +191,7 @@ test('a failed week says so under the strip, and the day still shows', async () 
   await renderWorkout();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load the week.",
+    'Couldn’t load the week.',
   );
   expect(screen.getByText('Legs')).toBeOnTheScreen();
 
@@ -201,7 +201,7 @@ test('a failed week says so under the strip, and the day still shows', async () 
   expect(
     await screen.findByLabelText('Monday 2, Arms, missed'),
   ).toBeOnTheScreen();
-  expect(screen.queryByText("Couldn't load the week.")).toBeNull();
+  expect(screen.queryByText('Couldn’t load the week.')).toBeNull();
 });
 
 test('marks days with a workout, and leaves rest days plain', async () => {
@@ -254,7 +254,7 @@ test('with no routines, offers to create one', async () => {
     screen.getByText('Create a routine and pick the days you train.'),
   ).toBeOnTheScreen();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Create routine' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'New routine' }));
 
   expect(await screen.findByText('New routine screen')).toBeOnTheScreen();
 });
@@ -263,8 +263,8 @@ test('says the week and the day could not load, and tries again', async () => {
   mockFetch.mockRejectedValue(new TypeError('Network request failed'));
   await renderWorkout();
 
-  expect(await screen.findByText("Couldn't load this day.")).toBeOnTheScreen();
-  expect(await screen.findByText("Couldn't load the week.")).toBeOnTheScreen();
+  expect(await screen.findByText('Couldn’t load this day.')).toBeOnTheScreen();
+  expect(await screen.findByText('Couldn’t load the week.')).toBeOnTheScreen();
   expect(screen.getByLabelText('Monday 2')).toBeOnTheScreen();
 
   answer(plannedDay);
@@ -312,7 +312,7 @@ test('Start workout says what stands in its way', async () => {
   answerStart(409, {
     code: 'workout.another_in_progress',
     status: 409,
-    detail: 'Another workout is in progress. Resume or finish it first.',
+    detail: 'Resume or finish your workout first.',
   });
   await renderWorkout();
   await screen.findByText('Legs');
@@ -320,9 +320,7 @@ test('Start workout says what stands in its way', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
 
   expect(
-    await screen.findByText(
-      'Another workout is in progress. Resume or finish it first.',
-    ),
+    await screen.findByText('Resume or finish your workout first.'),
   ).toBeOnTheScreen();
 });
 
@@ -334,7 +332,7 @@ test('a failed Start workout says so', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
 
   expect(
-    await screen.findByText("Couldn't start the workout. Try again."),
+    await screen.findByText('Couldn’t start the workout. Try again.'),
   ).toBeOnTheScreen();
 });
 
@@ -614,7 +612,7 @@ describe('a saved day', () => {
       screen.getByRole('button', { name: 'Delete workout' }),
     );
 
-    expect(await screen.findByText('Workout deleted.')).toBeOnTheScreen();
+    expect(await screen.findByText('Legs deleted.')).toBeOnTheScreen();
     expect(
       await screen.findByRole('button', { name: 'Start workout' }),
     ).toBeOnTheScreen();
@@ -636,7 +634,7 @@ describe('a saved day', () => {
     );
 
     expect(
-      await screen.findByText("Couldn't delete the workout. Try again."),
+      await screen.findByText('Couldn’t delete the workout. Try again.'),
     ).toBeOnTheScreen();
     expect(screen.getByText('Done')).toBeOnTheScreen();
   });
@@ -646,7 +644,7 @@ describe('a saved day', () => {
     await renderWorkout();
 
     expect(
-      await screen.findByText("Couldn't load this workout."),
+      await screen.findByText('Couldn’t load this workout.'),
     ).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'View workout' })).toBeTruthy();
 
@@ -687,7 +685,7 @@ test('Other routine before the first day looks muted and says why', async () => 
   await fireEvent.press(other);
 
   expect(
-    await screen.findByText("A workout can't be added before your first day."),
+    await screen.findByText('A workout can’t be added before your first day.'),
   ).toBeOnTheScreen();
   expect(screen.queryByText('Choose routine screen')).toBeNull();
 });
@@ -792,13 +790,13 @@ describe('other days', () => {
     await fireEvent.press(start);
 
     expect(
-      await screen.findByText("A workout can't be started before its day."),
+      await screen.findByText('A workout can’t be started before its day.'),
     ).toBeOnTheScreen();
 
     await fireEvent.press(skip);
 
     expect(
-      await screen.findByText("A workout can't be skipped before its day."),
+      await screen.findByText('A workout can’t be skipped before its day.'),
     ).toBeOnTheScreen();
     expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
       false,
@@ -821,7 +819,7 @@ describe('other days', () => {
     await fireEvent.press(other);
 
     expect(
-      await screen.findByText("A workout can't be started before its day."),
+      await screen.findByText('A workout can’t be started before its day.'),
     ).toBeOnTheScreen();
     expect(screen.queryByText('Choose routine screen')).toBeNull();
   });
@@ -1092,7 +1090,7 @@ describe('skip', () => {
     await confirm('Skip workout');
 
     expect(
-      await screen.findByText("Couldn't skip the workout. Try again."),
+      await screen.findByText('Couldn’t skip the workout. Try again.'),
     ).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Start workout' })).toBeTruthy();
   });
@@ -1109,7 +1107,7 @@ describe('skip', () => {
     await confirm('Undo skip');
 
     expect(
-      await screen.findByText("Couldn't undo. Try again."),
+      await screen.findByText('Couldn’t undo. Try again.'),
     ).toBeOnTheScreen();
     expect(screen.getByText('Skipped')).toBeOnTheScreen();
   });

@@ -215,7 +215,7 @@ export function ExercisePicker({
       return (
         <View style={{ paddingHorizontal: size.sidePadding }}>
           <LoadFailure
-            message="Couldn't load your exercises."
+            message="Couldn’t load your exercises."
             onRetry={() => {
               void found.refetch();
             }}

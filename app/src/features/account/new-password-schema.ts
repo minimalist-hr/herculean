@@ -9,7 +9,7 @@ export const newPasswordSchema = z
     repeatPassword: z.string(),
   })
   .refine((values) => values.password === values.repeatPassword, {
-    error: "The passwords don't match.",
+    error: 'The passwords don’t match.',
     path: ['repeatPassword'],
   });
 

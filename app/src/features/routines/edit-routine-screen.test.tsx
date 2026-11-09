@@ -169,7 +169,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   await openEdit();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load this routine.",
+    'Couldn’t load this routine.',
   );
 
   answer();

@@ -158,6 +158,31 @@ test('a link without a token counts as expired and sends nothing', async () => {
   expect(confirmCalls()).toBe(0);
 });
 
+test('signed out, an expired link says to sign in first', async () => {
+  await endSession();
+  mockFetch.mockResolvedValueOnce(
+    Response.json(
+      {
+        type: 'about:blank',
+        title: 'Not Found',
+        status: 404,
+        detail: 'This link has expired. Send a new one.',
+        code: 'user.invalid_email_change_token',
+        traceId: '00-1',
+      },
+      { status: 404 },
+    ),
+  );
+
+  await renderLink();
+
+  expect(
+    await screen.findByText(
+      'This link has expired. Sign in and send a new one from Settings.',
+    ),
+  ).toBeOnTheScreen();
+});
+
 test.each([
   [true, 'Back to Settings', 'Settings page'],
   [false, 'Go to sign in', 'Sign in page'],
@@ -172,7 +197,7 @@ test.each([
     mockFetch.mockResolvedValueOnce(new Response(null, { status: 500 }));
 
     await renderLink();
-    await screen.findByText("Couldn't confirm your email.");
+    await screen.findByText('Couldn’t confirm your email.');
     await fireEvent.press(screen.getByRole('button', { name: button }));
 
     expect(await screen.findByText(destination)).toBeOnTheScreen();
@@ -187,7 +212,7 @@ test('no connection offers Try again, which confirms', async () => {
   await renderLink();
 
   expect(
-    await screen.findByText("Couldn't confirm your email."),
+    await screen.findByText('Couldn’t confirm your email.'),
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 

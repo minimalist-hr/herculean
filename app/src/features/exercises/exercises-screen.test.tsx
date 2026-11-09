@@ -301,7 +301,7 @@ test('if only the groups fail, the list stays and the chips say so', async () =>
 
   expect(await screen.findByText('Bench press')).toBeOnTheScreen();
   expect(
-    await screen.findByText("Couldn't load your groups."),
+    await screen.findByText('Couldn’t load your groups.'),
   ).toBeOnTheScreen();
   expect(screen.getByRole('link', { name: 'Groups' })).toBeOnTheScreen();
 
@@ -311,7 +311,7 @@ test('if only the groups fail, the list stays and the chips say so', async () =>
   expect(
     await screen.findByRole('button', { name: 'Chest' }),
   ).toBeOnTheScreen();
-  expect(screen.queryByText("Couldn't load your groups.")).toBeNull();
+  expect(screen.queryByText('Couldn’t load your groups.')).toBeNull();
 });
 
 test('if only the exercises fail, the chips stay', async () => {
@@ -321,7 +321,7 @@ test('if only the exercises fail, the chips stay', async () => {
   await renderExercises();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load your exercises.",
+    'Couldn’t load your exercises.',
   );
   expect(
     await screen.findByRole('button', { name: 'Chest' }),
@@ -335,7 +335,7 @@ test('a failed load says so, and Try again loads the list', async () => {
   await renderExercises();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load your exercises.",
+    'Couldn’t load your exercises.',
   );
 
   answer(() => [exercise('Bench press', chest)]);

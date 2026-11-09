@@ -18,7 +18,7 @@ internal sealed class AddWorkoutExercisesValidator : AbstractValidator<AddWorkou
                 .Must(ids => ids is { Count: > 0 and <= Routine.MaxExercises })
                 .WithMessage($"'{{PropertyName}}' must have 1 to {Routine.MaxExercises} exercises.")
                 .Must(ids => ids is null || ids.Distinct().Count() == ids.Count)
-                .WithMessage("'{PropertyName}' can't repeat an exercise.");
+                .WithMessage("'{PropertyName}' can’t repeat an exercise.");
         });
         When(request => request.Removed is not null, () =>
         {

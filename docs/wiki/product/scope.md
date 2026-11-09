@@ -136,7 +136,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | POST | `/api/v1/routines/{id}/restore` | Undo on R01 |
 | GET | `/api/v1/week-plan-days` | R01 |
 
-**Left to other features:** Create routine on H05 and W05 opens R30. Those screens are built in [4. Today and other days](#4-today-and-other-days).
+**Left to other features:** New routine on H05 and W05 opens R30. Those screens are built in [4. Today and other days](#4-today-and-other-days).
 
 **Done when**
 - Changing a routine's days on R20 or R30 changes today and later only. Past days keep the plan they had.
@@ -155,7 +155,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 - **Workout tab:** W07 → W01, W04, W05, W06 or W09, or W08 if it fails to load.
 - **Other days:** a day in the week strip → W21 to W25, with "Back to today". Swiping the strip → the same weekday in another week, W28.
 - **Skip:** Skip workout on W01 or W21 → W26 → W06 or W22. Undo skip → W27 → the day's plan. Every state and action: [What you can do on a day](/product/domain#what-you-can-do-on-a-day).
-- **No routines:** Create routine on W05 → R30.
+- **No routines:** New routine on W05 → R30.
 
 **Entities:** Workout (skipped), Workout exercise. Reads the week plan and routines.
 

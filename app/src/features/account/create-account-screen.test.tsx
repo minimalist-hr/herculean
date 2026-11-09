@@ -125,7 +125,7 @@ test('the form checks its fields before sending', async () => {
 
   expect(await screen.findByText('Enter a valid email.')).toBeOnTheScreen();
   expect(screen.getByText('At least 8 characters.')).toBeOnTheScreen();
-  expect(screen.getByText("The passwords don't match.")).toBeOnTheScreen();
+  expect(screen.getByText('The passwords don’t match.')).toBeOnTheScreen();
   expect(mockFetch).not.toHaveBeenCalled();
 });
 
@@ -162,7 +162,7 @@ test('no connection shows a notification until a field changes', async () => {
   await pressCreateAccount();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't create the account. Try again.",
+    'Couldn’t create the account. Try again.',
   );
 
   await fireEvent.changeText(

@@ -108,7 +108,7 @@ export function RoutinesScreen() {
     if (routines.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load your routines."
+          message="Couldn’t load your routines."
           onRetry={() => {
             void routines.refetch();
           }}

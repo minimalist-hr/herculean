@@ -35,7 +35,7 @@ export function ReorderScreen({ id }: { id: string }) {
     if (workout.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this workout."
+          message="Couldn’t load this workout."
           onRetry={() => {
             void workout.refetch();
           }}

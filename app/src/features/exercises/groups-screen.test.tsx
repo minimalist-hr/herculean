@@ -159,7 +159,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   await renderRouter({ _layout: Layout, index: GroupsScreen });
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load your groups.",
+    'Couldn’t load your groups.',
   );
 
   answer();
@@ -279,7 +279,7 @@ test('another failure keeps the page and says so', async () => {
   await pressLast('Save group');
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't save the group. Try again.",
+    'Couldn’t save the group. Try again.',
   );
   expect(screen.getByRole('header', { name: 'New group' })).toBeOnTheScreen();
   expect(screen.getByDisplayValue('Glutes')).toBeOnTheScreen();
@@ -349,7 +349,7 @@ test('a failed move says so and goes back', async () => {
   );
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't save the order. Try again.",
+    'Couldn’t save the order. Try again.',
   );
   await waitFor(() => {
     expect(groupNames()).toEqual(['Move Chest', 'Move Back', 'Move Core']);

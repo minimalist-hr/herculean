@@ -331,7 +331,7 @@ test('no connection shows a notification until a field changes', async () => {
   await save();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't save the exercise. Try again.",
+    'Couldn’t save the exercise. Try again.',
   );
 
   await fireEvent.changeText(screen.getByLabelText('Name'), 'Pull-ups');

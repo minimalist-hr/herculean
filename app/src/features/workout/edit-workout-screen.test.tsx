@@ -214,7 +214,7 @@ test('a failed save says so and stays on the page', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
 
   expect(
-    await screen.findByText("Couldn't save the workout. Try again."),
+    await screen.findByText('Couldn’t save the workout. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByText('Edit workout')).toBeOnTheScreen();
 });
@@ -333,7 +333,7 @@ test('a failed load says so, and Try again loads it', async () => {
   await renderEdit({ loaded: false });
 
   expect(
-    await screen.findByText("Couldn't load this workout."),
+    await screen.findByText('Couldn’t load this workout.'),
   ).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: 'Save workout' })).toBeNull();
 

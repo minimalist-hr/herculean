@@ -89,7 +89,7 @@ export function TodaySection({ today }: { today: string }) {
 
     return day.isLoadingError ? (
       <LoadFailure
-        message="Couldn't load today."
+        message="Couldn’t load today."
         onRetry={() => {
           void day.refetch();
         }}
@@ -139,7 +139,7 @@ export function WeekSection({ now }: { now: Date }) {
     >
       {days.isLoadingError ? (
         <LoadFailure
-          message="Couldn't load this week."
+          message="Couldn’t load the week."
           onRetry={() => {
             void days.refetch();
           }}
@@ -241,7 +241,7 @@ export function MonthSection({ now }: { now: Date }) {
     >
       {current.isLoadingError ? (
         <LoadFailure
-          message="Couldn't load this month."
+          message="Couldn’t load this month."
           onRetry={() => {
             void current.refetch();
           }}
@@ -286,7 +286,7 @@ export function StreakSection() {
     if (streak.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load your streak."
+          message="Couldn’t load your streak."
           onRetry={() => {
             void streak.refetch();
           }}
@@ -355,7 +355,7 @@ export function RecordsSection() {
     if (records.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load your records."
+          message="Couldn’t load your records."
           onRetry={() => {
             void records.refetch();
           }}

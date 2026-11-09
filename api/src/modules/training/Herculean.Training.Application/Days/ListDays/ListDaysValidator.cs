@@ -10,7 +10,7 @@ internal sealed class ListDaysValidator : AbstractValidator<ListDaysRequest>
     {
         RuleFor(request => request.To)
             .GreaterThanOrEqualTo(request => request.From)
-            .WithMessage("To can't be before from.")
+            .WithMessage("To can’t be before from.")
             .LessThan(request => request.From.AddDays(MaxDays))
             .WithMessage($"A request can cover at most {MaxDays} days.");
     }

@@ -95,7 +95,7 @@ export function LogScreen({ id }: { id: string }) {
     if (workout.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this workout."
+          message="Couldn’t load this workout."
           onRetry={() => {
             void workout.refetch();
           }}
@@ -419,7 +419,7 @@ function removeMessageOf(exercise: WorkoutExercise) {
   const including =
     logged === 0
       ? ''
-      : `, including ${logged === 1 ? 'the one' : `the ${String(logged)}`} you've logged,`;
+      : `, including ${logged === 1 ? 'the one' : `the ${String(logged)}`} you’ve logged,`;
 
   return `${sets}${including} will be removed from this workout.`;
 }

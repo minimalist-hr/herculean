@@ -51,7 +51,7 @@ export function EditWorkoutDraft({ id }: { id: string }) {
       <EditWorkoutPage label=" ">
         {workout.isLoadingError ? (
           <LoadFailure
-            message="Couldn't load this workout."
+            message="Couldn’t load this workout."
             onRetry={() => {
               void workout.refetch();
             }}

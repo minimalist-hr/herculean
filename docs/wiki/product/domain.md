@@ -116,7 +116,7 @@ One workout per date, and a workout only happens on today or a past day.
 |---|---|---|
 | Today | Planned | Start workout, Other routine, Skip workout |
 | Today | Rest | Other routine |
-| Today | No routines at all | Create routine |
+| Today | No routines at all | New routine |
 | Today or past | In progress | Resume workout |
 | Today or past | Completed | View workout, Edit, Delete |
 | Today or past | Skipped | Undo skip |

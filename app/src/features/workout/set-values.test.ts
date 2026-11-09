@@ -83,14 +83,13 @@ describe('a value can be saved', () => {
   });
 
   test('says why it can not', () => {
-    expect(problemWith('1001', 'weight', 'metric')).toBe(
-      'Weight is 0 to 1,000 kg.',
-    );
+    expect(problemWith('1001', 'weight', 'metric')).toBe('At most 1,000 kg.');
     expect(problemWith('3000', 'weight', 'imperial')).toBe(
-      'Weight is 0 to 2,204.6 lb.',
+      'At most 2,204.6 lb.',
     );
-    expect(problemWith('0', 'reps', 'metric')).toBe('Reps are 1 to 100.');
-    expect(problemWith('', 'reps', 'metric')).toBe('Reps are 1 to 100.');
+    expect(problemWith('0', 'reps', 'metric')).toBe('At least 1 rep.');
+    expect(problemWith('', 'reps', 'metric')).toBe('At least 1 rep.');
+    expect(problemWith('101', 'reps', 'metric')).toBe('At most 100 reps.');
   });
 });
 

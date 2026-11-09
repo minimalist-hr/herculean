@@ -26,7 +26,7 @@ export function useUndoSkip() {
         ),
       ),
     onError: () => {
-      notifyFailure("Couldn't undo. Try again.");
+      notifyFailure('Couldn’t undo. Try again.');
     },
   });
 }

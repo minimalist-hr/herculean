@@ -12,6 +12,7 @@ import { groupBlocks } from '@/features/routines/group-blocks';
 import { GroupStripe } from '@/features/routines/group-stripe';
 import {
   formatLastTime,
+  noValue,
   shortWeekdayDate,
   weightIn,
   weightUnitOf,
@@ -115,11 +116,11 @@ function SetTable({
             </Text>
             <Text style={[text.meta, styles.lastTime]}>
               {last === undefined
-                ? '—'
+                ? noValue
                 : formatLastTime(last.weightKg, last.reps, units)}
             </Text>
             <Text style={[text.quickPick, styles.weight, { color }]}>
-              {set.weightKg === 0 ? '—' : weightIn(set.weightKg, units)}
+              {set.weightKg === 0 ? noValue : weightIn(set.weightKg, units)}
             </Text>
             <Text style={[text.quickPick, styles.reps, { color }]}>
               {set.reps}
@@ -153,7 +154,7 @@ export function WorkoutDetailsScreen({
     if (summary.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load the summary."
+          message="Couldn’t load the summary."
           onRetry={() => {
             void summary.refetch();
           }}
@@ -173,7 +174,7 @@ export function WorkoutDetailsScreen({
     if (workout.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load the exercises."
+          message="Couldn’t load the exercises."
           onRetry={() => {
             void workout.refetch();
           }}

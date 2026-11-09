@@ -28,7 +28,7 @@ function unchecked(...exercises: [string, number, number][]) {
   };
 }
 
-const later = "They won't be saved unless you go back and log them.";
+const later = 'They won’t be saved unless you go back and check them off.';
 
 test.each([
   ['some of the sets', ['Squat', 2, 3], `Squat, 2 sets. ${later}`],
@@ -43,7 +43,7 @@ test('a single set reads as one', () => {
 
   expect(warning?.title).toBe('1 set not checked off');
   expect(warning?.message).toBe(
-    "Squat, 1 set. It won't be saved unless you go back and log it.",
+    'Squat, 1 set. It won’t be saved unless you go back and check it off.',
   );
 });
 
@@ -72,8 +72,8 @@ test('nothing checked says there is nothing to save', () => {
 
 test.each([
   [0, 'No sets are checked off. You can undo this right after.'],
-  [1, "Its 1 checked set won't be saved. You can undo this right after."],
-  [17, "Its 17 checked sets won't be saved. You can undo this right after."],
+  [1, 'Its 1 checked set won’t be saved. You can undo this right after.'],
+  [17, 'Its 17 checked sets won’t be saved. You can undo this right after.'],
 ])('discarding with %i checked sets', (sets, message) => {
   expect(discardMessage(sets)).toBe(message);
 });

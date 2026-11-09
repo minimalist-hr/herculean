@@ -9,6 +9,8 @@ import {
   formatSet,
   formatVolume,
   formatWeight,
+  minutesText,
+  noValue,
 } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -34,8 +36,12 @@ export function SummaryTiles({
       return undefined;
     }
 
-    return summary.durationSeconds === null
-      ? '—'
+    if (summary.durationSeconds === null) {
+      return noValue;
+    }
+
+    return saved
+      ? minutesText(summary.durationSeconds)
       : formatClock(summary.durationSeconds);
   }
 
@@ -49,7 +55,7 @@ export function SummaryTiles({
             summary &&
             (saved
               ? String(summary.setsChecked)
-              : `${String(summary.setsChecked)} / ${String(summary.setsTotal)}`)
+              : `${String(summary.setsChecked)} of ${String(summary.setsTotal)}`)
           }
         />
       </View>

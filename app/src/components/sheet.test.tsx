@@ -244,11 +244,11 @@ test('a failure shows once, over the sheet', async () => {
   await measure();
 
   await act(() => {
-    notifyFailure("Couldn't save the group. Try again.");
+    notifyFailure('Couldn’t save the group. Try again.');
   });
 
   expect(screen.getByRole('alert')).toHaveTextContent(
-    "Couldn't save the group. Try again.",
+    'Couldn’t save the group. Try again.',
   );
 });
 
@@ -267,7 +267,7 @@ test('a failure goes when its sheet closes', async () => {
   await renderRouter({ _layout: Layout, index: ClosableSheet });
 
   await act(() => {
-    notifyFailure("Couldn't save the group. Try again.");
+    notifyFailure('Couldn’t save the group. Try again.');
   });
   expect(screen.getByRole('alert')).toBeOnTheScreen();
 

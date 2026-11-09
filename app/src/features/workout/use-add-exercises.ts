@@ -34,7 +34,7 @@ export function useAddExercises(workoutId: string) {
       notifyFailure(
         error instanceof ApiProblemError && error.problem.status === 409
           ? error.message
-          : "Couldn't add the exercises. Try again.",
+          : 'Couldn’t add the exercises. Try again.',
       );
     },
   });

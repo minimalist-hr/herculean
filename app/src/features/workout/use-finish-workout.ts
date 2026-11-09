@@ -62,7 +62,7 @@ export function useSaveWorkout(id: string) {
     },
     onError: (error) => {
       notifyFailure(
-        failureMessage(error, "Couldn't save the workout. Try again."),
+        failureMessage(error, 'Couldn’t save the workout. Try again.'),
       );
     },
   });
@@ -94,7 +94,7 @@ function useUndoRemoval(id: string) {
     },
     onSuccess: refresh,
     onError: (error) => {
-      notifyFailure(failureMessage(error, "Couldn't undo. Try again."));
+      notifyFailure(failureMessage(error, 'Couldn’t undo. Try again.'));
     },
   });
 
@@ -119,7 +119,7 @@ async function deleteWorkout(id: string) {
 }
 
 /** Discards a workout, goes back to its day, and offers to undo it. The undo leaves you on the day. */
-export function useDiscardWorkout(id: string) {
+export function useDiscardWorkout(id: string, name: string) {
   const router = useRouter();
   const refresh = useRefreshAfterWorkout();
   const offerUndo = useUndoRemoval(id);
@@ -128,28 +128,28 @@ export function useDiscardWorkout(id: string) {
     mutationFn: () => deleteWorkout(id),
     onSuccess: async () => {
       router.dismiss(pagesBackToDay);
-      offerUndo('Workout discarded.');
+      offerUndo(`${name} discarded.`);
       await refresh();
     },
     onError: () => {
-      notifyFailure("Couldn't discard the workout. Try again.");
+      notifyFailure('Couldn’t discard the workout. Try again.');
     },
   });
 }
 
 /** Deletes a saved workout, so its day shows its plan again, and offers to undo it. */
-export function useDeleteWorkout(id: string) {
+export function useDeleteWorkout(id: string, name: string) {
   const refresh = useRefreshAfterWorkout();
   const offerUndo = useUndoRemoval(id);
 
   return useMutation({
     mutationFn: () => deleteWorkout(id),
     onSuccess: async () => {
-      offerUndo('Workout deleted.');
+      offerUndo(`${name} deleted.`);
       await refresh();
     },
     onError: () => {
-      notifyFailure("Couldn't delete the workout. Try again.");
+      notifyFailure('Couldn’t delete the workout. Try again.');
     },
   });
 }
@@ -184,7 +184,7 @@ export function useEditWorkout(id: string) {
     },
     onError: (error) => {
       notifyFailure(
-        failureMessage(error, "Couldn't save the workout. Try again."),
+        failureMessage(error, 'Couldn’t save the workout. Try again.'),
       );
     },
   });

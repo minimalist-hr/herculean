@@ -32,7 +32,7 @@ export function LaunchScreen() {
               accessibilityRole="alert"
               style={[text.body, { color: colors.muted }]}
             >
-              Couldn&apos;t connect.
+              Couldn’t connect.
             </Text>
             <TextLink
               label="Try again"

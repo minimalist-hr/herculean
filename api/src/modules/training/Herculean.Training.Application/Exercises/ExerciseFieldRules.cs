@@ -25,6 +25,6 @@ internal static class ExerciseFieldRules
         validator.RuleFor(request => request.GroupId).NotEmpty();
         validator.RuleFor(request => request.AlsoWorksGroupIds)
             .Must((request, groupIds) => groupIds is null || (!groupIds.Contains(request.GroupId) && groupIds.Distinct().Count() == groupIds.Count))
-            .WithMessage("'{PropertyName}' can't repeat a group, or include the group the exercise belongs to.");
+            .WithMessage("'{PropertyName}' can’t repeat a group, or include the group the exercise belongs to.");
     }
 }

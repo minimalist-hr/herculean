@@ -65,7 +65,7 @@ export function GroupFormPage({
         setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't save the group. Try again.");
+        notifyFailure('Couldn’t save the group. Try again.');
       }
     }
   });

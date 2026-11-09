@@ -100,7 +100,7 @@ function useAnotherInProgress() {
   return Boolean(useWorkoutInProgress().data);
 }
 
-const startNotYet = "A workout can't be started before its day.";
+const startNotYet = 'A workout can’t be started before its day.';
 
 /** The first reason an action can't be used now, or null when it can. */
 function firstReason(reasons: [boolean, string][]) {
@@ -188,7 +188,7 @@ function OtherRoutineButton({
     [notYet, startNotYet],
     [
       firstDay.data !== undefined && date < firstDay.data,
-      "A workout can't be added before your first day.",
+      'A workout can’t be added before your first day.',
     ],
     [useAnotherInProgress(), resumeFirst],
   ]);
@@ -233,7 +233,7 @@ function SkipButton({
         muted={notYet}
         onPress={() => {
           if (notYet) {
-            notifyFailure("A workout can't be skipped before its day.");
+            notifyFailure('A workout can’t be skipped before its day.');
           } else {
             setConfirming(true);
           }
@@ -267,7 +267,7 @@ function DeleteButton({
   workoutId: string;
   name: string;
 }) {
-  const remove = useDeleteWorkout(workoutId);
+  const remove = useDeleteWorkout(workoutId, name);
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -518,7 +518,7 @@ function CompletedCard({
     if (workout.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this workout."
+          message="Couldn’t load this workout."
           onRetry={() => {
             void workout.refetch();
             void summary.refetch();
@@ -653,7 +653,7 @@ export function NoRoutinesCard() {
         meta="Create a routine and pick the days you train."
       />
       <Button
-        label="Create routine"
+        label="New routine"
         onPress={() => {
           router.push('/routine/new');
         }}

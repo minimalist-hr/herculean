@@ -83,7 +83,7 @@ export function DeleteAccountSheet({ visible, onClose }: AccountSheetProps) {
         });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't delete your account. Try again.");
+        notifyFailure('Couldn’t delete your account. Try again.');
       }
     }
   });

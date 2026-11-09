@@ -45,7 +45,7 @@ export function ChoicePage<Value extends string>(
       <FormPage back="Settings" title={title} subtitle={subtitle}>
         {loadFailed ? (
           <LoadFailure
-            message={`Couldn't load your ${title.toLowerCase()}.`}
+            message={`Couldn’t load your ${title.toLowerCase()}.`}
             onRetry={onRetry}
           />
         ) : (
@@ -81,7 +81,7 @@ function ChoiceForm<Value extends string>({
       notifySuccess(`${title} saved.`);
     } catch {
       guard.block();
-      notifyFailure(`Couldn't save the ${name}. Try again.`);
+      notifyFailure(`Couldn’t save the ${name}. Try again.`);
     }
   }
 

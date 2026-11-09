@@ -68,7 +68,7 @@ export function SignInScreen() {
         setWaitingToDelete({ ...values, message: error.problem.detail });
         setKeepSheetOpen(true);
       } else {
-        notifyFailure("Couldn't sign in. Try again.");
+        notifyFailure('Couldn’t sign in. Try again.');
       }
     }
   });
@@ -225,7 +225,7 @@ export function SignInScreen() {
               dismissNotification();
               keepAccount.mutate(waitingToDelete, {
                 onError: () => {
-                  notifyFailure("Couldn't keep your account. Try again.");
+                  notifyFailure('Couldn’t keep your account. Try again.');
                 },
               });
             }

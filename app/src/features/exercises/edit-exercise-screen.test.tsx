@@ -214,7 +214,7 @@ test('a failed save keeps the page and what was typed', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Save exercise' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't save the exercise. Try again.",
+    'Couldn’t save the exercise. Try again.',
   );
   expect(screen.getByDisplayValue('Squat')).toBeOnTheScreen();
 });
@@ -235,7 +235,7 @@ test('saving sends the new values and E11 shows them', async () => {
   expect(
     await screen.findByRole('header', { name: 'Incline press' }),
   ).toBeOnTheScreen();
-  expect(screen.getByText('Chest · back · biceps')).toBeOnTheScreen();
+  expect(screen.getByText('Chest · Back · Biceps')).toBeOnTheScreen();
   expect(screen.getByRole('alert')).toHaveTextContent('Incline press saved.');
 });
 
@@ -299,7 +299,7 @@ test('Delete exercise asks first, and says what stays', async () => {
   ).toBeOnTheScreen();
   expect(
     screen.getByText(
-      "It's removed from your list. Workouts you already logged keep it.",
+      'It’s removed from your list. Workouts you already logged keep it.',
     ),
   ).toBeOnTheScreen();
   expect(
@@ -349,7 +349,7 @@ test('a failed delete stays on the sheet and says so', async () => {
   await pressLast('Delete exercise');
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't delete the exercise. Try again.",
+    'Couldn’t delete the exercise. Try again.',
   );
   expect(
     screen.getByRole('header', { name: 'Delete Bench press?' }),

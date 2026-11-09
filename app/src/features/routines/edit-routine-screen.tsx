@@ -24,7 +24,7 @@ export function EditRoutineDraft({ id }: { id: string }) {
       <FormPage back="Routine" title={title}>
         {routine.isLoadingError ? (
           <LoadFailure
-            message="Couldn't load this routine."
+            message="Couldn’t load this routine."
             onRetry={() => {
               void routine.refetch();
             }}

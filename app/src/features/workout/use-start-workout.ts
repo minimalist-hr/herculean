@@ -50,7 +50,7 @@ export function useStartWorkout({ replace = false } = {}) {
       notifyFailure(
         error instanceof ApiProblemError && error.problem.status === 409
           ? error.message
-          : "Couldn't start the workout. Try again.",
+          : 'Couldn’t start the workout. Try again.',
       );
     },
   });

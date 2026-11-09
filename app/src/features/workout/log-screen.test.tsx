@@ -324,7 +324,7 @@ test('a failed save says so and leaves the set as it was', async () => {
   );
 
   expect(
-    await screen.findByText("Couldn't save the set. Try again."),
+    await screen.findByText('Couldn’t save the set. Try again.'),
   ).toBeOnTheScreen();
   expect(
     screen.getByRole('checkbox', { name: 'Set 1 done', checked: false }),
@@ -355,7 +355,7 @@ test('a failed Add set says so', async () => {
   await fireEvent.press(await screen.findByRole('button', { name: 'Add set' }));
 
   expect(
-    await screen.findByText("Couldn't add the set. Try again."),
+    await screen.findByText('Couldn’t add the set. Try again.'),
   ).toBeOnTheScreen();
 });
 
@@ -567,7 +567,7 @@ describe('editing a set', () => {
     await pressKeys('Reps, 8', 'Delete');
     await pressKeys('Save set');
 
-    expect(await screen.findByText('Reps are 1 to 100.')).toBeOnTheScreen();
+    expect(await screen.findByText('At least 1 rep.')).toBeOnTheScreen();
     expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'PATCH')).toBe(
       false,
     );
@@ -621,7 +621,7 @@ describe('editing a set', () => {
 
     expect(
       await screen.findByText(
-        "An exercise keeps at least one set. Use the exercise's trash to remove it.",
+        'An exercise keeps at least one set. Use the exercise’s trash to remove it.',
       ),
     ).toBeOnTheScreen();
     expect(
@@ -869,7 +869,7 @@ describe('the rest timer', () => {
     expect(await screen.findByText('1:40')).toBeOnTheScreen();
   });
 
-  test("ignores another workout's timer", async () => {
+  test('ignores another workout’s timer', async () => {
     mockStored.set(
       'restTimer',
       JSON.stringify({ workoutId: 'other', rest: { seconds: 180 } }),
@@ -909,7 +909,7 @@ describe('removing an exercise', () => {
     expect(screen.getByText('Remove Barbell squat?')).toBeOnTheScreen();
     expect(
       screen.getByText(
-        "Its 3 sets, including the one you've logged, will be removed from this workout.",
+        'Its 3 sets, including the one you’ve logged, will be removed from this workout.',
       ),
     ).toBeOnTheScreen();
     expect(
@@ -925,7 +925,7 @@ describe('removing an exercise', () => {
     ],
     [
       [set('s1', 0, 80, true), set('s2', 1, 80, true), set('s3', 2, 80)],
-      "Its 3 sets, including the 2 you've logged, will be removed from this workout.",
+      'Its 3 sets, including the 2 you’ve logged, will be removed from this workout.',
     ],
   ])('says it plainly for %#', async (sets, message) => {
     current = {
@@ -1007,7 +1007,7 @@ describe('removing an exercise', () => {
     );
 
     expect(
-      await screen.findByText("Couldn't remove the exercise. Try again."),
+      await screen.findByText('Couldn’t remove the exercise. Try again.'),
     ).toBeOnTheScreen();
     expect(screen.getByText('Barbell squat', hidden)).toBeOnTheScreen();
   });
@@ -1029,7 +1029,7 @@ describe('removing an exercise', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
 
     expect(
-      await screen.findByText("Couldn't bring the exercise back. Try again."),
+      await screen.findByText('Couldn’t undo. Try again.'),
     ).toBeOnTheScreen();
   });
 
@@ -1155,7 +1155,7 @@ test('with a checked set, the swap icon says why, and stays', async () => {
 
   expect(
     await screen.findByText(
-      "An exercise with checked sets can't be swapped. Uncheck them first.",
+      'An exercise with checked sets can’t be swapped. Uncheck them first.',
     ),
   ).toBeOnTheScreen();
   expect(screen.queryByText('Add screen')).toBeNull();
@@ -1205,7 +1205,7 @@ test('a failed load offers to try again', async () => {
   await renderLog();
 
   expect(
-    await screen.findByText("Couldn't load this workout."),
+    await screen.findByText('Couldn’t load this workout.'),
   ).toBeOnTheScreen();
 
   current = workout;

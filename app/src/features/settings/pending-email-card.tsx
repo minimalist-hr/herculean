@@ -44,7 +44,7 @@ function Card({ newEmail }: { newEmail: string }) {
         restart();
       },
       onError: () => {
-        notifyFailure("Couldn't send the link. Try again.");
+        notifyFailure('Couldn’t send the link. Try again.');
       },
     });
   }

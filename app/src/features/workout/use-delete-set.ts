@@ -77,7 +77,7 @@ export function useDeleteSet(workoutId: string) {
       });
     },
     onError: () => {
-      notifyFailure("Couldn't remove the set. Try again.");
+      notifyFailure('Couldn’t remove the set. Try again.');
     },
   });
 }

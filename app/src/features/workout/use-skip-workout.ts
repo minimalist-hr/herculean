@@ -26,7 +26,7 @@ export function useSkipWorkout() {
         ),
       ),
     onError: () => {
-      notifyFailure("Couldn't skip the workout. Try again.");
+      notifyFailure('Couldn’t skip the workout. Try again.');
     },
   });
 }

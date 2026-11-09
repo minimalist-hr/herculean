@@ -63,6 +63,7 @@ const legs = {
 
 const statuses: Record<string, { status: string; routineName: string | null }> =
   {
+    '2026-11-01': { status: 'completed', routineName: 'Legs' },
     '2026-11-02': { status: 'missed', routineName: 'Legs' },
     '2026-11-03': { status: 'planned', routineName: 'Legs' },
     '2026-11-04': { status: 'rest', routineName: null },
@@ -230,6 +231,7 @@ describe('totals', () => {
         ...summary,
         done: 0,
         minutesTrained: 45,
+        setsPlanned: 0,
         plannedDays: 0,
         consistencyPercent: null,
       },
@@ -240,6 +242,7 @@ describe('totals', () => {
     expect(screen.getByText('45 min')).toBeOnTheScreen();
     expect(screen.getByText('No workouts yet')).toBeOnTheScreen();
     expect(screen.getByText('No planned workouts yet')).toBeOnTheScreen();
+    expect(screen.getByText('No planned sets yet')).toBeOnTheScreen();
   });
 
   test('while loading, the labels and dates still show', async () => {
@@ -273,11 +276,11 @@ describe('totals', () => {
     await renderOnlyMonth();
 
     expect(
-      (await screen.findAllByText("Couldn't load the calendar.")).length,
+      (await screen.findAllByText('Couldn’t load the calendar.')).length,
     ).toBeGreaterThan(0);
     expect(await screen.findByText('Of 228 planned')).toBeOnTheScreen();
     expect(screen.getByText('Mon')).toBeOnTheScreen();
-    expect(screen.queryByText("Couldn't load the totals.")).toBeNull();
+    expect(screen.queryByText('Couldn’t load the totals.')).toBeNull();
 
     answer();
     await tryAgain();
@@ -285,7 +288,7 @@ describe('totals', () => {
     expect(
       await screen.findByRole('button', { name: '2 November, Legs, missed' }),
     ).toBeOnTheScreen();
-    expect(screen.queryByText("Couldn't load the calendar.")).toBeNull();
+    expect(screen.queryByText('Couldn’t load the calendar.')).toBeNull();
   });
 
   test('if the totals fail, the calendar stays, the tiles show a dash, and it can try again', async () => {
@@ -293,7 +296,7 @@ describe('totals', () => {
     await renderOnlyMonth();
 
     expect(
-      await screen.findByText("Couldn't load the totals."),
+      await screen.findByText('Couldn’t load the totals.'),
     ).toBeOnTheScreen();
     expect(screen.getAllByText('–')).toHaveLength(3);
     expect(screen.getByText('Done')).toBeOnTheScreen();
@@ -306,7 +309,7 @@ describe('totals', () => {
     await tryAgain();
 
     expect(await screen.findByText('Of 228 planned')).toBeOnTheScreen();
-    expect(screen.queryByText("Couldn't load the totals.")).toBeNull();
+    expect(screen.queryByText('Couldn’t load the totals.')).toBeNull();
   });
 
   test('if both fail, each says so in its place', async () => {
@@ -314,16 +317,25 @@ describe('totals', () => {
     await renderOnlyMonth();
 
     expect(
-      await screen.findByText("Couldn't load the totals."),
+      await screen.findByText('Couldn’t load the totals.'),
     ).toBeOnTheScreen();
     expect(
-      (await screen.findAllByText("Couldn't load the calendar.")).length,
+      (await screen.findAllByText('Couldn’t load the calendar.')).length,
     ).toBeGreaterThan(0);
     expect(screen.getByText('Done')).toBeOnTheScreen();
   });
 });
 
 describe('calendar', () => {
+  test('a day that was done says so to screen readers', async () => {
+    answer();
+    await renderMonth();
+
+    expect(
+      await screen.findByRole('button', { name: '1 November, Legs, done' }),
+    ).toBeOnTheScreen();
+  });
+
   test.each([
     ['2026-11-02', darkColors.danger],
     ['2026-11-03', darkColors.onPrimary],
@@ -468,7 +480,7 @@ describe('changing month', () => {
     await fireEvent.press(dayButton('1 November'));
 
     expect(
-      await screen.findByText('Your first day is Mon, 2nd Nov.'),
+      await screen.findByText('Your history starts on Mon, 2nd Nov.'),
     ).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Open day' })).toBeNull();
   });
@@ -491,7 +503,7 @@ describe('changing month', () => {
     await fireEvent.press(dayButton('7 December'));
 
     expect(
-      await screen.findByText('Days reach 4 weeks ahead.'),
+      await screen.findByText('You can look 4 weeks ahead.'),
     ).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Open day' })).toBeNull();
   });
@@ -578,7 +590,7 @@ describe('day sheet', () => {
 
     await fireEvent.press(dayButton('4 November, rest day'));
     expect(
-      await screen.findByText("Couldn't load this day."),
+      await screen.findByText('Couldn’t load this day.'),
     ).toBeOnTheScreen();
 
     answer();

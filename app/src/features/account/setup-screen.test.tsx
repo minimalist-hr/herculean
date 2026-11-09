@@ -96,9 +96,7 @@ test('finishing setup saves the name, units and rest time, then opens Home', asy
   await renderSetup();
 
   await fireEvent.changeText(screen.getByLabelText('Name'), ' Filip ');
-  await fireEvent.press(
-    screen.getByRole('radio', { name: 'Imperial, lb, in' }),
-  );
+  await fireEvent.press(screen.getByRole('radio', { name: 'Imperial, lb' }));
   await fireEvent.press(
     screen.getByRole('button', { name: '15 seconds more' }),
   );
@@ -135,7 +133,7 @@ test('the first screen after setup already knows the units', async () => {
 test('setup starts at metric and 3:00, with the 3:00 pick filled', async () => {
   await renderSetup();
 
-  expect(screen.getByRole('radio', { name: 'Metric, kg, cm' })).toBeChecked();
+  expect(screen.getByRole('radio', { name: 'Metric, kg' })).toBeChecked();
   expect(
     screen.getByRole('adjustable', { name: 'Default rest time' }),
   ).toHaveAccessibilityValue({ text: '3 minutes' });
@@ -221,7 +219,7 @@ test('no connection shows a notification', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Finish setup' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't finish setup. Try again.",
+    'Couldn’t finish setup. Try again.',
   );
 });
 
@@ -247,6 +245,6 @@ test('a failed rest time save shows a notification, so both are sent again', asy
   await fireEvent.press(screen.getByRole('button', { name: 'Finish setup' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't finish setup. Try again.",
+    'Couldn’t finish setup. Try again.',
   );
 });

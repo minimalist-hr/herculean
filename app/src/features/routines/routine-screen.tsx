@@ -35,7 +35,7 @@ export function RoutineScreen({ id }: { id: string }) {
     if (routine.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this routine."
+          message="Couldn’t load this routine."
           onRetry={() => {
             void routine.refetch();
           }}
@@ -220,7 +220,7 @@ function deleteMessageOf(routine: Routine) {
   const logged = 'Workouts you already logged stay.';
 
   if (days.length === 0) {
-    return `It isn't in your week plan. ${logged}`;
+    return `It isn’t in your week plan. ${logged}`;
   }
 
   return days.length === 1

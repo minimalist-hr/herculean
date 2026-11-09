@@ -313,7 +313,7 @@ export function OpenExercise({
             onPress={() => {
               if (checkedSets(exercise) > 0) {
                 notifyFailure(
-                  "An exercise with checked sets can't be swapped. Uncheck them first.",
+                  'An exercise with checked sets can’t be swapped. Uncheck them first.',
                 );
                 return;
               }

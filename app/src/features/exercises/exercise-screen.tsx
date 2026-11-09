@@ -22,6 +22,7 @@ import {
   formatShortDate,
   formatSince,
   joined,
+  noValue,
 } from '@/formats/formats';
 import { SectionTitle } from '@/components/section-title';
 import { StatTile } from '@/components/stat-tile';
@@ -83,7 +84,7 @@ export function ExerciseScreen({
     if (exercise.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this exercise."
+          message="Couldn’t load this exercise."
           onRetry={() => {
             void exercise.refetch();
           }}
@@ -246,7 +247,7 @@ function Progress({ exercise, units }: { exercise: Exercise; units: Units }) {
         label="Best set"
         value={
           bestSet === null
-            ? '—'
+            ? noValue
             : formatSet(bestSet.weightKg, bestSet.reps, units)
         }
         detail={
@@ -265,20 +266,20 @@ function Progress({ exercise, units }: { exercise: Exercise; units: Units }) {
 /** Names up to three routines. More would make the message too long to read. */
 function inRoutinesMessage(routines: Exercise['routines']) {
   if (routines.length > 3) {
-    return `It's in ${String(routines.length)} routines. Remove it from them first.`;
+    return `It’s in ${String(routines.length)} routines. Remove it from them first.`;
   }
 
   const names = joined(routines.map((routine) => routine.name));
 
   return routines.length === 1
-    ? `It's in ${names}. Remove it from that routine first.`
-    : `It's in ${names}. Remove it from those routines first.`;
+    ? `It’s in ${names}. Remove it from that routine first.`
+    : `It’s in ${names}. Remove it from those routines first.`;
 }
 
 function subtitleOf({ group, alsoWorksGroups }: Exercise) {
   return [
     group.name,
-    ...alsoWorksGroups.map((alsoWorks) => alsoWorks.name.toLowerCase()),
+    ...alsoWorksGroups.map((alsoWorks) => alsoWorks.name),
   ].join(' · ');
 }
 

@@ -4,7 +4,7 @@ import type { components } from '@/api/schema';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateText } from '@/formats/dates';
-import { dayNameOf } from '@/formats/formats';
+import { dayNameOf, dayStatusWord } from '@/formats/formats';
 import { DayMarker } from './day-marker';
 import { Tappable } from '@/components/tappable';
 
@@ -15,8 +15,9 @@ function dayLabel(date: Date, day: DaySummary | undefined, isToday: boolean) {
   if (day !== undefined) {
     parts.push(day.routineName ?? 'rest day');
   }
-  if (day?.status === 'missed' || day?.status === 'skipped') {
-    parts.push(day.status);
+  const word = day && dayStatusWord(day.status);
+  if (word) {
+    parts.push(word);
   }
   if (isToday) {
     parts.push('today');

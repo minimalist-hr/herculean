@@ -55,7 +55,7 @@ export function SetupScreen() {
         setError('name', { message: formErrors.fields.name });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't finish setup. Try again.");
+        notifyFailure('Couldn’t finish setup. Try again.');
       }
     }
   });
@@ -120,7 +120,7 @@ export function SetupScreen() {
                   >
                     <RadioCard
                       label="Metric"
-                      detail="kg, cm"
+                      detail="kg"
                       selected={field.value === 'metric'}
                       onSelect={() => {
                         change(field.onChange)('metric');
@@ -128,7 +128,7 @@ export function SetupScreen() {
                     />
                     <RadioCard
                       label="Imperial"
-                      detail="lb, in"
+                      detail="lb"
                       selected={field.value === 'imperial'}
                       onSelect={() => {
                         change(field.onChange)('imperial');
@@ -165,7 +165,9 @@ export function SetupScreen() {
                     format={formatClock}
                     formatSpoken={formatSpokenDuration}
                   />
-                  <Text style={text.meta}>Starts after every checked set.</Text>
+                  <Text style={text.meta}>
+                    Ready to start after every checked set.
+                  </Text>
                 </View>
               )}
             />

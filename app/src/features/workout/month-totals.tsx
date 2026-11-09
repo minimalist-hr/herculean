@@ -165,7 +165,12 @@ export function MonthTotals({
         <TotalTile
           label="Sets"
           value={summary && String(summary.setsDone)}
-          hint={summary && `Of ${String(summary.setsPlanned)} planned`}
+          hint={
+            summary &&
+            (summary.setsPlanned === 0
+              ? 'No planned sets yet'
+              : `Of ${String(summary.setsPlanned)} planned`)
+          }
         />
       </View>
       <View style={[styles.row, { gap: space.sm }]}>

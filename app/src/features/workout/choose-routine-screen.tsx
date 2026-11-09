@@ -82,7 +82,7 @@ function ConfirmSheet({
     if (details.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load this routine."
+          message="Couldn’t load this routine."
           onRetry={() => {
             void details.refetch();
           }}
@@ -172,7 +172,7 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
     if (routines.isLoadingError) {
       return (
         <LoadFailure
-          message="Couldn't load your routines."
+          message="Couldn’t load your routines."
           onRetry={() => {
             void routines.refetch();
           }}

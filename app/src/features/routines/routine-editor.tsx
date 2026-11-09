@@ -120,7 +120,7 @@ export function RoutineEditor({
           setError('name', { message: formErrors.fields.name });
         }
         if (formErrors.general) {
-          notifyFailure("Couldn't save the routine. Try again.");
+          notifyFailure('Couldn’t save the routine. Try again.');
         }
       }
     },

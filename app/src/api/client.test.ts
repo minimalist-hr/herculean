@@ -123,7 +123,7 @@ test('an expired access token is refreshed once and the request sent again', asy
   await expect(readRefreshToken()).resolves.toBe('refresh 2');
 });
 
-test("the refresh and retry work with Expo's responses too", async () => {
+test('the refresh and retry work with Expo’s responses too', async () => {
   answer = async (request) =>
     asExpoResponse(await acceptOnlyTheNewToken(request));
 

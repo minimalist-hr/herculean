@@ -22,7 +22,7 @@ function undoFailureOf(error: unknown) {
     (error.problem.code === 'routine.name_taken' ||
       error.problem.code === 'routine.exercise_deleted')
     ? error.problem.detail
-    : "Couldn't undo. Try again.";
+    : 'Couldn’t undo. Try again.';
 }
 
 /** Deletes a routine and says so, with an Undo that restores it and its days. It runs on after the screen closes. */
@@ -72,7 +72,7 @@ export function useDeleteRoutine() {
       });
     },
     onError: () => {
-      notifyFailure("Couldn't delete the routine. Try again.");
+      notifyFailure('Couldn’t delete the routine. Try again.');
     },
   });
 }

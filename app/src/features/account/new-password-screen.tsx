@@ -72,7 +72,7 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
         setError('password', { message: formErrors.fields.password });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't save the password. Try again.");
+        notifyFailure('Couldn’t save the password. Try again.');
       }
     }
   });

@@ -175,7 +175,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   await open();
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load this routine.",
+    'Couldn’t load this routine.',
   );
 
   answer(routine());
@@ -204,7 +204,7 @@ test.each([
     ['monday', 'thursday'],
     'Monday and Thursday become rest days in the week plan. Workouts you already logged stay.',
   ],
-  [[], "It isn't in your week plan. Workouts you already logged stay."],
+  [[], 'It isn’t in your week plan. Workouts you already logged stay.'],
 ])(
   'the delete sheet for days %j says what happens',
   async (weekdays, message) => {
@@ -251,13 +251,13 @@ test('a failed delete stays on the routine and says so', async () => {
   await confirmDelete();
 
   expect(
-    await screen.findByText("Couldn't delete the routine. Try again."),
+    await screen.findByText('Couldn’t delete the routine. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByRole('header', { name: 'Legs' })).toBeOnTheScreen();
 });
 
 test.each([
-  ['routine.exercise_deleted', "One of this routine's exercises was deleted."],
+  ['routine.exercise_deleted', 'One of this routine’s exercises was deleted.'],
   ['routine.name_taken', 'You already have a routine with this name.'],
 ])('an Undo stopped by %s shows the API message', async (code, detail) => {
   answer(routine(), { restore: () => conflict(code, detail) });
@@ -281,6 +281,6 @@ test('any other failed Undo says to try again', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
 
   expect(
-    await screen.findByText("Couldn't undo. Try again."),
+    await screen.findByText('Couldn’t undo. Try again.'),
   ).toBeOnTheScreen();
 });

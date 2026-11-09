@@ -215,7 +215,7 @@ test('a failed read says so, and Try again reads it again', async () => {
   await fireEvent.press(screen.getByRole('button', { name: /^Core/ }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't load this group.",
+    'Couldn’t load this group.',
   );
 
   mockFetch.mockImplementation(answers);
@@ -267,7 +267,7 @@ test('the trash on a group in use says why, and deletes nothing', async () => {
   );
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Move or delete this group's exercises first.",
+    'Move or delete this group’s exercises first.',
   );
   expect(screen.queryByRole('header', { name: 'Delete Chest?' })).toBeNull();
   expect(sent('DELETE')).toHaveLength(0);
@@ -317,7 +317,7 @@ test('a failed delete stays on the group and says so', async () => {
   await pressLast('Delete group');
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    "Couldn't delete the group. Try again.",
+    'Couldn’t delete the group. Try again.',
   );
   expect(screen.getByRole('header', { name: 'Core' })).toBeOnTheScreen();
 });

@@ -46,10 +46,10 @@ test('shows a success and a failure, the newest replacing the last', async () =>
   });
 
   await act(() => {
-    notifyFailure("Couldn't save the exercise. Try again.");
+    notifyFailure('Couldn’t save the exercise. Try again.');
   });
   expect(screen.getByRole('alert')).toHaveTextContent(
-    "Couldn't save the exercise. Try again.",
+    'Couldn’t save the exercise. Try again.',
   );
 });
 

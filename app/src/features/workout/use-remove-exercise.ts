@@ -59,7 +59,7 @@ export function useRemoveExercise(workoutId: string) {
       await refreshDays();
     },
     onError: () => {
-      notifyFailure("Couldn't bring the exercise back. Try again.");
+      notifyFailure('Couldn’t undo. Try again.');
     },
   });
 
@@ -99,7 +99,7 @@ export function useRemoveExercise(workoutId: string) {
       await refreshDays();
     },
     onError: () => {
-      notifyFailure("Couldn't remove the exercise. Try again.");
+      notifyFailure('Couldn’t remove the exercise. Try again.');
     },
   });
 }

@@ -35,7 +35,7 @@ export function ExerciseSessions({
     if (sessions.data === undefined) {
       return sessions.isLoadingError ? (
         <LoadFailure
-          message="Couldn't load the sessions."
+          message="Couldn’t load the sessions."
           onRetry={() => {
             void sessions.refetch();
           }}
@@ -79,7 +79,7 @@ export function ExerciseSessions({
         )}
         {sessions.isFetchNextPageError && (
           <LoadFailure
-            message="Couldn't load more sessions."
+            message="Couldn’t load more sessions."
             onRetry={() => {
               void sessions.fetchNextPage();
             }}

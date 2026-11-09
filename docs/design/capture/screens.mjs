@@ -116,7 +116,7 @@ const discardFromToday = async (on) => {
   await on.waitFor('Discard this workout?');
   await on.sleep(400);
   await on.tap('Discard workout');
-  await on.waitFor('Workout discarded.');
+  await on.waitFor('Chest and arms 2 discarded.');
 };
 const openLog = async (on) => {
   await on.go(logPath);
@@ -262,6 +262,8 @@ const finishingSetupAnswers = () => {
     'GET /api/v1/users/me': () => (finished ? undefined : unfinishedUser['GET /api/v1/users/me']),
     'PATCH /api/v1/users/me': () => {
       finished = true;
+
+      return { status: 200, body: { ...unfinishedUser['GET /api/v1/users/me'].body, name: 'Filip Mučnjak', theme: 'matchPhone', color: 'nitro' } };
     },
   };
 };
@@ -378,7 +380,7 @@ const saveName = async (on) => {
   await on.tap(`Name, ${settingsName}`);
   await on.waitFor('Save name');
   await on.sleep(400);
-  await on.type('Your name', 'Filip');
+  await on.type('Name', 'Filip');
   await on.tap('Save name');
 };
 const saveEmail = async (on) => {
@@ -386,7 +388,7 @@ const saveEmail = async (on) => {
   await on.tap('Email, filip@example.com');
   await on.waitFor('Save email');
   await on.sleep(400);
-  await on.type('Email address', 'new@example.com');
+  await on.type('Email', 'new@example.com');
   await on.type('Current password', 'password');
   await on.tap('Save email');
 };
@@ -466,7 +468,7 @@ export const screens = [
   { id: 'A58', file: 'A58-Account-Keep-Account-Keeping', title: 'Account › Sign in · keep account · keeping', row: 'A1 Sign in', signedIn: false, full: false, answers: { ...deletionScheduled, 'POST /api/v1/sessions/restore': 'hold' }, steps: keepAccount },
   { id: 'A59', file: 'A59-Account-Keep-Account-Failed', title: "Account › Sign in · keep account · couldn't keep", row: 'A1 Sign in', signedIn: false, full: false, answers: { ...deletionScheduled, 'POST /api/v1/sessions/restore': 'fail' }, steps: async (on) => {
     await keepAccount(on);
-    await on.waitFor("Couldn't keep your account. Try again.");
+    await on.waitFor("Couldn’t keep your account. Try again.");
   } },
   { id: 'A10', file: 'A10-Account-Reset-Password', title: 'Account › Reset password', row: 'A2 Reset password', signedIn: false, steps: (on) => on.tap('Forgot password?') },
   { id: 'A15', file: 'A15-Account-Reset-Password-Link-Expired', title: 'Account › Reset password · link expired', row: 'A2 Reset password', signedIn: false, steps: (on) => on.go('/forgot-password?linkExpired=true') },
@@ -522,12 +524,12 @@ export const screens = [
     await on.type('Email', 'filip@example.com');
     await on.type('Password', 'password');
     await on.tap('Sign in');
-    await on.waitFor("Couldn't sign in. Try again.");
+    await on.waitFor("Couldn’t sign in. Try again.");
   } },
   { id: 'A17', file: 'A17-Account-Reset-Password-Sending', title: 'Account › Reset password · sending', row: 'A2 Reset password', signedIn: false, answers: { 'POST /api/v1/password-resets': 'hold' }, steps: fillResetPassword },
   { id: 'A18', file: 'A18-Account-Reset-Password-Failed', title: "Account › Reset password · couldn't send", row: 'A2 Reset password', signedIn: false, full: false, answers: { 'POST /api/v1/password-resets': 'fail' }, steps: async (on) => {
     await fillResetPassword(on);
-    await on.waitFor("Couldn't send the link. Try again.");
+    await on.waitFor("Couldn’t send the link. Try again.");
   } },
   { id: 'A19', file: 'A19-Account-Reset-Link-Send-Again', title: 'Account › Reset password · link can be sent again', row: 'A2 Reset password', signedIn: false, steps: async (on) => {
     await on.go(linkSentPath);
@@ -549,12 +551,12 @@ export const screens = [
     await on.go(linkSentPath);
     await on.sleep(sendAgainWait);
     await on.tap('Send link again');
-    await on.waitFor("Couldn't send the link. Try again.");
+    await on.waitFor("Couldn’t send the link. Try again.");
   } },
   { id: 'A53', file: 'A53-Account-New-Password-Saving', title: 'Account › New password · saving', row: 'A2 Reset password', signedIn: false, answers: { 'POST /api/v1/password-resets/complete': 'hold' }, steps: fillNewPassword },
   { id: 'A54', file: 'A54-Account-New-Password-Failed', title: "Account › New password · couldn't save", row: 'A2 Reset password', signedIn: false, full: false, answers: { 'POST /api/v1/password-resets/complete': 'fail' }, steps: async (on) => {
     await fillNewPassword(on);
-    await on.waitFor("Couldn't save the password. Try again.");
+    await on.waitFor("Couldn’t save the password. Try again.");
   } },
   { id: 'A55', file: 'A55-Account-New-Password-Saved', title: 'Account › Sign in · password changed', row: 'A2 Reset password', signedIn: false, full: false, answers: { 'POST /api/v1/password-resets/complete': { status: 204 } }, steps: async (on) => {
     await fillNewPassword(on);
@@ -576,7 +578,7 @@ export const screens = [
   { id: 'A23', file: 'A23-Account-Create-Creating', title: 'Account › Create account · creating', row: 'A3 Create account', signedIn: false, answers: { 'POST /api/v1/users': 'hold' }, steps: fillCreateAccount },
   { id: 'A24', file: 'A24-Account-Create-Failed', title: "Account › Create account · couldn't create", row: 'A3 Create account', signedIn: false, full: false, answers: { 'POST /api/v1/users': 'fail' }, steps: async (on) => {
     await fillCreateAccount(on);
-    await on.waitFor("Couldn't create the account. Try again.");
+    await on.waitFor("Couldn’t create the account. Try again.");
   } },
   { id: 'A25', file: 'A25-Account-Create-Discard', title: 'Account › Create account › Discard changes · confirm', row: 'A3 Create account', signedIn: false, full: false, steps: async (on) => {
     await on.tap('Create account');
@@ -589,7 +591,7 @@ export const screens = [
   { id: 'A32', file: 'A32-Account-Setup-Finishing', title: 'Account › Setup · finishing', row: 'A3 Create account', signedIn: false, answers: { ...unfinishedUser, 'PATCH /api/v1/users/me': 'hold' }, steps: goToSetup },
   { id: 'A33', file: 'A33-Account-Setup-Failed', title: "Account › Setup · couldn't finish", row: 'A3 Create account', signedIn: false, full: false, answers: { ...unfinishedUser, 'PATCH /api/v1/users/me': 'fail' }, steps: async (on) => {
     await goToSetup(on);
-    await on.waitFor("Couldn't finish setup. Try again.");
+    await on.waitFor("Couldn’t finish setup. Try again.");
   } },
   { id: 'H07', file: 'H07-Home-Loading', title: 'Home · loading', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold', 'GET /api/v1/month-summaries/2026-10': 'hold', 'GET /api/v1/month-summaries/2026-09': 'hold', 'GET /api/v1/streak': 'hold', 'GET /api/v1/records/recent': 'hold' }, steps: async (on) => {
     await on.go('/');
@@ -612,13 +614,13 @@ export const screens = [
   } },
   { id: 'H45', file: 'H45-Home-Every-Section-Failed', title: 'Home · every section failed', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail', 'GET /api/v1/month-summaries/2026-10': 'fail', 'GET /api/v1/streak': 'fail', 'GET /api/v1/records/recent': 'fail' }, steps: async (on) => {
     await on.go('/');
-    await on.waitFor("Couldn't load today.");
+    await on.waitFor("Couldn’t load today.");
     await on.sleep(800);
   } },
   { id: 'H46', file: 'H46-Home-Ready-Starting', title: 'Home · are you ready · starting', row: 'H1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: startFromReady },
   { id: 'H47', file: 'H47-Home-Ready-Failed', title: "Home · are you ready · couldn't start", row: 'H1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
     await startFromReady(on);
-    await on.waitFor("Couldn't start the workout. Try again.");
+    await on.waitFor("Couldn’t start the workout. Try again.");
   } },
   { id: 'H48', file: 'H48-Home-Another-In-Progress', title: 'Home · another workout in progress, Start says why', row: 'H1 Today states', today: friday, full: false, answers: { ...anotherInProgressAnswer }, steps: async (on) => {
     await askReady(on);
@@ -651,7 +653,7 @@ export const screens = [
   } },
   { id: 'H08', file: 'H08-Home-Section-Failed', title: 'Home · a section failed', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/streak': 'fail' }, steps: async (on) => {
     await on.go('/');
-    await on.waitFor("Couldn't load your streak.");
+    await on.waitFor("Couldn’t load your streak.");
     await on.sleep(600);
   } },
   { id: 'H09', file: 'H09-Home-Setup-Complete', title: 'Home · setup complete', row: 'H1 Today states', signedIn: false, today: friday, full: false, answers: finishingSetupAnswers(), steps: async (on) => {
@@ -700,7 +702,7 @@ export const screens = [
     await on.tap(`Name, ${settingsName}`);
     await on.waitFor('Save name');
     await on.sleep(400);
-    await on.type('Your name', '');
+    await on.type('Name', '');
     await on.tap('Save name');
     await on.waitFor('Enter your name.');
     await on.sleep(400);
@@ -732,7 +734,7 @@ export const screens = [
     await on.type('New password', 'short');
     await on.type('Confirm new password', 'other');
     await on.tap('Save password');
-    await on.waitFor("The passwords don't match.");
+    await on.waitFor("The passwords don’t match.");
     await on.sleep(400);
   } },
   { id: 'H11', file: 'H11-Settings-Photo', title: 'Settings › Profile photo · sheet', row: 'H2 Settings', full: false, answers: withPhoto, steps: async (on) => {
@@ -790,7 +792,7 @@ export const screens = [
     await on.sleep(600);
     await on.type('Current password', 'password');
     await on.tap('Delete account');
-    await on.waitFor("Couldn't delete your account. Try again.");
+    await on.waitFor("Couldn’t delete your account. Try again.");
     await on.sleep(400);
   } },
   { id: 'H36', file: 'H36-Settings-Sign-Out', title: 'Settings › Sign out · confirm', row: 'H2 Settings', full: false, steps: async (on) => {
@@ -811,7 +813,7 @@ export const screens = [
     await on.tap('Email, filip@example.com');
     await on.waitFor('Save email');
     await on.sleep(400);
-    await on.type('Email address', 'taken@example.com');
+    await on.type('Email', 'taken@example.com');
     await on.type('Current password', 'password');
     await on.tap('Save email');
     await on.waitFor('An account with this email already exists.');
@@ -845,7 +847,7 @@ export const screens = [
   } },
   { id: 'H49', file: 'H49-Settings-Load-Failure', title: "Settings · couldn't load", row: 'H2 Settings', full: false, answers: userThen('fail'), steps: async (on) => {
     await on.go('/settings');
-    await on.waitFor("Couldn't load your settings.");
+    await on.waitFor("Couldn’t load your settings.");
   } },
   { id: 'H50', file: 'H50-Settings-Name-Loading', title: 'Settings › Name · loading', row: 'H2 Settings', full: false, answers: userThen('hold'), steps: async (on) => {
     await on.go('/settings/name');
@@ -854,12 +856,12 @@ export const screens = [
   } },
   { id: 'H51', file: 'H51-Settings-Name-Load-Failure', title: "Settings › Name · couldn't load", row: 'H2 Settings', full: false, answers: userThen('fail'), steps: async (on) => {
     await on.go('/settings/name');
-    await on.waitFor("Couldn't load your name.");
+    await on.waitFor("Couldn’t load your name.");
   } },
   { id: 'H52', file: 'H52-Settings-Name-Saving', title: 'Settings › Name · saving', row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/users/me': 'hold' }, steps: saveName },
   { id: 'H53', file: 'H53-Settings-Name-Failed', title: "Settings › Name · couldn't save", row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/users/me': 'fail' }, steps: async (on) => {
     await saveName(on);
-    await on.waitFor("Couldn't save the name. Try again.");
+    await on.waitFor("Couldn’t save the name. Try again.");
   } },
   { id: 'H54', file: 'H54-Settings-Email-Loading', title: 'Settings › Email · loading', row: 'H2 Settings', full: false, answers: userThen('hold'), steps: async (on) => {
     await on.go('/settings/email');
@@ -868,12 +870,12 @@ export const screens = [
   } },
   { id: 'H55', file: 'H55-Settings-Email-Load-Failure', title: "Settings › Email · couldn't load", row: 'H2 Settings', full: false, answers: userThen('fail'), steps: async (on) => {
     await on.go('/settings/email');
-    await on.waitFor("Couldn't load your email.");
+    await on.waitFor("Couldn’t load your email.");
   } },
   { id: 'H56', file: 'H56-Settings-Email-Saving', title: 'Settings › Email · saving', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes': 'hold' }, steps: saveEmail },
   { id: 'H57', file: 'H57-Settings-Email-Failed', title: "Settings › Email · couldn't send", row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes': 'fail' }, steps: async (on) => {
     await saveEmail(on);
-    await on.waitFor("Couldn't send the link. Try again.");
+    await on.waitFor("Couldn’t send the link. Try again.");
   } },
   { id: 'H58', file: 'H58-Settings-Email-Wait', title: 'Settings › Email · Send again says why', row: 'H2 Settings', full: false, answers: { ...pendingEmail, 'POST /api/v1/email-changes/resend': { status: 204 } }, steps: async (on) => {
     await openPendingEmail(on);
@@ -889,12 +891,12 @@ export const screens = [
   } },
   { id: 'H61', file: 'H61-Settings-Email-Send-Again-Failed', title: "Settings › Email · couldn't send again", row: 'H2 Settings', full: false, answers: { ...pendingEmail, 'POST /api/v1/email-changes/resend': 'fail' }, steps: async (on) => {
     await sendPendingAgain(on);
-    await on.waitFor("Couldn't send the link. Try again.");
+    await on.waitFor("Couldn’t send the link. Try again.");
   } },
   { id: 'H62', file: 'H62-Settings-Password-Saving', title: 'Settings › Change password · saving', row: 'H2 Settings', full: false, answers: { ...refreshed, 'PUT /api/v1/users/me/password': 'hold' }, steps: savePassword },
   { id: 'H63', file: 'H63-Settings-Password-Failed', title: "Settings › Change password · couldn't save", row: 'H2 Settings', full: false, answers: { ...refreshed, 'PUT /api/v1/users/me/password': 'fail' }, steps: async (on) => {
     await savePassword(on);
-    await on.waitFor("Couldn't save the password. Try again.");
+    await on.waitFor("Couldn’t save the password. Try again.");
   } },
   { id: 'H64', file: 'H64-Settings-Password-Saved', title: 'Settings › Change password · saved', row: 'H2 Settings', full: false, answers: { ...refreshed, 'PUT /api/v1/users/me/password': { status: 204 } }, steps: async (on) => {
     await savePassword(on);
@@ -902,17 +904,17 @@ export const screens = [
   } },
   { id: 'H65', file: 'H65-Settings-Rest-Time-Loading', title: 'Settings › Default rest time · loading', row: 'H2 Settings', full: false, answers: { 'GET /api/v1/workout-settings': 'hold' }, steps: async (on) => {
     await on.go('/settings/rest-time');
-    await on.waitFor('Starts after every checked set. You can still change it during rest.');
+    await on.waitFor('Ready to start after every checked set. You can still change it during rest.');
     await on.sleep(400);
   } },
   { id: 'H66', file: 'H66-Settings-Rest-Time-Load-Failure', title: "Settings › Default rest time · couldn't load", row: 'H2 Settings', full: false, answers: { 'GET /api/v1/workout-settings': 'fail' }, steps: async (on) => {
     await on.go('/settings/rest-time');
-    await on.waitFor("Couldn't load your rest time.");
+    await on.waitFor("Couldn’t load your rest time.");
   } },
   { id: 'H67', file: 'H67-Settings-Rest-Time-Saving', title: 'Settings › Default rest time · saving', row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/workout-settings': 'hold' }, steps: saveRest },
   { id: 'H68', file: 'H68-Settings-Rest-Time-Failed', title: "Settings › Default rest time · couldn't save", row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/workout-settings': 'fail' }, steps: async (on) => {
     await saveRest(on);
-    await on.waitFor("Couldn't save the rest time. Try again.");
+    await on.waitFor("Couldn’t save the rest time. Try again.");
   } },
   { id: 'H69', file: 'H69-Settings-Photo-Remove-Failed', title: "Settings › Profile photo · couldn't remove", row: 'H2 Settings', full: false, answers: { ...withPhoto, 'DELETE /api/v1/users/me/photo': 'fail' }, steps: async (on) => {
     await openSettings(on);
@@ -920,7 +922,7 @@ export const screens = [
     await on.waitFor('Take photo');
     await on.sleep(400);
     await on.tap('Remove photo');
-    await on.waitFor("Couldn't remove the photo. Try again.");
+    await on.waitFor("Couldn’t remove the photo. Try again.");
   } },
   { id: 'H70', file: 'H70-Settings-Signing-Out', title: 'Settings › Sign out · signing out', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/sessions/revoke': 'hold' }, steps: async (on) => {
     await openSettings(on);
@@ -1023,14 +1025,14 @@ export const screens = [
     await on.tap('Saturday 24, Back and shoulders 2');
     await on.waitFor('Planned for Saturday');
     await on.tap('Start workout');
-    await on.waitFor("A workout can't be started before its day.");
+    await on.waitFor("A workout can’t be started before its day.");
   } },
   { id: 'W91', file: 'W91-Workout-Upcoming-Day-Skip-Not-Yet', title: 'Workout › Upcoming day · skip says why', row: 'W3 Other days', today: friday, full: false, steps: async (on) => {
     await on.go('/workout');
     await on.tap('Saturday 24, Back and shoulders 2');
     await on.waitFor('Planned for Saturday');
     await on.tap('Skip workout');
-    await on.waitFor("A workout can't be skipped before its day.");
+    await on.waitFor("A workout can’t be skipped before its day.");
   } },
   { id: 'W92', file: 'W92-Workout-Day-From-Home', title: 'Workout › Day from Home', row: 'W3 Other days', today: friday, steps: async (on) => {
     await on.go('/workout/day/2026-10-21?from=home');
@@ -1045,7 +1047,7 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor('Start workout');
     await on.sleep(500);
-    await on.swipe('Tuesday 20, Back and shoulders 1', 200);
+    await on.swipe('Tuesday 20, Back and shoulders 1, done', 200);
     await on.waitFor('16th October');
   } },
   { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: noRoutinesAnswers, steps: async (on) => {
@@ -1084,22 +1086,22 @@ export const screens = [
   } },
   { id: 'W47', file: 'W47-Workout-Month-First', title: 'Workout › Month · first month', row: 'W5 Month', today: friday, answers: firstDayAnswers('2026-10-14'), steps: openMonth },
   { id: 'W48', file: 'W48-Workout-Month-Day-Selected', title: 'Workout › Month · another day selected', row: 'W5 Month', today: friday, steps: async (on) => {
-    await openDayFromMonth(on, '20 October, Back and shoulders 1');
+    await openDayFromMonth(on, '20 October, Back and shoulders 1, done');
     await on.tap('Close');
     await on.sleep(400);
   } },
   { id: 'W49', file: 'W49-Workout-Month-Load-Failure', title: 'Workout › Month · calendar and totals failed', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {
     await on.go('/workout/month');
-    await on.waitFor("Couldn't load the totals.");
-    await on.waitFor("Couldn't load the calendar.");
+    await on.waitFor("Couldn’t load the totals.");
+    await on.waitFor("Couldn’t load the calendar.");
   } },
   { id: 'W96', file: 'W96-Workout-Month-Calendar-Failed', title: 'Workout › Month · calendar failed', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/days': 'fail' }, steps: async (on) => {
     await on.go('/workout/month');
-    await on.waitFor("Couldn't load the calendar.");
+    await on.waitFor("Couldn’t load the calendar.");
   } },
   { id: 'W97', file: 'W97-Workout-Month-Totals-Failed', title: 'Workout › Month · totals failed', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': 'fail' }, steps: async (on) => {
     await on.go('/workout/month');
-    await on.waitFor("Couldn't load the totals.");
+    await on.waitFor("Couldn’t load the totals.");
   } },
   { id: 'W10', file: 'W10-Workout-Choose-Routine', title: 'Workout › Choose a routine', row: 'W2 Choose a routine', today: friday, answers: { 'GET /api/v1/routines': { status: 200, body: routineList.map((routine) => (routine.name === 'Back and shoulders 2' ? { ...routine, lastDoneOn: null } : routine)) } }, steps: async (on) => {
     await on.go(choosePath);
@@ -1118,7 +1120,7 @@ export const screens = [
   { id: 'W59', file: 'W59-Workout-Choose-Routine-Failed', title: "Workout › Choose a routine · couldn't start", row: 'W2 Choose a routine', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
     await confirmRoutine(on);
     await on.tap('Start workout');
-    await on.waitFor("Couldn't start the workout. Try again.");
+    await on.waitFor("Couldn’t start the workout. Try again.");
   } },
   { id: 'W60', file: 'W60-Workout-Choose-Routine-Empty', title: 'Workout › Choose a routine · nothing in the week plan', row: 'W2 Choose a routine', today: sunday, answers: { 'GET /api/v1/routines': { status: 200, body: routineList.map((routine) => ({ ...routine, weekdays: [] })) }, 'GET /api/v1/days/2026-10-25': restDay(null) }, steps: async (on) => {
     await on.go('/workout/choose/2026-10-25');
@@ -1132,24 +1134,24 @@ export const screens = [
   { id: 'W62', file: 'W62-Workout-Choose-Routine-Confirm-Failed', title: "Workout › Choose a routine · confirm, couldn't load", row: 'W2 Choose a routine', today: friday, full: false, answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: 'fail' }, steps: async (on) => {
     await on.go(choosePath);
     await on.tap('Chest and arms 1');
-    await on.waitFor("Couldn't load this routine.");
+    await on.waitFor("Couldn’t load this routine.");
   } },
   { id: 'W63', file: 'W63-Workout-Choose-Routine-Load-Failure', title: 'Workout › Choose a routine · load failure', row: 'W2 Choose a routine', today: friday, answers: { 'GET /api/v1/routines': 'fail' }, steps: async (on) => {
     await on.go(choosePath);
-    await on.waitFor("Couldn't load your routines.");
+    await on.waitFor("Couldn’t load your routines.");
   } },
   { id: 'W64', file: 'W64-Workout-Other-Routine-Before-First-Day', title: 'Workout › Other routine · before the first day', row: 'W3 Other days', today: friday, full: false, answers: { ...firstDayAnswers('2026-10-21'), 'GET /api/v1/days/2026-10-20': { status: 200, body: dayOf('2026-10-20', { firstDay: '2026-10-21' }) } }, steps: async (on) => {
     await on.go('/workout/day/2026-10-20');
     await on.waitFor('Rest day');
     await on.sleep(500);
     await on.tap('Other routine');
-    await on.waitFor("A workout can't be added before your first day.");
+    await on.waitFor("A workout can’t be added before your first day.");
   } },
   { id: 'W65', file: 'W65-Workout-Discarded-Undo', title: 'Workout › Workout discarded, with Undo', row: 'W1 Today states', today: friday, full: false, answers: startSample, steps: discardFromToday },
   { id: 'W66', file: 'W66-Workout-Undo-Discard-Failed', title: "Workout › Undo discard · couldn't undo", row: 'W1 Today states', today: friday, full: false, answers: { ...startSample, [`POST /api/v1/workouts/${sampleWorkout.id}/restore`]: 'fail' }, steps: async (on) => {
     await discardFromToday(on);
     await on.tap('Undo');
-    await on.waitFor("Couldn't undo. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'W30', file: 'W30-Workout-Edit', title: 'Workout › Edit workout · full scroll', row: 'W4 Edit or delete a workout', today: friday, answers: savedAnswers, steps: editFromToday },
   { id: 'W31', file: 'W31-Workout-Edit-Set-Removed', title: 'Workout › Edit workout · set removed, undo bar', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: async (on) => {
@@ -1172,20 +1174,20 @@ export const screens = [
   { id: 'W83', file: 'W83-Workout-Deleted-Undo', title: 'Workout › Workout deleted, with Undo', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: deletableAnswers(), steps: async (on) => {
     await deleteFromToday(on);
     await on.tap('Delete workout');
-    await on.waitFor('Workout deleted.');
+    await on.waitFor('Chest and arms 2 deleted.');
     await on.waitFor('Start workout');
   } },
   { id: 'W84', file: 'W84-Workout-Delete-Failed', title: "Workout › Delete workout · couldn't delete", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: { status: 500 } }, steps: async (on) => {
     await deleteFromToday(on);
     await on.tap('Delete workout');
-    await on.waitFor("Couldn't delete the workout. Try again.");
+    await on.waitFor("Couldn’t delete the workout. Try again.");
   } },
   { id: 'W85', file: 'W85-Workout-Undo-Delete-Failed', title: "Workout › Undo delete · couldn't undo", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: deletableAnswers({ restore: 'fail' }), steps: async (on) => {
     await deleteFromToday(on);
     await on.tap('Delete workout');
-    await on.waitFor('Workout deleted.');
+    await on.waitFor('Chest and arms 2 deleted.');
     await on.tap('Undo');
-    await on.waitFor("Couldn't undo. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'W86', file: 'W86-Workout-Edit-Loading', title: 'Workout › Edit workout · loading', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [workoutPath]: 'hold' }, steps: async (on) => {
     await on.go(editWorkoutPath);
@@ -1193,7 +1195,7 @@ export const screens = [
   } },
   { id: 'W87', file: 'W87-Workout-Edit-Load-Failed', title: "Workout › Edit workout · couldn't load", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [workoutPath]: { status: 500 } }, steps: async (on) => {
     await on.go(editWorkoutPath);
-    await on.waitFor("Couldn't load this workout.");
+    await on.waitFor("Couldn’t load this workout.");
   } },
   { id: 'W88', file: 'W88-Workout-Edit-Saving', title: 'Workout › Edit workout · saving', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [`PUT /api/v1/workouts/${sampleWorkout.id}`]: 'hold' }, steps: async (on) => {
     await editFromToday(on);
@@ -1203,7 +1205,7 @@ export const screens = [
   { id: 'W89', file: 'W89-Workout-Edit-Save-Failed', title: "Workout › Edit workout · couldn't save", row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [`PUT /api/v1/workouts/${sampleWorkout.id}`]: { status: 500 } }, steps: async (on) => {
     await editFromToday(on);
     await on.tap('Save workout');
-    await on.waitFor("Couldn't save the workout. Try again.");
+    await on.waitFor("Couldn’t save the workout. Try again.");
   } },
   { id: 'W90', file: 'W90-Workout-Edit-Leave', title: 'Workout › Edit workout · discard changes', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: async (on) => {
     await editFromToday(on);
@@ -1224,7 +1226,7 @@ export const screens = [
   } },
   { id: 'W42', file: 'W42-Workout-Month-Day-Sheet', title: 'Workout › Month › Day summary · sheet', row: 'W5 Month', today: friday, full: false, answers: pastSavedAnswers, steps: async (on) => {
     await openMonth(on);
-    await on.tap('20 October, Back and shoulders 1');
+    await on.tap('20 October, Back and shoulders 1, done');
     await on.waitFor('View workout');
     await on.sleep(400);
   } },
@@ -1245,21 +1247,21 @@ export const screens = [
   } },
   { id: 'W69', file: 'W69-Workout-Details-Load-Failure', title: 'Workout › Workout details · load failure', row: 'W3 Other days', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail', [summaryPath]: 'fail' }, steps: async (on) => {
     await on.go(detailsPath);
-    await on.waitFor("Couldn't load the exercises.");
+    await on.waitFor("Couldn’t load the exercises.");
   } },
   { id: 'W70', file: 'W70-Workout-Today-Completed-Load-Failure', title: 'Workout › Today · completed, load failure', row: 'W1 Today states', today: friday, answers: { ...savedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
     await on.go('/workout');
-    await on.waitFor("Couldn't load this workout.");
+    await on.waitFor("Couldn’t load this workout.");
   } },
   { id: 'W13', file: 'W13-Workout-Skip-Skipping', title: 'Workout › Skip workout · skipping', row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: skipFromToday },
   { id: 'W14', file: 'W14-Workout-Skip-Failed', title: "Workout › Skip workout · couldn't skip", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
     await skipFromToday(on);
-    await on.waitFor("Couldn't skip the workout. Try again.");
+    await on.waitFor("Couldn’t skip the workout. Try again.");
   } },
   { id: 'W15', file: 'W15-Workout-Undo-Skip-Undoing', title: 'Workout › Undo skip · undoing', row: 'W1 Today states', today: friday, full: false, answers: { ...skippedAnswers, 'DELETE /api/v1/workouts/workout-skipped': 'hold' }, steps: undoFromToday },
   { id: 'W16', file: 'W16-Workout-Undo-Skip-Failed', title: "Workout › Undo skip · couldn't undo", row: 'W1 Today states', today: friday, full: false, answers: { ...skippedAnswers, 'DELETE /api/v1/workouts/workout-skipped': 'fail' }, steps: async (on) => {
     await undoFromToday(on);
-    await on.waitFor("Couldn't undo. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'W17', file: 'W17-Workout-First-Week', title: 'Workout › Today · first week, no earlier weeks', row: 'W3 Other days', today: friday, answers: firstDayAnswers('2026-10-19'), steps: async (on) => {
     await on.go('/workout');
@@ -1283,12 +1285,12 @@ export const screens = [
     await on.waitFor('November');
     await on.sleep(500);
     await on.tap('30 November, Chest and arms 1, planned');
-    await on.waitFor('Days reach 4 weeks ahead.');
+    await on.waitFor('You can look 4 weeks ahead.');
   } },
   { id: 'W52', file: 'W52-Workout-Month-First-Says-Why', title: 'Workout › Month · first month, an earlier day says why', row: 'W5 Month', today: friday, full: false, answers: firstDayAnswers('2026-10-14'), steps: async (on) => {
     await openMonth(on);
     await on.tap('1 October, rest day');
-    await on.waitFor('Your first day is Wed, 14th Oct.');
+    await on.waitFor('Your history starts on Wed, 14th Oct.');
   } },
   { id: 'W53', file: 'W53-Workout-Month-Nothing-Planned', title: 'Workout › Month · nothing planned yet', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/days': daysAnswer({ noPlan: true }), 'GET /api/v1/month-summaries/2026-10': { status: 200, body: noPlannedDays } }, steps: openMonth },
   { id: 'W54', file: 'W54-Workout-Month-Day-Today', title: 'Workout › Month › Day summary · today, sheet', row: 'W5 Month', today: friday, full: false, steps: async (on) => {
@@ -1311,7 +1313,7 @@ export const screens = [
   { id: 'W73', file: 'W73-Workout-Today-Start-Failed', title: "Workout › Today · couldn't start", row: 'W1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
     await on.go('/workout');
     await on.tap('Start workout');
-    await on.waitFor("Couldn't start the workout. Try again.");
+    await on.waitFor("Couldn’t start the workout. Try again.");
   } },
   { id: 'W74', file: 'W74-Workout-Today-Another-In-Progress', title: 'Workout › Today · another workout in progress', row: 'W1 Today states', today: friday, full: false, answers: anotherInProgressAnswer, steps: async (on) => {
     await on.go('/workout');
@@ -1329,20 +1331,20 @@ export const screens = [
   } },
   { id: 'W79', file: 'W79-Workout-Today-Week-Load-Failure', title: 'Workout › Today · week strip load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': 'fail' }, steps: async (on) => {
     await on.go('/workout');
-    await on.waitFor("Couldn't load the week.");
+    await on.waitFor("Couldn’t load the week.");
   } },
   { id: 'W76', file: 'W76-Workout-Month-Day-In-Progress', title: 'Workout › Month › Day summary · in progress, sheet', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days': daysAnswer({ statuses: { '2026-10-21': 'inProgress' } }), 'GET /api/v1/days/2026-10-21': { status: 200, body: { ...legsDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
-    await openDayFromMonth(on, '21 October, Legs');
+    await openDayFromMonth(on, '21 October, Legs, in progress');
     await on.waitFor('Open day');
   } },
   { id: 'W77', file: 'W77-Workout-Month-Day-Completed-Loading', title: 'Workout › Month › Day summary · completed, loading, sheet', row: 'W5 Month', today: friday, full: false, answers: { ...pastSavedAnswers, [workoutPath]: 'hold', [summaryPath]: 'hold' }, steps: async (on) => {
     await openMonth(on);
-    await on.tap('20 October, Back and shoulders 1');
+    await on.tap('20 October, Back and shoulders 1, done');
     await on.sleep(600);
   } },
   { id: 'W78', file: 'W78-Workout-Month-Day-Completed-Load-Failure', title: 'Workout › Month › Day summary · completed, load failure, sheet', row: 'W5 Month', today: friday, full: false, answers: { ...pastSavedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
     await openMonth(on);
-    await on.tap('20 October, Back and shoulders 1');
+    await on.tap('20 October, Back and shoulders 1, done');
     await on.waitFor('Try again');
   } },
   // E · Exercises
@@ -1364,7 +1366,7 @@ export const screens = [
   } },
   { id: 'E77', file: 'E77-Exercises-Groups-Failed', title: "Exercises · groups couldn't load", row: 'E1 Exercises tab', answers: { 'GET /api/v1/groups': 'fail' }, steps: async (on) => {
     await on.go('/exercises');
-    await on.waitFor("Couldn't load your groups.");
+    await on.waitFor("Couldn’t load your groups.");
   } },
   { id: 'E06', file: 'E06-Exercises-Deleted-Undo', title: 'Exercises · exercise deleted, with Undo', row: 'E1 Exercises tab', full: false, steps: async (on) => {
     await on.tap('Exercises');
@@ -1399,7 +1401,7 @@ export const screens = [
   { id: 'E18', file: 'E18-Exercises-Detail-Load-More-Failure', title: "Exercises › Exercise · couldn't load more sessions", row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/sessions`]: (url) => (url.searchParams.get('cursor') ? 'fail' : { status: 200, body: benchHistory.firstPage }) }), steps: async (on) => {
     await openBench(on);
     await on.end();
-    await on.waitFor("Couldn't load more sessions.");
+    await on.waitFor("Couldn’t load more sessions.");
     await on.end();
   } },
   { id: 'E19', file: 'E19-Exercises-Detail-Sessions-Loading', title: 'Exercises › Exercise · sessions loading', row: 'E2 Exercise details', answers: benchAnswers({ [`GET ${benchApi}/sessions`]: 'hold' }), steps: async (on) => {
@@ -1409,7 +1411,7 @@ export const screens = [
   { id: 'E67', file: 'E67-Exercises-Detail-Chart-Loading', title: 'Exercises › Exercise · chart loading', row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/progress`]: 'hold' }), steps: openBench },
   { id: 'E68', file: 'E68-Exercises-Detail-Chart-Load-Failure', title: "Exercises › Exercise · chart couldn't load", row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/progress`]: 'fail' }), steps: async (on) => {
     await openBench(on);
-    await on.waitFor("Couldn't load the chart.");
+    await on.waitFor("Couldn’t load the chart.");
   } },
   { id: 'E69', file: 'E69-Exercises-Detail-Chart-Empty', title: 'Exercises › Exercise · no sessions in this period', row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}/progress`]: { status: 200, body: { byMonth: false, points: [] } } }), steps: async (on) => {
     await openBench(on);
@@ -1441,7 +1443,7 @@ export const screens = [
   { id: 'E74', file: 'E74-Exercises-Detail-Sessions-Failed', title: "Exercises › Exercise · sessions couldn't load", row: 'E2 Exercise details', answers: benchAnswers({ ['GET ' + benchApi + '/sessions']: 'fail' }), steps: async (on) => {
     await openBench(on);
     await on.end();
-    await on.waitFor("Couldn't load the sessions.");
+    await on.waitFor("Couldn’t load the sessions.");
   } },
   { id: 'E75', file: 'E75-Exercises-Detail-From-Home', title: 'Exercises › Exercise · from Home', row: 'E2 Exercise details', answers: benchAnswers(), steps: async (on) => {
     await on.go(benchExercisePath + '?from=home');
@@ -1550,7 +1552,7 @@ export const screens = [
   { id: 'E24', file: 'E24-Exercises-Edit-Saving', title: 'Exercises › Edit exercise · saving', row: 'E3 Edit or delete', answers: { [`PUT /api/v1/exercises/${lateralRaise.id}`]: 'hold' }, steps: editExercise },
   { id: 'E25', file: 'E25-Exercises-Edit-Failed', title: "Exercises › Edit exercise · couldn't save", row: 'E3 Edit or delete', full: false, answers: { [`PUT /api/v1/exercises/${lateralRaise.id}`]: 'fail' }, steps: async (on) => {
     await editExercise(on);
-    await on.waitFor("Couldn't save the exercise. Try again.");
+    await on.waitFor("Couldn’t save the exercise. Try again.");
   } },
   { id: 'E26', file: 'E26-Exercises-Edit-Saved', title: 'Exercises › Exercise · saved', row: 'E3 Edit or delete', full: false, answers: { [`PUT /api/v1/exercises/${lateralRaise.id}`]: { status: 200, body: { ...lateralRaise, name: 'Lateral raise' } } }, steps: async (on) => {
     await editExercise(on);
@@ -1559,12 +1561,12 @@ export const screens = [
   { id: 'E27', file: 'E27-Exercises-Delete-Deleting', title: 'Exercises › Delete exercise · deleting', row: 'E3 Edit or delete', full: false, answers: { [`DELETE /api/v1/exercises/${lateralRaise.id}`]: 'hold' }, steps: deleteExercise },
   { id: 'E28', file: 'E28-Exercises-Delete-Failed', title: "Exercises › Delete exercise · couldn't delete", row: 'E3 Edit or delete', full: false, answers: { [`DELETE /api/v1/exercises/${lateralRaise.id}`]: 'fail' }, steps: async (on) => {
     await deleteExercise(on);
-    await on.waitFor("Couldn't delete the exercise. Try again.");
+    await on.waitFor("Couldn’t delete the exercise. Try again.");
   } },
   { id: 'E29', file: 'E29-Exercises-Undo-Failed', title: "Exercises · couldn't undo a delete", row: 'E1 Exercises tab', full: false, answers: { [`POST /api/v1/exercises/${lateralRaise.id}/restore`]: 'fail' }, steps: async (on) => {
     await deleteExercise(on);
     await on.tap('Undo');
-    await on.waitFor("Couldn't undo. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'E42', file: 'E42-Exercises-Groups-No-Matches', title: 'Exercises › Groups · no search matches', row: 'E4 Groups', steps: async (on) => {
     await on.go('/exercises/groups');
@@ -1584,12 +1586,12 @@ export const screens = [
     await on.sleep(500);
     await on.hold('Move Chest', 90);
     await on.release();
-    await on.waitFor("Couldn't save the order. Try again.");
+    await on.waitFor("Couldn’t save the order. Try again.");
   } },
   { id: 'E45', file: 'E45-Exercises-Groups-New-Saving', title: 'Exercises › Groups › New group · saving', row: 'E4 Groups', answers: { 'POST /api/v1/groups': 'hold' }, steps: newGroup },
   { id: 'E46', file: 'E46-Exercises-Groups-New-Failed', title: "Exercises › Groups › New group · couldn't save", row: 'E4 Groups', full: false, answers: { 'POST /api/v1/groups': 'fail' }, steps: async (on) => {
     await newGroup(on);
-    await on.waitFor("Couldn't save the group. Try again.");
+    await on.waitFor("Couldn’t save the group. Try again.");
   } },
   { id: 'E47', file: 'E47-Exercises-Groups-Created', title: 'Exercises › Groups · group created', row: 'E4 Groups', full: false, answers: { 'POST /api/v1/groups': { status: 201, body: { ...chest, id: 'group-core', name: 'Core' } } }, steps: async (on) => {
     await newGroup(on);
@@ -1618,12 +1620,12 @@ export const screens = [
   { id: 'E53', file: 'E53-Exercises-Groups-Delete-Deleting', title: 'Exercises › Groups › Delete group · deleting', row: 'E4 Groups', full: false, answers: { ...emptyChest, [`DELETE /api/v1/groups/${chest.id}`]: 'hold' }, steps: deleteGroup },
   { id: 'E54', file: 'E54-Exercises-Groups-Delete-Failed', title: "Exercises › Groups › Delete group · couldn't delete", row: 'E4 Groups', full: false, answers: { ...emptyChest, [`DELETE /api/v1/groups/${chest.id}`]: 'fail' }, steps: async (on) => {
     await deleteGroup(on);
-    await on.waitFor("Couldn't delete the group. Try again.");
+    await on.waitFor("Couldn’t delete the group. Try again.");
   } },
   { id: 'E55', file: 'E55-Exercises-Groups-Undo-Failed', title: "Exercises › Groups · couldn't undo a delete", row: 'E4 Groups', full: false, answers: { ...emptyChest, [`POST /api/v1/groups/${chest.id}/restore`]: 'fail' }, steps: async (on) => {
     await deleteGroup(on);
     await on.tap('Undo');
-    await on.waitFor("Couldn't undo. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'E56', file: 'E56-Exercises-No-Groups', title: 'Exercises · no groups, New exercise says why', row: 'E1 Exercises tab', full: false, answers: { 'GET /api/v1/groups': noGroups, ...lists({ status: 200, body: [] }) }, steps: async (on) => {
     await on.go('/exercises');
@@ -1634,9 +1636,9 @@ export const screens = [
     await on.go('/exercises');
     await on.waitFor(benchPress.name);
   } },
-  { id: 'E58', file: 'E58-Exercises-New-Limit-Reached', title: 'Exercises › New exercise · limit reached', row: 'E1 Exercises tab', full: false, answers: { 'POST /api/v1/exercises': problem(409, 'exercise.limit_reached', "You've reached the limit of 500 exercises.") }, steps: async (on) => {
+  { id: 'E58', file: 'E58-Exercises-New-Limit-Reached', title: 'Exercises › New exercise · limit reached', row: 'E1 Exercises tab', full: false, answers: { 'POST /api/v1/exercises': problem(409, 'exercise.limit_reached', "You’ve reached the limit of 500 exercises.") }, steps: async (on) => {
     await fillNewExercise(on);
-    await on.waitFor("You've reached the limit of 500 exercises.");
+    await on.waitFor("You’ve reached the limit of 500 exercises.");
   } },
   { id: 'E59', file: 'E59-Exercises-New-Name-Taken', title: 'Exercises › New exercise · name taken', row: 'E1 Exercises tab', answers: { 'POST /api/v1/exercises': problem(409, 'exercise.name_taken', 'You already have an exercise with this name.') }, steps: async (on) => {
     await fillNewExercise(on);
@@ -1645,7 +1647,7 @@ export const screens = [
   { id: 'E60', file: 'E60-Exercises-New-Saving', title: 'Exercises › New exercise · saving', row: 'E1 Exercises tab', answers: { 'POST /api/v1/exercises': 'hold' }, steps: fillNewExercise },
   { id: 'E61', file: 'E61-Exercises-New-Failed', title: "Exercises › New exercise · couldn't save", row: 'E1 Exercises tab', full: false, answers: { 'POST /api/v1/exercises': 'fail' }, steps: async (on) => {
     await fillNewExercise(on);
-    await on.waitFor("Couldn't save the exercise. Try again.");
+    await on.waitFor("Couldn’t save the exercise. Try again.");
   } },
   { id: 'E62', file: 'E62-Exercises-New-Discard', title: 'Exercises › New exercise › Discard changes · confirm', row: 'E1 Exercises tab', full: false, steps: async (on) => {
     await on.go('/exercises');
@@ -1684,7 +1686,7 @@ export const screens = [
   } },
   { id: 'L05', file: 'L05-Logging-Load-Failure', title: 'Logging › Load failure', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'fail' }, steps: async (on) => {
     await on.go(logPath);
-    await on.waitFor("Couldn't load this workout.");
+    await on.waitFor("Couldn’t load this workout.");
   } },
   { id: 'L01', file: 'L01-Logging', title: 'Logging', row: 'L1 Log sets', today: friday, steps: openLog },
   { id: 'L06', file: 'L06-Logging-Rest-Ready', title: 'Logging › Rest · ready', row: 'L1 Log sets', today: friday, full: false, steps: openRest },
@@ -1744,7 +1746,7 @@ export const screens = [
   } },
   { id: 'L35', file: 'L35-Logging-Finish-Load-Failure', title: 'Logging › Finish workout · load failure', row: 'L3 Finish', today: friday, answers: { [summaryPath]: 'fail' }, steps: async (on) => {
     await on.go(finishPath);
-    await on.waitFor("Couldn't load this workout.");
+    await on.waitFor("Couldn’t load this workout.");
   } },
   { id: 'L36', file: 'L36-Logging-Finish-Saving', title: 'Logging › Finish workout · saving', row: 'L3 Finish', today: friday, answers: { [`PATCH /api/v1/workouts/${sampleWorkout.id}`]: 'hold' }, steps: async (on) => {
     await openFinish(on);
@@ -1754,7 +1756,7 @@ export const screens = [
   { id: 'L37', file: 'L37-Logging-Finish-Failed', title: "Logging › Finish workout · couldn't save", row: 'L3 Finish', today: friday, answers: { [`PATCH /api/v1/workouts/${sampleWorkout.id}`]: 'fail' }, steps: async (on) => {
     await openFinish(on);
     await on.tap('Save workout');
-    await on.waitFor("Couldn't save the workout. Try again.");
+    await on.waitFor("Couldn’t save the workout. Try again.");
   } },
   { id: 'L38', file: 'L38-Logging-Discard-Discarding', title: 'Logging › Discard workout · discarding', row: 'L3 Finish', today: friday, full: false, answers: { [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: 'hold' }, steps: async (on) => {
     await openDiscard(on);
@@ -1764,7 +1766,7 @@ export const screens = [
   { id: 'L39', file: 'L39-Logging-Discard-Failed', title: "Logging › Discard workout · couldn't discard", row: 'L3 Finish', today: friday, full: false, answers: { [`DELETE /api/v1/workouts/${sampleWorkout.id}`]: 'fail' }, steps: async (on) => {
     await openDiscard(on);
     await on.tap('Discard workout');
-    await on.waitFor("Couldn't discard the workout. Try again.");
+    await on.waitFor("Couldn’t discard the workout. Try again.");
   } },
   { id: 'L29', file: 'L29-Logging-Swap-Exercise', title: 'Logging › Swap exercise', row: 'L2 Exercises', today: friday, steps: async (on) => {
     await on.go(`${addPath}?swap=${inclineDumbbellPress.id}`);
@@ -1777,7 +1779,7 @@ export const screens = [
   { id: 'L16', file: 'L16-Logging-Swap-Checked-Says-Why', title: 'Logging › Swap · checked sets say why', row: 'L2 Exercises', today: friday, full: false, steps: async (on) => {
     await openLog(on);
     await on.tap('Swap Flat barbell bench press');
-    await on.waitFor("An exercise with checked sets can't be swapped. Uncheck them first.");
+    await on.waitFor("An exercise with checked sets can’t be swapped. Uncheck them first.");
   } },
   { id: 'L20', file: 'L20-Logging-Add-Exercise', title: 'Logging › Add exercise', row: 'L2 Exercises', steps: async (on) => {
     await on.go(addPath);
@@ -1863,7 +1865,7 @@ export const screens = [
     await openLog(on);
     await on.tap('Set 1 weight, 82.5 kilograms');
     await on.tap('Remove set');
-    await on.waitFor("An exercise keeps at least one set. Use the exercise's trash to remove it.");
+    await on.waitFor("An exercise keeps at least one set. Use the exercise’s trash to remove it.");
   } },
   { id: 'L45', file: 'L45-Logging-Saving-Set', title: 'Logging › Edit weight · saving set', row: 'L1 Log sets', today: friday, full: false, answers: { [`PATCH ${benchPath}/sets/${benchId}-set-1`]: 'hold' }, steps: async (on) => {
     await editBenchWeight(on);
@@ -1871,25 +1873,25 @@ export const screens = [
   } },
   { id: 'L46', file: 'L46-Logging-Save-Set-Failed', title: "Logging · couldn't save a set", row: 'L1 Log sets', today: friday, full: false, answers: { [`PATCH ${benchPath}/sets/${benchId}-set-1`]: 'fail' }, steps: async (on) => {
     await editBenchWeight(on);
-    await on.waitFor("Couldn't save the set. Try again.");
+    await on.waitFor("Couldn’t save the set. Try again.");
   } },
   { id: 'L47', file: 'L47-Logging-Add-Set-Failed', title: "Logging · couldn't add a set", row: 'L1 Log sets', today: friday, full: false, answers: { [`POST ${benchPath}/sets`]: 'fail' }, steps: async (on) => {
     await openLog(on);
     await on.tap('Add set');
-    await on.waitFor("Couldn't add the set. Try again.");
+    await on.waitFor("Couldn’t add the set. Try again.");
   } },
   { id: 'L48', file: 'L48-Logging-Remove-Set-Failed', title: "Logging · couldn't remove a set", row: 'L1 Log sets', today: friday, full: false, answers: { [`DELETE ${benchPath}/sets/${benchId}-set-2`]: 'fail' }, steps: async (on) => {
     await openLog(on);
     await on.tap('Set 3 weight, 82.5 kilograms');
     await on.tap('Remove set');
-    await on.waitFor("Couldn't remove the set. Try again.");
+    await on.waitFor("Couldn’t remove the set. Try again.");
   } },
   { id: 'L49', file: 'L49-Logging-Undo-Set-Failed', title: "Logging · couldn't bring the set back", row: 'L1 Log sets', today: friday, full: false, answers: { [`DELETE ${benchPath}/sets/${benchId}-set-2`]: { status: 204 }, [`POST ${benchPath}/sets`]: 'fail' }, steps: async (on) => {
     await openLog(on);
     await on.tap('Set 3 weight, 82.5 kilograms');
     await on.tap('Remove set');
     await on.tap('Undo');
-    await on.waitFor("Couldn't bring the set back. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'L60', file: 'L60-Logging-Reorder-Loading', title: 'Logging › Reorder exercises · loading', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'hold' }, steps: (on) => on.go(reorderPath) },
   { id: 'L61', file: 'L61-Logging-Reorder-Load-Failure', title: 'Logging › Reorder exercises · load failure', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'fail' }, steps: async (on) => {
@@ -1904,7 +1906,7 @@ export const screens = [
     await on.go(reorderPath);
     await on.hold('Move Flat barbell bench press', 90);
     await on.release();
-    await on.waitFor("Couldn't save the order. Try again.");
+    await on.waitFor("Couldn’t save the order. Try again.");
   } },
   { id: 'L50', file: 'L50-Logging-Exercise-Removed', title: 'Logging · exercise removed, with Undo', row: 'L2 Exercises', today: friday, full: false, steps: async (on) => {
     await removeBench(on);
@@ -1912,7 +1914,7 @@ export const screens = [
   } },
   { id: 'L51', file: 'L51-Logging-Remove-Exercise-Failed', title: "Logging · couldn't remove an exercise", row: 'L2 Exercises', today: friday, full: false, answers: { [`DELETE ${benchPath}`]: 'fail' }, steps: async (on) => {
     await removeBench(on);
-    await on.waitFor("Couldn't remove the exercise. Try again.");
+    await on.waitFor("Couldn’t remove the exercise. Try again.");
   } },
   { id: 'L52', file: 'L52-Logging-Undo-Remove-Failed', title: "Logging · couldn't bring the exercise back", row: 'L2 Exercises', today: friday, full: false, answers: { [`POST /api/v1/workouts/${sampleWorkout.id}/exercises`]: 'fail' }, steps: async (on) => {
     await removeBench(on);
@@ -1920,7 +1922,7 @@ export const screens = [
     // The confirm sheet is still closing, with its own copy of the notification.
     await on.sleep(1000);
     await on.tap('Undo');
-    await on.waitFor("Couldn't bring the exercise back. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'L53', file: 'L53-Logging-Exercise-Swapped', title: 'Logging · exercise swapped, with Undo', row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: swapped }, steps: async (on) => {
     await swapIncline(on);
@@ -1930,14 +1932,14 @@ export const screens = [
     await swapIncline(on);
     await on.waitFor('Swapping exercise');
   } },
-  { id: 'L55', file: 'L55-Logging-Swap-Failed', title: "Logging › Swap exercise · couldn't swap", row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: problem(409, 'workout.exercise_has_checked_sets', "An exercise with checked sets can't be swapped. Uncheck them first.") }, steps: async (on) => {
+  { id: 'L55', file: 'L55-Logging-Swap-Failed', title: "Logging › Swap exercise · couldn't swap", row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: problem(409, 'workout.exercise_has_checked_sets', "An exercise with checked sets can’t be swapped. Uncheck them first.") }, steps: async (on) => {
     await swapIncline(on);
-    await on.waitFor("An exercise with checked sets can't be swapped. Uncheck them first.");
+    await on.waitFor("An exercise with checked sets can’t be swapped. Uncheck them first.");
   } },
   { id: 'L56', file: 'L56-Logging-Undo-Swap-Failed', title: "Logging · couldn't undo a swap", row: 'L2 Exercises', today: friday, full: false, answers: { [swapPath]: swapOnceThenFail() }, steps: async (on) => {
     await swapIncline(on);
     await on.tap('Undo');
-    await on.waitFor("Couldn't undo the swap. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'L57', file: 'L57-Logging-Add-Exercise-Adding', title: 'Logging › Add exercise · adding', row: 'L2 Exercises', today: friday, answers: { [`POST /api/v1/workouts/${sampleWorkout.id}/exercises`]: 'hold' }, steps: async (on) => {
     await pickToAdd(on);
@@ -2098,7 +2100,7 @@ export const screens = [
   { id: 'R12', file: 'R12-Routines-Undo-Failed', title: "Routines · couldn't undo a delete", row: 'R1 Routines tab', full: false, answers: { [`POST /api/v1/routines/${chestAndArms.id}/restore`]: 'fail' }, steps: async (on) => {
     await deleteRoutine(on);
     await on.tap('Undo');
-    await on.waitFor("Couldn't undo. Try again.");
+    await on.waitFor("Couldn’t undo. Try again.");
   } },
   { id: 'R33', file: 'R33-Routines-Details-No-Days', title: 'Routines › Routine details · not on any day', row: 'R3 Edit a routine', answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: { status: 200, body: { ...chestAndArms, weekdays: [] } } }, steps: async (on) => {
     await on.go(routinePath);
@@ -2121,12 +2123,12 @@ export const screens = [
   { id: 'R37', file: 'R37-Routines-Edit-Saving', title: 'Routines › Edit routine · saving', row: 'R3 Edit a routine', answers: { [`PUT /api/v1/routines/${chestAndArms.id}`]: 'hold' }, steps: editRoutine },
   { id: 'R38', file: 'R38-Routines-Edit-Failed', title: "Routines › Edit routine · couldn't save", row: 'R3 Edit a routine', full: false, answers: { [`PUT /api/v1/routines/${chestAndArms.id}`]: 'fail' }, steps: async (on) => {
     await editRoutine(on);
-    await on.waitFor("Couldn't save the routine. Try again.");
+    await on.waitFor("Couldn’t save the routine. Try again.");
   } },
   { id: 'R39', file: 'R39-Routines-Delete-Deleting', title: 'Routines › Delete routine · deleting', row: 'R3 Edit a routine', full: false, answers: { [`DELETE /api/v1/routines/${chestAndArms.id}`]: 'hold' }, steps: deleteRoutine },
   { id: 'R40', file: 'R40-Routines-Delete-Failed', title: "Routines › Delete routine · couldn't delete", row: 'R3 Edit a routine', full: false, answers: { [`DELETE /api/v1/routines/${chestAndArms.id}`]: 'fail' }, steps: async (on) => {
     await deleteRoutine(on);
-    await on.waitFor("Couldn't delete the routine. Try again.");
+    await on.waitFor("Couldn’t delete the routine. Try again.");
   } },
   { id: 'R41', file: 'R41-Routines-Created', title: 'Routines › Routine details · created', row: 'R4 New routine', full: false, steps: async (on) => {
     await on.tap('Routines');
@@ -2148,9 +2150,9 @@ export const screens = [
     await on.waitFor('Pick the exercises to add to this routine.');
     await on.tap(lateralRaise.name);
   } },
-  { id: 'R43', file: 'R43-Routines-New-Limit-Reached', title: 'Routines › New routine · limit reached', row: 'R4 New routine', full: false, answers: { 'POST /api/v1/routines': problem(409, 'routine.limit_reached', "You've reached the limit of 50 routines.") }, steps: async (on) => {
+  { id: 'R43', file: 'R43-Routines-New-Limit-Reached', title: 'Routines › New routine · limit reached', row: 'R4 New routine', full: false, answers: { 'POST /api/v1/routines': problem(409, 'routine.limit_reached', "You’ve reached the limit of 50 routines.") }, steps: async (on) => {
     await createRoutine(on);
-    await on.waitFor("You've reached the limit of 50 routines.");
+    await on.waitFor("You’ve reached the limit of 50 routines.");
   } },
   { id: 'R44', file: 'R44-Routines-Targets-Discard', title: 'Routines › Edit routine › Sets and reps › Discard changes · confirm', row: 'R3 Edit a routine', full: false, steps: async (on) => {
     await openTargets(on);

@@ -57,7 +57,7 @@ export function CreateAccountScreen() {
         setError(field as 'email' | 'password', { message });
       }
       if (formErrors.general) {
-        notifyFailure("Couldn't create the account. Try again.");
+        notifyFailure('Couldn’t create the account. Try again.');
       }
     }
   });

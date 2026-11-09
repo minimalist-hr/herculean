@@ -24,7 +24,7 @@ export function useGroupOrder() {
       }
     },
     onError: () => {
-      notifyFailure("Couldn't save the order. Try again.");
+      notifyFailure('Couldn’t save the order. Try again.');
     },
     onSettled: refresh,
   });

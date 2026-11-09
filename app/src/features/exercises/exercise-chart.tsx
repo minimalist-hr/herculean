@@ -63,7 +63,7 @@ export function ExerciseChart({
             void progress.refetch();
           }}
         >
-          Couldn&apos;t load the chart.
+          Couldn’t load the chart.
         </BoxMessage>
       ) : (
         <View accessible accessibilityLabel="Loading the chart">

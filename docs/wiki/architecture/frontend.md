@@ -87,6 +87,7 @@ app/
 ## Text
 
 - English only. Text is written in the screens, with no translation library.
+- `src/copy.test.ts` fails on a straight apostrophe or an em dash, in the app or in the messages the API sends.
 
 ## Tests
 
