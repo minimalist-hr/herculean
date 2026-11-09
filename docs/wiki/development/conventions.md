@@ -26,7 +26,7 @@ The terms in [Domain and entities](/product/domain#terms) are used unchanged in 
 - Repo-level folders are lowercase: `api`, `app`, `aspire`, `docs`, `src`, `tests`, `modules`, `account`, `training`.
 - A .NET project folder has the project's name, for example `Herculean.Account.Domain`.
 - Folders inside a .NET project are PascalCase, because they are namespaces, for example `Exercises/CreateExercise`.
-- Folders and files in the app are kebab-case, for example `features/logging/set-row.tsx`.
+- Folders and files in the app are kebab-case, for example `features/workout/set-sheet.tsx`.
 
 ### C#
 
@@ -128,7 +128,7 @@ The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki:
 
 - **Milestone** `v1` holds the release.
 - **One issue per flow** of a feature, app and API together. Features are listed in [Scope and features](/product/scope#features).
-- **Labels:** each issue has one type: `feature`, `bug`, `design` or `chore`. An issue about one feature also has its feature label, numbered as in [Scope and features](/product/scope#features): `1-account` to `7-settings`.
+- **Labels:** each issue has one type: `feature`, `bug`, `design` or `chore`. An issue about one feature also has its feature label, numbered as in [Scope and features](/product/scope#features): `1-account` to `8-home`.
 - **In progress:** the issue being worked on has the `in progress` label, which puts it in that list on the issue board. Closing the issue takes it off the list.
 - **Every MR names its issue** at the top of its description: `Closes #12`, or `Relates to #12` when the issue stays open or is already closed. The `mr` job checks this. After fixing the description, retry the job.
 - **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. Each assigns a new issue to its author. The MR template is in `.gitlab/merge_request_templates/`. It assigns a new MR to its author, makes the author the reviewer and sets the milestone to `v1`.

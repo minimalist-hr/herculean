@@ -22,7 +22,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 - **IDs:** area letter, then two digits; the first digit groups screens by flow. Row numbers don't always match that digit (W40–W49 sit in row W5 Month, H10–H19 in row H2 Settings), so use `screen-index.md` for the row of each ID. Board titles read `ID · Area › Screen · state`.
 - **"full scroll"** screens are drawn at their full scrolled height, not 844 px.
 - **Sheets and confirms** are drawn over a dimmed copy of the screen that opens them.
-- **Sample data** (Friday 23 October 2026, Filip's split, Smith machine incline bench press 82.5 kg × 10) is design data only. It is consistent across screens, which makes it a good seed and test fixture.
+- **Sample data** (Friday 23 October 2026, Filip's split, Flat barbell bench press 82.5 kg × 10) is design data only. The capture tool's copy is consistent across screens, which makes it a good seed and test fixture. Screens captured before design document 0.64 can show older data.
 
 ## Built and not built
 

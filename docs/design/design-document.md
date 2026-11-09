@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.63 · 8 November 2026 · Minimalist
+Version 0.64 · 9 November 2026 · Minimalist
+
+> Changes since 0.63: this document now says what is built. The confirmations, buttons, day headers, names, Home and sample data are corrected, and the parked list no longer holds what is built. The capture tool's sample data can now really happen and agrees across screens, and a screen shows it the next time it is captured. No screen changed.
 
 > Changes since 0.62: 53 new screens captured from the app. They cover what was built but never drawn: Settings pages loading, saving and failing; the keep-account sheet; Home with every section failed and Are you ready; and the pages opened from Home or Logging. Every screen is recaptured.
 
@@ -133,8 +135,8 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 ## 1. Scope
 
 - **Platform:** phone app, designed at 390 × 844 px (iPhone 14/15 size). Long screens are drawn at full scroll height and marked "full scroll".
-- **Screens:** 128 app screens in six areas, plus one brand board.
-- **Themes:** dark (default) and light, two accent colors, four fonts and two corner styles. Each one can be switched on every board through Tweaks.
+- **Screens:** six areas, plus one brand board. `screen-index.md` lists every screen.
+- **Themes:** Match my phone (default), dark and light, with two accent colors. The font is Chakra Petch and corners are sharp.
 - **Not in scope yet:** see section 11, Parked.
 
 ---
@@ -198,14 +200,14 @@ The accent is used for primary buttons, the active tab, today in the week strip 
 | `danger` | #F87171 | #DC2626 | Missed, errors |
 | `dangerFill` | #DC2626 | #DC2626 | Danger buttons and trash icons |
 | `onDanger` | #FFFFFF | #FFFFFF | Text on danger buttons |
-| `warn` | #F5B83D | #B45309 | Warning icon only (L30, L31) |
+| `warn` | #F5B83D | #B45309 | Warning icon only (L30, L31, H32) |
 | `primaryText` | (accent) | (accent) | In progress |
 
 Status always shows as a colored 8 px dot and a label in the same color. Week strip and calendar markers use a short bar in the status color, and the month screen has a legend. Color is never the only signal: there is always a word, and the day cells have full aria labels such as "20 October, back and shoulders 1, done".
 
 ### 4.2 Typography
 
-- **Font:** Chakra Petch (default). Oxanium, Exo 2 and Saira are alternatives in Tweaks. They load from Google Fonts in weights 400–700.
+- **Font:** Chakra Petch, in weights 400–700.
 - **Numbers:** tabular numerals everywhere, so weights, reps and timers line up.
 
 | Role | Size / weight | Notes |
@@ -227,13 +229,13 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 
 ### 4.3 Corners
 
-| Element | Sharp (default) | Soft |
-|---|---|---|
-| Card | 6 px | 16 px |
-| Control (button, input) | 4 px | 10 px |
-| Pill (chip, status dot) | 3 px | fully round |
-| Check box | 3 px | 8 px |
-| Sheet top corners | 10 px | 24 px |
+| Element | Radius |
+|---|---|
+| Card | 6 px |
+| Control (button, input) | 4 px |
+| Pill (chip, status dot) | 3 px |
+| Check box | 3 px |
+| Sheet top corners | 10 px |
 
 ### 4.4 Spacing and sizes
 
@@ -257,16 +259,16 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 | Type | Look | Used for |
 |---|---|---|
 | **Primary** | 48 px, filled `primary`, 15 px uppercase bold | The main action: Save …, Start workout, Sign in |
-| **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Cancel, Other routine, Skip workout |
+| **Secondary** | 44 px, outlined, `raised` fill, 13 px uppercase | Other routine, Skip workout, Undo skip, Not now, New … |
 | **Danger** | 48 px, filled `dangerFill` | The confirm action in delete and remove confirms |
-| **Danger text** | 44 px, `danger` text | Remove set |
-| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Add set, and the way between A01 and A20 |
-| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, E01 create exercise, R05, E10 and E11 edit and delete |
+| **Danger outline** | 44 px, outlined, `raised` fill, `danger` text | Delete on W03 and W20, Discard workout on L30 |
+| **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Try again, Open day, and the way between A01 and A20 |
+| **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, the Home avatar, R20 and R30 add exercise, R05, E10, E11 and E35 edit and delete |
 
 **Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
 
 ### Bottom action box
-Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. Above a navigation bar or home indicator, the bottom padding is that bar plus 12 px, so the buttons never touch it. The primary button comes first and Cancel goes below it. While the keyboard is open, the box stays behind it and only the form makes room. The keyboard's return key moves to the next text field. On the last field of a form it does the primary action; when choices that are not text follow, it closes the keyboard.
+Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. Above a navigation bar or home indicator, the bottom padding is that bar plus 12 px, so the buttons never touch it. The primary button comes first, and any other button goes below it, such as Discard workout on L30. While the keyboard is open, the box stays behind it and only the form makes room. The keyboard's return key moves to the next text field. On the last field of a form it does the primary action; when choices that are not text follow, it closes the keyboard.
 
 ### Inputs
 44 px high, `raised` fill, 1 px border. Every input has a visible uppercase label above it and helper text below when needed (for example "At least 8 characters."). Password fields have a show/hide eye button.
@@ -295,7 +297,7 @@ Says that something worked or failed, when it belongs to no field. It looks like
 `card` fill, 1 px border, card radius, 16 px padding. A status card has an eyebrow with the status, a 22 px title and a meta line.
 
 ### Lists
-Grouped lists sit inside one card, with rows divided by 1 px borders. Section labels above lists are 12 px uppercase and muted. Long names wrap; they are never cut off with "…".
+Grouped lists sit inside one card, with rows divided by 1 px borders. Section labels above lists are 12 px uppercase and muted. Long names wrap. Where a row keeps to one line, on a back link, E30, R20, R30, L04 and Recent records on Home, they end in "…".
 
 ### Radio cards
 A choice of two or three side by side, like Units on A30: each card is at least `size.optionRowMin` tall, with 12 px padding, the name in `listItemName`, a `meta` line and a radio circle (`size.radio`). The chosen card has the `primary` border and `raised` fill.
@@ -326,7 +328,7 @@ A question ("Delete Chest and arms 1?"), one sentence on what happens and what s
 
 ### Undo bar
 - **Look:** 56 px, with the `raised` fill and a border. It comes down from the top of the screen, in the same place as the notification bar. The screen behind it stays as it is.
-- **Content:** two lines (what happened and what it happened to) and an Undo button. Example: "Set 3 removed · Smith machine incline bench press". L12 is the reference.
+- **Content:** what happened and an Undo button, such as "Set 3 removed." L12 is the reference.
 
 ### Tab bar
 Four tabs: Home, Workout, Routines, Exercises. Each item is 52 px with a 22 px icon, a 4 px gap and an 11 px label. The active tab is in the accent color and bold. The bar has 8 px padding at the top and sides. Its bottom padding is the phone's safe area, at least 8 px; the boards draw it as 28 px.
@@ -352,10 +354,10 @@ A short title, one sentence saying what to do, and the one action that fixes it.
   - **Routines** is the week plan and your routines.
   - **Exercises** is your exercise library and the groups.
 - **Settings** opens from the FM avatar on Home. The avatar appears only on Home.
-- **Logging** opens from Start workout (W01, Home) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
+- **Logging** opens from Start workout (W01, Home), Log workout (W21) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
 - **Sub-pages** have a back link above the title, named after the page it returns to (for example "‹ Settings"). Sub-pages never have both a back link and a bottom Cancel.
 - **Moving between pages:** pages cross-fade, going forward and back. The screen behind them keeps the theme's background, never white.
-- **Day screens** opened from the week strip have "Back to today". Opened from the month, the same link reads "Back to month".
+- **Day screens** opened from the week strip have "Back to today". Opened from the month, the same link reads "Back to month", and from Home "Back to Home".
 
 ---
 
@@ -376,25 +378,29 @@ A short title, one sentence saying what to do, and the one action that fixes it.
 
 **Saving**
 - Save buttons name what they save: Save set, Save routine, Save color, Save workout.
-- Sheets and form pages have no Cancel. Where one remains, it sits below the Save button.
+- Sheets and form pages have no Cancel.
 - Saves never ask for confirmation.
 
 **Confirmations are only for these actions**
 - Trash on an exercise during logging (L13) or in a routine (R23).
+- Discard workout (L33).
 - Delete workout (W32).
-- Delete account (H19).
 - Delete routine (R22).
 - Delete exercise (E21).
 - Delete group (E34).
+- Delete account (H19).
+- Skip workout (W26) and Undo skip (W27).
+- Sign out (H36).
+- Starting from another routine (W57), and Start workout on Home (H44).
 
-Leaving a form with changes also asks (Form pages). Nothing else asks "Are you sure?". Discard workout happens right away.
+Leaving a form with changes also asks (Form pages). Nothing else asks "Are you sure?".
 
 **Undo bars after every removal**
-- **Logging:** set removed (L12), exercise removed, and workout discarded (shown on W01).
+- **Logging:** set removed (L12), exercise removed (L50), exercise swapped (L53) and workout discarded (W65).
 - **Edit workout:** set removed (W31) and exercise removed.
-- **Routines:** exercise removed from a routine, and routine deleted (shown on R01).
-- **Exercises:** exercise deleted (shown on E01), and group deleted (shown on E30).
-- **Other:** workout deleted, and profile photo removed (H41).
+- **Routines:** exercise removed from a routine (R25), and routine deleted (R07).
+- **Exercises:** exercise deleted (E06), and group deleted (E39).
+- **Other:** workout deleted (W83), and profile photo removed (H41).
 - **Exception:** delete account has no undo bar (H19). Signing in within 14 days keeps the account (A08).
 
 **Waiting before sending again.** Send link again on A11 waits a minute, from when A11 opens and again after each send, so people can't send link after link. While it waits it looks muted and counts down, "Send link again in 0:42", and tapping it says "Wait a moment before sending it again." H33 works the same, but waits only after a send.
@@ -433,10 +439,10 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | Day | Label above | Title |
 |---|---|---|
-| Today | Friday, 23 October | Today |
-| Yesterday | Thursday, 22 October | Yesterday |
-| Tomorrow | Saturday, 24 October | Tomorrow |
-| Any other day | 20 October | Tuesday |
+| Today | Fri, 23rd October | Today |
+| Yesterday | Thu, 22nd October | Yesterday |
+| Tomorrow | Sat, 24th October | Tomorrow |
+| Any other day | 20th October, or 20th October 2025 in another year | Tuesday |
 
 **Home greeting (H01–H07).** The label above "Home" follows the time of day:
 - "Good morning, Filip" until 12:00;
@@ -458,8 +464,9 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Elapsed time while logging | 6:40 |
 | Duration after the workout | 64 min, or 1:04:10 on the finish screen |
 | Large numbers | 9,840 kg |
+| Volume in a small space (Home) | 12.4 t, or 27.3k lb, from a thousand up |
 
-**Names.** Exercise names are always written in full and wrap onto a second line. They are never cut off with "…".
+**Names.** Exercise names are written in full and wrap onto a second line, except in the one-line rows listed under Lists in section 5.
 
 ---
 
@@ -478,8 +485,8 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | Row | Screens | What happens |
 |---|---|---|
-| **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 New account, H08 A section failed, H09 Setup complete, H44 Are you ready, H45 Every section failed, H46 Starting, H47 Couldn't start, H48 Start says why | A greeting and "Home" with the FM avatar, plus one card for today. H01: scheduled routine → Start workout. H02: progress and time → Resume workout, with the Resume bar. H03: Completed today (green), Up next, and View workout. H06: Skipped today (orange), Up next, and Undo skip. H04: Rest day, Up next, and Other routine. H05: Create routine. |
-| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed, H49 Couldn't load, H50–H53 Name states (H50 Loading, H51 Couldn't load, H52 Saving, H53 Couldn't save), H54 Email loading, H55 Email couldn't load, H56 Email saving, H57 Couldn't send, H58 Send again says why, H59 Sending again, H60 Sent again, H61 Couldn't send again, H62 Password saving, H63 Password couldn't save, H64 Password saved, H65 Rest time loading, H66 Rest time couldn't load, H67 Rest time saving, H68 Rest time couldn't save, H69 Couldn't remove photo, H70 Signing out, H71 Password empty, H72 Deleting, H73 Email confirmed, H74 Email confirmed signed out, H75 Link expired signed out | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version 0.1); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
+| **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 New account, H08 A section failed, H09 Setup complete, H44 Are you ready, H45 Every section failed, H46 Starting, H47 Couldn't start, H48 Start says why | A greeting with the FM avatar, then five sections that each load and fail on their own: Today, This week, This month, Streak and Recent records. Today has one action at most. H01: the planned routine and Start workout, which asks first on H44. H02: progress and time, Resume workout, and the Resume bar. H03: Done and Up next. H06: Skipped and Up next. H04: Rest day and Up next. H05: No routines yet and Create routine, with every other section empty. Open day goes to the Workout tab, and another day in This week opens that day with Back to Home. This month compares workouts, on plan and volume with last month, and Open month opens W40 with Home as its back link (W95). Streak only shows. A record opens E10 (E75). |
+| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed, H49 Couldn't load, H50–H53 Name states (H50 Loading, H51 Couldn't load, H52 Saving, H53 Couldn't save), H54 Email loading, H55 Email couldn't load, H56 Email saving, H57 Couldn't send, H58 Send again says why, H59 Sending again, H60 Sent again, H61 Couldn't send again, H62 Password saving, H63 Password couldn't save, H64 Password saved, H65 Rest time loading, H66 Rest time couldn't load, H67 Rest time saving, H68 Rest time couldn't save, H69 Couldn't remove photo, H70 Signing out, H71 Password empty, H72 Deleting, H73 Email confirmed, H74 Email confirmed signed out, H75 Link expired signed out | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time); Account (Name, Email, Password); About (Terms of service, Privacy policy, Version, which is the app's real version); then Sign out and Delete account. Sound and vibrate when rest ends stay out until rest alerts exist. Each row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg, cm) and Imperial (lb, in). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout
@@ -487,17 +494,17 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **W1 Today states** | W07 Loading, W08 Load failure, W01 Today, W02 In progress, W03 Completed, W06 Skipped, W26 Skip confirm, W27 Undo skip confirm, W04 Rest day, W09 Rest tomorrow, W05 No routines, W65 Workout discarded, with Undo, W66 Couldn't undo a discard, W13 Skipping, W14 Couldn't skip, W15 Undoing, W16 Couldn't undo, W72 Starting, W73 Couldn't start, W74 Another workout in progress, W75 Week strip loading, W79 Week strip load failure, W80 Start muted, W81 Resume bar hidden | The day header, a calendar icon button (→ W40) and a week strip Mon–Sun. The strip's markers load on their own (W75); if they fail, "Couldn't load the week." and Try again show under the strip, and the day stays usable (W79). While a workout is in progress on another day, Start workout, Log workout and Other routine look muted (W80), and tapping one says "Resume or finish your workout first." (W74). A marker means a workout belongs on that day: muted when planned, white on today, then green for done, orange for skipped and red for missed. A rest day has none. Today's card shows the routine and its exercises with targets. W01 has Start workout, Other routine and Skip workout. W03 has Edit and Delete. Its exercises look like R05's, on the card. W06 has its exercises, Up next and Undo skip. Skip workout asks first in W26, and Undo skip in W27, each a sheet with one button. Undoing brings W01 back today, or W21 on a past day. W09 is W04 when the next day is a rest day too. Up next always shows the day after the one shown: a routine or Rest. |
-| **W2 Choose a routine** | W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 Confirm loading, W62 Confirm couldn't load, W63 Load failure | A page in the Workout tab with a back link, opened by Other routine. Subtitle: "For this day only. Your schedule stays the same." It lists the routines in the week plan with their exercise count and last-done date, or "not done yet". The day's planned routine comes first, tagged Planned in plain text, even if it has since left the week plan. The rest follow the order of R01. Tapping one opens W57, a sheet: "Start Legs?", or "Log Legs?" on a past day, with the same count and date, the routine's exercises, and Start workout or Log workout, which still works if the exercises can't load. Its X returns to the list. Confirming starts that routine for that day only, then logging opens. W60 has only an empty card, "No routines in your week plan", with the Routines tab below it. With no routines at all, the day shows W05, so this page can't be reached. |
+| **W2 Choose a routine** | W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 Confirm loading, W62 Confirm couldn't load, W63 Load failure | A page in the Workout tab with a back link, opened by Other routine. Subtitle: "For this day only. Your schedule stays the same." It lists the routines in the week plan with their exercise count and last-done date, or "not done yet". The day's planned routine comes first, tagged Planned in plain text, even if it has since left the week plan. The rest follow the order of R01. Tapping one opens W57, a sheet: "Start Legs?", or "Log Legs?" on a past day, with the same count and date, the routine's exercises, and Start workout or Log workout, which still works if the exercises can't load. Its X returns to the list. Confirming starts that routine for that day only, then logging opens. W60 has only an empty card, "No routines in your week plan". With no routines at all, the day shows W05, so this page can't be reached. |
 | **W3 Other days** | W20 Past day, W23 Yesterday rest day, W21 Missed day, W22 Skipped day, W24 Tomorrow, W25 Rest day, W28 Another week, W29 Day from the month, W17 First week, no earlier weeks, W18 Last week, no later weeks, W19 Day in another year, W64 Other routine before the first day, W67 Workout details, W68 Details loading, W69 Details load failure, W70 Completed day load failure, W71 Details from the month, W82 Upcoming day, start says why, W91 Skip says why, W92 Day from Home | Opened from a day in the week strip. W20 is a completed workout with Edit and Delete. W21 is missed (red) with Log workout, then Other routine and Skip workout, laid out like W01. W22 is skipped (orange) with Undo skip. W24 shows the plan with Start workout, Other routine and Skip workout muted, and W25 a rest day with Other routine muted. On a future day, tapping one says "A workout can't be started before its day." or "A workout can't be skipped before its day." (W82). The selected day stays when you leave the tab and come back, until Back to today. W28 is another week: swiping the strip opens the same weekday there, and it reaches from the week of the first day to 4 weeks ahead. W29 is a day opened from the month: its header button reads Back to month. |
 | **W4 Edit or delete a workout** | W30 Edit workout, W31 Set removed, W32 Delete confirm, W83 Workout deleted, with Undo, W84 Couldn't delete, W85 Couldn't undo, W86 Edit loading, W87 Couldn't load, W88 Saving, W89 Couldn't save, W90 Discard changes, W93 Deleting, W94 No exercises left | Edit every set's weight and reps, add or remove sets and exercises, then Save workout. W30 is like L01 with every exercise open, no check boxes and no Swap. Removing a set or an exercise offers Undo (W31, L13). An added exercise starts with 3 sets at 0 and the low end of the reps, and shows its last time before the workout's date. With no exercises left, Save workout looks muted and says why. Leaving with changes asks first (W90). Delete on W03 and W20 asks first in W32, "Delete Back and shoulders 1?": its sets come out of history, best sets and month totals, and you can undo it. Then the day shows its plan, and "Workout deleted." offers Undo (W83), like a discard. |
-| **W5 Month** | W41 Loading, W40 Month, W42 Day summary, W43 Missed, W44 Skipped, W45 Planned, W46 Rest day, W47 First month, W48 Another day selected, W49 Load failure, W50 Another month, W51 Last month, a later day says why, W52 First month, an earlier day says why, W53 Nothing planned yet, W54 Today, W55 Loading, W56 Load failure, W76 In progress, W77 Completed loading, W78 Completed load failure, W95 From Home | Summary tiles for Done, Missed and Skipped, then a calendar of outlined day tiles, with empty rows for weeks a month doesn't reach. As in the week strip, the selected day is filled in the accent, with a white marker, and today is outlined when another day is selected. Today starts selected, and a tapped day stays selected (W48). Markers follow W01: a status bar under each past day, a white bar on today when a workout is planned, a muted bar on planned days, and none on rest days. A legend sits below it, and days from other months are left empty. Below that are the month totals: time trained, sets, volume and consistency. With no planned days yet, consistency shows "–". The calendar swipes like the week strip: it follows the finger, a short swipe springs back, and it bounces at the limits. The tiles and totals follow the new month. Swiping changes the month, from the first day's month to the month holding the last day the week strip reaches, and small chevrons beside the calendar show which ways it can go. Days past those limits look muted, and tapping one says why (W47). Every month takes six weeks, and the month sits above its year, so nothing moves between months. Back to today shows when another day or month is selected (W48). If the month can't load, the header stays, and W49 shows the message and Try again below it, as on W08. Tapping a day opens the summary sheet: W42 for a completed workout, which comes with logging, W43 to W45 with targets where nothing was logged, W46 for rest, with "Nothing planned. Recovery is part of the program." The exercises use the same list as the day screens, and neighbours in the same group join. Today uses the sheet for its state. Open day goes to that day on the Workout tab, in its week (W29). |
+| **W5 Month** | W41 Loading, W40 Month, W42 Day summary, W43 Missed, W44 Skipped, W45 Planned, W46 Rest day, W47 First month, W48 Another day selected, W49 Load failure, W50 Another month, W51 Last month, a later day says why, W52 First month, an earlier day says why, W53 Nothing planned yet, W54 Today, W55 Loading, W56 Load failure, W76 In progress, W77 Completed loading, W78 Completed load failure, W95 From Home | Summary tiles for Done, Missed and Skipped, then a calendar of outlined day tiles, with empty rows for weeks a month doesn't reach. As in the week strip, the selected day is filled in the accent, with a white marker, and today is outlined when another day is selected. Today starts selected, and a tapped day stays selected (W48). Markers follow W01: a status bar under each past day, a white bar on today when a workout is planned, a muted bar on planned days, and none on rest days. A legend sits below it, and days from other months are left empty. Below that are the month totals: time trained, sets, volume and on plan. With no planned days yet, on plan shows "–". The calendar swipes like the week strip: it follows the finger, a short swipe springs back, and it bounces at the limits. The tiles and totals follow the new month. Swiping changes the month, from the first day's month to the month holding the last day the week strip reaches, and small chevrons beside the calendar show which ways it can go. Days past those limits look muted, and tapping one says why (W47). Every month takes six weeks, and the month sits above its year, so nothing moves between months. Back to today shows when another day or month is selected (W48). If the month can't load, the header stays, and W49 shows the message and Try again below it, as on W08. Tapping a day opens the summary sheet: W42 for a completed workout, which comes with logging, W43 to W45 with targets where nothing was logged, W46 for rest, with "Nothing planned. Recovery is part of the program." The exercises use the same list as the day screens, and neighbours in the same group join. Today uses the sheet for its state. Open day goes to that day on the Workout tab, in its week (W29). |
 
 ### L · Logging
 
 | Row | Screens | What happens |
 |---|---|---|
 | **L1 Log sets** | L03 Loading, L05 Load failure, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L10 Edit weight, L11 Edit reps, L12 Set removed, L04 Reorder, L40 30 exercises says why, L41 20 sets says why, L42 Reps are whole numbers, L43 Out of range says why, L44 Only set says why, L45 Saving set, L46 Couldn't save a set, L47 Couldn't add a set, L48 Couldn't remove a set, L49 Couldn't bring the set back, L60 Reorder loading, L61 Reorder load failure, L62 Dragging, L63 Couldn't save the order, L66 Adding a set | A back link reads Workout, because every change saves as you go. The title sits beside Finish, with the date and elapsed time under it, then "x of 19 sets" and a progress bar. On a past day there is no elapsed time. Exercises use the cards of the day screens, and neighbours in a group join, each with its progress (0/3) and a chevron. One exercise is open at a time, as its own outlined card: first the first unfinished one, and the next one when its last set is checked. Checking the last set of all closes it. Any exercise can be tapped open. Its rows show the set number, last time, weight and reps, plus a check box, with equal weight and reps boxes. The whole row opens the edit sheet, and only the check box doesn't. Checked rows are tinted and stay editable, and tapping the check unchecks them. Add set, which copies the last set, Add exercise and Reorder are available. Below two exercises, Reorder looks muted and says "Add another exercise first.", and with none, "0 of 0 sets" stays. At 20 sets, Add set looks muted and says why. Changing a value also changes the same value on later unchecked sets, unless they were changed by hand. After each checked set except the last, a rest bar appears above the tab bar, ready to start, with −15, +15 and Start, all 44 px tall, and a small REST label with room before a larger time (L06). Running, Start becomes Skip (L07). A chevron hides it to a small button with a clock and the time (L08), which opens it again. Past zero it counts up in green, with Done (L09). There is no alert, and a past day has no timer. Tapping a value opens a sheet with a keypad and steppers (±2.5 kg, ±5 lb or ±1 rep) and Save set. The first key pressed replaces the value. A trash icon beside Last time removes the set, with Undo. With one set left it looks muted and says to use the exercise's trash. A value out of range mutes Save set, and tapping it says why. These sheets are the one exception to editing on a page, so a set stays one tap away at the gym. The swap icon opens Add exercise as Swap exercise, one pick from the same group first, keeping the set count and targets, with Undo. With checked sets it looks muted and says to uncheck them. The exercise name and targets, with a small open-out icon at the end of the name, open E10, which holds its history. |
-| **L2 Exercises** | L13 Remove exercise, L29 Swap exercise, L16 Swap says why, L20 Add exercise, L24 Loading, L21 No matches, L22 New exercise, L23 New one selected, L25 Load failure, L26 Fields missing, L27 No groups, New exercise says why, L28 Nothing picked says why, L50 Exercise removed, with Undo, L51 Couldn't remove, L52 Couldn't bring it back, L53 Swapped, with Undo, L54 Swapping, L55 Couldn't swap, L56 Couldn't undo a swap, L57 Adding, L58 Couldn't add, L59 Discard picks, L65 Reorder says why, L67 Removing, L68 Nothing to swap to | The trash asks first (L13), and the removal has Undo. The swap icon opens the same list as Swap exercise (L29): one pick, starting on the exercise's group, with Undo. With checked sets it looks muted and says why (L16). Add exercise is a page with a back link, a short description, search, group chips and a multi-select list, with its action in the bottom box. New exercise closes the list, after a line and a gap, so it doesn't read as adding to the group above it. A new exercise comes back picked, marked NEW. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, you're offered Create exercise (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises a notification says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". Leaving with exercises picked asks first (L59). A swap or add the server refuses says why, such as a set checked since (L55) or no room left (L58). |
+| **L2 Exercises** | L13 Remove exercise, L29 Swap exercise, L16 Swap says why, L20 Add exercise, L24 Loading, L21 No matches, L22 New exercise, L23 New one selected, L25 Load failure, L26 Fields missing, L27 No groups, New exercise says why, L28 Nothing picked says why, L50 Exercise removed, with Undo, L51 Couldn't remove, L52 Couldn't bring it back, L53 Swapped, with Undo, L54 Swapping, L55 Couldn't swap, L56 Couldn't undo a swap, L57 Adding, L58 Couldn't add, L59 Discard picks, L65 Reorder says why, L67 Removing, L68 Nothing to swap to | The trash asks first (L13), and the removal has Undo. The swap icon opens the same list as Swap exercise (L29): one pick, starting on the exercise's group, with Undo. With checked sets it looks muted and says why (L16). Add exercise is a page with a back link, a short description, search, group chips and a multi-select list, with its action in the bottom box. New exercise closes the list, after a line and a gap, so it doesn't read as adding to the group above it. A new exercise comes back picked, marked NEW. The button reads "Add exercise" with one picked and "Add exercises" with several. If nothing matches, New exercise is still there (name, group, and an optional "Also works"). L22 fills in the name from the search and the group from the selected chip. Without a group, it asks: "Choose a group." The group an exercise belongs to isn't offered under "Also works". A name the user already has shows under Name, and at 500 exercises a notification says "You've reached the limit of 500 exercises." The new exercise comes back selected and marked "New". Leaving with exercises picked asks first (L59). A swap or add the server refuses says why, such as a set checked since (L55) or no room left (L58). |
 | **L3 Finish** | L30 Finish workout, L02 No exercises left, L31 Nothing logged, L32 Past day, L33 Discard confirm, L34 Loading, L35 Load failure, L36 Saving, L37 Couldn't save, L38 Discarding, L39 Couldn't discard, L64 Save says why | A page with a Logging back link. L30 shows a warning for unchecked sets, then Duration, Sets, Volume and Records, plus New records, with Save workout and Discard workout. With no new records, the section stays and says "No new records this time.", here and on W67. Saving removes unchecked sets and any exercise left with no sets, then the day shows as completed. A past day has no timer, so Duration shows a dash and the time counts towards nothing (L32). A record beats every set from earlier dates; an exercise's first session has none, and each exercise shows at most one, heaviest weight first, then most reps at a weight. With nothing checked (L31), Save workout looks muted and says "Check off a set to save, or discard the workout." The warning shows at once, from the workout logging already holds. Discard workout asks first (L33), then the day shows its plan and W65 offers Undo, which puts the workout back in progress on that day. L02 is the logging screen after every exercise has been removed, with Add exercise, and with Finish still there. |
 
 ### R · Routines
@@ -512,7 +519,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 | Row | Screens | What happens |
 |---|---|---|
-| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises, E05 Load failure, E06 Exercise deleted, with Undo, E07 No exercises in this group, E08 New exercise, E09 Exercise created, E29 Couldn't undo a delete, E56 No groups, New exercise says why, E57 Groups loading, E58 Limit reached, E59 Name taken, E60 Saving, E61 Couldn't save, E62 Discard changes, E63 Groups loading on New exercise, E71 One group, E72 Name too long | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title and its description, search and the chips stay pinned, with Groups (→ E30) as a link chip before All, and New exercise is pinned at the bottom,, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." |
+| **E1 Exercises tab** | E02 Loading, E01 Exercises, E03 No matches, E04 No exercises, E05 Load failure, E06 Exercise deleted, with Undo, E07 No exercises in this group, E08 New exercise, E09 Exercise created, E29 Couldn't undo a delete, E56 No groups, New exercise says why, E57 Groups loading, E58 Limit reached, E59 Name taken, E60 Saving, E61 Couldn't save, E62 Discard changes, E63 Groups loading on New exercise, E71 One group, E72 Name too long | Search, group chips, and the list grouped by muscle. Each row shows the best set and its date, or "Not done yet". The title and its description, search and the chips stay pinned, with Groups (→ E30) as a link chip before All, and New exercise is pinned at the bottom, and only the list scrolls. Picking a group or searching returns the list to the top. After saving a new exercise, E01 clears its filters so the exercise is in the list, and a notification says "Cable lateral raise created." A group without exercises, with nothing searched, shows E03's layout: "No exercises in Chest", "Create one to use it in routines and workouts." |
 | **E2 Exercise details** | E10 Exercise, E11 Never done, E12 In routines, trash says why, E13 Loading, E14 Load failure, E17 Loading more sessions, E18 Couldn't load sessions, E19 Sessions loading, E67 Chart loading, E68 Chart couldn't load, E69 No sessions in this period, E70 All, by month, E74 Sessions couldn't load, E75 From Home, E76 From Logging | Best set, times done, a heaviest-set chart (3M, 6M, 1Y, All), "Used in" routines by name with a line between them, which only show and open nothing, and every session by month. Edit icon in the header. Sessions load on their own, 20 at a time, newest first, and the next 20 load near the end of the list. A month heading reads "October · 3 sessions", counting the whole month, with the year when it isn't this one, above a card of that month's rows. A row shows the date, the workout's name and its checked sets, "80 × 10 · 82.5 × 10", with "kg × reps" under them, and opens nothing. While sessions load, skeleton rows show in their place (E19, and E17 at the end of the list). A failure says "Couldn't load the sessions." or "Couldn't load more sessions." in place, with Try again (E18). The chart shows the heaviest set of each session in the range, oldest first, with the change above it; a range over 60 sessions shows each month's heaviest set instead (E70). It loads on its own, with a skeleton (E67), a failure in its box (E68), and "No sessions in this period" (E69). Never done (E11), every section keeps its place: Best set shows a dash and "Not done yet", Done shows "0 times", the chart's box says "No sessions yet" without range buttons, and All sessions shows "No sessions yet", "Finish a workout with this exercise and its sessions show up here." |
 | **E3 Edit or delete** | E20 Edit exercise, E21 Delete confirm, E22 Name taken, E23 Confirm, E15 Loading, E16 Load failure, E24 Saving, E25 Couldn't save, E26 Saved, E27 Deleting, E28 Couldn't delete | A page with name, group and "Also works", then Save exercise. Changes show everywhere, past workouts included. The edit icon on E10 and E11 opens E20, and the trash icon opens E21. Only an exercise in no routine can be deleted, and logged workouts keep it. Then a notification says "Bench press deleted." with Undo. |
 | **E4 Groups** | E31 Loading, E30 Groups, E36 No groups, E35 Group, E33 Edit group, E32 New group, E34 Delete, E37 Load failure, E38 Name taken, E39 Group deleted, with Undo, E40 Trash says why, E41 No exercises, E42 No search matches, E43 Dragging a group, E44 Couldn't save the order, E45 Saving, E46 Couldn't save, E47 Group created, E48 Saved, E49 Loading, E50 Load failure, E51 Loading, E52 Load failure, E53 Deleting, E54 Couldn't delete, E55 Couldn't undo a delete, E64 Name missing, E65 Discard changes, E66 Not done yet, E73 Name too long | Groups with exercise counts, which you can drag to reorder (this sets the chip order). The title, its short description and search stay pinned, New group is pinned at the bottom, and the sorting hint sits below the list. While searching, the groups can't be dragged and New group starts from what was typed. New group and Edit group are pages. A row opens E35: the exercises in the group and those that also work it, with their best sets, which only show and open nothing, with Edit and Delete in the header; only an empty group can be deleted. Its "No sessions yet" card shows until one of its exercises has been done; E66 shows it before. Exercises and Also works always show; an empty one says "No exercises yet", and Also works adds "Choose this group under Also works when you create or edit an exercise." |
@@ -521,7 +528,9 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 
 ## 10. Sample data on the canvas
 
-- **Today:** Friday 23 October 2026, scheduled Chest and arms 2.
+This is what the capture tool answers with. Screens captured before version 0.64 can show older data.
+
+- **Today:** Friday 23 October 2026, planned Chest and arms 2.
 - **Week plan:**
   - Mon: Chest and arms 1
   - Tue: Back and shoulders 1
@@ -531,18 +540,18 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
   - Sat: Back and shoulders 2
   - Sun: rest
 - **This week:** Mon 19 and Tue 20 done; Wed 21 missed (W22 shows the same day as skipped).
-- **October:** 13 done, 1 missed, 1 skipped.
-- **Exercises:** 35 in E01: Filip's 26, six preloaded ones and Cable lateral raise, which is created in L22.
+- **October:** 13 done, 1 missed (the 21st), 1 skipped (the 3rd). On plan 87%.
+- **Streak:** 6 weeks on plan, best 11.
+- **Exercises:** 13 in E01. Cable lateral raise has never been done and is in no routine.
 - **Groups:** Chest, Back, Shoulders, Biceps, Triceps, Legs.
-- **Reference exercise:** Smith machine incline bench press. Best set 82.5 kg × 10 (Fri, 16th Oct), done 11 times since 7th Aug. L01 and E10 agree.
+- **Reference exercise:** Flat barbell bench press. Best set 82.5 kg × 10 (Fri, 9th Oct), done 25 times since 1st May. L01 and E10 agree.
 
 ---
 
 ## 11. Parked and decided
 
 **Parked for later**
-- Home content beyond today's card.
-- Bodyweight logging (Pull-up, Triceps dip).
+- A separate bodyweight exercise type.
 - Highlighting today in the R01 week plan.
 - A progression nudge.
 - Exercise notes.
@@ -550,9 +559,8 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 - Opening a day from an E10 session.
 - A sort switch on E01.
 - "Used in" day tags on E01 rows.
-- Swapping an exercise during logging.
 
 **Decided**
-- Group chips wrap, even if someone creates many groups.
+- Filter chips stay on one line and scroll sideways. Chips for picking in a form wrap.
 - Completed is green, skipped is orange, missed is red and in progress uses the accent.
 - The second accent is called Chrome.

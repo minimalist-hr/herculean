@@ -50,8 +50,6 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Sign out deletes that device's refresh token.
 - Changing the password deletes every refresh token except the current one, and emails the user.
 - A token is deleted once it is used or revoked.
-- A streak counts finished weeks in a row with no planned day missed. A skipped day doesn't break it, a week with nothing planned is passed over, and this week doesn't count until it's over.
-- A record is a heaviest weight that beats every earlier session of the exercise. The first time an exercise is done isn't one, and neither is a bodyweight set. Home shows the newest three from the last 30 days, one per exercise.
 - Deleting an account needs the current password, signs out every device and schedules the deletion for 14 days later. An email says when. Signing in before then offers to keep the account, and the email address stays taken until the deletion.
 - After the 14 days, all the account's data is deleted, soft-deleted rows included, and there is no undo. A last email tells the user.
 - A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and no exercises.
@@ -78,7 +76,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A workout can start from a routine. Its name and exercises are copied when it starts, so later routine changes do not affect it.
 - Each set of a new workout starts with the weight and reps of the same set last time. If last time had fewer sets, it takes the last of them. If there was no last time, it starts at 0 kg and the low end of the target reps.
 - Last time is the exercise's latest completed workout before this workout's date.
-- Logging a past day (W21) gives the workout that date. It has no elapsed time, and its duration is entered on L30.
+- Logging a past day (W21) gives the workout that date. It has no elapsed time, so it has no duration.
 - Changing a set's weight or reps also changes it on later unchecked sets of that exercise, unless they were changed by hand. A new set copies the last set. A set put back by Undo counts as changed by hand.
 - An exercise in a workout has 1 to 20 sets. Its last set can't be removed: the exercise is removed instead.
 - Sets can only change while the workout is in progress.
@@ -169,6 +167,11 @@ Every action in the table is built.
 - Workouts, routines, exercises and groups are soft-deleted. Undo restores them. A deleted one stays, so past workouts keep its name. Restoring fails if its name was reused, or if a routine's exercise or an exercise's group is gone.
 - Sets, exercises in a workout and the profile photo are added back on undo.
 - Removals in an edit screen before Save (W31, R20) are undone in the app. The server never sees them.
+
+### Streak and records
+
+- A streak counts finished weeks in a row with no planned day missed. A skipped day doesn't break it, a week with nothing planned is passed over, and this week doesn't count until it's over.
+- Home's Recent records are only heaviest-weight [records](#terms), never a bodyweight set: the newest three from the last 30 days, one per exercise.
 
 ### Month totals (W40)
 

@@ -97,7 +97,7 @@ Herculean.Training.Application/
 - **Query filters:** Training has named EF Core filters for `UserId` and for soft delete, so a query never needs its own. A filtered query without a signed-in user throws, so it can never read everyone's rows. The signature shows which is which: a repository method that takes a `UserId` turns the user filter off, for a background job that has no signed-in user. One that takes none reads the current user's rows.
 - **Current user:** SharedKernel's `ICurrentUserAccessor` reads the `sub` claim of the access token, for the whole API. Each module wraps it in its own `CurrentUser`, with the module's own `UserId`.
 - **Typed IDs:** each ID is a record struct of our own, with an EF Core converter. Each module has its own `UserId`: Account owns users, and Training only refers to them. Between modules, IDs travel as plain `Guid`s.
-- **Undo:** workouts and groups have a restore endpoint.
+- **Undo:** workouts, routines, exercises and groups have a restore endpoint.
 
 ## Errors
 
@@ -121,6 +121,12 @@ Herculean.Training.Application/
 | Event | From | Handled by | What happens |
 |---|---|---|---|
 | Account created | Account | Training | Creates workout settings with their starting values, and the 6 groups |
+| Account deleted | Account | Training | Deletes the user's training data, soft-deleted rows included |
+| Account deletion scheduled | Account | Account | Sends H38 |
+| Account deletion notice requested | Account | Account | Sends H37 |
+| Password changed | Account | Account | Sends H25 |
+| Email change requested | Account | Account | Creates the token and sends H30 |
+| Email changed | Account | Account | Sends H31 to the old address |
 
 ## Auth
 
@@ -132,7 +138,7 @@ Herculean.Training.Application/
 - Sign in, refresh, signing out, keeping an account, sending a reset link, completing a reset, changing the password, deleting the account, asking to change the email, sending its link again and confirming it each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
 - Sending a reset link answers 202 for every valid email, and the work happens after the answer, so the request never tells which emails have an account. The queue holds only the email: the token is created when the email goes out, so the plain token is never stored.
 - The API checks every access token's signature, issuer, audience and lifetime.
-- Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, sign in, refresh, password resets, the health check and the API docs are anonymous.
+- Every endpoint needs a signed-in user unless it is marked anonymous. Creating an account, sign in, refresh, signing out, keeping an account, password resets, confirming an email change, the pages email links open, the health check and the API docs are anonymous.
 - The OpenAPI document has the Bearer scheme, so Scalar can send an access token.
 - Tokens are returned as the OAuth 2.0 token response (RFC 6749), in camelCase: `accessToken`, `expiresIn` (seconds) and `refreshToken`.
 
@@ -178,4 +184,3 @@ Herculean.Training.Application/
   7. Every endpoint, response, schema and field in `openapi.json` has a description.
 - **Endpoint tests:** HTTP behaviour, like status codes, auth and rate limits, through an in-memory server (TestHost) with the module's own wiring and fake stores.
 - **Postgres translation tests:** a read the in-memory database runs but Postgres might not, such as grouping, runs against the Npgsql provider with no server. Failing to connect means the query translated. Each new read like that gets one.
-- **Integration tests:** the API against a real PostgreSQL in Testcontainers. Written last.

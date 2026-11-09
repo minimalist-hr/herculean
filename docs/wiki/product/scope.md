@@ -23,6 +23,8 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 7 | [Settings](#7-settings) | H10–H19 |
 | 8 | [Home](#8-home) | H01–H09, H44 |
 
+Each feature lists its main screens. Every state is in `docs/design/screen-index.md`.
+
 ---
 
 ## 1. Account
@@ -95,7 +97,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | POST | `/api/v1/groups/{id}/restore` | Undo on E30 |
 | PUT | `/api/v1/group-order` | E30, drag to reorder |
 
-**Left to other features:** "Used in" on E10 shows routines from [3. Routines](#3-routines). E10's chart, sessions, `/sessions` and `/progress` need [5. Logging](#5-logging), so they moved to [#54](https://gitlab.com/minimalist-sds/herculean/-/issues/54).
+**Left to other features:** "Used in" on E10 shows routines from [3. Routines](#3-routines).
 
 **Done when**
 - A group's trash is only active when no exercise uses it.
@@ -167,7 +169,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
 | DELETE | `/api/v1/workouts/{id}` | Undo skip |
 
-**Left to other features:** Home is in [8. Home](#8-home). W03 and W20 show a completed workout, and come with logging. Until their features are built, a button that leads to one says it comes in a later update. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit and Delete are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
+**Left to other features:** Home is in [8. Home](#8-home). W03 and W20 show a completed workout, and come with logging. Start workout, Other routine and Log workout open logging, in [5. Logging](#5-logging). Edit and Delete are in [6. Edit workout and month](#6-edit-workout-and-month). The FM avatar opens [7. Settings](#7-settings).
 
 **Done when**
 - Each day shows the status from the [day table](/product/domain#how-a-day-is-shown), in the user's time zone.
@@ -178,7 +180,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you start a workout from today's routine, another routine or a missed day, and log it at the gym. You check off sets with weight and reps, get a rest timer to start after each checked set, add and remove sets and exercises, reorder exercises and look at an exercise's history. You finish with a summary and new records, then save or discard. A workout in progress survives closing the app and can be resumed from any tab.
 
-**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 and W62 Confirm loading and failure, W63 Load failure, W64 Before the first day, W65 Workout discarded, W66 Couldn't undo, W67 Workout details, W68 and W69 Loading and failure, W70 Saved day failure, W71 From the month, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, L32 Past day, L33 Discard, L34 and L35 Loading and failure, L36 to L39 Saving, discarding and failure, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar. H02 and H03 wait for Home.
+**Screens:** W42 Day summary, W10 Choose a routine, W11 Loading, W57 Confirm, W58 Starting, W59 Couldn't start, W60 Nothing in the week plan, W61 and W62 Confirm loading and failure, W63 Load failure, W64 Before the first day, W65 Workout discarded, W66 Couldn't undo, W67 Workout details, W68 and W69 Loading and failure, W70 Saved day failure, W71 From the month, L01 Logging, L06 Rest ready, L07 Rest running, L08 Rest hidden, L09 Rest over, L02 No exercises left, L03 Loading, L05 Load failure, L04 Reorder, L10 Edit weight, L11 Edit reps, L12 Set removed, L13 Remove exercise, L16 Swap says why, L29 Swap exercise, L30 Finish workout, L31 Nothing logged, L32 Past day, L33 Discard, L34 and L35 Loading and failure, L36 to L39 Saving, discarding and failure, W02 Workout in progress, W03 Completed, W20 Past day, E10 Exercise. Plus the Resume bar.
 
 **Flows**
 - **Start:** Start workout (W01, H01), Log workout (W21), or a routine picked on W10 (from Other routine on W01, W04, W21 or a past rest day) → W57 → L03 → L01. The back link on L01 then returns to the day, not to W10.

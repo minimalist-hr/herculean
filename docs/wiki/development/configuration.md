@@ -33,16 +33,9 @@ title: Configuration
 
 | Setting | Where | Value |
 |---|---|---|
-| `EXPO_PUBLIC_API_URL` | Environment | API address. Set by Aspire locally and by EAS for builds. |
+| `EXPO_PUBLIC_API_URL` | Environment | API address. Set by Aspire locally. |
 | Link scheme | `app.config.ts` | `herculean` |
 | App ID | `app.config.ts` | `hr.minimalist.herculean` (iOS bundle ID and Android package). It cannot change after the app is published. |
-
-### EAS profiles
-
-| Profile | Used for |
-|---|---|
-| `development` | Local development |
-| `preview` | Testers: an Android APK, and updates that open in Expo Go on iPhone |
 
 ## CI
 

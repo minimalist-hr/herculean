@@ -14,7 +14,7 @@ flowchart LR
 
     app -- "HTTPS, JSON" --> api
     api --> db
-    api -- "reset and email change links" --> email
+    api -- "account emails" --> email
     email --> inbox
     inbox -- "link opens redirect page" --> api
     api -. "redirect into the app" .-> app

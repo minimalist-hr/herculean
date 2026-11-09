@@ -37,7 +37,7 @@ The insides of `api/` and `app/` are on [Backend architecture](/architecture/bac
 3. Open the Aspire dashboard. It shows the API, PostgreSQL, pgweb, Mailpit and the app.
 4. In Expo Go, tap **Enter URL manually** and type the `exp://` address shown on the app in the dashboard, for example `exp://192.168.1.10:8081`.
 
-To use a browser instead of the phone, open the app's **Browser** link from the dashboard. The browser is for development only. Secure storage, rest timer alerts and vibration don't work the same there, so check those on the phone.
+To use a browser instead of the phone, open the app's **Browser** link from the dashboard. The browser is for development only. Secure storage doesn't work the same there, so check it on the phone.
 
 The phone must be on the same network as the computer. It reaches Metro (Node.js) and the API (`herculean.api.exe`) over it. When Windows asks, allow both through the firewall on the network type you use. A phone hotspot is usually Public. If the app loads but every request fails after 15 seconds, Windows Defender Firewall has a Block rule for `herculean.api.exe`: change it to Allow.
 

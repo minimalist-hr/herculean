@@ -11,14 +11,16 @@ app/
     features/     one folder per feature
       account/
       exercises/
+      home/
       routines/
-      workout/
-      logging/
       settings/
+      workout/
     components/   shared components from design section 5
     theme/        theme built from design-tokens.json
     formats/      every format from design section 8
     api/          client generated from the API's OpenAPI document
+    storage/      what the phone keeps
+    test-utils/   helpers for tests
 ```
 
 - A feature folder holds that feature's screens, components and API hooks.

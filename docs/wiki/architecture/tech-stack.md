@@ -21,8 +21,7 @@ Every app library must work in Expo Go.
 | Icons, chart | react-native-svg |
 | Gestures, animation | react-native-gesture-handler, react-native-reanimated |
 | Sheets | Own component, `components/sheet.tsx` |
-| Animation | react-native-reanimated |
-| Drag lists | react-native-draggable-flatlist |
+| Drag lists | Own component, `components/draggable-list.tsx` |
 | Token storage | expo-secure-store |
 | Profile photo | expo-image-picker |
 | Browser preview, development only | react-native-web, @expo/metro-runtime |
@@ -41,7 +40,7 @@ Every app library must work in Expo Go.
 | Auth | Our own, no ASP.NET Core Identity ([details](/architecture/backend#auth)) |
 | Email | Resend, over SMTP with MailKit |
 | Logs, traces | OpenTelemetry |
-| Tests | xUnit v3, ArchUnitNET, Shouldly, Testcontainers |
+| Tests | xUnit v3, ArchUnitNET, Shouldly |
 | Format | .editorconfig, dotnet format |
 
 ## Tooling
@@ -52,4 +51,3 @@ Every app library must work in Expo Go.
 | Local email | Mailpit |
 | CI | GitLab CI |
 | Code quality | SonarQube Cloud |
-| App builds and updates | EAS |

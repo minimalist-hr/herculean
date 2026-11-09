@@ -1,6 +1,6 @@
 // Every built screen and state. A new one goes in the screen index after the one before it here.
 
-import { legsDay, problem, sample, sampleDay, sampleDays, sampleMonthSummary, sampleSummary, sampleWeek, sampleWorkout, savedSummary, savedWorkout, samplePhoto } from './fixtures.mjs';
+import { dayOf, daysAnswer, legsDay, monthSummary, problem, sample, sampleDay, sampleSummary, sampleWorkout, savedOn, savedSummary, savedWorkout, samplePhoto, summaryOf } from './fixtures.mjs';
 
 const { benchHistory, benchPress, lateralRaise, chest, chestAndArms, chestAndArmsTogether, exerciseDetails, routineList } = sample;
 
@@ -13,7 +13,7 @@ const noGroups = { status: 200, body: [] };
 const friday = '2026-10-23T18:00:00';
 const sunday = '2026-10-25T18:00:00';
 const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', workoutId: 'workout-skipped' } });
-const sundayWeek = { status: 200, body: sampleWeek('2026-10-25') };
+const sundayWeek = daysAnswer({ today: '2026-10-25' });
 const choosePath = '/workout/choose/2026-10-23';
 const confirmRoutine = async (on) => {
   await on.go(choosePath);
@@ -24,18 +24,25 @@ const confirmRoutine = async (on) => {
 const logPath = `/workout/log/${sampleWorkout.id}`;
 const workoutPath = `GET /api/v1/workouts/${sampleWorkout.id}`;
 // A workout in progress the day before, which keeps today's from starting.
-const anotherInProgressAnswer = { 'GET /api/v1/workouts': { status: 200, body: [{ id: sampleWorkout.id, date: '2026-10-22', status: 'inProgress', name: 'Back and shoulders 1' }] } };
+const anotherInProgressAnswer = { 'GET /api/v1/workouts': { status: 200, body: [{ id: sampleWorkout.id, date: '2026-10-22', status: 'inProgress', name: 'Chest and arms 1' }] }, 'GET /api/v1/days': daysAnswer({ statuses: { '2026-10-22': 'inProgress' } }) };
 // The workout in progress, which shows the Resume bar.
 const inProgressAnswer = { 'GET /api/v1/workouts': { status: 200, body: [{ id: sampleWorkout.id, date: '2026-10-23', status: 'inProgress', name: sampleWorkout.name }] } };
 const addPath = `${logPath}/add`;
 const newExercisePath = `${addPath}/new-exercise`;
 const inclineDumbbellPress = sampleWorkout.exercises.find((exercise) => exercise.name === 'Incline dumbbell bench press');
 const detailsPath = `/workout/details/${sampleWorkout.id}`;
-const savedAnswers = {
+// Today having gone this way, in the week strip, the calendar and the month's totals.
+const withToday = (status) => {
+  const options = { statuses: { '2026-10-23': status } };
+
+  return { 'GET /api/v1/days': daysAnswer(options), 'GET /api/v1/month-summaries/2026-10': { status: 200, body: monthSummary('2026-10', options) } };
+};
+const savedDayAnswers = {
   'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'completed', workoutId: sampleWorkout.id, routine: { ...sampleDay.routine, exercises: savedWorkout.exercises } } },
   [workoutPath]: { status: 200, body: savedWorkout },
   [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: { status: 200, body: savedSummary },
 };
+const savedAnswers = { ...savedDayAnswers, ...withToday('completed') };
 // A saved day whose workout can be deleted and put back, so the day then shows its plan.
 const deletableAnswers = ({ restore } = {}) => {
   let deleted = false;
@@ -54,6 +61,7 @@ const deletableAnswers = ({ restore } = {}) => {
       return { status: 200, body: { id: sampleWorkout.id, date: '2026-10-23', status: 'completed', name: sampleWorkout.name } };
     },
     'GET /api/v1/days/2026-10-23': () => (deleted ? { status: 200, body: sampleDay } : savedAnswers['GET /api/v1/days/2026-10-23']),
+    'GET /api/v1/days': (url) => (deleted ? daysAnswer() : savedAnswers['GET /api/v1/days'])(url),
   };
 };
 const deleteFromToday = async (on) => {
@@ -79,10 +87,12 @@ const editFromToday = async (on) => {
   await on.sleep(400);
 };
 const editWorkoutPath = `/workout/edit/${sampleWorkout.id}`;
+const pastWorkout = savedOn('2026-10-20', sampleWorkout.id);
 const pastSavedAnswers = {
-  ...savedAnswers,
-  'GET /api/v1/days/2026-10-20': { status: 200, body: { ...sampleDay, date: '2026-10-20', status: 'completed', workoutId: sampleWorkout.id, routine: { ...sampleDay.routine, name: 'Back and shoulders 1', exercises: savedWorkout.exercises } } },
-  [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: { status: 200, body: { ...savedSummary, name: 'Back and shoulders 1', date: '2026-10-20', durationSeconds: 3130 } },
+  ...savedDayAnswers,
+  'GET /api/v1/days/2026-10-20': { status: 200, body: { ...dayOf('2026-10-20'), workoutId: sampleWorkout.id, routine: { ...dayOf('2026-10-20').routine, exercises: pastWorkout.exercises } } },
+  [workoutPath]: { status: 200, body: pastWorkout },
+  [`GET /api/v1/workouts/${sampleWorkout.id}/summary`]: { status: 200, body: summaryOf(pastWorkout) },
 };
 const finishPath = `${logPath}/finish`;
 const summaryPath = `GET /api/v1/workouts/${sampleWorkout.id}/summary`;
@@ -135,10 +145,6 @@ const openDayFromMonth = async (on, day) => {
   await on.tap(day);
 };
 
-const homeAnswers = {
-  'GET /api/v1/month-summaries/2026-10': { status: 200, body: { ...sampleMonthSummary, done: 9, missed: 1, skipped: 0, setsDone: 171, volumeKg: 12400, plannedDays: 10, consistencyPercent: 90 } },
-  'GET /api/v1/month-summaries/2026-09': { status: 200, body: { ...sampleMonthSummary, done: 7, missed: 2, skipped: 0, setsDone: 133, volumeKg: 11480, plannedDays: 9, consistencyPercent: 85 } },
-};
 const unfinishedUser = { 'GET /api/v1/users/me': { status: 200, body: { email: 'filip@example.com', name: null, units: 'metric', timeZone: 'Europe/Zagreb' } } };
 const goToSetup = async (on) => {
   await on.type('Email', 'filip@example.com');
@@ -168,7 +174,7 @@ const fillNewPassword = async (on) => {
   await on.type('Confirm new password', 'password-one');
   await on.tap('Save password');
 };
-const skippedAnswers = { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) };
+const skippedAnswers = { ...withToday('skipped'), 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) };
 const skipFromToday = async (on) => {
   await on.go('/workout');
   await on.tap('Skip workout');
@@ -238,6 +244,33 @@ const lastWeek = async (on) => {
   }
 };
 const noPlannedDays = { done: 0, missed: 0, skipped: 0, minutesTrained: 0, setsDone: 0, setsPlanned: 0, volumeKg: 0, plannedDays: 0, consistencyPercent: null };
+// A new account: nothing planned, nothing done.
+const noRoutinesAnswers = {
+  'GET /api/v1/days': daysAnswer({ noPlan: true }),
+  'GET /api/v1/days/2026-10-23': { status: 200, body: { ...dayOf('2026-10-23', { noPlan: true }), hasRoutines: false, upNext: { date: '2026-10-24', routineName: null } } },
+  'GET /api/v1/month-summaries/2026-10': { status: 200, body: noPlannedDays },
+  'GET /api/v1/month-summaries/2026-09': { status: 200, body: noPlannedDays },
+  'GET /api/v1/records/recent': { status: 200, body: [] },
+  'GET /api/v1/streak': { status: 200, body: { weeks: 0, best: 0 } },
+};
+// Setup not finished until its Save, then a new account with a name.
+const finishingSetupAnswers = () => {
+  let finished = false;
+
+  return {
+    ...noRoutinesAnswers,
+    'GET /api/v1/users/me': () => (finished ? undefined : unfinishedUser['GET /api/v1/users/me']),
+    'PATCH /api/v1/users/me': () => {
+      finished = true;
+    },
+  };
+};
+// An account whose first day is this date: nothing is planned before it.
+const firstDayAnswers = (date) => ({
+  'GET /api/v1/days/first': { status: 200, body: { date } },
+  'GET /api/v1/days': daysAnswer({ firstDay: date }),
+  'GET /api/v1/month-summaries/2026-10': { status: 200, body: monthSummary('2026-10', { firstDay: date }) },
+});
 
 const benchId = `workout-${benchPress.id}`;
 const benchPath = `/api/v1/workouts/${sampleWorkout.id}/exercises/${benchId}`;
@@ -563,13 +596,13 @@ export const screens = [
     await on.waitFor('Recent records');
     await on.sleep(400);
   } },
-  { id: 'H01', file: 'H01-Home', title: 'Home', row: 'H1 Today states', today: friday, answers: homeAnswers, steps: async (on) => {
+  { id: 'H01', file: 'H01-Home', title: 'Home', row: 'H1 Today states', today: friday, steps: async (on) => {
     await on.go('/');
     await on.waitFor('Start workout');
     await on.waitFor('6 weeks on plan');
     await on.sleep(600);
   } },
-  { id: 'H44', file: 'H44-Home-Ready', title: 'Home · are you ready', row: 'H1 Today states', today: friday, full: false, answers: homeAnswers, steps: async (on) => {
+  { id: 'H44', file: 'H44-Home-Ready', title: 'Home · are you ready', row: 'H1 Today states', today: friday, full: false, steps: async (on) => {
     await on.go('/');
     await on.waitFor('Start workout');
     await on.sleep(400);
@@ -577,51 +610,51 @@ export const screens = [
     await on.waitFor('Are you ready?');
     await on.sleep(600);
   } },
-  { id: 'H45', file: 'H45-Home-Every-Section-Failed', title: 'Home · every section failed', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail', 'GET /api/v1/month-summaries/2026-10': 'fail', 'GET /api/v1/streak': 'fail', 'GET /api/v1/records/recent': 'fail' }, steps: async (on) => {
+  { id: 'H45', file: 'H45-Home-Every-Section-Failed', title: 'Home · every section failed', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail', 'GET /api/v1/month-summaries/2026-10': 'fail', 'GET /api/v1/streak': 'fail', 'GET /api/v1/records/recent': 'fail' }, steps: async (on) => {
     await on.go('/');
     await on.waitFor("Couldn't load today.");
     await on.sleep(800);
   } },
-  { id: 'H46', file: 'H46-Home-Ready-Starting', title: 'Home · are you ready · starting', row: 'H1 Today states', today: friday, full: false, answers: { ...homeAnswers, 'POST /api/v1/workouts': 'hold' }, steps: startFromReady },
-  { id: 'H47', file: 'H47-Home-Ready-Failed', title: "Home · are you ready · couldn't start", row: 'H1 Today states', today: friday, full: false, answers: { ...homeAnswers, 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
+  { id: 'H46', file: 'H46-Home-Ready-Starting', title: 'Home · are you ready · starting', row: 'H1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'hold' }, steps: startFromReady },
+  { id: 'H47', file: 'H47-Home-Ready-Failed', title: "Home · are you ready · couldn't start", row: 'H1 Today states', today: friday, full: false, answers: { 'POST /api/v1/workouts': 'fail' }, steps: async (on) => {
     await startFromReady(on);
     await on.waitFor("Couldn't start the workout. Try again.");
   } },
-  { id: 'H48', file: 'H48-Home-Another-In-Progress', title: 'Home · another workout in progress, Start says why', row: 'H1 Today states', today: friday, full: false, answers: { ...homeAnswers, ...anotherInProgressAnswer }, steps: async (on) => {
+  { id: 'H48', file: 'H48-Home-Another-In-Progress', title: 'Home · another workout in progress, Start says why', row: 'H1 Today states', today: friday, full: false, answers: { ...anotherInProgressAnswer }, steps: async (on) => {
     await askReady(on);
     await on.waitFor('Resume or finish your workout first.');
   } },
-  { id: 'H02', file: 'H02-Home-In-Progress', title: 'Home · in progress', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
+  { id: 'H02', file: 'H02-Home-In-Progress', title: 'Home · in progress', row: 'H1 Today states', today: friday, answers: { ...inProgressAnswer, ...withToday('inProgress'), 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
     await on.go('/');
     await on.waitFor('Resume workout');
     await on.sleep(600);
   } },
-  { id: 'H03', file: 'H03-Home-Completed', title: 'Home · completed', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, ...savedAnswers }, steps: async (on) => {
+  { id: 'H03', file: 'H03-Home-Completed', title: 'Home · completed', row: 'H1 Today states', today: friday, answers: { ...savedAnswers }, steps: async (on) => {
     await on.go('/');
     await on.waitFor('Up next');
     await on.sleep(600);
   } },
-  { id: 'H06', file: 'H06-Home-Skipped', title: 'Home · skipped', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, ...skippedAnswers }, steps: async (on) => {
+  { id: 'H06', file: 'H06-Home-Skipped', title: 'Home · skipped', row: 'H1 Today states', today: friday, answers: { ...skippedAnswers }, steps: async (on) => {
     await on.go('/');
     await on.waitFor('Skipped');
     await on.sleep(600);
   } },
-  { id: 'H04', file: 'H04-Home-Rest-Day', title: 'Home · rest day', row: 'H1 Today states', today: sunday, answers: { ...homeAnswers, 'GET /api/v1/days': sundayWeek, 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1') }, steps: async (on) => {
+  { id: 'H04', file: 'H04-Home-Rest-Day', title: 'Home · rest day', row: 'H1 Today states', today: sunday, answers: { 'GET /api/v1/days': sundayWeek, 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1') }, steps: async (on) => {
     await on.go('/');
     await on.waitFor('Rest day');
     await on.sleep(600);
   } },
-  { id: 'H05', file: 'H05-Home-No-Routines', title: 'Home · new account', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } }, 'GET /api/v1/records/recent': { status: 200, body: [] }, 'GET /api/v1/streak': { status: 200, body: { weeks: 0, best: 0 } } }, steps: async (on) => {
+  { id: 'H05', file: 'H05-Home-No-Routines', title: 'Home · new account', row: 'H1 Today states', today: friday, answers: noRoutinesAnswers, steps: async (on) => {
     await on.go('/');
     await on.waitFor('No routines yet');
     await on.sleep(1000);
   } },
-  { id: 'H08', file: 'H08-Home-Section-Failed', title: 'Home · a section failed', row: 'H1 Today states', today: friday, answers: { ...homeAnswers, 'GET /api/v1/streak': 'fail' }, steps: async (on) => {
+  { id: 'H08', file: 'H08-Home-Section-Failed', title: 'Home · a section failed', row: 'H1 Today states', today: friday, answers: { 'GET /api/v1/streak': 'fail' }, steps: async (on) => {
     await on.go('/');
     await on.waitFor("Couldn't load your streak.");
     await on.sleep(600);
   } },
-  { id: 'H09', file: 'H09-Home-Setup-Complete', title: 'Home · setup complete', row: 'H1 Today states', signedIn: false, today: friday, full: false, answers: { ...unfinishedUser }, steps: async (on) => {
+  { id: 'H09', file: 'H09-Home-Setup-Complete', title: 'Home · setup complete', row: 'H1 Today states', signedIn: false, today: friday, full: false, answers: finishingSetupAnswers(), steps: async (on) => {
     await goToSetup(on);
     await on.waitFor('Setup complete. Welcome to Herculean.');
     await on.sleep(600);
@@ -929,17 +962,17 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor('Start workout');
   } },
-  { id: 'W02', file: 'W02-Workout-Today-In-Progress', title: 'Workout › Today · in progress', row: 'W1 Today states', today: friday, answers: { ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23').map((day) => (day.date === '2026-10-23' ? { ...day, status: 'inProgress' } : day)) } }, steps: async (on) => {
+  { id: 'W02', file: 'W02-Workout-Today-In-Progress', title: 'Workout › Today · in progress', row: 'W1 Today states', today: friday, answers: { ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, ...withToday('inProgress') }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Resume workout');
   } },
-  { id: 'W81', file: 'W81-Workout-Today-Resume-Bar-Hidden', title: 'Workout › Today · in progress, Resume bar hidden', row: 'W1 Today states', today: friday, full: false, answers: { ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23').map((day) => (day.date === '2026-10-23' ? { ...day, status: 'inProgress' } : day)) } }, steps: async (on) => {
+  { id: 'W81', file: 'W81-Workout-Today-Resume-Bar-Hidden', title: 'Workout › Today · in progress, Resume bar hidden', row: 'W1 Today states', today: friday, full: false, answers: { ...inProgressAnswer, 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'inProgress', workoutId: sampleWorkout.id } }, ...withToday('inProgress') }, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Resume workout');
     await on.tap('Hide workout bar');
     await on.sleep(300);
   } },
-  { id: 'W06', file: 'W06-Workout-Today-Skipped', title: 'Workout › Today · skipped', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) }, steps: async (on) => {
+  { id: 'W06', file: 'W06-Workout-Today-Skipped', title: 'Workout › Today · skipped', row: 'W1 Today states', today: friday, answers: skippedAnswers, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Undo skip');
   } },
@@ -948,7 +981,7 @@ export const screens = [
     await on.tap('Skip workout');
     await on.waitFor('Skip Chest and arms 2?');
   } },
-  { id: 'W27', file: 'W27-Workout-Undo-Skip-Confirm', title: 'Workout › Undo skip · confirm', row: 'W1 Today states', today: friday, full: false, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-23') }, 'GET /api/v1/days/2026-10-23': skippedDay(sampleDay) }, steps: async (on) => {
+  { id: 'W27', file: 'W27-Workout-Undo-Skip-Confirm', title: 'Workout › Undo skip · confirm', row: 'W1 Today states', today: friday, full: false, answers: skippedAnswers, steps: async (on) => {
     await on.go('/workout');
     await on.tap('Undo skip');
     await on.waitFor('Undo this skip?');
@@ -971,7 +1004,7 @@ export const screens = [
     await on.tap('Wednesday 21, Legs, missed');
     await on.waitFor('Log workout');
   } },
-  { id: 'W22', file: 'W22-Workout-Skipped-Day', title: 'Workout › Skipped day', row: 'W3 Other days', today: friday, answers: { 'GET /api/v1/days': { status: 200, body: sampleWeek('2026-10-23', '2026-10-21') }, 'GET /api/v1/days/2026-10-21': skippedDay(legsDay) }, steps: async (on) => {
+  { id: 'W22', file: 'W22-Workout-Skipped-Day', title: 'Workout › Skipped day', row: 'W3 Other days', today: friday, answers: { 'GET /api/v1/days': daysAnswer({ statuses: { '2026-10-21': 'skipped' } }), 'GET /api/v1/days/2026-10-21': skippedDay(legsDay) }, steps: async (on) => {
     await on.go('/workout');
     await on.tap('Wednesday 21, Legs, skipped');
     await on.waitFor('Undo skip');
@@ -1004,14 +1037,14 @@ export const screens = [
     await on.tap('Sunday 25, rest day');
     await on.waitFor('Rest day');
   } },
-  { id: 'W28', file: 'W28-Workout-Another-Week', title: 'Workout › Another week', row: 'W3 Other days', today: friday, answers: { 'GET /api/v1/days/2026-10-16': { status: 200, body: { ...legsDay, date: '2026-10-16' } } }, steps: async (on) => {
+  { id: 'W28', file: 'W28-Workout-Another-Week', title: 'Workout › Another week', row: 'W3 Other days', today: friday, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Start workout');
     await on.sleep(500);
-    await on.swipe('Tuesday 20, Back and shoulders 1, missed', 200);
+    await on.swipe('Tuesday 20, Back and shoulders 1', 200);
     await on.waitFor('16th October');
   } },
-  { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': { status: 200, body: { ...sampleDay, status: 'rest', hasRoutines: false, routine: null } } }, steps: async (on) => {
+  { id: 'W05', file: 'W05-Workout-Today-No-Routines', title: 'Workout › Today · no routines yet', row: 'W1 Today states', today: friday, answers: noRoutinesAnswers, steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('No routines yet');
   } },
@@ -1033,7 +1066,7 @@ export const screens = [
     await openDayFromMonth(on, '21 October, Legs, missed');
     await on.waitFor('Open day');
   } },
-  { id: 'W44', file: 'W44-Workout-Month-Day-Skipped', title: 'Workout › Month › Day summary · skipped, sheet', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days/2026-10-03': { status: 200, body: { ...sampleDays['2026-10-24'], date: '2026-10-03', status: 'skipped', workoutId: 'workout-skipped' } } }, steps: async (on) => {
+  { id: 'W44', file: 'W44-Workout-Month-Day-Skipped', title: 'Workout › Month › Day summary · skipped, sheet', row: 'W5 Month', today: friday, full: false, steps: async (on) => {
     await openDayFromMonth(on, '3 October, Back and shoulders 2, skipped');
     await on.waitFor('Open day');
   } },
@@ -1045,9 +1078,9 @@ export const screens = [
     await openDayFromMonth(on, '22 October, rest day');
     await on.waitFor('Open day');
   } },
-  { id: 'W47', file: 'W47-Workout-Month-First', title: 'Workout › Month · first month', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/days/first': { status: 200, body: { date: '2026-10-14' } } }, steps: openMonth },
+  { id: 'W47', file: 'W47-Workout-Month-First', title: 'Workout › Month · first month', row: 'W5 Month', today: friday, answers: firstDayAnswers('2026-10-14'), steps: openMonth },
   { id: 'W48', file: 'W48-Workout-Month-Day-Selected', title: 'Workout › Month · another day selected', row: 'W5 Month', today: friday, steps: async (on) => {
-    await openDayFromMonth(on, '20 October, Back and shoulders 1, missed');
+    await openDayFromMonth(on, '20 October, Back and shoulders 1');
     await on.tap('Close');
     await on.sleep(400);
   } },
@@ -1055,7 +1088,7 @@ export const screens = [
     await on.go('/workout/month');
     await on.waitFor("Couldn't load this month.");
   } },
-  { id: 'W10', file: 'W10-Workout-Choose-Routine', title: 'Workout › Choose a routine', row: 'W2 Choose a routine', today: friday, steps: async (on) => {
+  { id: 'W10', file: 'W10-Workout-Choose-Routine', title: 'Workout › Choose a routine', row: 'W2 Choose a routine', today: friday, answers: { 'GET /api/v1/routines': { status: 200, body: routineList.map((routine) => (routine.name === 'Back and shoulders 2' ? { ...routine, lastDoneOn: null } : routine)) } }, steps: async (on) => {
     await on.go(choosePath);
     await on.waitFor('Chest and arms 1');
   } },
@@ -1092,8 +1125,8 @@ export const screens = [
     await on.go(choosePath);
     await on.waitFor("Couldn't load your routines.");
   } },
-  { id: 'W64', file: 'W64-Workout-Other-Routine-Before-First-Day', title: 'Workout › Other routine · before the first day', row: 'W3 Other days', today: sunday, full: false, answers: { 'GET /api/v1/days/2026-10-25': restDay('Chest and arms 1'), 'GET /api/v1/days/first': { status: 200, body: { date: '2026-10-26' } } }, steps: async (on) => {
-    await on.go('/workout');
+  { id: 'W64', file: 'W64-Workout-Other-Routine-Before-First-Day', title: 'Workout › Other routine · before the first day', row: 'W3 Other days', today: friday, full: false, answers: { ...firstDayAnswers('2026-10-21'), 'GET /api/v1/days/2026-10-20': { status: 200, body: dayOf('2026-10-20', { firstDay: '2026-10-21' }) } }, steps: async (on) => {
+    await on.go('/workout/day/2026-10-20');
     await on.waitFor('Rest day');
     await on.sleep(500);
     await on.tap('Other routine');
@@ -1178,7 +1211,7 @@ export const screens = [
   } },
   { id: 'W42', file: 'W42-Workout-Month-Day-Sheet', title: 'Workout › Month › Day summary · sheet', row: 'W5 Month', today: friday, full: false, answers: pastSavedAnswers, steps: async (on) => {
     await openMonth(on);
-    await on.tap('20 October, Back and shoulders 1, missed');
+    await on.tap('20 October, Back and shoulders 1');
     await on.waitFor('View workout');
     await on.sleep(400);
   } },
@@ -1215,7 +1248,7 @@ export const screens = [
     await undoFromToday(on);
     await on.waitFor("Couldn't undo. Try again.");
   } },
-  { id: 'W17', file: 'W17-Workout-First-Week', title: 'Workout › Today · first week, no earlier weeks', row: 'W3 Other days', today: friday, answers: { 'GET /api/v1/days/first': { status: 200, body: { date: '2026-10-19' } } }, steps: async (on) => {
+  { id: 'W17', file: 'W17-Workout-First-Week', title: 'Workout › Today · first week, no earlier weeks', row: 'W3 Other days', today: friday, answers: firstDayAnswers('2026-10-19'), steps: async (on) => {
     await on.go('/workout');
     await on.waitFor('Start workout');
     await on.sleep(500);
@@ -1239,12 +1272,12 @@ export const screens = [
     await on.tap('30 November, Chest and arms 1, planned');
     await on.waitFor('Days reach 4 weeks ahead.');
   } },
-  { id: 'W52', file: 'W52-Workout-Month-First-Says-Why', title: 'Workout › Month · first month, an earlier day says why', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days/first': { status: 200, body: { date: '2026-10-14' } } }, steps: async (on) => {
+  { id: 'W52', file: 'W52-Workout-Month-First-Says-Why', title: 'Workout › Month · first month, an earlier day says why', row: 'W5 Month', today: friday, full: false, answers: firstDayAnswers('2026-10-14'), steps: async (on) => {
     await openMonth(on);
     await on.tap('1 October, rest day');
     await on.waitFor('Your first day is Wed, 14th Oct.');
   } },
-  { id: 'W53', file: 'W53-Workout-Month-Nothing-Planned', title: 'Workout › Month · nothing planned yet', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/month-summaries/2026-10': { status: 200, body: noPlannedDays } }, steps: openMonth },
+  { id: 'W53', file: 'W53-Workout-Month-Nothing-Planned', title: 'Workout › Month · nothing planned yet', row: 'W5 Month', today: friday, answers: { 'GET /api/v1/days': daysAnswer({ noPlan: true }), 'GET /api/v1/month-summaries/2026-10': { status: 200, body: noPlannedDays } }, steps: openMonth },
   { id: 'W54', file: 'W54-Workout-Month-Day-Today', title: 'Workout › Month › Day summary · today, sheet', row: 'W5 Month', today: friday, full: false, steps: async (on) => {
     await openDayFromMonth(on, '23 October, Chest and arms 2, today');
     await on.waitFor('Open day');
@@ -1285,18 +1318,18 @@ export const screens = [
     await on.go('/workout');
     await on.waitFor("Couldn't load the week.");
   } },
-  { id: 'W76', file: 'W76-Workout-Month-Day-In-Progress', title: 'Workout › Month › Day summary · in progress, sheet', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days/2026-10-21': { status: 200, body: { ...legsDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
-    await openDayFromMonth(on, '21 October, Legs, missed');
+  { id: 'W76', file: 'W76-Workout-Month-Day-In-Progress', title: 'Workout › Month › Day summary · in progress, sheet', row: 'W5 Month', today: friday, full: false, answers: { 'GET /api/v1/days': daysAnswer({ statuses: { '2026-10-21': 'inProgress' } }), 'GET /api/v1/days/2026-10-21': { status: 200, body: { ...legsDay, status: 'inProgress', workoutId: sampleWorkout.id } } }, steps: async (on) => {
+    await openDayFromMonth(on, '21 October, Legs');
     await on.waitFor('Open day');
   } },
   { id: 'W77', file: 'W77-Workout-Month-Day-Completed-Loading', title: 'Workout › Month › Day summary · completed, loading, sheet', row: 'W5 Month', today: friday, full: false, answers: { ...pastSavedAnswers, [workoutPath]: 'hold', [summaryPath]: 'hold' }, steps: async (on) => {
     await openMonth(on);
-    await on.tap('20 October, Back and shoulders 1, missed');
+    await on.tap('20 October, Back and shoulders 1');
     await on.sleep(600);
   } },
   { id: 'W78', file: 'W78-Workout-Month-Day-Completed-Load-Failure', title: 'Workout › Month › Day summary · completed, load failure, sheet', row: 'W5 Month', today: friday, full: false, answers: { ...pastSavedAnswers, [workoutPath]: 'fail' }, steps: async (on) => {
     await openMonth(on);
-    await on.tap('20 October, Back and shoulders 1, missed');
+    await on.tap('20 October, Back and shoulders 1');
     await on.waitFor('Try again');
   } },
   // E · Exercises
@@ -1331,7 +1364,7 @@ export const screens = [
     await on.go(exercisePath);
     await on.waitFor('Used in');
   } },
-  { id: 'E12', file: 'E12-Exercises-Detail-In-Routines', title: 'Exercises › Exercise · in routines, trash says why', row: 'E2 Exercise details', answers: { [`GET /api/v1/exercises/${benchPress.id}`]: { status: 200, body: exerciseDetails(benchPress, [{ id: 'a', name: 'Chest and arms 1' }, { id: 'b', name: 'Chest and arms 2' }]) } }, steps: async (on) => {
+  { id: 'E12', file: 'E12-Exercises-Detail-In-Routines', title: 'Exercises › Exercise · in routines, trash says why', row: 'E2 Exercise details', answers: benchAnswers(), steps: async (on) => {
     await on.go(`/exercises/${benchPress.id}`);
     await on.tap('Delete exercise, not available while it is in a routine');
   } },
@@ -1365,7 +1398,7 @@ export const screens = [
     await openBench(on);
     await on.waitFor('No sessions in this period');
   } },
-  { id: 'E70', file: 'E70-Exercises-Detail-Chart-By-Month', title: 'Exercises › Exercise · All, by month', row: 'E2 Exercise details', full: false, answers: benchAnswers(), steps: async (on) => {
+  { id: 'E70', file: 'E70-Exercises-Detail-Chart-By-Month', title: 'Exercises › Exercise · All, by month', row: 'E2 Exercise details', full: false, answers: benchAnswers({ [`GET ${benchApi}`]: { status: 200, body: { ...benchHistory.details, timesDone: 268, firstDoneOn: '2021-04-12' } } }), steps: async (on) => {
     await openBench(on);
     await on.tap('All time');
     await on.waitFor('50 → 82.5 kg');
@@ -1685,7 +1718,7 @@ export const screens = [
   } },
   { id: 'L30', file: 'L30-Logging-Finish', title: 'Logging › Finish workout', row: 'L3 Finish', today: friday, steps: openFinish },
   { id: 'L31', file: 'L31-Logging-Finish-Nothing-Logged', title: 'Logging › Finish workout · nothing logged', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, durationSeconds: 400, setsChecked: 0, setsTotal: 19, volumeKg: 0, uncheckedExercises: [], records: [] } } }, steps: openFinish },
-  { id: 'L32', file: 'L32-Logging-Finish-Past-Day', title: 'Logging › Finish workout · past day, every set checked', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, date: '2026-10-20', durationSeconds: null, setsChecked: 19, setsTotal: 19, volumeKg: 10260, uncheckedExercises: [], records: [] } } }, steps: openFinish },
+  { id: 'L32', file: 'L32-Logging-Finish-Past-Day', title: 'Logging › Finish workout · past day, every set checked', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, name: 'Legs', date: '2026-10-21', durationSeconds: null, setsChecked: 6, setsTotal: 6, volumeKg: 8880, uncheckedExercises: [], records: [] } } }, steps: openFinish },
   { id: 'L33', file: 'L33-Logging-Discard-Confirm', title: 'Logging › Discard workout · confirm', row: 'L3 Finish', today: friday, full: false, steps: openDiscard },
   { id: 'L34', file: 'L34-Logging-Finish-Loading', title: 'Logging › Finish workout · loading', row: 'L3 Finish', today: friday, answers: { [summaryPath]: 'hold' }, steps: async (on) => {
     await on.go(finishPath);
