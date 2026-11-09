@@ -9,13 +9,14 @@ import { Button } from '@/components/button';
 import { EmptyCard } from '@/components/empty-card';
 import { PlusIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { NotLoadedButton } from '@/components/not-loaded-button';
 import {
   dismissAction,
   dismissNotification,
   notifyFailure,
   notifySuccess,
 } from '@/components/notifications';
-import { ScreenHeading } from '@/components/screen-heading';
+import { blankLine, ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { useLeaveGuard } from '@/components/use-leave-guard';
@@ -47,8 +48,15 @@ export function EditWorkoutDraft({ id }: { id: string }) {
 
   if (workout.data === undefined) {
     return (
-      // A blank line keeps the room for the workout's name while it loads.
-      <EditWorkoutPage label=" ">
+      <EditWorkoutPage
+        // A blank line keeps the room for the workout's name after a failure.
+        label={workout.isLoadingError ? blankLine : null}
+        after={
+          <BottomActionBox aboveTabBar>
+            <NotLoadedButton label="Save workout" />
+          </BottomActionBox>
+        }
+      >
         {workout.isLoadingError ? (
           <LoadFailure
             message="Couldn’t load this workout."
@@ -76,8 +84,8 @@ function EditWorkoutPage({
   children,
   after,
 }: {
-  /** The workout's name and date. */
-  label: string;
+  /** The workout's name and date. Null while they load. */
+  label: string | null;
   children: ReactNode;
   /** What sits over the scrolling content, such as the bottom box and sheets. */
   after?: ReactNode;

@@ -164,6 +164,26 @@ test('each exercise shows a pencil, because the row opens its sets and reps', as
   expect(screen.getAllByTestId('edit-targets').length).toBeGreaterThan(0);
 });
 
+test('while it loads, the form keeps its shape and Save routine is muted', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await openEdit();
+
+  expect(await screen.findByLabelText('Loading the routine')).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      'Changes apply to new workouts. Logged workouts stay as they are.',
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Name')).toBeOnTheScreen();
+
+  const save = screen.getByRole('button', { name: 'Save routine' });
+  expect(save).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(save);
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
+});
+
 test('a failed read says so, and Try again reads it again', async () => {
   mockFetch.mockRejectedValueOnce(new TypeError('Network request failed'));
   await openEdit();
@@ -171,6 +191,9 @@ test('a failed read says so, and Try again reads it again', async () => {
   expect(await screen.findByRole('alert')).toHaveTextContent(
     'Couldn’t load this routine.',
   );
+  expect(screen.getByRole('button', { name: 'Save routine' })).toHaveStyle({
+    opacity: 0.5,
+  });
 
   answer();
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));

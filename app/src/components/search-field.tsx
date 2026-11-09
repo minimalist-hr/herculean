@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from '@/theme/theme-provider';
 
 import { CloseIcon, SearchIcon } from './icons';
+import { notifyFailure } from './notifications';
 import { Tappable } from './tappable';
 
 const iconSize = 18;
@@ -12,17 +13,26 @@ interface SearchFieldProps {
   label: string;
   value: string;
   onChangeText: (value: string) => void;
+  /** There is nothing to search yet: it stays in place, muted, and a press says this. */
+  mutedReason?: string;
 }
 
 /** The search input of a list. Once it has text, a button clears it. */
-export function SearchField({ label, value, onChangeText }: SearchFieldProps) {
-  const { colors, radius, size, space, text } = useTheme();
-  const hasText = value !== '';
+export function SearchField({
+  label,
+  value,
+  onChangeText,
+  mutedReason,
+}: SearchFieldProps) {
+  const { colors, opacity, radius, size, space, text } = useTheme();
+  const muted = mutedReason !== undefined;
+  const hasText = value !== '' && !muted;
 
-  return (
+  const field = (
     <View>
       <TextInput
         accessibilityLabel={label}
+        editable={!muted}
         placeholder={label}
         placeholderTextColor={colors.muted}
         autoCorrect={false}
@@ -62,6 +72,29 @@ export function SearchField({ label, value, onChangeText }: SearchFieldProps) {
         </Tappable>
       )}
     </View>
+  );
+
+  if (mutedReason === undefined) {
+    return field;
+  }
+
+  return (
+    <Tappable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={() => {
+        notifyFailure(mutedReason);
+      }}
+      style={{ opacity: opacity.dimmed }}
+    >
+      <View
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        {field}
+      </View>
+    </Tappable>
   );
 }
 

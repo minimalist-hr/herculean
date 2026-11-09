@@ -113,7 +113,7 @@ Each feature lists its main screens. Every state is in `docs/design/screen-index
 
 **Flows**
 - **Routines tab:** R02 → R01, or R03 when there are no routines.
-- **Week plan:** a day with a routine on R01 → R05. A rest day says how to plan it.
+- **Week plan:** a day with a routine on R01 → R05. A rest day says how to plan it. On R03, a rest day → R30 with that day picked.
 - **Routine details:** a routine on R01 → R05.
 - **Edit routine:** edit on R05 → R20. Tap targets → R21 → Save targets. The trash → R23 → R20, with a notification that has Undo. Drag handles reorder. Save routine → R05. The back link cancels.
 - **Add exercise:** on R20 or R30 → L24 → L20, or L21 when nothing matches → L22 → L23 → back with the picked exercises at 3 × 8–10.

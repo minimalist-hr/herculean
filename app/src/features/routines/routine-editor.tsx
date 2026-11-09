@@ -8,7 +8,10 @@ import { z } from 'zod';
 import { ApiProblemError, toFormErrors } from '@/api/problem';
 import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
-import { DraggableList } from '@/components/draggable-list';
+import {
+  DraggableList,
+  DraggableListSkeleton,
+} from '@/components/draggable-list';
 import { FormPage } from '@/components/form-page';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PencilIcon, PlusIcon, TrashIcon } from '@/components/icons';
@@ -19,12 +22,19 @@ import {
   notifySuccess,
 } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
+import {
+  FieldSkeleton,
+  Skeleton,
+  SkeletonGroup,
+  SkeletonLine,
+  textLine,
+} from '@/components/skeleton';
 import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
-import { DayChips } from './day-chips';
+import { DayChips, DayChipsSkeleton } from './day-chips';
 import { counted, targetText, type Weekday } from '@/formats/formats';
 import { sameGroup } from './group-blocks';
 import { useRoutineDraft, type RoutineExerciseDraft } from './routine-draft';
@@ -57,6 +67,54 @@ interface RoutineEditorProps {
     weekdays: Weekday[],
     exercises: RoutineExerciseDraft[],
   ) => Promise<unknown>;
+}
+
+function DaysHeading() {
+  const { text } = useTheme();
+
+  return (
+    <View style={styles.daysTitle}>
+      <SectionTitle>
+        Days
+        <Text style={[text.meta, styles.optional]}> · optional</Text>
+      </SectionTitle>
+      <Text style={text.meta}>Picking a day replaces its routine</Text>
+    </View>
+  );
+}
+
+/** The form while the routine loads: the words that never change, and blocks for the rest. */
+export function RoutineEditorSkeleton() {
+  const { size, space } = useTheme();
+
+  return (
+    <SkeletonGroup label="Loading the routine">
+      <View style={{ gap: space.xl }}>
+        <FieldSkeleton label="Name" />
+        <View style={{ gap: space.sm }}>
+          <DaysHeading />
+          <DayChipsSkeleton />
+        </View>
+        <View style={{ gap: space.sm }}>
+          <View style={[styles.sectionTitle, { gap: space.md }]}>
+            <View style={styles.sectionText}>
+              <SectionTitle>Exercises</SectionTitle>
+              <SkeletonLine
+                width={130}
+                height={10}
+                lineHeight={textLine.meta}
+              />
+            </View>
+            <Skeleton
+              width={size.headerIconButton}
+              height={size.headerIconButton}
+            />
+          </View>
+          <DraggableListSkeleton rows={3} />
+        </View>
+      </View>
+    </SkeletonGroup>
+  );
 }
 
 /** A page with a routine's name and exercises. Nothing is sent until Save routine. */
@@ -190,13 +248,7 @@ export function RoutineEditor({
           />
 
           <View style={{ gap: space.sm }}>
-            <View style={styles.daysTitle}>
-              <SectionTitle>
-                Days
-                <Text style={[text.meta, styles.optional]}> · optional</Text>
-              </SectionTitle>
-              <Text style={text.meta}>Picking a day replaces its routine</Text>
-            </View>
+            <DaysHeading />
             <DayChips
               selected={selectedDays}
               onChange={(days) => {

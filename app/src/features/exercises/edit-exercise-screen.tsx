@@ -3,14 +3,15 @@ import { useRouter } from 'expo-router';
 import type { components } from '@/api/schema';
 import { FormPage } from '@/components/form-page';
 import { LoadFailure } from '@/components/load-failure';
+import { NotLoadedButton } from '@/components/not-loaded-button';
 import { notifySuccess } from '@/components/notifications';
 
-import { ExerciseFormPage } from './exercise-form';
-import { DetailsSkeleton } from './exercises-skeleton';
+import { ExerciseFormPage, ExerciseFormSkeleton } from './exercise-form';
 import { useExercise } from './use-exercise';
 import { useUpdateExercise } from './use-update-exercise';
 
 const title = 'Edit exercise';
+const subtitle = 'Changes show everywhere it’s used, including past workouts.';
 
 export function EditExerciseScreen({ id }: { id: string }) {
   const exercise = useExercise(id);
@@ -20,7 +21,12 @@ export function EditExerciseScreen({ id }: { id: string }) {
   }
 
   return (
-    <FormPage back="Exercise" title={title}>
+    <FormPage
+      back="Exercise"
+      title={title}
+      subtitle={subtitle}
+      action={<NotLoadedButton label="Save exercise" />}
+    >
       {exercise.isLoadingError ? (
         <LoadFailure
           message="Couldn’t load this exercise."
@@ -29,7 +35,7 @@ export function EditExerciseScreen({ id }: { id: string }) {
           }}
         />
       ) : (
-        <DetailsSkeleton label="Loading the exercise" />
+        <ExerciseFormSkeleton />
       )}
     </FormPage>
   );
@@ -47,7 +53,7 @@ function Form({
     <ExerciseFormPage
       back={exercise.name}
       title={title}
-      subtitle="Changes show everywhere it’s used, including past workouts."
+      subtitle={subtitle}
       initialValues={{
         name: exercise.name,
         groupId: exercise.group.id,

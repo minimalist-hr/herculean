@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dayNames, weekdays, type Weekday } from '@/formats/formats';
+import { Skeleton } from '@/components/skeleton';
 import { Tappable } from '@/components/tappable';
 
 interface DayChipsProps {
@@ -56,10 +57,28 @@ export function DayChips({ selected, onChange }: DayChipsProps) {
   );
 }
 
+/** The seven days while a routine's days load. */
+export function DayChipsSkeleton() {
+  const { size } = useTheme();
+
+  return (
+    <View style={styles.row}>
+      {weekdays.map((weekday) => (
+        <View key={weekday} style={styles.skeleton}>
+          <Skeleton width="100%" height={size.chip} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 4,
+  },
+  skeleton: {
+    flex: 1,
   },
   chip: {
     flex: 1,

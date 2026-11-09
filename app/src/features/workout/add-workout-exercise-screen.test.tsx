@@ -228,3 +228,23 @@ test('a conflict says what stands in the way', async () => {
     await screen.findByText('A workout can have at most 30 exercises.'),
   ).toBeOnTheScreen();
 });
+
+test('if the groups fail, the chips say so and Try again loads them', async () => {
+  mockFetch.mockImplementation((request) =>
+    new URL(request.url).pathname === '/api/v1/groups'
+      ? Promise.reject(new TypeError('Network request failed'))
+      : answerWith(request),
+  );
+  await renderAdd();
+
+  expect(
+    await screen.findByText('Couldn’t load your groups.'),
+  ).toBeOnTheScreen();
+  expect(await screen.findByText('Lunge')).toBeOnTheScreen();
+
+  mockFetch.mockImplementation(answerWith);
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(await screen.findByRole('button', { name: 'Legs' })).toBeOnTheScreen();
+  expect(screen.queryByText('Couldn’t load your groups.')).toBeNull();
+});

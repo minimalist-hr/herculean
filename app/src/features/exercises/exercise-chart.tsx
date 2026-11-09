@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 
 import type { components } from '@/api/schema';
+import { notifyFailure } from '@/components/notifications';
 import { QuickPicks } from '@/components/quick-picks';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
@@ -36,7 +37,7 @@ const rangeLabels: Record<ProgressRange, { short: string; spoken: string }> = {
   all: { short: 'All', spoken: 'All time' },
 };
 
-/** The heaviest set over time, with a range to pick. An exercise not done yet keeps the box, which says so. */
+/** The heaviest set over time, with a range to pick. An exercise not done yet keeps its range, muted, and the box, which says so. */
 export function ExerciseChart({
   exerciseId,
   done,
@@ -88,16 +89,21 @@ export function ExerciseChart({
           </Text>
         )}
       </View>
-      {done && (
-        <QuickPicks
-          label="Time range"
-          values={progressRanges}
-          selected={range}
-          onSelect={setRange}
-          format={(value) => rangeLabels[value].short}
-          formatSpoken={(value) => rangeLabels[value].spoken}
-        />
-      )}
+      <QuickPicks
+        label="Time range"
+        values={progressRanges}
+        selected={range}
+        muted={!done}
+        onSelect={(value) => {
+          if (done) {
+            setRange(value);
+          } else {
+            notifyFailure('Finish a workout with this exercise first.');
+          }
+        }}
+        format={(value) => rangeLabels[value].short}
+        formatSpoken={(value) => rangeLabels[value].spoken}
+      />
       <View
         testID="exercise-chart"
         onLayout={(event) => {

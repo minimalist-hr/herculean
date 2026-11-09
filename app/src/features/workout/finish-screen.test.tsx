@@ -132,10 +132,17 @@ async function renderFinish() {
   await screen.findByText('Finish workout');
 }
 
+/** The button once the page has loaded. It shows, muted, before that. */
+async function loadedButton(name: string) {
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name })).toHaveStyle({ opacity: 1 });
+  });
+
+  return screen.getByRole('button', { name });
+}
+
 async function openDiscard() {
-  await fireEvent.press(
-    await screen.findByRole('button', { name: 'Discard workout' }),
-  );
+  await fireEvent.press(await loadedButton('Discard workout'));
   await screen.findByText('Discard this workout?');
 }
 
@@ -227,14 +234,22 @@ test('with nothing checked it says so, and Save workout says why', async () => {
   ).toBeOnTheScreen();
 });
 
-test('a load failure can be tried again', async () => {
+test('a load failure keeps both buttons, muted, and can be tried again', async () => {
   answerWith({ summaryStatus: 500 });
   await renderFinish();
 
   expect(
     await screen.findByText('Couldn’t load this workout.'),
   ).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: 'Discard workout' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Save workout' })).toHaveStyle({
+    opacity: 0.5,
+  });
+  const discard = screen.getByRole('button', { name: 'Discard workout' });
+  expect(discard).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(discard);
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
 
   answerWith();
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
@@ -255,9 +270,7 @@ test('saving completes the workout and returns to the day', async () => {
   answerWith();
   await renderFinish();
 
-  await fireEvent.press(
-    await screen.findByRole('button', { name: 'Save workout' }),
-  );
+  await fireEvent.press(await loadedButton('Save workout'));
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
   expect(await screen.findByText('Legs day saved.')).toBeOnTheScreen();
@@ -270,9 +283,7 @@ test('a save that fails says so and stays', async () => {
   answerWith({ patch: () => new Response(null, { status: 500 }) });
   await renderFinish();
 
-  await fireEvent.press(
-    await screen.findByRole('button', { name: 'Save workout' }),
-  );
+  await fireEvent.press(await loadedButton('Save workout'));
 
   expect(
     await screen.findByText('Couldn’t save the workout. Try again.'),

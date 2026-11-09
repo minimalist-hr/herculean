@@ -8,9 +8,17 @@ import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 import { ProgressBar } from '@/components/progress-bar';
-import { Skeleton } from '@/components/skeleton';
+import {
+  Skeleton,
+  SkeletonGroup,
+  SkeletonLine,
+  textLine,
+} from '@/components/skeleton';
 import { useUnits } from '@/features/account/use-units';
-import { ExerciseTargets } from '@/features/routines/exercise-targets';
+import {
+  ExerciseBlocksSkeleton,
+  ExerciseTargets,
+} from '@/features/routines/exercise-targets';
 import {
   counted,
   dayNameOf,
@@ -734,27 +742,30 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
 }
 
 export function DayCardSkeleton() {
-  const { space } = useTheme();
+  const { colors, size, space } = useTheme();
 
   return (
-    <View
-      accessible
-      accessibilityLabel="Loading this day"
-      accessibilityLiveRegion="polite"
-    >
+    <SkeletonGroup label="Loading this day">
       <Card>
-        <View style={{ gap: space.sm }}>
-          <Skeleton width={110} height={10} />
-          <Skeleton width={190} height={20} />
-          <Skeleton width={240} height={10} />
+        <View style={{ gap: space.xs }}>
+          <SkeletonLine width={130} height={10} lineHeight={textLine.eyebrow} />
+          <SkeletonLine
+            width={190}
+            height={20}
+            lineHeight={textLine.cardTitle}
+          />
+          <SkeletonLine width={120} height={10} lineHeight={textLine.meta} />
         </View>
-        <View style={{ gap: space.md }}>
-          {[220, 150, 170, 190].map((width, index) => (
-            <Skeleton key={index} width={width} height={14} />
-          ))}
-        </View>
+        <ExerciseBlocksSkeleton background={colors.bg} />
+        <Skeleton width="100%" height={size.primaryButton} />
+        <Actions>
+          {[
+            <Skeleton key="other" width="100%" height={size.secondaryButton} />,
+            <Skeleton key="skip" width="100%" height={size.secondaryButton} />,
+          ]}
+        </Actions>
       </Card>
-    </View>
+    </SkeletonGroup>
   );
 }
 

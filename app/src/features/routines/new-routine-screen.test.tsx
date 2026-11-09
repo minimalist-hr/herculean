@@ -325,9 +325,9 @@ test('a failed read on Add exercise says so', async () => {
 
   await openAddExercise();
 
-  expect(await screen.findByRole('alert')).toHaveTextContent(
-    'Couldn’t load your exercises.',
-  );
+  expect(
+    await screen.findByText('Couldn’t load your exercises.'),
+  ).toBeOnTheScreen();
 });
 
 test('leaving Add exercise with picks asks first, and adds nothing', async () => {

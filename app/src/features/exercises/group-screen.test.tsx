@@ -321,3 +321,40 @@ test('a failed delete stays on the group and says so', async () => {
   );
   expect(screen.getByRole('header', { name: 'Core' })).toBeOnTheScreen();
 });
+
+async function renderEditAlone() {
+  await renderRouter(
+    { _layout: Layout, 'group/[id]/edit': EditGroupRoute },
+    { initialUrl: '/group/chest/edit' },
+  );
+}
+
+test('while it loads, the form keeps its shape and Save group is muted', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderEditAlone();
+
+  expect(screen.getByLabelText('Loading the group')).toBeOnTheScreen();
+  expect(
+    screen.getByText('The new name shows on every chip and section.'),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Name')).toBeOnTheScreen();
+
+  const save = screen.getByRole('button', { name: 'Save group' });
+  expect(save).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(save);
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
+});
+
+test('a failed load keeps Save group, muted', async () => {
+  mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+  await renderEditAlone();
+
+  expect(
+    await screen.findByText('Couldn’t load this group.'),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Save group' })).toHaveStyle({
+    opacity: 0.5,
+  });
+});

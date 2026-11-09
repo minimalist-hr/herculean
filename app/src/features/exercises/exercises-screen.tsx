@@ -4,7 +4,6 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
-  Text,
   View,
   type FlatListInstance,
 } from 'react-native';
@@ -19,11 +18,11 @@ import { PlusIcon } from '@/components/icons';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
-import { TextLink } from '@/components/text-link';
 import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
 
+import { ChipsFailure } from './chips-failure';
 import { ExerciseRow } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -69,6 +68,9 @@ export function ExercisesScreen() {
   const noFilter = search === '' && groupId === undefined;
   const noGroups = groups.data?.length === 0;
   const noExercises = !failed && !loading && list.length === 0 && noFilter;
+  const nothingToFilter = noGroups
+    ? noGroupsMessage
+    : 'Create an exercise first.';
 
   // New results start at the top. The list also never has to clamp its own scroll when it gets shorter.
   useEffect(() => {
@@ -81,6 +83,11 @@ export function ExercisesScreen() {
   }
 
   function pickGroup(id: string | undefined) {
+    if (noExercises) {
+      notifyFailure(nothingToFilter);
+      return;
+    }
+
     dismissNotification();
     setGroupId(id);
   }
@@ -118,15 +125,14 @@ export function ExercisesScreen() {
   function renderControls() {
     return (
       <>
-        {!noExercises && (
-          <View style={{ paddingHorizontal: size.sidePadding }}>
-            <SearchField
-              label="Search exercises"
-              value={searchText}
-              onChangeText={changeSearch}
-            />
-          </View>
-        )}
+        <View style={{ paddingHorizontal: size.sidePadding }}>
+          <SearchField
+            label="Search exercises"
+            value={searchText}
+            onChangeText={changeSearch}
+            mutedReason={noExercises ? nothingToFilter : undefined}
+          />
+        </View>
 
         <ScrollView
           horizontal
@@ -151,11 +157,12 @@ export function ExercisesScreen() {
               }}
             />
           )}
-          {groups.data !== undefined && !noExercises && (
+          {groups.data !== undefined && (
             <>
               <Chip
                 label="All"
                 selected={groupId === undefined}
+                muted={noExercises}
                 onPress={() => {
                   pickGroup(undefined);
                 }}
@@ -165,6 +172,7 @@ export function ExercisesScreen() {
                   key={group.id}
                   label={group.name}
                   selected={groupId === group.id}
+                  muted={noExercises}
                   onPress={() => {
                     pickGroup(group.id);
                   }}
@@ -226,7 +234,7 @@ export function ExercisesScreen() {
         return (
           <View
             style={{
-              paddingTop: space.xs,
+              paddingTop: space.md,
               paddingHorizontal: size.sidePadding,
             }}
           >
@@ -294,28 +302,6 @@ export function ExercisesScreen() {
   );
 }
 
-/** The groups couldn't load: the exercises still show, and this takes the chips' place. */
-function ChipsFailure({ onRetry }: { onRetry: () => void }) {
-  const { colors, size, space, text } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.chipsFailure,
-        { height: size.chip, gap: space.xs, paddingLeft: space.sm },
-      ]}
-    >
-      <Text
-        accessibilityRole="alert"
-        style={[text.meta, { color: colors.muted }]}
-      >
-        Couldn’t load your groups.
-      </Text>
-      <TextLink label="Try again" onPress={onRetry} />
-    </View>
-  );
-}
-
 /** The API sorts by group, so each group's exercises are already together. */
 function toItems(exercises: readonly Exercise[]) {
   const items: ListItem[] = [];
@@ -349,9 +335,5 @@ function keyOf(item: ListItem) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  chipsFailure: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });

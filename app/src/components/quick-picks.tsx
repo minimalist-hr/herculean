@@ -12,6 +12,8 @@ interface QuickPicksProps<T extends string | number> {
   formatSpoken: (value: T) => string;
   /** Names the row for screen readers, for example "Time range". */
   label?: string;
+  /** They aren't available yet, but a press can say why. */
+  muted?: boolean;
 }
 
 /** A row of common values to set with one tap, for example rest times. */
@@ -22,8 +24,9 @@ export function QuickPicks<T extends string | number>({
   format,
   formatSpoken,
   label = 'Quick picks',
+  muted = false,
 }: QuickPicksProps<T>) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, opacity, radius, size, space, text } = useTheme();
 
   return (
     <View
@@ -49,6 +52,7 @@ export function QuickPicks<T extends string | number>({
                 borderRadius: radius.control,
                 borderColor: isSelected ? colors.primary : colors.border,
                 backgroundColor: isSelected ? colors.primary : colors.raised,
+                opacity: muted ? opacity.dimmed : 1,
               },
             ]}
           >

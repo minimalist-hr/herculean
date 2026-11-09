@@ -8,6 +8,7 @@ import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { FormError } from '@/components/form-error';
 import { FormPage } from '@/components/form-page';
+import { FieldSkeleton, SkeletonGroup } from '@/components/skeleton';
 import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
 import { useLeaveGuard } from '@/components/use-leave-guard';
@@ -72,6 +73,17 @@ function useExerciseForm(
 }
 
 type ExerciseForm = ReturnType<typeof useExerciseForm>['form'];
+
+function AlsoWorksLabel() {
+  const { text } = useTheme();
+
+  return (
+    <Text style={text.eyebrow}>
+      Also works
+      <Text style={[text.meta, styles.optional]}> · optional</Text>
+    </Text>
+  );
+}
 
 function ExerciseFields({ form }: { form: ExerciseForm }) {
   const { colors, size, space, text } = useTheme();
@@ -176,10 +188,7 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
           </View>
 
           <View style={{ gap: space.sm }}>
-            <Text style={text.eyebrow}>
-              Also works
-              <Text style={[text.meta, styles.optional]}> · optional</Text>
-            </Text>
+            <AlsoWorksLabel />
             {/* With one group, there is nothing else it can also work. */}
             {groups.data?.length === 1 ? (
               <Text style={text.meta}>
@@ -204,6 +213,32 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
         </>
       )}
     </View>
+  );
+}
+
+/** The fields of an exercise while it loads. */
+export function ExerciseFormSkeleton() {
+  const { size, space, text } = useTheme();
+  const chips = (
+    <View style={[styles.chips, { gap: size.gap.chips }]}>
+      <ChipsSkeleton />
+    </View>
+  );
+
+  return (
+    <SkeletonGroup label="Loading the exercise">
+      <View style={{ gap: space.xl }}>
+        <FieldSkeleton label="Name" />
+        <View style={{ gap: space.sm }}>
+          <Text style={text.eyebrow}>Group</Text>
+          {chips}
+        </View>
+        <View style={{ gap: space.sm }}>
+          <AlsoWorksLabel />
+          {chips}
+        </View>
+      </View>
+    </SkeletonGroup>
   );
 }
 

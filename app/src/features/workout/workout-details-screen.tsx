@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { LoadFailure } from '@/components/load-failure';
-import { ScreenHeading } from '@/components/screen-heading';
+import { blankLine, ScreenHeading } from '@/components/screen-heading';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
 import { useUnits } from '@/features/account/use-units';
@@ -149,6 +149,18 @@ export function WorkoutDetailsScreen({
   const summary = useWorkoutSummary(id);
   // Either call names the workout, so the heading shows with whichever comes first.
   const named = summary.data ?? workout.data;
+  // Until a call answers there is nothing to say yet, so the heading holds its room with skeletons.
+  const naming =
+    named === undefined && (summary.isPending || workout.isPending);
+
+  function headingLabel() {
+    if (named !== undefined) {
+      return `Done · ${shortWeekdayDate(dateFromText(named.date))}`;
+    }
+
+    // A blank line keeps the room after a failure, so the page doesn't move.
+    return naming ? null : blankLine;
+  }
 
   function renderSummary() {
     if (summary.isLoadingError) {
@@ -266,11 +278,8 @@ export function WorkoutDetailsScreen({
           }}
         />
         <ScreenHeading
-          label={
-            // A blank line keeps the room while it loads, so the page doesn't move.
-            named ? `Done · ${shortWeekdayDate(dateFromText(named.date))}` : ' '
-          }
-          title={named?.name ?? 'Workout'}
+          label={headingLabel()}
+          title={naming ? null : (named?.name ?? 'Workout')}
         />
       </View>
       {renderSummary()}

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Skeleton } from '@/components/skeleton';
+import { Skeleton, SkeletonLine, textLine } from '@/components/skeleton';
 import { useTheme } from '@/theme/theme-provider';
 
 import { groupBlocks } from './group-blocks';
@@ -67,7 +67,6 @@ export function ExerciseTargetLine({
   );
 }
 
-/** A routine's exercises with their targets. Neighbours in the same group join into one block, with the group up its edge. */
 /** Exercise targets while they load in a sheet: one row, as wide as the sheet. A sheet is short, so it needn't match the list's height. */
 export function ExerciseTargetsSkeleton() {
   const { size } = useTheme();
@@ -75,6 +74,65 @@ export function ExerciseTargetsSkeleton() {
   return <Skeleton width="100%" height={size.listRowMin} />;
 }
 
+/** How many rows each block of a typical day has while it loads. */
+const skeletonBlocks = [2, 3, 2];
+
+/** A day's exercises while they load, in blocks the size of a typical day. */
+export function ExerciseBlocksSkeleton({ background }: { background: string }) {
+  const { colors, radius, size, space } = useTheme();
+
+  return (
+    <View style={{ gap: space.sm }}>
+      {skeletonBlocks.map((rows, block) => (
+        <View
+          key={block}
+          style={[
+            styles.block,
+            {
+              borderRadius: radius.card,
+              borderColor: colors.border,
+              backgroundColor: background,
+            },
+          ]}
+        >
+          <View style={styles.rows}>
+            {Array.from({ length: rows }, (_, row) => (
+              <View
+                key={row}
+                style={[
+                  styles.exercise,
+                  {
+                    minHeight: size.listRowMin,
+                    paddingVertical: space.sm,
+                    paddingHorizontal: space.lg,
+                    borderTopWidth: row === 0 ? 0 : 1,
+                    borderTopColor: colors.border,
+                  },
+                ]}
+              >
+                <View style={styles.text}>
+                  <SkeletonLine
+                    width={170}
+                    height={14}
+                    lineHeight={textLine.listItemName}
+                  />
+                  <SkeletonLine
+                    width={70}
+                    height={10}
+                    lineHeight={textLine.meta}
+                  />
+                </View>
+              </View>
+            ))}
+          </View>
+          <GroupStripe name="" />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** A routine's exercises with their targets. Neighbours in the same group join into one block, with the group up its edge. */
 export function ExerciseTargets({
   exercises,
   background,

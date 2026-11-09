@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Platform, View } from 'react-native';
+import { Animated, Platform, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
@@ -12,6 +12,7 @@ export const textLine = {
   listItemName: 21,
   cardTitle: 29,
   bigStat: 31,
+  pageTitle: 34,
 };
 
 /** A block in the shape of content that is loading. It pulses gently, and stands still when the phone asks for reduced motion. */
@@ -82,6 +83,25 @@ export function SkeletonLine({
   return (
     <View style={{ height: lineHeight, justifyContent: 'center' }}>
       <Skeleton width={width} height={height} />
+    </View>
+  );
+}
+
+/** A text field while its value loads: its label and helper, with a block for the input. */
+export function FieldSkeleton({
+  label,
+  helper,
+}: {
+  label: string;
+  helper?: string;
+}) {
+  const { size, space, text } = useTheme();
+
+  return (
+    <View style={{ gap: space.sm }}>
+      <Text style={text.eyebrow}>{label}</Text>
+      <Skeleton width="100%" height={size.input} />
+      {helper !== undefined && <Text style={text.meta}>{helper}</Text>}
     </View>
   );
 }

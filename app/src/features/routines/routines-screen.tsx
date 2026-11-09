@@ -63,7 +63,7 @@ export function RoutinesScreen() {
   }
 
   function renderWeekPlan() {
-    if (search !== '' || noRoutines) {
+    if (search !== '') {
       return null;
     }
 
@@ -74,7 +74,7 @@ export function RoutinesScreen() {
         }}
       />
     ) : (
-      <WeekPlanCard days={weekPlan.data} />
+      <WeekPlanCard days={weekPlan.data} noRoutines={noRoutines} />
     );
   }
 
@@ -153,16 +153,15 @@ export function RoutinesScreen() {
           title="Routines"
           subtitle="The workouts you plan across your week."
         />
-        {!noRoutines && (
-          <SearchField
-            label="Search routines"
-            value={searchText}
-            onChangeText={(value) => {
-              dismissNotification();
-              setSearchText(value);
-            }}
-          />
-        )}
+        <SearchField
+          label="Search routines"
+          value={searchText}
+          mutedReason={noRoutines ? 'Create a routine first.' : undefined}
+          onChangeText={(value) => {
+            dismissNotification();
+            setSearchText(value);
+          }}
+        />
       </View>
       <ScrollView
         keyboardShouldPersistTaps="handled"

@@ -243,3 +243,19 @@ test('a load failure can be tried again', async () => {
   expect(await screen.findByText('70 kg × 8')).toBeOnTheScreen();
   expect(screen.queryByText(/Couldn’t load/)).toBeNull();
 });
+
+test('while it loads, no placeholder word stands in for the name', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderDetails();
+
+  expect(screen.queryByRole('header', { name: 'Workout' })).toBeNull();
+});
+
+test('when nothing could load, the title falls back to Workout', async () => {
+  answer({ status: 500 });
+  await renderDetails();
+
+  expect(
+    await screen.findByRole('header', { name: 'Workout' }),
+  ).toBeOnTheScreen();
+});

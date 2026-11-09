@@ -10,6 +10,8 @@ interface ChipProps {
   /** What the chip shows, when a screen reader needs more than that. It shows the label otherwise. */
   text?: string;
   selected: boolean;
+  /** It isn't available yet, but a press can say why. */
+  muted?: boolean;
   onPress: () => void;
 }
 
@@ -51,9 +53,10 @@ export function Chip({
   label,
   text: shownText = label,
   selected,
+  muted = false,
   onPress,
 }: ChipProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, opacity, radius, size, space, text } = useTheme();
 
   return (
     <Tappable
@@ -69,6 +72,7 @@ export function Chip({
         borderRadius: radius.pill,
         borderColor: selected ? colors.primary : colors.border,
         backgroundColor: selected ? colors.primary : 'transparent',
+        opacity: muted ? opacity.dimmed : 1,
       }}
     >
       <Text

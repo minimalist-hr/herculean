@@ -11,6 +11,8 @@ import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
+import { Skeleton } from './skeleton';
+
 import { DragHandleIcon } from './icons';
 import { joinedCardStyle } from './joined-cards';
 import { useReduceMotion } from './use-reduce-motion';
@@ -307,3 +309,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+/** A list's rows while they load. */
+export function DraggableListSkeleton({ rows }: { rows: number }) {
+  const { size, space } = useTheme();
+
+  return (
+    <View style={{ gap: space.sm }}>
+      {Array.from({ length: rows }, (_, row) => (
+        <Skeleton key={row} width="100%" height={size.optionRowMin} />
+      ))}
+    </View>
+  );
+}

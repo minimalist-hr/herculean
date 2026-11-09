@@ -4,14 +4,12 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
-import { LoadFailure } from '@/components/load-failure';
 import {
   dismissNotification,
   notifyFailure,
   notifySuccess,
 } from '@/components/notifications';
 import { RadioCard } from '@/components/radio-card';
-import { Skeleton } from '@/components/skeleton';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -26,10 +24,7 @@ interface ChoicePageProps<Value extends string> {
   title: string;
   subtitle: string;
   choices: Choice<Value>[];
-  /** What is saved now. Undefined while it loads. */
   saved: Value | undefined;
-  loadFailed: boolean;
-  onRetry: () => void;
   saving: boolean;
   onSave: (value: Value) => Promise<unknown>;
 }
@@ -38,24 +33,11 @@ interface ChoicePageProps<Value extends string> {
 export function ChoicePage<Value extends string>(
   props: ChoicePageProps<Value>,
 ) {
-  const { title, subtitle, saved, loadFailed, onRetry } = props;
-
-  if (saved === undefined) {
-    return (
-      <FormPage back="Settings" title={title} subtitle={subtitle}>
-        {loadFailed ? (
-          <LoadFailure
-            message={`Couldn’t load your ${title.toLowerCase()}.`}
-            onRetry={onRetry}
-          />
-        ) : (
-          <ChoicesSkeleton count={props.choices.length} />
-        )}
-      </FormPage>
-    );
+  if (props.saved === undefined) {
+    return null;
   }
 
-  return <ChoiceForm {...props} saved={saved} />;
+  return <ChoiceForm {...props} saved={props.saved} />;
 }
 
 function ChoiceForm<Value extends string>({
@@ -122,22 +104,5 @@ function ChoiceForm<Value extends string>({
       </FormPage>
       {guard.sheet}
     </>
-  );
-}
-
-function ChoicesSkeleton({ count }: { count: number }) {
-  const { size, space } = useTheme();
-
-  return (
-    <View
-      accessible
-      accessibilityLabel="Loading"
-      accessibilityLiveRegion="polite"
-      style={{ gap: space.sm }}
-    >
-      {Array.from({ length: count }, (_, index) => (
-        <Skeleton key={index} width="100%" height={size.optionRowMin} />
-      ))}
-    </View>
   );
 }

@@ -145,7 +145,7 @@ test('one exercise and one set read in the singular', async () => {
   expect(await screen.findByText('1 exercise · 1 set')).toBeOnTheScreen();
 });
 
-test('without routines it says what to do', async () => {
+test('without routines it says what to do, above seven rest days', async () => {
   answer([]);
   await renderRoutines();
 
@@ -153,8 +153,42 @@ test('without routines it says what to do', async () => {
   expect(
     screen.getByText('Create a routine and pick the days you train.'),
   ).toBeOnTheScreen();
-  expect(screen.queryByLabelText('Search routines')).toBeNull();
-  expect(screen.queryByText('Repeats every week')).toBeNull();
+  expect(screen.getByText('Repeats every week')).toBeOnTheScreen();
+  expect(
+    await screen.findAllByRole('button', { name: /, rest day$/ }),
+  ).toHaveLength(7);
+});
+
+test('without routines the search is muted and says why', async () => {
+  answer([]);
+  await renderRoutines();
+  await screen.findByText('No routines yet');
+
+  const search = screen.getByRole('button', { name: 'Search routines' });
+  expect(search).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(search);
+
+  expect(await screen.findByText('Create a routine first.')).toBeOnTheScreen();
+});
+
+test('without routines a rest day opens New routine with that day picked', async () => {
+  answer([]);
+  await renderRoutines();
+  await screen.findByText('No routines yet');
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Tuesday, rest day' }),
+  );
+
+  expect(
+    await screen.findByRole('header', { name: 'New routine' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Tuesday', selected: true }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Monday', selected: false }),
+  ).toBeOnTheScreen();
 });
 
 function failOn(failing: string, routines: unknown[]) {

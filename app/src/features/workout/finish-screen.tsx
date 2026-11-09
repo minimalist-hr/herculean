@@ -7,8 +7,9 @@ import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
 import { AlertIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { NotLoadedButton } from '@/components/not-loaded-button';
 import { notifyFailure } from '@/components/notifications';
-import { ScreenHeading } from '@/components/screen-heading';
+import { blankLine, ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
 import { useUnits } from '@/features/account/use-units';
 import { useTheme } from '@/theme/theme-provider';
@@ -60,6 +61,16 @@ export function FinishScreen({ id }: { id: string }) {
   const workout = useWorkout(id).data;
   const counts = summary.data ?? (workout && finishCounts(workout.exercises));
   const warning = counts && finishWarning(counts);
+  const named = summary.data ?? workout;
+
+  function headingLabel() {
+    if (named !== undefined) {
+      return `${named.name} · ${shortWeekdayDate(dateFromText(named.date))}`;
+    }
+
+    // A blank line keeps the room after a failure, so the page doesn't move.
+    return summary.isLoadingError ? blankLine : null;
+  }
 
   function renderContent() {
     if (summary.data === undefined && summary.isLoadingError) {
@@ -99,45 +110,44 @@ export function FinishScreen({ id }: { id: string }) {
               router.back();
             }}
           />
-          <ScreenHeading
-            label={
-              // A blank line keeps the room while it loads, so the page doesn't move.
-              summary.data
-                ? `${summary.data.name} · ${shortWeekdayDate(dateFromText(summary.data.date))}`
-                : ' '
-            }
-            title="Finish workout"
-          />
+          <ScreenHeading label={headingLabel()} title="Finish workout" />
         </View>
         {renderContent()}
       </ScrollView>
-      {summary.data !== undefined && (
-        <BottomActionBox aboveTabBar>
-          <Button
-            label="Save workout"
-            waitingLabel="Saving workout"
-            waiting={save.isPending}
-            muted={summary.data.setsChecked === 0}
-            onPress={() => {
-              if (summary.data.setsChecked === 0) {
-                notifyFailure(
-                  'Check off a set to save, or discard the workout.',
-                );
-              } else {
-                save.mutate();
-              }
-            }}
-          />
-          <Button
-            label="Discard workout"
-            variant="dangerOutline"
-            dimmed={save.isPending}
-            onPress={() => {
-              setConfirmingDiscard(true);
-            }}
-          />
-        </BottomActionBox>
-      )}
+      <BottomActionBox aboveTabBar>
+        {summary.data === undefined ? (
+          <>
+            <NotLoadedButton label="Save workout" />
+            <NotLoadedButton label="Discard workout" variant="dangerOutline" />
+          </>
+        ) : (
+          <>
+            <Button
+              label="Save workout"
+              waitingLabel="Saving workout"
+              waiting={save.isPending}
+              muted={summary.data.setsChecked === 0}
+              onPress={() => {
+                if (summary.data.setsChecked === 0) {
+                  notifyFailure(
+                    'Check off a set to save, or discard the workout.',
+                  );
+                } else {
+                  save.mutate();
+                }
+              }}
+            />
+            <Button
+              label="Discard workout"
+              variant="dangerOutline"
+              dimmed={save.isPending}
+              onPress={() => {
+                setConfirmingDiscard(true);
+              }}
+            />
+          </>
+        )}
+      </BottomActionBox>
       <Sheet
         visible={confirmingDiscard}
         title="Discard this workout?"

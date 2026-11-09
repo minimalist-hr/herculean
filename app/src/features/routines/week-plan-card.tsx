@@ -16,10 +16,13 @@ const mark = 14;
 /** The week at a glance: a colored square on a day with a routine, a dash on a rest day. */
 export function WeekPlanCard({
   days,
+  noRoutines = false,
   onRetry,
 }: {
   /** Nothing yet while it loads. */
   days?: components['schemas']['WeekPlanDayResponse'][];
+  /** There is nothing to edit yet, so a rest day starts a routine on that day. */
+  noRoutines?: boolean;
   /** Set when the week plan couldn't load. */
   onRetry?: () => void;
 }) {
@@ -84,15 +87,20 @@ export function WeekPlanCard({
               accessibilityRole="button"
               accessibilityLabel={`${full}, ${day?.routineName ?? 'rest day'}`}
               onPress={() => {
-                if (routineId === null) {
-                  notifyFailure(
-                    `${full} is a rest day. Edit a routine to pick its days.`,
-                  );
-                } else {
+                if (routineId !== null) {
                   router.push({
                     pathname: '/routines/[id]',
                     params: { id: routineId },
                   });
+                } else if (noRoutines) {
+                  router.push({
+                    pathname: '/routine/new',
+                    params: { day: weekday },
+                  });
+                } else {
+                  notifyFailure(
+                    `${full} is a rest day. Edit a routine to pick its days.`,
+                  );
                 }
               }}
               style={cellStyle}

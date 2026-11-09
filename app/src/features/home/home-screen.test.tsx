@@ -369,6 +369,15 @@ test('one week reads in the singular, and none invites a first', async () => {
   expect(await screen.findByText('1 week on plan')).toBeOnTheScreen();
 });
 
+test('a streak that ended keeps the best and says there is none right now', async () => {
+  answerWith({ '/api/v1/streak': { weeks: 0, best: 4 } });
+  await renderHome();
+
+  expect(await screen.findByText('No streak right now')).toBeOnTheScreen();
+  expect(screen.getByText('Best 4 weeks')).toBeOnTheScreen();
+  expect(screen.queryByText('No streak yet')).toBeNull();
+});
+
 test('an empty account keeps every section with empty copy', async () => {
   answerWith({
     '/api/v1/streak': { weeks: 0, best: 0 },

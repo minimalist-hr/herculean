@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { EmptyCard } from '@/components/empty-card';
 import { OpenOutIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { SectionTitle } from '@/components/section-title';
@@ -278,6 +279,9 @@ export function MonthSection({ now }: { now: Date }) {
   );
 }
 
+const startStreakHint =
+  'Finish a week with no planned day missed to start one.';
+
 export function StreakSection() {
   const { colors, space, text } = useTheme();
   const streak = useStreak();
@@ -317,13 +321,17 @@ export function StreakSection() {
 
     const { weeks, best } = streak.data;
 
+    if (weeks === 0 && best === 0) {
+      return <EmptyCard title="No streak yet" message={startStreakHint} />;
+    }
+
     return (
       <Card>
         <View style={{ gap: space.xs }}>
           <View style={[styles.heading, { gap: space.md }]}>
             <Text style={[text.cardTitle, { color: colors.text }]}>
               {weeks === 0
-                ? 'No streak yet'
+                ? 'No streak right now'
                 : `${counted(weeks, 'week', 'weeks')} on plan`}
             </Text>
             {best > 0 && (
@@ -334,7 +342,7 @@ export function StreakSection() {
           </View>
           <Text style={text.meta}>
             {weeks === 0
-              ? 'Finish a week with no planned day missed to start one.'
+              ? startStreakHint
               : 'Weeks in a row with no planned day missed.'}
           </Text>
         </View>
@@ -395,16 +403,10 @@ export function RecordsSection() {
 
     if (records.data.length === 0) {
       return (
-        <Card>
-          <View style={{ gap: space.xs }}>
-            <Text style={[text.cardTitle, { color: colors.text }]}>
-              No records yet
-            </Text>
-            <Text style={text.meta}>
-              Beat your heaviest weight on an exercise and it shows here.
-            </Text>
-          </View>
-        </Card>
+        <EmptyCard
+          title="No records yet"
+          message="Beat your heaviest weight on an exercise and it shows here."
+        />
       );
     }
 

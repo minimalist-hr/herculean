@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { z } from 'zod';
 
 import { toFormErrors } from '@/api/problem';
@@ -10,6 +10,7 @@ import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
 import { LoadFailure } from '@/components/load-failure';
+import { NotLoadedButton } from '@/components/not-loaded-button';
 import {
   clearingNotification,
   dismissNotification,
@@ -52,10 +53,6 @@ export function ThemeScreen() {
         { value: 'light', label: themeLabels.light },
       ]}
       saved={user.data?.theme}
-      loadFailed={user.isLoadingError}
-      onRetry={() => {
-        void user.refetch();
-      }}
       saving={update.isPending}
       onSave={(theme) => update.mutateAsync({ theme })}
     />
@@ -75,10 +72,6 @@ export function ColorScreen() {
         { value: 'chrome', label: colorLabels.chrome },
       ]}
       saved={user.data?.color}
-      loadFailed={user.isLoadingError}
-      onRetry={() => {
-        void user.refetch();
-      }}
       saving={update.isPending}
       onSave={(color) => update.mutateAsync({ color })}
     />
@@ -98,10 +91,6 @@ export function UnitsScreen() {
         { value: 'imperial', label: unitLabels.imperial, detail: 'lb' },
       ]}
       saved={user.data?.units}
-      loadFailed={user.isLoadingError}
-      onRetry={() => {
-        void user.refetch();
-      }}
       saving={update.isPending}
       onSave={(units) => update.mutateAsync({ units })}
     />
@@ -117,7 +106,12 @@ export function DefaultRestScreen() {
 
   if (settings.data === undefined) {
     return (
-      <FormPage back="Settings" title={restTitle} subtitle={restSubtitle}>
+      <FormPage
+        back="Settings"
+        title={restTitle}
+        subtitle={restSubtitle}
+        action={<NotLoadedButton label="Save rest time" />}
+      >
         {settings.isLoadingError ? (
           <LoadFailure
             message="Couldn’t load your rest time."
@@ -225,20 +219,7 @@ export function NameScreen() {
   const user = useCurrentUser();
 
   if (user.data === undefined) {
-    return (
-      <FormPage back="Settings" title={nameTitle} subtitle={nameSubtitle}>
-        {user.isLoadingError ? (
-          <LoadFailure
-            message="Couldn’t load your name."
-            onRetry={() => {
-              void user.refetch();
-            }}
-          />
-        ) : (
-          <NameSkeleton />
-        )}
-      </FormPage>
-    );
+    return null;
   }
 
   return <NameForm saved={user.data.name ?? ''} />;
@@ -307,21 +288,5 @@ function NameForm({ saved }: { saved: string }) {
       </FormPage>
       {guard.sheet}
     </>
-  );
-}
-
-function NameSkeleton() {
-  const { size, space, text } = useTheme();
-
-  return (
-    <View
-      accessible
-      accessibilityLabel="Loading"
-      accessibilityLiveRegion="polite"
-      style={{ gap: space.sm }}
-    >
-      <Text style={text.eyebrow}>{nameLabel}</Text>
-      <Skeleton width="100%" height={size.input} />
-    </View>
   );
 }

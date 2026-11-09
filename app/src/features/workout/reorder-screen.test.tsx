@@ -109,8 +109,8 @@ beforeEach(() => {
 test('shows the exercises with their progress, and no Save button', async () => {
   await renderReorder();
 
-  expect(await screen.findByText('Reorder exercises')).toBeOnTheScreen();
-  expect(screen.getByText('Legs day')).toBeOnTheScreen();
+  expect(await screen.findByText('Legs day')).toBeOnTheScreen();
+  expect(screen.getByText('Reorder exercises')).toBeOnTheScreen();
   expect(
     screen.getByText(
       'Drag the handle to move an exercise. Logged sets stay with it.',
@@ -139,7 +139,7 @@ test('shows the running time when it has one', async () => {
 
 test('a drop moves the exercise and saves the new order', async () => {
   await renderReorder();
-  await screen.findByText('Reorder exercises');
+  await screen.findByText('Legs day');
 
   await dragBy(screen.getByRole('button', { name: 'Move Barbell squat' }), 70);
 
@@ -164,7 +164,7 @@ test('a drop moves the exercise and saves the new order', async () => {
 test('a failed save says so and puts the order back', async () => {
   saving = 'fail';
   await renderReorder();
-  await screen.findByText('Reorder exercises');
+  await screen.findByText('Legs day');
 
   await dragBy(screen.getByRole('button', { name: 'Move Barbell squat' }), 70);
 
@@ -192,4 +192,19 @@ test('a failed load offers to try again', async () => {
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 
   expect(await screen.findByText('Reorder exercises')).toBeOnTheScreen();
+});
+
+test('while it loads, the title and hint are already in place', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderReorder();
+
+  expect(screen.getByLabelText('Loading this workout')).toBeOnTheScreen();
+  expect(
+    screen.getByRole('header', { name: 'Reorder exercises' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      'Drag the handle to move an exercise. Logged sets stay with it.',
+    ),
+  ).toBeOnTheScreen();
 });

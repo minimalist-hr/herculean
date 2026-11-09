@@ -1,10 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ApiProblemError } from '@/api/problem';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
+import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { notifySuccess } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
@@ -82,11 +83,13 @@ export function ConfirmEmailScreen() {
   if (linkProblem !== null) {
     return (
       <Page title={linkProblem.title} action={leave}>
-        <Message>
-          {linkProblem === expired && status === 'signedOut'
-            ? expiredSignedOut
-            : linkProblem.message}
-        </Message>
+        <EmptyCard
+          message={
+            linkProblem === expired && status === 'signedOut'
+              ? expiredSignedOut
+              : linkProblem.message
+          }
+        />
       </Page>
     );
   }
@@ -117,12 +120,6 @@ export function ConfirmEmailScreen() {
       </View>
     </Page>
   );
-}
-
-function Message({ children }: { children: string }) {
-  const { colors, text } = useTheme();
-
-  return <Text style={[text.body, { color: colors.muted }]}>{children}</Text>;
 }
 
 function Page({

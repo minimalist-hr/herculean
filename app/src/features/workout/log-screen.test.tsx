@@ -1213,3 +1213,18 @@ test('a failed load offers to try again', async () => {
 
   expect(await screen.findByText('Legs day')).toBeOnTheScreen();
 });
+
+test('while it loads, Finish stays in place, muted, and says why', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderLog();
+
+  expect(screen.getByLabelText('Loading this workout')).toBeOnTheScreen();
+  const finish = screen.getByRole('button', { name: 'Finish' });
+  expect(finish).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(finish);
+
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Finish screen')).toBeNull();
+});

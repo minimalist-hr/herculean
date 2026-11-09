@@ -262,13 +262,33 @@ test('a group without exercises names the group', async () => {
   expect(screen.getByRole('button', { name: 'All' })).toBeOnTheScreen();
 });
 
-test('no exercises at all shows the empty state, without search or chips', async () => {
+test('no exercises keeps the search and chips, muted, and they say why', async () => {
   answer(() => []);
   await renderExercises();
 
   expect(await screen.findByText('No exercises yet')).toBeOnTheScreen();
-  expect(screen.queryByLabelText('Search exercises')).toBeNull();
-  expect(screen.queryByRole('button', { name: 'All' })).toBeNull();
+  const search = screen.getByRole('button', { name: 'Search exercises' });
+  expect(search).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(search);
+  expect(
+    await screen.findByText('Create an exercise first.'),
+  ).toBeOnTheScreen();
+
+  const chip = await screen.findByRole('button', { name: 'Chest' });
+  expect(chip).toHaveStyle({ opacity: 0.5 });
+  expect(screen.getByRole('button', { name: 'All' })).toHaveStyle({
+    opacity: 0.5,
+  });
+  await fireEvent.press(chip);
+  expect(screen.getByText('No exercises yet')).toBeOnTheScreen();
+  expect(exerciseRequests()).toHaveLength(1);
+});
+
+test('no exercises still opens New exercise', async () => {
+  answer(() => []);
+  await renderExercises();
+
+  expect(await screen.findByText('No exercises yet')).toBeOnTheScreen();
   expect(screen.getAllByRole('button', { name: 'New exercise' })).toHaveLength(
     1,
   );
@@ -374,4 +394,17 @@ test('with no groups, New exercise is muted and says why', async () => {
     'Create a group first.',
   );
   expect(screen.queryByText('New exercise page')).toBeNull();
+});
+
+test('with no groups, the search and chips say to create a group', async () => {
+  answer(() => [], 'metric', []);
+  await renderExercises();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'All' }));
+  expect(await screen.findByText('Create a group first.')).toBeOnTheScreen();
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Search exercises' }),
+  );
+  expect(await screen.findByText('Create a group first.')).toBeOnTheScreen();
 });

@@ -299,7 +299,7 @@ test('an added exercise shows its last time before the workout, and is saved as 
   });
 });
 
-test('shows the page while the workout loads, with no save', async () => {
+test('shows the page while the workout loads, with Save muted', async () => {
   answerWith();
   const loads: (() => void)[] = [];
   const answer = mockFetch.getMockImplementation();
@@ -315,7 +315,9 @@ test('shows the page while the workout loads, with no save', async () => {
   await renderEdit({ loaded: false });
 
   expect(screen.getByLabelText('Loading this workout')).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: 'Save workout' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Save workout' })).toHaveStyle({
+    opacity: 0.5,
+  });
 
   await act(() => {
     loads.forEach((load) => {
@@ -323,9 +325,11 @@ test('shows the page while the workout loads, with no save', async () => {
     });
   });
 
-  expect(
-    await screen.findByRole('button', { name: 'Save workout' }),
-  ).toBeOnTheScreen();
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Save workout' })).toHaveStyle({
+      opacity: 1,
+    });
+  });
 });
 
 test('a failed load says so, and Try again loads it', async () => {
@@ -335,7 +339,10 @@ test('a failed load says so, and Try again loads it', async () => {
   expect(
     await screen.findByText('Couldn’t load this workout.'),
   ).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: 'Save workout' })).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
 
   await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 

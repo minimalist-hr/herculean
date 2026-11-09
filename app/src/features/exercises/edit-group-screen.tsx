@@ -1,12 +1,14 @@
 import { FormPage } from '@/components/form-page';
 import { LoadFailure } from '@/components/load-failure';
+import { NotLoadedButton } from '@/components/not-loaded-button';
+import { FieldSkeleton, SkeletonGroup } from '@/components/skeleton';
 
-import { DetailsSkeleton } from './exercises-skeleton';
 import { GroupFormPage } from './group-form-page';
 import { useGroup } from './use-group';
 import { useUpdateGroup } from './use-update-group';
 
 const title = 'Edit group';
+const subtitle = 'The new name shows on every chip and section.';
 
 export function EditGroupScreen({ id }: { id: string }) {
   const group = useGroup(id);
@@ -17,7 +19,7 @@ export function EditGroupScreen({ id }: { id: string }) {
       <GroupFormPage
         back={group.data.name}
         title={title}
-        subtitle="The new name shows on every chip and section."
+        subtitle={subtitle}
         initialName={group.data.name}
         saving={updateGroup.isPending}
         onSave={(name) => updateGroup.mutateAsync({ id, name })}
@@ -27,7 +29,12 @@ export function EditGroupScreen({ id }: { id: string }) {
   }
 
   return (
-    <FormPage back="Group" title={title}>
+    <FormPage
+      back="Group"
+      title={title}
+      subtitle={subtitle}
+      action={<NotLoadedButton label="Save group" />}
+    >
       {group.isLoadingError ? (
         <LoadFailure
           message="Couldn’t load this group."
@@ -36,7 +43,9 @@ export function EditGroupScreen({ id }: { id: string }) {
           }}
         />
       ) : (
-        <DetailsSkeleton label="Loading the group" />
+        <SkeletonGroup label="Loading the group">
+          <FieldSkeleton label="Name" />
+        </SkeletonGroup>
       )}
     </FormPage>
   );

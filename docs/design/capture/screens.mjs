@@ -10,6 +10,10 @@ const editPath = `/routine/${chestAndArms.id}/edit`;
 const groupPath = `/exercises/groups/${chest.id}`;
 const lists = (answer) => ({ 'GET /api/v1/exercises': answer });
 const noGroups = { status: 200, body: [] };
+const noRoutineList = {
+  'GET /api/v1/routines': { status: 200, body: [] },
+  'GET /api/v1/week-plan-days': { status: 200, body: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((weekday) => ({ weekday, routineId: null, routineName: null })) },
+};
 const friday = '2026-10-23T18:00:00';
 const sunday = '2026-10-25T18:00:00';
 const skippedDay = (day) => ({ status: 200, body: { ...day, status: 'skipped', workoutId: 'workout-skipped' } });
@@ -349,11 +353,6 @@ const openBench = async (on) => {
 };
 
 /** Lets the read at sign-in through, then answers with this, so a page that needs the user can be caught loading or failing. */
-const afterSignIn = (answer) => {
-  let calls = 0;
-  return () => (calls++ === 0 ? undefined : answer);
-};
-const userThen = (answer) => ({ 'GET /api/v1/users/me': afterSignIn(answer) });
 const deletionScheduled = { 'POST /api/v1/sessions': problem(409, 'user.deletion_scheduled', 'Your account will be deleted on Fri, 6th Nov 2026.') };
 const keepAccount = async (on) => {
   await on.type('Email', 'filip@example.com');
@@ -845,32 +844,10 @@ export const screens = [
     await on.waitFor('Send link again');
     await on.sleep(400);
   } },
-  { id: 'H49', file: 'H49-Settings-Load-Failure', title: "Settings · couldn't load", row: 'H2 Settings', full: false, answers: userThen('fail'), steps: async (on) => {
-    await on.go('/settings');
-    await on.waitFor("Couldn’t load your settings.");
-  } },
-  { id: 'H50', file: 'H50-Settings-Name-Loading', title: 'Settings › Name · loading', row: 'H2 Settings', full: false, answers: userThen('hold'), steps: async (on) => {
-    await on.go('/settings/name');
-    await on.waitFor('Shown on Home and in Settings.');
-    await on.sleep(400);
-  } },
-  { id: 'H51', file: 'H51-Settings-Name-Load-Failure', title: "Settings › Name · couldn't load", row: 'H2 Settings', full: false, answers: userThen('fail'), steps: async (on) => {
-    await on.go('/settings/name');
-    await on.waitFor("Couldn’t load your name.");
-  } },
   { id: 'H52', file: 'H52-Settings-Name-Saving', title: 'Settings › Name · saving', row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/users/me': 'hold' }, steps: saveName },
   { id: 'H53', file: 'H53-Settings-Name-Failed', title: "Settings › Name · couldn't save", row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/users/me': 'fail' }, steps: async (on) => {
     await saveName(on);
     await on.waitFor("Couldn’t save the name. Try again.");
-  } },
-  { id: 'H54', file: 'H54-Settings-Email-Loading', title: 'Settings › Email · loading', row: 'H2 Settings', full: false, answers: userThen('hold'), steps: async (on) => {
-    await on.go('/settings/email');
-    await on.waitFor('Used to sign in.');
-    await on.sleep(400);
-  } },
-  { id: 'H55', file: 'H55-Settings-Email-Load-Failure', title: "Settings › Email · couldn't load", row: 'H2 Settings', full: false, answers: userThen('fail'), steps: async (on) => {
-    await on.go('/settings/email');
-    await on.waitFor("Couldn’t load your email.");
   } },
   { id: 'H56', file: 'H56-Settings-Email-Saving', title: 'Settings › Email · saving', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes': 'hold' }, steps: saveEmail },
   { id: 'H57', file: 'H57-Settings-Email-Failed', title: "Settings › Email · couldn't send", row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes': 'fail' }, steps: async (on) => {
@@ -959,6 +936,11 @@ export const screens = [
     await on.waitFor('Go to sign in');
   } },
   // W · Workout
+  { id: 'H84', file: 'H84-Settings-Email-Taken', title: 'Settings › Email · email taken', row: 'H2 Settings', full: false, answers: { 'POST /api/v1/email-changes/confirm': problem(409, 'user.email_taken', 'An account with this email already exists.') }, steps: async (on) => {
+    await on.go('/confirm-email?token=sample');
+    await on.waitFor('Email taken');
+    await on.sleep(400);
+  } },
   { id: 'W07', file: 'W07-Workout-Today-Loading', title: 'Workout › Today · loading', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'hold', 'GET /api/v1/days': 'hold' }, steps: (on) => on.go('/workout') },
   { id: 'W08', file: 'W08-Workout-Today-Load-Failure', title: 'Workout › Today · load failure', row: 'W1 Today states', today: friday, answers: { 'GET /api/v1/days/2026-10-23': 'fail', 'GET /api/v1/days': 'fail' }, steps: async (on) => {
     await on.go('/workout');
@@ -1368,6 +1350,12 @@ export const screens = [
     await on.go('/exercises');
     await on.waitFor("Couldn’t load your groups.");
   } },
+  { id: 'E78', file: 'E78-Exercises-Empty-Search-Says-Why', title: 'Exercises · no exercises, search says why', row: 'E1 Exercises tab', full: false, answers: lists({ status: 200, body: [] }), steps: async (on) => {
+    await on.go('/exercises');
+    await on.waitFor('No exercises yet');
+    await on.tap('Search exercises');
+    await on.waitFor('Create an exercise first.');
+  } },
   { id: 'E06', file: 'E06-Exercises-Deleted-Undo', title: 'Exercises · exercise deleted, with Undo', row: 'E1 Exercises tab', full: false, steps: async (on) => {
     await on.tap('Exercises');
     await on.tap(lateralRaise.name);
@@ -1382,6 +1370,12 @@ export const screens = [
   { id: 'E11', file: 'E11-Exercises-Detail-Never-Done', title: 'Exercises › Exercise · never done', row: 'E2 Exercise details', steps: async (on) => {
     await on.go(exercisePath);
     await on.waitFor('Used in');
+  } },
+  { id: 'E80', file: 'E80-Exercises-Detail-Never-Done-Range-Says-Why', title: 'Exercises › Exercise · never done, range says why', row: 'E2 Exercise details', full: false, steps: async (on) => {
+    await on.go(exercisePath);
+    await on.waitFor('Used in');
+    await on.tap('Last 6 months');
+    await on.waitFor('Finish a workout with this exercise first.');
   } },
   { id: 'E12', file: 'E12-Exercises-Detail-In-Routines', title: 'Exercises › Exercise · in routines, trash says why', row: 'E2 Exercise details', answers: benchAnswers(), steps: async (on) => {
     await on.go(`/exercises/${benchPress.id}`);
@@ -1482,6 +1476,12 @@ export const screens = [
     await on.waitFor('New group');
   } },
   { id: 'E36', file: 'E36-Exercises-Groups-Empty', title: 'Exercises › Groups · no groups yet', row: 'E4 Groups', answers: { 'GET /api/v1/groups': noGroups }, steps: (on) => on.go('/exercises/groups') },
+  { id: 'E79', file: 'E79-Exercises-Groups-Empty-Search-Says-Why', title: 'Exercises › Groups · no groups, search says why', row: 'E4 Groups', full: false, answers: { 'GET /api/v1/groups': noGroups }, steps: async (on) => {
+    await on.go('/exercises/groups');
+    await on.waitFor('No groups yet');
+    await on.tap('Search groups');
+    await on.waitFor('Create a group first.');
+  } },
   { id: 'E37', file: 'E37-Exercises-Groups-Load-Failure', title: 'Exercises › Groups · load failure', row: 'E4 Groups', answers: { 'GET /api/v1/groups': 'fail' }, steps: async (on) => {
     await on.go('/exercises/groups');
     await on.waitFor('Try again');
@@ -1791,6 +1791,10 @@ export const screens = [
     await on.go(addPath);
     await on.waitFor('Try again');
   } },
+  { id: 'L69', file: 'L69-Logging-Add-Exercise-Groups-Failed', title: "Logging › Add exercise · groups couldn't load", row: 'L2 Exercises', full: false, answers: { 'GET /api/v1/groups': 'fail' }, steps: async (on) => {
+    await on.go(addPath);
+    await on.waitFor('Couldn’t load your groups.');
+  } },
   { id: 'L21', file: 'L21-Logging-Add-Exercise-No-Matches', title: 'Logging › Add exercise · no matches', row: 'L2 Exercises', steps: async (on) => {
     await on.go(addPath);
     await on.waitFor(lateralRaise.name);
@@ -1985,7 +1989,17 @@ export const screens = [
     await on.go('/routines');
     await on.waitFor('Legs');
   } },
-  { id: 'R03', file: 'R03-Routines-Empty', title: 'Routines · no routines yet', row: 'R1 Routines tab', answers: { 'GET /api/v1/routines': { status: 200, body: [] } }, steps: (on) => on.go('/routines') },
+  { id: 'R03', file: 'R03-Routines-Empty', title: 'Routines · no routines yet', row: 'R1 Routines tab', answers: noRoutineList, steps: async (on) => {
+    await on.go('/routines');
+    await on.waitFor('Tuesday, rest day');
+    await on.sleep(400);
+  } },
+  { id: 'R49', file: 'R49-Routines-Empty-Search-Says-Why', title: 'Routines · no routines, search says why', row: 'R1 Routines tab', full: false, answers: noRoutineList, steps: async (on) => {
+    await on.go('/routines');
+    await on.waitFor('No routines yet');
+    await on.tap('Search routines');
+    await on.waitFor('Create a routine first.');
+  } },
   { id: 'R04', file: 'R04-Routines-No-Matches', title: 'Routines · no search matches', row: 'R1 Routines tab', steps: async (on) => {
     await on.go('/routines');
     await on.waitFor('Legs');

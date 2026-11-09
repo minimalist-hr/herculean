@@ -356,13 +356,16 @@ test('a failed move says so and goes back', async () => {
   });
 });
 
-test('with no groups, it says so and has no search', async () => {
+test('with no groups, it says so and the search is muted and says why', async () => {
   answer();
   stored = [];
   await renderRouter({ _layout: Layout, index: GroupsScreen });
 
   expect(await screen.findByText('No groups yet')).toBeOnTheScreen();
-  expect(screen.queryByLabelText('Search groups')).toBeNull();
+  const search = screen.getByRole('button', { name: 'Search groups' });
+  expect(search).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(search);
+  expect(await screen.findByText('Create a group first.')).toBeOnTheScreen();
   expect(screen.queryByText(/^No matches/)).toBeNull();
   expect(screen.queryByText(/^Sort your exercise list/)).toBeNull();
 });

@@ -6,7 +6,6 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackLink } from '@/components/back-link';
-import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
 import { TextLink } from '@/components/text-link';
@@ -27,8 +26,6 @@ import { ProfilePhotoSheet } from './profile-photo-sheet';
 import { usePendingEmailChange } from './use-email-change';
 import { photoUri, savePhotoKey, useUserPhoto } from './use-user-photo';
 
-/** Shown in place of a value that couldn't load. */
-
 /** The user's profile, preferences and account. */
 export function SettingsScreen() {
   const router = useRouter();
@@ -46,11 +43,7 @@ export function SettingsScreen() {
   }
 
   function userValue(read: (data: NonNullable<typeof user.data>) => string) {
-    if (user.data !== undefined) {
-      return read(user.data);
-    }
-
-    return user.isLoadingError ? noValue : undefined;
+    return user.data === undefined ? undefined : read(user.data);
   }
 
   function restValue() {
@@ -82,16 +75,7 @@ export function SettingsScreen() {
           <ScreenHeading title="Settings" />
         </View>
 
-        {user.isLoadingError ? (
-          <LoadFailure
-            message="Couldn’t load your settings."
-            onRetry={() => {
-              void user.refetch();
-            }}
-          />
-        ) : (
-          <Profile name={user.data?.name} email={user.data?.email} />
-        )}
+        <Profile name={user.data?.name} email={user.data?.email} />
 
         <SettingsSection title="Appearance">
           <SettingsRow

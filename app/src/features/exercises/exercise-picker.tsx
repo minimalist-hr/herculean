@@ -21,6 +21,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { Tappable } from '@/components/tappable';
 
+import { ChipsFailure } from './chips-failure';
 import { bestSetText } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -210,6 +211,44 @@ export function ExercisePicker({
     return picked.some((item) => item.id === exercise.id);
   }
 
+  function renderChips() {
+    if (groups.isLoadingError) {
+      return (
+        <ChipsFailure
+          onRetry={() => {
+            void groups.refetch();
+          }}
+        />
+      );
+    }
+
+    if (groups.data === undefined) {
+      return <ChipsSkeleton />;
+    }
+
+    return (
+      <>
+        <Chip
+          label="All"
+          selected={groupId === undefined}
+          onPress={() => {
+            setGroupId(undefined);
+          }}
+        />
+        {groups.data.map((group) => (
+          <Chip
+            key={group.id}
+            label={group.name}
+            selected={groupId === group.id}
+            onPress={() => {
+              setGroupId(group.id);
+            }}
+          />
+        ))}
+      </>
+    );
+  }
+
   function renderEmpty() {
     if (found.isLoadingError) {
       return (
@@ -290,29 +329,7 @@ export function ExercisePicker({
               paddingHorizontal: size.sidePadding,
             }}
           >
-            {groups.data === undefined ? (
-              <ChipsSkeleton />
-            ) : (
-              <>
-                <Chip
-                  label="All"
-                  selected={groupId === undefined}
-                  onPress={() => {
-                    setGroupId(undefined);
-                  }}
-                />
-                {groups.data.map((group) => (
-                  <Chip
-                    key={group.id}
-                    label={group.name}
-                    selected={groupId === group.id}
-                    onPress={() => {
-                      setGroupId(group.id);
-                    }}
-                  />
-                ))}
-              </>
-            )}
+            {renderChips()}
           </ScrollView>
         </View>
       </View>

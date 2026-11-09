@@ -8,10 +8,16 @@ import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
 import { PlusIcon, ReorderIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
+import { NotLoadedButton } from '@/components/not-loaded-button';
 import { notifyFailure } from '@/components/notifications';
 import { ProgressBar } from '@/components/progress-bar';
 import { Sheet } from '@/components/sheet';
-import { Skeleton } from '@/components/skeleton';
+import {
+  Skeleton,
+  SkeletonGroup,
+  SkeletonLine,
+  textLine,
+} from '@/components/skeleton';
 import { useUnits } from '@/features/account/use-units';
 import { sameGroup } from '@/features/routines/group-blocks';
 import { formatClock, shortWeekdayDate } from '@/formats/formats';
@@ -437,35 +443,42 @@ function LoggingSkeleton() {
   const { colors, radius, space } = useTheme();
 
   return (
-    <View
-      accessible
-      accessibilityLabel="Loading this workout"
-      accessibilityLiveRegion="polite"
-      style={{ gap: space.lg, marginTop: 2 }}
-    >
+    <View style={{ gap: space.lg, marginTop: 2 }}>
       <View style={{ gap: space.sm }}>
-        <Skeleton width={220} height={28} />
-        <Skeleton width={150} height={10} />
-        <Skeleton width={90} height={10} />
+        <View style={[styles.titleRow, { gap: space.md }]}>
+          <View style={styles.title}>
+            <SkeletonLine
+              width={220}
+              height={28}
+              lineHeight={textLine.pageTitle}
+            />
+          </View>
+          <NotLoadedButton label="Finish" />
+        </View>
+        <SkeletonLine width={150} height={10} lineHeight={textLine.meta} />
+        <SkeletonLine width={90} height={10} lineHeight={textLine.meta} />
+        <ProgressBar done={0} total={0} />
       </View>
-      <View
-        style={[
-          styles.skeletonCard,
-          {
-            gap: space.md,
-            padding: space.lg,
-            borderRadius: radius.card,
-            borderColor: colors.border,
-            backgroundColor: colors.card,
-          },
-        ]}
-      >
-        <Skeleton width={200} height={16} />
-        <Skeleton width={120} height={10} />
-        {[0, 1, 2].map((row) => (
-          <Skeleton key={row} width="100%" height={32} />
-        ))}
-      </View>
+      <SkeletonGroup label="Loading this workout">
+        <View
+          style={[
+            styles.skeletonCard,
+            {
+              gap: space.md,
+              padding: space.lg,
+              borderRadius: radius.card,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            },
+          ]}
+        >
+          <Skeleton width={200} height={16} />
+          <Skeleton width={120} height={10} />
+          {[0, 1, 2].map((row) => (
+            <Skeleton key={row} width="100%" height={32} />
+          ))}
+        </View>
+      </SkeletonGroup>
     </View>
   );
 }

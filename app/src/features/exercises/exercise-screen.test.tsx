@@ -173,6 +173,24 @@ test('shows the skeleton, then the exercise', async () => {
   );
 });
 
+test('never done, the range buttons stay, muted, and say why', async () => {
+  answer(exercise('Shoulders'));
+  await renderExercise();
+
+  const sixMonths = await screen.findByRole('button', {
+    name: 'Last 6 months',
+  });
+  expect(sixMonths).toHaveStyle({ opacity: 0.5 });
+
+  await fireEvent.press(sixMonths);
+
+  expect(
+    await screen.findByText('Finish a workout with this exercise first.'),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Last 3 months' })).toBeSelected();
+  expect(mockProgress).not.toHaveBeenCalled();
+});
+
 test('shows only the group when it works nothing else', async () => {
   answer(exercise('Shoulders'));
   await renderExercise();
@@ -204,7 +222,6 @@ test('never done, every section is in its place and says so', async () => {
   // The chart's box and the sessions both say so.
   expect(screen.getByText('Heaviest set')).toBeOnTheScreen();
   expect(screen.getAllByText('No sessions yet')).toHaveLength(2);
-  expect(screen.queryByRole('toolbar', { name: 'Time range' })).toBeNull();
   expect(mockProgress).not.toHaveBeenCalled();
   expect(screen.getByText('All sessions')).toBeOnTheScreen();
   expect(screen.getByText('Not in any routine yet')).toBeOnTheScreen();

@@ -16,7 +16,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { GroupsList } from './groups-list';
 import { useGroupOrder } from './use-group-order';
-import { useGroups } from './use-groups';
+import { noGroupsMessage, useGroups } from './use-groups';
 import { useFloatingRoom } from '@/components/above-tab-bar';
 
 export function GroupsScreen() {
@@ -143,16 +143,15 @@ export function GroupsScreen() {
             subtitle="The muscle groups your exercises belong to."
           />
         </View>
-        {!noGroups && (
-          <SearchField
-            label="Search groups"
-            value={searchText}
-            onChangeText={(value) => {
-              dismissNotification();
-              setSearchText(value);
-            }}
-          />
-        )}
+        <SearchField
+          label="Search groups"
+          value={searchText}
+          mutedReason={noGroups ? noGroupsMessage : undefined}
+          onChangeText={(value) => {
+            dismissNotification();
+            setSearchText(value);
+          }}
+        />
       </View>
       <ScrollView
         scrollEnabled={!dragging}

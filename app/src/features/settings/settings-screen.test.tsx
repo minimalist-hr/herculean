@@ -67,12 +67,10 @@ const user = {
 };
 
 function answerWith({
-  userStatus = 200,
   restStatus = 200,
   patchStatus = 200,
   patchProblem,
 }: {
-  userStatus?: number;
   restStatus?: number;
   patchStatus?: number;
   patchProblem?: object;
@@ -94,11 +92,7 @@ function answerWith({
       );
     }
     if (pathname === '/api/v1/users/me') {
-      return Promise.resolve(
-        userStatus === 200
-          ? Response.json(user)
-          : new Response(null, { status: userStatus }),
-      );
+      return Promise.resolve(Response.json(user));
     }
 
     return Promise.resolve(
@@ -260,15 +254,6 @@ test('Terms of service opens with a back link to Settings', async () => {
   expect(await screen.findByText('Terms, back to Settings')).toBeOnTheScreen();
 });
 
-test('a failed load says so in place of the profile', async () => {
-  answerWith({ userStatus: 500 });
-  await renderSettings();
-
-  expect(
-    await screen.findByText('Couldn’t load your settings.'),
-  ).toBeOnTheScreen();
-});
-
 test.each([
   ['Filip Mučnjak', 'FM'],
   ['Filip', 'F'],
@@ -278,25 +263,41 @@ test.each([
   expect(initialsOf(name, 'filip@example.com')).toBe(initials);
 });
 
-test.each([
-  ['/settings/theme', { userStatus: 500 }, 'Couldn’t load your theme.'],
-  ['/settings/rest-time', { restStatus: 500 }, 'Couldn’t load your rest time.'],
-  ['/settings/name', { userStatus: 500 }, 'Couldn’t load your name.'],
-  ['/settings/email', { userStatus: 500 }, 'Couldn’t load your email.'],
-])(
-  '%s opened on its own shows that it is loading, a failure, and Try again',
-  async (url, statuses, failure) => {
-    answerWith(statuses);
-    await renderAt(url);
+test('the rest time page shows a failure and Try again', async () => {
+  answerWith({ restStatus: 500 });
+  await renderAt('/settings/rest-time');
 
-    expect(await screen.findByText(failure)).toBeOnTheScreen();
+  expect(
+    await screen.findByText('Couldn’t load your rest time.'),
+  ).toBeOnTheScreen();
 
-    answerWith();
-    await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+  answerWith();
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 
-    expect(await screen.findByText(/^Save /)).toBeOnTheScreen();
-  },
-);
+  expect(await screen.findByText(/^Save /)).toBeOnTheScreen();
+});
+
+test('the rest time page keeps Save in place, muted, until it has loaded', async () => {
+  const label = 'Save rest time';
+  answerWith({ restStatus: 500 });
+  await renderAt('/settings/rest-time');
+
+  expect(screen.getByRole('button', { name: label })).toHaveStyle({
+    opacity: 0.5,
+  });
+
+  await screen.findByRole('link', { name: 'Try again' });
+  const save = screen.getByRole('button', { name: label });
+  expect(save).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(save);
+
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
+  expect(
+    mockFetch.mock.calls.filter(([request]) => request.method !== 'GET'),
+  ).toHaveLength(0);
+});
 
 test('the name is saved trimmed, and Settings shows it', async () => {
   answerWith();

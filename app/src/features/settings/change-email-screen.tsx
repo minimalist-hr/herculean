@@ -1,20 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { z } from 'zod';
 
 import { toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
-import { LoadFailure } from '@/components/load-failure';
 import {
   clearingNotification,
   dismissNotification,
   notifyFailure,
   notifySuccess,
 } from '@/components/notifications';
-import { Skeleton } from '@/components/skeleton';
 import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useCurrentUser } from '@/features/account/use-current-user';
@@ -38,20 +36,7 @@ export function ChangeEmailScreen() {
   const user = useCurrentUser();
 
   if (user.data === undefined) {
-    return (
-      <FormPage back="Settings" title={title} subtitle={subtitle}>
-        {user.isLoadingError ? (
-          <LoadFailure
-            message="Couldn’t load your email."
-            onRetry={() => {
-              void user.refetch();
-            }}
-          />
-        ) : (
-          <EmailSkeleton />
-        )}
-      </FormPage>
-    );
+    return null;
   }
 
   return <ChangeEmailForm currentEmail={user.data.email} />;
@@ -155,28 +140,5 @@ function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
       </FormPage>
       {guard.sheet}
     </>
-  );
-}
-
-function EmailSkeleton() {
-  const { size, space, text } = useTheme();
-
-  return (
-    <View
-      accessible
-      accessibilityLabel="Loading"
-      accessibilityLiveRegion="polite"
-      style={{ gap: space.lg }}
-    >
-      <View style={{ gap: space.sm }}>
-        <Text style={text.eyebrow}>{emailLabel}</Text>
-        <Skeleton width="100%" height={size.input} />
-        <Text style={text.meta}>{emailHelper}</Text>
-      </View>
-      <View style={{ gap: space.sm }}>
-        <Text style={text.eyebrow}>{passwordLabel}</Text>
-        <Skeleton width="100%" height={size.input} />
-      </View>
-    </View>
   );
 }

@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { EmptyCard } from '@/components/empty-card';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
 import { StatTile } from '@/components/stat-tile';
@@ -86,54 +87,53 @@ export function NewRecords({
   return (
     <View style={{ gap: space.sm }}>
       <SectionTitle>New records</SectionTitle>
-      <View
-        style={[
-          styles.records,
-          {
-            borderRadius: radius.card,
-            borderColor: colors.border,
-            backgroundColor: colors.card,
-          },
-        ]}
-      >
-        {records === undefined && (
-          <View style={[styles.recordText, { gap: 2, padding: space.lg }]}>
-            <Skeleton width={160} height={21} />
-            <Skeleton width={120} height={17} />
-          </View>
-        )}
-        {records?.length === 0 && (
-          <Text style={[text.body, { color: colors.muted, padding: space.lg }]}>
-            No new records this time.
-          </Text>
-        )}
-        {records?.map((record, index) => (
-          <View
-            key={record.name}
-            style={[
-              styles.record,
-              {
-                gap: space.md,
-                padding: space.lg,
-                borderTopWidth: index === 0 ? 0 : 1,
-                borderTopColor: colors.border,
-              },
-            ]}
-          >
-            <View style={styles.recordText}>
-              <Text style={[text.listItemName, { color: colors.text }]}>
-                {record.name}
-              </Text>
-              <Text style={text.meta}>
-                {recordReason(record, formatWeight(record.weightKg, units))}
+      {records?.length === 0 ? (
+        <EmptyCard message="No new records this time." />
+      ) : (
+        <View
+          style={[
+            styles.records,
+            {
+              borderRadius: radius.card,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            },
+          ]}
+        >
+          {records === undefined && (
+            <View style={[styles.recordText, { gap: 2, padding: space.lg }]}>
+              <Skeleton width={160} height={21} />
+              <Skeleton width={120} height={17} />
+            </View>
+          )}
+          {records?.map((record, index) => (
+            <View
+              key={record.name}
+              style={[
+                styles.record,
+                {
+                  gap: space.md,
+                  padding: space.lg,
+                  borderTopWidth: index === 0 ? 0 : 1,
+                  borderTopColor: colors.border,
+                },
+              ]}
+            >
+              <View style={styles.recordText}>
+                <Text style={[text.listItemName, { color: colors.text }]}>
+                  {record.name}
+                </Text>
+                <Text style={text.meta}>
+                  {recordReason(record, formatWeight(record.weightKg, units))}
+                </Text>
+              </View>
+              <Text style={[text.listItemName, { color: colors.primaryText }]}>
+                {formatSet(record.weightKg, record.reps, units)}
               </Text>
             </View>
-            <Text style={[text.listItemName, { color: colors.primaryText }]}>
-              {formatSet(record.weightKg, record.reps, units)}
-            </Text>
-          </View>
-        ))}
-      </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }

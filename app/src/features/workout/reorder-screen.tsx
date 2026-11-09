@@ -4,10 +4,13 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
-import { DraggableList } from '@/components/draggable-list';
+import {
+  DraggableList,
+  DraggableListSkeleton,
+} from '@/components/draggable-list';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
-import { Skeleton } from '@/components/skeleton';
+import { SkeletonGroup } from '@/components/skeleton';
 import { ExerciseTargetLine } from '@/features/routines/exercise-targets';
 import { sameGroup } from '@/features/routines/group-blocks';
 import { formatClock } from '@/formats/formats';
@@ -19,6 +22,10 @@ import { useWorkout } from './use-workout';
 import { checkedSets } from './workout-progress';
 
 type Workout = components['schemas']['WorkoutDetailsResponse'];
+
+const title = 'Reorder exercises';
+const subtitle =
+  'Drag the handle to move an exercise. Logged sets stay with it.';
 
 /** Reorders a workout's exercises. Each drop saves, so there is no Save button. */
 export function ReorderScreen({ id }: { id: string }) {
@@ -86,8 +93,8 @@ function Exercises({
             ? workout.name
             : `${workout.name} · ${formatClock(elapsed)}`
         }
-        title="Reorder exercises"
-        subtitle="Drag the handle to move an exercise. Logged sets stay with it."
+        title={title}
+        subtitle={subtitle}
       />
       <DraggableList
         items={workout.exercises}
@@ -123,17 +130,11 @@ function ReorderSkeleton() {
   const { space } = useTheme();
 
   return (
-    <View
-      accessible
-      accessibilityLabel="Loading this workout"
-      accessibilityLiveRegion="polite"
-      style={{ gap: space.md, marginTop: 2 }}
-    >
-      <Skeleton width={200} height={10} />
-      <Skeleton width={240} height={28} />
-      {[0, 1, 2, 3].map((row) => (
-        <Skeleton key={row} width="100%" height={56} />
-      ))}
+    <View style={{ gap: space.lg, marginTop: 2 }}>
+      <ScreenHeading label={null} title={title} subtitle={subtitle} />
+      <SkeletonGroup label="Loading this workout">
+        <DraggableListSkeleton rows={4} />
+      </SkeletonGroup>
     </View>
   );
 }

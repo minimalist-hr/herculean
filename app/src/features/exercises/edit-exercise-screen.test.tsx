@@ -409,3 +409,43 @@ test('a save that failed still asks before leaving', async () => {
     await screen.findByRole('header', { name: 'Discard changes?' }),
   ).toBeOnTheScreen();
 });
+
+async function renderEditAlone() {
+  await renderRouter(
+    { _layout: Layout, 'exercise/[id]/edit': EditExerciseRoute },
+    { initialUrl: '/exercise/bench/edit' },
+  );
+}
+
+test('while it loads, the form keeps its shape and Save exercise is muted', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderEditAlone();
+
+  expect(screen.getByLabelText('Loading the exercise')).toBeOnTheScreen();
+  expect(
+    screen.getByText(
+      'Changes show everywhere it’s used, including past workouts.',
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.getByText('Name')).toBeOnTheScreen();
+  expect(screen.getByText('Group')).toBeOnTheScreen();
+
+  const save = screen.getByRole('button', { name: 'Save exercise' });
+  expect(save).toHaveStyle({ opacity: 0.5 });
+  await fireEvent.press(save);
+  expect(
+    await screen.findByText('This page hasn’t loaded yet.'),
+  ).toBeOnTheScreen();
+});
+
+test('a failed load keeps Save exercise, muted', async () => {
+  mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+  await renderEditAlone();
+
+  expect(
+    await screen.findByText('Couldn’t load this exercise.'),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Save exercise' })).toHaveStyle({
+    opacity: 0.5,
+  });
+});
