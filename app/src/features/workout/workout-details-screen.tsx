@@ -6,8 +6,8 @@ import { blankLine, ScreenHeading } from '@/components/screen-heading';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
 import { useUnits } from '@/features/account/use-units';
-import { groupBlocks } from '@/features/routines/group-blocks';
-import { GroupStripe } from '@/features/routines/group-stripe';
+import { supersetBlocks } from '@/features/routines/superset-blocks';
+import { SupersetStripe } from '@/features/routines/superset-stripe';
 import {
   formatLastTime,
   noValue,
@@ -202,8 +202,8 @@ export function WorkoutDetailsScreen({
 
     return (
       <View style={{ gap: space.sm }}>
-        {groupBlocks(workout.data.exercises).map((block) => {
-          const connected = block.length > 1;
+        {supersetBlocks(workout.data.exercises).map((block) => {
+          const superset = block.length > 1;
 
           return (
             <View
@@ -245,9 +245,7 @@ export function WorkoutDetailsScreen({
                             {exercise.name}
                           </Text>
                         )}
-                        {!connected && (
-                          <Text style={text.meta}>{exercise.groupName}</Text>
-                        )}
+                        <Text style={text.meta}>{exercise.groupName}</Text>
                       </View>
                       <Text style={text.meta}>
                         {exerciseTotal(exercise, units)}
@@ -264,7 +262,7 @@ export function WorkoutDetailsScreen({
                   </View>
                 ))}
               </View>
-              {connected && <GroupStripe name={block[0].groupName} />}
+              {superset && <SupersetStripe />}
             </View>
           );
         })}

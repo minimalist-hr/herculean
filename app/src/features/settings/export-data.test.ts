@@ -18,7 +18,13 @@ const sources: ExportSources = {
         name: 'Legs, heavy',
         days: ['monday', 'thursday'],
         exercises: [
-          { name: 'Barbell squat', sets: 3, repsFrom: 8, repsTo: 10 },
+          {
+            name: 'Barbell squat',
+            sets: 3,
+            repsFrom: 8,
+            repsTo: 10,
+            supersetWithNext: false,
+          },
         ],
       },
     ],
@@ -119,7 +125,7 @@ test('exercises, routines and the account read like the app', () => {
     'Pull-up,Back,Biceps; Shoulders\r\n',
   );
   expect(zip.text('routines.csv')).toContain(
-    '"Legs, heavy",Monday; Thursday,1,Barbell squat,3,8,10\r\n',
+    '"Legs, heavy",Monday; Thursday,1,Barbell squat,3,8,10,No\r\n',
   );
   expect(zip.text('account.csv')).toContain(
     'Filip Mučnjak,filip@example.com,Metric,Match my phone,Nitro,Europe/Zagreb,3:00,On,Off\r\n',

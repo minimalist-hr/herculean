@@ -2114,14 +2114,6 @@ export const screens = [
     await on.tap('Save routine');
     await on.waitFor('Chest and arms 1 saved. Tuesday moved from Back and shoulders 1.');
   } },
-  { id: 'R27', file: 'R27-Routines-Details-Same-Group', title: 'Routines › Routine details · same group joined', row: 'R3 Edit a routine', answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: { status: 200, body: chestAndArmsTogether } }, steps: async (on) => {
-    await on.go(routinePath);
-    await on.waitFor('Flat barbell bench press');
-  } },
-  { id: 'R29', file: 'R29-Routines-Edit-Same-Group', title: 'Routines › Edit routine · same group joined', row: 'R3 Edit a routine', answers: { [`GET /api/v1/routines/${chestAndArms.id}`]: { status: 200, body: chestAndArmsTogether } }, steps: async (on) => {
-    await on.go(editPath);
-    await on.waitFor('Save routine');
-  } },
   { id: 'R21', file: 'R21-Routines-Edit-Targets', title: 'Routines › Edit routine › Sets and reps', row: 'R3 Edit a routine', steps: async (on) => {
     await on.go(editPath);
     await on.tap('Flat barbell bench press, 3 × 8–10');

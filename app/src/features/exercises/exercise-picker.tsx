@@ -11,6 +11,7 @@ import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { joinedCardStyle } from '@/components/joined-cards';
 import { BottomActionBox } from '@/components/bottom-action-box';
+import { SwitchField } from '@/components/switch-field';
 import { Button } from '@/components/button';
 import { Chip, ChipLink } from '@/components/chip';
 import { CheckIcon, PlusIcon } from '@/components/icons';
@@ -67,8 +68,10 @@ interface ExercisePickerProps {
   newExercisePage: (params: { name: string; groupId: string }) => Href;
   /** Whether what was picked is being saved. */
   waiting?: boolean;
+  /** Offers to add two picked exercises as a superset. */
+  offersSuperset?: boolean;
   /** Takes what was picked. Calling leave closes the page, without asking about the picks. */
-  onDone: (leave: () => void) => void;
+  onDone: (leave: () => void, options: { asSuperset: boolean }) => void;
 }
 
 interface Row {
@@ -102,10 +105,14 @@ export function ExercisePicker({
   createdIds,
   newExercisePage,
   waiting = false,
+  offersSuperset = false,
   onDone,
 }: ExercisePickerProps) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
+  const [supersetOn, setSupersetOn] = useState(false);
+  // Only two picks make a superset, so other counts leave it off.
+  const asSuperset = supersetOn && picked.length === 2;
   const guard = useLeaveGuard(picked.length > 0);
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState(startGroupId);
@@ -481,6 +488,18 @@ export function ExercisePicker({
       />
 
       <BottomActionBox>
+        {offersSuperset && (
+          <SwitchField
+            label="Add as superset"
+            value={asSuperset}
+            unavailable={
+              picked.length === 2
+                ? undefined
+                : 'Pick two exercises for a superset.'
+            }
+            onChange={setSupersetOn}
+          />
+        )}
         <Button
           label={actionLabel}
           waitingLabel={waitingLabel}
@@ -493,11 +512,14 @@ export function ExercisePicker({
             }
 
             dismissNotification();
-            onDone(() => {
-              guard.leave(() => {
-                router.back();
-              });
-            });
+            onDone(
+              () => {
+                guard.leave(() => {
+                  router.back();
+                });
+              },
+              { asSuperset },
+            );
           }}
         />
       </BottomActionBox>

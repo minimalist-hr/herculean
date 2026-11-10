@@ -17,15 +17,17 @@ export function AddExerciseScreen({ back }: { back: string }) {
       setPicked={setPicked}
       createdIds={createdIds}
       newExercisePage={pages.newExercise}
-      onDone={(leave) => {
+      offersSuperset
+      onDone={(leave, { asSuperset }) => {
         setExercises((current) => [
           ...current,
-          ...picked.map((exercise) => ({
+          ...picked.map((exercise, index) => ({
             exerciseId: exercise.id,
             name: exercise.name,
             groupId: exercise.groupId,
             groupName: exercise.groupName,
             ...startingTargets,
+            supersetWithNext: asSuperset && index === 0,
           })),
         ]);
         leave();

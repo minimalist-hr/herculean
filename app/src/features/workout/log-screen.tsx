@@ -22,7 +22,15 @@ import {
 } from '@/components/skeleton';
 import { useUnits } from '@/features/account/use-units';
 import { useGoBack } from '@/features/home/use-go-back';
-import { sameGroup } from '@/features/routines/group-blocks';
+import {
+  blockAt,
+  goesOnToSecond,
+  inSuperset,
+  nextSupersetSet,
+  supersetBlocked,
+  supersetBlocks,
+} from '@/features/routines/superset-blocks';
+import { placeIn, SupersetBlock } from '@/features/routines/superset-stripe';
 import { formatClock, shortWeekdayDate } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -33,6 +41,7 @@ import { maxExercisesPerWorkout } from './set-values';
 import { RestBar, restBarRoom } from './rest-bar';
 import { afterCheck, afterUncheck } from './rest-timer';
 import { useElapsed } from './use-elapsed';
+import { useChangeSuperset } from './use-change-superset';
 import { useRemoveExercise } from './use-remove-exercise';
 import { useRestAlert } from './rest-alert';
 import { useRestTimer } from './use-rest-timer';
@@ -206,6 +215,7 @@ function Logging({
   const updateSet = useUpdateSet(workout.id);
   const addSet = useAddSet(workout.id);
   const removeExercise = useRemoveExercise(workout.id);
+  const changeSuperset = useChangeSuperset(workout.id);
   const [removing, setRemoving] = useState<WorkoutExercise | null>(null);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   // Undefined until something is picked: the first unfinished one opens. Null closes them all.
@@ -226,6 +236,15 @@ function Logging({
     chosenId === undefined
       ? exercises.find((exercise) => !isFinished(exercise))?.id
       : chosenId;
+  // A superset opens whole, with the set to do next marked.
+  const openIndex = exercises.findIndex((exercise) => exercise.id === openId);
+  const openBlock =
+    openIndex === -1
+      ? []
+      : blockAt(exercises, openIndex).map((index) => exercises[index]);
+  const openIds = openBlock.map((exercise) => exercise.id);
+  const nextSetId =
+    openBlock.length > 1 ? nextSupersetSet(openBlock) : undefined;
 
   function toggle(exercise: WorkoutExercise, set: WorkoutSet) {
     if (updateSet.isPending) {
@@ -240,13 +259,24 @@ function Logging({
       },
       {
         onSuccess: (sets) => {
-          onToggled(
-            exercise.id,
-            !set.checked,
-            exercises.map((other) =>
-              other.id === exercise.id ? { ...other, sets } : other,
-            ),
-          );
+          const index = exercises.indexOf(exercise);
+          // In a superset, rest comes after a set of each.
+          if (
+            set.checked ||
+            !goesOnToSecond(
+              exercise,
+              exercise.sets.indexOf(set),
+              exercises.at(index + 1),
+            )
+          ) {
+            onToggled(
+              exercise.id,
+              !set.checked,
+              exercises.map((other) =>
+                other.id === exercise.id ? { ...other, sets } : other,
+              ),
+            );
+          }
           if (sets.every((updated) => updated.checked)) {
             const updated = exercises.map((other) =>
               other.id === exercise.id ? { ...other, sets } : other,
@@ -267,13 +297,46 @@ function Logging({
       {exercises.length === 0 && <NoExercises />}
 
       <View style={{ gap: space.sm }}>
-        {exercises.map((exercise, index) => {
-          if (exercise.id === openId) {
+        {supersetBlocks(exercises).map((block) => {
+          const open = openIds.includes(block[0].id);
+          const cards = block.map((exercise, row) => {
+            const index = exercises.indexOf(exercise);
+            const next = exercises.at(index + 1);
+            const place = placeIn(block, row);
+
+            if (!open) {
+              return (
+                <ClosedExercise
+                  key={exercise.id}
+                  exercise={exercise}
+                  place={place}
+                  onOpen={() => {
+                    setChosenId(exercise.id);
+                  }}
+                />
+              );
+            }
+
             return (
               <OpenExercise
                 key={exercise.id}
                 workoutId={workout.id}
                 exercise={exercise}
+                place={place}
+                nextSetId={nextSetId}
+                superset={{
+                  on: inSuperset(exercise, next),
+                  unavailable: supersetBlocked(
+                    index > 0 ? exercises[index - 1] : undefined,
+                    next,
+                  ),
+                  onChange: (on) => {
+                    changeSuperset.mutate({
+                      workoutExerciseId: exercise.id,
+                      supersetWithNext: on,
+                    });
+                  },
+                }}
                 units={units}
                 adding={addSet.isPending}
                 onEdit={(set, field) => {
@@ -299,30 +362,14 @@ function Logging({
                 }}
               />
             );
-          }
+          });
 
-          const previous = exercises.at(index - 1);
-          const next = exercises.at(index + 1);
-
-          return (
-            <ClosedExercise
-              key={exercise.id}
-              exercise={exercise}
-              withPrevious={
-                index > 0 &&
-                previous !== undefined &&
-                previous.id !== openId &&
-                sameGroup(previous, exercise)
-              }
-              withNext={
-                next !== undefined &&
-                next.id !== openId &&
-                sameGroup(exercise, next)
-              }
-              onOpen={() => {
-                setChosenId(exercise.id);
-              }}
-            />
+          return block.length > 1 ? (
+            <SupersetBlock key={block[0].id} open={open}>
+              {cards}
+            </SupersetBlock>
+          ) : (
+            cards[0]
           );
         })}
       </View>
@@ -387,7 +434,14 @@ function Logging({
             waiting={removeExercise.isPending}
             onPress={() => {
               removeExercise.mutate(
-                { exercise: removing, order: exercises.indexOf(removing) },
+                {
+                  exercise: removing,
+                  order: exercises.indexOf(removing),
+                  supersetWithPrevious:
+                    exercises.indexOf(removing) > 0 &&
+                    exercises.at(exercises.indexOf(removing) - 1)
+                      ?.supersetWithNext === true,
+                },
                 {
                   onSuccess: () => {
                     setConfirmingRemove(false);

@@ -18,7 +18,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
 
     private readonly List<Set> _sets = [];
 
-    private WorkoutExercise(WorkoutExerciseId id, UserId userId, WorkoutId workoutId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo) : base(id)
+    private WorkoutExercise(WorkoutExerciseId id, UserId userId, WorkoutId workoutId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo, bool supersetWithNext) : base(id)
     {
         UserId = userId;
         WorkoutId = workoutId;
@@ -27,6 +27,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         TargetSets = targetSets;
         TargetRepsFrom = targetRepsFrom;
         TargetRepsTo = targetRepsTo;
+        SupersetWithNext = supersetWithNext;
     }
 
     public UserId UserId { get; private set; }
@@ -45,11 +46,14 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
 
     public int TargetRepsTo { get; private set; }
 
+    /// <summary>Done as a superset with the exercise after it: a set of each, then rest.</summary>
+    public bool SupersetWithNext { get; private set; }
+
     /// <summary>Its sets, in order.</summary>
     public IReadOnlyList<Set> Sets => [.. _sets.OrderBy(set => set.Order)];
 
     internal static WorkoutExercise Create(UserId userId, WorkoutId workoutId, int order, RoutineExerciseValues values) =>
-        new(WorkoutExerciseId.New(), userId, workoutId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo);
+        new(WorkoutExerciseId.New(), userId, workoutId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo, values.SupersetWithNext);
 
     /// <summary>An exercise of a workout being started. Each set starts with the same set last time, or the last one if last time had fewer. With no last time, it starts at 0 kg and the low end of the target reps.</summary>
     internal static WorkoutExercise Start(UserId userId, WorkoutId workoutId, int order, RoutineExerciseValues values, IReadOnlyList<SetValues> lastTime)
@@ -77,6 +81,16 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
     internal void MoveTo(int order)
     {
         Order = order;
+    }
+
+    internal void JoinNext()
+    {
+        SupersetWithNext = true;
+    }
+
+    internal void EndSuperset()
+    {
+        SupersetWithNext = false;
     }
 
     /// <summary>Becomes another exercise, keeping its set count and targets. Its sets start from that exercise's last time.</summary>

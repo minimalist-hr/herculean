@@ -16,6 +16,8 @@ internal static class WorkoutRoutes
 
     public const string Exercise = $"{Exercises}/{{workoutExerciseId:guid}}";
 
+    public const string ExerciseSuperset = $"{Exercise}/superset";
+
     public const string ExerciseOrder = $"{Workout}/exercise-order";
 
     public const string Sets = $"{Exercise}/sets";

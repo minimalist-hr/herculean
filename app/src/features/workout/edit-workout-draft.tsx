@@ -39,6 +39,7 @@ export function addedExercise(picked: PickedExercise): WorkoutExercise {
     })),
     lastTime: null,
     exists: true,
+    supersetWithNext: false,
   };
 }
 

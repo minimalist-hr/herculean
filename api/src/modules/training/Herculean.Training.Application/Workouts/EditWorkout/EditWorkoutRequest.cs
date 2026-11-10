@@ -11,7 +11,8 @@ internal sealed record EditWorkoutRequest(
 internal sealed record EditedWorkoutExercise(
     [property: Description("The workout exercise's ID, or null for an exercise added while editing.")] Guid? Id,
     [property: Description("The exercise's ID.")] Guid ExerciseId,
-    [property: Description("Its sets in order, 1 to 20. Every set of a saved workout counts as done.")] List<EditedWorkoutSet> Sets);
+    [property: Description("Its sets in order, 1 to 20. Every set of a saved workout counts as done.")] List<EditedWorkoutSet> Sets,
+    [property: Description("Whether it is a superset with the exercise after it. A superset is two exercises, so the last exercise and the second of a superset can't start one.")] bool SupersetWithNext = false);
 
 [Description("A set of the edited workout.")]
 internal sealed record EditedWorkoutSet(

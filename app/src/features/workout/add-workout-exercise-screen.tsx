@@ -26,9 +26,10 @@ export function AddWorkoutExerciseScreen({ id }: { id: string }) {
         params: { id, ...params },
       })}
       waiting={add.isPending}
-      onDone={(leave) => {
+      offersSuperset
+      onDone={(leave, { asSuperset }) => {
         add.mutate(
-          picked.map((exercise) => exercise.id),
+          { exerciseIds: picked.map((exercise) => exercise.id), asSuperset },
           { onSuccess: leave },
         );
       }}

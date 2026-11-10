@@ -38,7 +38,7 @@ internal sealed class ExportReadRepository(TrainingDbContext dbContext) : IExpor
                 routine.Name,
                 Exercises = routine.Exercises
                     .OrderBy(exercise => exercise.Order)
-                    .Select(exercise => new { exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo })
+                    .Select(exercise => new { exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext })
                     .ToList(),
             })
             .ToListAsync(cancellationToken);
@@ -83,7 +83,7 @@ internal sealed class ExportReadRepository(TrainingDbContext dbContext) : IExpor
                 .. routines.Select(routine => new ExportedRoutine(
                     routine.Name,
                     [.. plan.Where(day => day.Value?.Id == routine.Id.Value).Select(day => day.Key).Order()],
-                    [.. routine.Exercises.Select(exercise => new ExportedRoutineExercise(ExerciseName(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo))])),
+                    [.. routine.Exercises.Select(exercise => new ExportedRoutineExercise(ExerciseName(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext))])),
             ],
             [
                 .. workouts.Select(workout => new ExportedWorkout(

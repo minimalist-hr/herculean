@@ -13,7 +13,8 @@ import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SkeletonGroup } from '@/components/skeleton';
 import { ExerciseTargetLine } from '@/features/routines/exercise-targets';
-import { sameGroup } from '@/features/routines/group-blocks';
+import { inSuperset } from '@/features/routines/superset-blocks';
+import { SupersetStripe } from '@/features/routines/superset-stripe';
 import { formatClock } from '@/formats/formats';
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
@@ -107,7 +108,8 @@ function Exercises({
         onReorder={(exercises) => {
           reorder.mutate(exercises);
         }}
-        joined={sameGroup}
+        joined={inSuperset}
+        blockMark={<SupersetStripe style={{ flex: 1 }} />}
         renderRow={(exercise) => (
           <>
             <View style={styles.exercise}>

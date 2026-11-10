@@ -17,6 +17,10 @@ import { DragHandleIcon } from './icons';
 import { joinedCardStyle } from './joined-cards';
 import { useReduceMotion } from './use-reduce-motion';
 
+/** Which blocks move: from one block's place to another's. */
+/** The width a block's mark takes at its right edge. */
+const markWidth = 26;
+
 interface Drag {
   from: number;
   to: number;
@@ -31,30 +35,70 @@ interface DraggableListProps<Item> {
   onReorder: (items: Item[]) => void;
   /** Shows the rows without handles, for a part of the list that has no order of its own. */
   locked?: boolean;
-  /** Joins two neighbouring rows into one block, except while dragging, which needs every row free. */
+  /** Joins two neighbouring rows into one block, which moves as one. While dragging the rows separate. */
   joined?: (above: Item, below: Item) => boolean;
+  /** Marks a joined block up its right edge, for example a superset's stripe. */
+  blockMark?: ReactNode;
   /** What sits to the right of the handle. A row is one line high. */
   renderRow: (item: Item) => ReactNode;
 }
 
-function moved<Item>(items: readonly Item[], from: number, to: number) {
-  const next = [...items];
-  const [item] = next.splice(from, 1);
-  next.splice(to, 0, item);
+/** The rows as blocks: a row with the ones joined to it. */
+function blocksOf<Item>(
+  items: readonly Item[],
+  joined: ((above: Item, below: Item) => boolean) | undefined,
+) {
+  const blocks: Item[][] = [];
+  for (const [index, item] of items.entries()) {
+    const block = blocks.at(-1);
+    if (block !== undefined && joined?.(items[index - 1], item) === true) {
+      block.push(item);
+    } else {
+      blocks.push([item]);
+    }
+  }
 
-  return next;
+  return blocks;
 }
 
-/** How many places a row moves aside for the one being dragged. */
-function shiftOf(index: number, drag: Drag | null) {
-  if (drag === null || index === drag.from) {
-    return 0;
-  }
-  if (index > drag.from && index <= drag.to) {
-    return -1;
+function moved<Item>(blocks: readonly Item[][], from: number, to: number) {
+  const next = [...blocks];
+  const [block] = next.splice(from, 1);
+  next.splice(to, 0, block);
+
+  return next.flat();
+}
+
+/** Where a dragged block lands: past each block whose middle it has crossed, distance counted in rows. */
+function landingOf(sizes: number[], from: number, rows: number) {
+  let to = from;
+  let crossed = 0;
+  const way = rows > 0 ? 1 : -1;
+  for (
+    let index = from + way;
+    index >= 0 && index < sizes.length;
+    index += way
+  ) {
+    if (Math.abs(rows) < crossed + sizes[index] / 2) {
+      break;
+    }
+    crossed += sizes[index];
+    to = index;
   }
 
-  return index < drag.from && index >= drag.to ? 1 : 0;
+  return to;
+}
+
+/** How many rows a block moves aside for the one being dragged. */
+function shiftOf(block: number, drag: Drag | null, draggedRows: number) {
+  if (drag === null || block === drag.from) {
+    return 0;
+  }
+  if (block > drag.from && block <= drag.to) {
+    return -draggedRows;
+  }
+
+  return block < drag.from && block >= drag.to ? draggedRows : 0;
 }
 
 /** A list of cards, with a handle on each to drag it to another place. */
@@ -66,6 +110,7 @@ export function DraggableList<Item>({
   onReorder,
   locked = false,
   joined,
+  blockMark,
   renderRow,
 }: DraggableListProps<Item>) {
   const { size, space } = useTheme();
@@ -75,14 +120,15 @@ export function DraggableList<Item>({
     items: Item[];
   }>();
   const items = dropped?.from === savedItems ? dropped.items : savedItems;
+  const blocks = useMemo(() => blocksOf(items, joined), [items, joined]);
   const step = size.optionRowMin + space.sm;
   const [pan] = useState(() => new Animated.Value(0));
   const [drag, setDrag] = useState<Drag | null>(null);
   const dragRef = useRef<Drag | null>(null);
   // A gesture keeps the handlers it started with, so they read the latest values from here.
-  const latest = useRef({ savedItems, items, onDragChange, onReorder });
+  const latest = useRef({ savedItems, blocks, onDragChange, onReorder });
   useEffect(() => {
-    latest.current = { savedItems, items, onDragChange, onReorder };
+    latest.current = { savedItems, blocks, onDragChange, onReorder };
   });
 
   const startDrag = useCallback(
@@ -104,10 +150,10 @@ export function DraggableList<Item>({
       }
 
       pan.setValue(distance);
-      const last = latest.current.items.length - 1;
-      const to = Math.max(
-        0,
-        Math.min(last, current.from + Math.round(distance / step)),
+      const to = landingOf(
+        latest.current.blocks.map((block) => block.length),
+        current.from,
+        distance / step,
       );
       if (to !== current.to) {
         const next = { ...current, to };
@@ -128,53 +174,56 @@ export function DraggableList<Item>({
     setDrag(null);
     latest.current.onDragChange(false);
     if (current.to !== current.from) {
-      const next = moved(latest.current.items, current.from, current.to);
+      const next = moved(latest.current.blocks, current.from, current.to);
       setDropped({ from: latest.current.savedItems, items: next });
       latest.current.onReorder(next);
     }
   }, []);
 
+  const draggedRows = drag === null ? 0 : blocks[drag.from].length;
+
   return (
     <View style={{ gap: space.sm }}>
-      {items.map((item, index) => (
-        <DraggableRow
-          key={keyOf(item)}
-          moveLabel={moveLabel(item)}
-          index={index}
-          step={step}
-          shift={shiftOf(index, drag)}
-          dragging={drag !== null}
-          lifted={drag?.from === index}
-          locked={locked}
-          withPrevious={
-            drag === null &&
-            index > 0 &&
-            joined?.(items[index - 1], item) === true
-          }
-          withNext={
-            drag === null &&
-            index < items.length - 1 &&
-            joined?.(item, items[index + 1]) === true
-          }
-          pan={pan}
-          onStartDrag={startDrag}
-          onMoveDrag={moveDrag}
-          onEndDrag={endDrag}
-          onMoveTo={(to) => {
-            if (to >= 0 && to < items.length) {
-              onReorder(moved(items, index, to));
+      {blocks.flatMap((block, blockIndex) =>
+        block.map((item, row) => (
+          <DraggableRow
+            key={keyOf(item)}
+            moveLabel={moveLabel(item)}
+            index={blockIndex}
+            step={step}
+            shift={shiftOf(blockIndex, drag, draggedRows)}
+            dragging={drag !== null}
+            lifted={drag?.from === blockIndex}
+            locked={locked}
+            withPrevious={drag === null && row > 0}
+            withNext={drag === null && row < block.length - 1}
+            markRows={
+              blockMark !== undefined && block.length > 1
+                ? { rows: block.length, last: row === block.length - 1 }
+                : undefined
             }
-          }}
-        >
-          {renderRow(item)}
-        </DraggableRow>
-      ))}
+            mark={blockMark}
+            pan={pan}
+            onStartDrag={startDrag}
+            onMoveDrag={moveDrag}
+            onEndDrag={endDrag}
+            onMoveTo={(to) => {
+              if (to >= 0 && to < blocks.length) {
+                onReorder(moved(blocks, blockIndex, to));
+              }
+            }}
+          >
+            {renderRow(item)}
+          </DraggableRow>
+        )),
+      )}
     </View>
   );
 }
 
 interface DraggableRowProps {
   moveLabel: string;
+  /** Its block's place. A block's rows move together. */
   index: number;
   step: number;
   shift: number;
@@ -183,6 +232,9 @@ interface DraggableRowProps {
   locked: boolean;
   withPrevious: boolean;
   withNext: boolean;
+  /** In a marked block: how many rows it has, and whether this is the last, which draws the mark over them all. */
+  markRows?: { rows: number; last: boolean };
+  mark?: ReactNode;
   pan: Animated.Value;
   onStartDrag: (index: number) => void;
   onMoveDrag: (distance: number) => void;
@@ -201,6 +253,8 @@ function DraggableRow({
   locked,
   withPrevious,
   withNext,
+  markRows,
+  mark,
   pan,
   onStartDrag,
   onMoveDrag,
@@ -252,7 +306,8 @@ function DraggableRow({
           gap: space.xxxs,
           height: size.optionRowMin,
           paddingLeft: locked ? space.lg : 4,
-          paddingRight: space.xxs,
+          // A marked block keeps room for its mark, even while the rows are apart.
+          paddingRight: space.xxs + (markRows === undefined ? 0 : markWidth),
           ...joinedCardStyle({
             withPrevious,
             withNext,
@@ -290,6 +345,23 @@ function DraggableRow({
         </View>
       )}
       {children}
+      {markRows?.last === true && !dragging && (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.mark,
+            {
+              // Joined rows share a line, so a block is one pixel shorter per join, less its own border.
+              height:
+                markRows.rows * size.optionRowMin - (markRows.rows - 1) - 2,
+              borderTopRightRadius: radius.card - 1,
+              borderBottomRightRadius: radius.card - 1,
+            },
+          ]}
+        >
+          {mark}
+        </View>
+      )}
     </Animated.View>
   );
 }
@@ -303,6 +375,13 @@ const styles = StyleSheet.create({
   lifted: {
     zIndex: 1,
     elevation: 4,
+  },
+  mark: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: markWidth,
+    overflow: 'hidden',
   },
   handle: {
     alignItems: 'center',

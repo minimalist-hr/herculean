@@ -19,6 +19,10 @@ internal sealed class AddWorkoutExercisesValidator : AbstractValidator<AddWorkou
                 .WithMessage($"'{{PropertyName}}' must have 1 to {Routine.MaxExercises} exercises.")
                 .Must(ids => ids is null || ids.Distinct().Count() == ids.Count)
                 .WithMessage("'{PropertyName}' can’t repeat an exercise.");
+            RuleFor(request => request.ExerciseIds)
+                .Must(ids => ids is { Count: 2 })
+                .When(request => request.AsSuperset)
+                .WithMessage("A superset is two exercises.");
         });
         When(request => request.Removed is not null, () =>
         {

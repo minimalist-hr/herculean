@@ -13,6 +13,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | Exercise | Something you train, for example Barbell curl. Has one group and optional "also works" groups. |
 | Routine | A named list of exercises with targets. A template for a workout. |
 | Target | Sets and a rep range for an exercise in a routine, for example 3 × 8–10. |
+| Superset | Two neighbouring exercises done one after the other: a set of each, then rest. |
 | Week plan | What you train on each weekday. It repeats every week. |
 | Week plan day | One weekday in the week plan: a routine, or a rest day. |
 | Rest day | A weekday with no routine. |
@@ -79,7 +80,9 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 - A user has at most one workout per date, and at most one workout in progress.
 - A workout belongs to the user's local date when it started.
-- A workout can start from a routine. Its name and exercises are copied when it starts, so later routine changes do not affect it.
+- A workout can start from a routine. Its name and exercises are copied when it starts, supersets included, so later routine changes do not affect it.
+- A superset in a workout ends when either exercise is removed, or a reorder or save leaves them apart. Undoing a removal brings it back. A swap keeps it.
+- While logging and when editing a saved workout, an exercise can be paired with the one after it or unpaired, and two exercises added together can be added as a superset. The routine doesn't change.
 - Each set of a new workout starts with the weight and reps of the same set last time. If last time had fewer sets, it takes the last of them. If there was no last time, it starts at 0 kg and the low end of the target reps.
 - Last time is the exercise's latest completed workout before this workout's date.
 - Logging a past day (W21) gives the workout that date. It has no timer, so its duration is entered on L32, in minutes, or left out.
@@ -98,6 +101,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 - It never starts by itself. A checked set opens it, ready to start, with the default rest time.
 - It doesn't appear after the last set of a workout, or on a past day.
+- In a superset it waits for a set of each: checking the first exercise's set doesn't open it while the second has that set to do.
 - Checking another set stops it and makes it ready again. A time changed before starting stays for that exercise, within 0:15 to 10:00, and the next exercise goes back to the default. While running, −15 and +15 change only that rest.
 - Past zero it counts up, until Done.
 - Hidden, it keeps running, and checking a set doesn't open it again until it is opened by hand. Skip and Done tuck it away, and the next checked set opens it.
@@ -164,6 +168,7 @@ Every action in the table is built.
 - A routine has 1 to 30 exercises when saved, each once.
 - A routine's days are saved with the routine. A day holds one routine, so picking a day another routine has moves it. A change applies from today on.
 - A target has 1 to 20 sets, and a rep range from 1 to 100 whose low end isn't above its high end.
+- An exercise in a routine can be a superset with the exercise after it, set on its targets or by adding two exercises as a superset. A superset is two exercises, so the last exercise and the second of a superset can't start one.
 - Deleting a routine turns its weekdays into rest days from the date it was deleted, in the user's time zone. Earlier days keep their plan, and past workouts keep their name. Undo brings the weekdays back.
 - A group's name has 1 to 30 characters, trimmed. It differs from the user's other groups, regardless of case. A deleted group's name can be used again.
 - A user can have at most 50 groups.

@@ -21,8 +21,15 @@ export function AddToEditedWorkoutScreen() {
         pathname: '/workout/edit/[id]/new-exercise',
         params: { id: workout.id, ...params },
       })}
-      onDone={(leave) => {
-        setExercises((current) => [...current, ...picked.map(addedExercise)]);
+      offersSuperset
+      onDone={(leave, { asSuperset }) => {
+        setExercises((current) => [
+          ...current,
+          ...picked.map((exercise, index) => ({
+            ...addedExercise(exercise),
+            supersetWithNext: asSuperset && index === 0,
+          })),
+        ]);
         leave();
       }}
     />

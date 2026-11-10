@@ -5,13 +5,13 @@ import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import {
   CheckIcon,
+  LinkIcon,
   OpenOutIcon,
   ChevronRightIcon,
   PlusIcon,
   SwapIcon,
   TrashIcon,
 } from '@/components/icons';
-import { joinedCardStyle } from '@/components/joined-cards';
 import { notifyFailure } from '@/components/notifications';
 import { SectionTitle } from '@/components/section-title';
 import { Tappable } from '@/components/tappable';
@@ -19,6 +19,10 @@ import {
   ExerciseTargetLine,
   ExerciseTargetText,
 } from '@/features/routines/exercise-targets';
+import {
+  blockCardStyle,
+  type BlockPlace,
+} from '@/features/routines/superset-stripe';
 import { formatLastTime, weightIn, weightUnitOf } from '@/formats/formats';
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
@@ -36,13 +40,12 @@ const checkedRowAlpha = '29';
 /** A closed exercise: its targets and progress. Tapping it opens it. */
 export function ClosedExercise({
   exercise,
-  withPrevious,
-  withNext,
+  place,
   onOpen,
 }: {
   exercise: WorkoutExercise;
-  withPrevious: boolean;
-  withNext: boolean;
+  /** Its place in a superset block. */
+  place?: BlockPlace;
   onOpen: () => void;
 }) {
   const { colors, radius, size, space, text } = useTheme();
@@ -63,12 +66,8 @@ export function ClosedExercise({
           borderColor: colors.border,
           backgroundColor: colors.card,
         },
-        joinedCardStyle({
-          withPrevious,
-          withNext,
-          gap: space.sm,
-          radius: radius.card,
-        }),
+        { borderRadius: radius.card },
+        blockCardStyle(place, radius.card),
       ]}
     >
       <ExerciseTargetText exercise={exercise} />
@@ -150,6 +149,7 @@ function SetRow({
   set,
   index,
   units,
+  next,
   onEdit,
   onToggle,
 }: {
@@ -157,6 +157,8 @@ function SetRow({
   set: WorkoutSet;
   index: number;
   units: Units;
+  /** The set to do next in a superset, outlined. */
+  next: boolean;
   onEdit: (set: WorkoutSet, field: SetField) => void;
   /** Checks or unchecks a set. Without it, as in a saved workout, every set counts and there is no check box. */
   onToggle?: (set: WorkoutSet) => void;
@@ -176,6 +178,9 @@ function SetRow({
           paddingVertical: space.xxxs,
           paddingHorizontal: space.sm,
           borderRadius: radius.control,
+          // The border is always there, so marking the next set moves nothing.
+          borderWidth: 1,
+          borderColor: next ? colors.primary : 'transparent',
           backgroundColor:
             onToggle && set.checked
               ? `${colors.primary}${checkedRowAlpha}`
@@ -256,6 +261,9 @@ export function OpenExercise({
   onAddSet,
   onRemove,
   canSwap = true,
+  place,
+  nextSetId,
+  superset,
 }: {
   workoutId: string;
   exercise: WorkoutExercise;
@@ -268,9 +276,23 @@ export function OpenExercise({
   onRemove: () => void;
   /** Swapping belongs to logging. */
   canSwap?: boolean;
+  /** Its place in a superset block. */
+  place?: BlockPlace;
+  /** The set to do next in a superset. */
+  nextSetId?: string;
+  /** Superset with next: whether it is on, why it can't be, and the switch. */
+  superset?: {
+    on: boolean;
+    unavailable?: string;
+    onChange: (on: boolean) => void;
+  };
 }) {
   const { colors, radius, space, text } = useTheme();
   const router = useRouter();
+  const linkMuted =
+    superset !== undefined &&
+    !superset.on &&
+    superset.unavailable !== undefined;
 
   return (
     <View
@@ -279,9 +301,11 @@ export function OpenExercise({
         styles.open,
         {
           gap: space.sm,
-          marginVertical: space.sm,
           padding: space.lg,
+          // In a superset block, the block keeps the room around both.
+          marginVertical: place === undefined ? space.sm : 0,
           borderRadius: radius.card,
+          ...blockCardStyle(place, radius.card, false),
           borderColor: colors.primary,
           backgroundColor: colors.card,
         },
@@ -307,6 +331,29 @@ export function OpenExercise({
             <ExerciseTargetLine exercise={exercise} />
           </Tappable>
         </View>
+        {superset !== undefined && (
+          <ExerciseAction
+            label={
+              superset.on
+                ? `End superset of ${exercise.name}`
+                : `Superset ${exercise.name} with next`
+            }
+            muted={linkMuted}
+            onPress={() => {
+              if (linkMuted && superset.unavailable !== undefined) {
+                notifyFailure(superset.unavailable);
+                return;
+              }
+
+              superset.onChange(!superset.on);
+            }}
+          >
+            <LinkIcon
+              color={superset.on ? colors.primary : colors.muted}
+              size={20}
+            />
+          </ExerciseAction>
+        )}
         {canSwap && (
           <ExerciseAction
             label={`Swap ${exercise.name}`}
@@ -358,6 +405,7 @@ export function OpenExercise({
             set={set}
             index={index}
             units={units}
+            next={set.id === nextSetId}
             onEdit={onEdit}
             onToggle={onToggle}
           />

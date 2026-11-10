@@ -38,7 +38,8 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { DayChips, DayChipsSkeleton } from './day-chips';
 import { counted, targetText, type Weekday } from '@/formats/formats';
-import { sameGroup } from './group-blocks';
+import { inSuperset, withoutExercise } from './superset-blocks';
+import { SupersetStripe } from './superset-stripe';
 import { useRoutineDraft, type RoutineExerciseDraft } from './routine-draft';
 import { Tappable } from '@/components/tappable';
 
@@ -190,17 +191,26 @@ export function RoutineEditor({
   );
 
   function remove(exercise: RoutineExerciseDraft) {
-    const index = exercises.indexOf(exercise);
-    setExercises(exercises.filter((item) => item !== exercise));
+    const before = exercises;
+    const after = withoutExercise(exercises, exercises.indexOf(exercise));
+    setExercises(after);
     notifySuccess(`${exercise.name} removed.`, {
       label: 'Undo',
       onPress: () => {
         dismissNotification();
-        setExercises((current) => [
-          ...current.slice(0, index),
-          exercise,
-          ...current.slice(index),
-        ]);
+        // Unchanged since, it goes back as it was, superset included.
+        setExercises((current) => {
+          if (current === after) {
+            return before;
+          }
+
+          const index = before.indexOf(exercise);
+          return [
+            ...current.slice(0, index),
+            exercise,
+            ...current.slice(index),
+          ];
+        });
       },
     });
   }
@@ -303,7 +313,8 @@ export function RoutineEditor({
                 moveLabel={(exercise) => `Move ${exercise.name}`}
                 onDragChange={setDragging}
                 onReorder={setExercises}
-                joined={sameGroup}
+                joined={inSuperset}
+                blockMark={<SupersetStripe style={{ flex: 1 }} />}
                 renderRow={(exercise) => (
                   <>
                     <Tappable

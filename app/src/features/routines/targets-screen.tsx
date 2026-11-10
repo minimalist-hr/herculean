@@ -5,15 +5,13 @@ import { Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
 import { Stepper } from '@/components/stepper';
+import { SwitchField } from '@/components/switch-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
 import { counted, targetText } from '@/formats/formats';
-import {
-  useRoutineDraft,
-  type RoutineExerciseDraft,
-  type Targets,
-} from './routine-draft';
+import { useRoutineDraft, type RoutineExerciseDraft } from './routine-draft';
+import { supersetBlocked } from './superset-blocks';
 
 const maxSets = 20;
 const maxReps = 100;
@@ -27,32 +25,43 @@ interface TargetsScreenProps {
 /** Sets and a rep range for an exercise in a routine. */
 export function TargetsScreen({ exerciseId, back }: TargetsScreenProps) {
   const { exercises } = useRoutineDraft();
-  const exercise = exercises.find((item) => item.exerciseId === exerciseId);
+  const index = exercises.findIndex((item) => item.exerciseId === exerciseId);
 
-  return exercise === undefined ? null : (
-    <Form exercise={exercise} back={back} />
+  return index === -1 ? null : (
+    <Form
+      exercise={exercises[index]}
+      previous={index > 0 ? exercises[index - 1] : undefined}
+      next={exercises.at(index + 1)}
+      back={back}
+    />
   );
 }
 
 function Form({
   exercise,
+  previous,
+  next,
   back,
 }: {
   exercise: RoutineExerciseDraft;
+  previous: RoutineExerciseDraft | undefined;
+  next: RoutineExerciseDraft | undefined;
   back: string;
 }) {
-  const { space, text } = useTheme();
+  const { colors, space, text } = useTheme();
   const router = useRouter();
   const { setExercises } = useRoutineDraft();
-  const [targets, setTargets] = useState<Targets>({
+  const [targets, setTargets] = useState({
     targetSets: exercise.targetSets,
     targetRepsFrom: exercise.targetRepsFrom,
     targetRepsTo: exercise.targetRepsTo,
+    supersetWithNext: exercise.supersetWithNext,
   });
   const guard = useLeaveGuard(
     targets.targetSets !== exercise.targetSets ||
       targets.targetRepsFrom !== exercise.targetRepsFrom ||
-      targets.targetRepsTo !== exercise.targetRepsTo,
+      targets.targetRepsTo !== exercise.targetRepsTo ||
+      targets.supersetWithNext !== exercise.supersetWithNext,
   );
 
   return (
@@ -150,6 +159,16 @@ function Form({
           <Text style={text.meta}>
             {`Logging shows this as ${targetText(targets)}. Use the same number twice for a fixed rep count.`}
           </Text>
+          <View style={{ height: 1, backgroundColor: colors.border }} />
+          <SwitchField
+            label="Superset with next"
+            hint={next?.name}
+            value={targets.supersetWithNext}
+            unavailable={supersetBlocked(previous, next)}
+            onChange={(supersetWithNext) => {
+              setTargets({ ...targets, supersetWithNext });
+            }}
+          />
         </View>
       </FormPage>
       {guard.sheet}

@@ -28,7 +28,8 @@ internal sealed record ExportedRoutineExercise(
     [property: Description("The exercise's name.")] string Name,
     [property: Description("The target sets.")] int Sets,
     [property: Description("The low end of the target reps.")] int RepsFrom,
-    [property: Description("The high end of the target reps.")] int RepsTo);
+    [property: Description("The high end of the target reps.")] int RepsTo,
+    [property: Description("Whether it is done as a superset with the exercise after it.")] bool SupersetWithNext);
 
 [Description("A workout.")]
 internal sealed record ExportedWorkout(

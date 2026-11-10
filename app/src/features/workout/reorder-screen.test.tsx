@@ -41,6 +41,7 @@ function exercise(id: string, name: string, groupId: string, checked: number) {
       checked: order < checked,
     })),
     lastTime: null,
+    supersetWithNext: false,
   };
 }
 
@@ -158,6 +159,34 @@ test('a drop moves the exercise and saves the new order', async () => {
   );
   expect(await request?.clone().json()).toEqual({
     workoutExerciseIds: ['press', 'squat', 'curl'],
+  });
+});
+
+test('a superset moves as one', async () => {
+  mockFetch.mockImplementation((request) =>
+    request.method === 'GET'
+      ? Promise.resolve(
+          Response.json({
+            ...workout,
+            exercises: [
+              { ...workout.exercises[0], supersetWithNext: true },
+              ...workout.exercises.slice(1),
+            ],
+          }),
+        )
+      : answerWith(request),
+  );
+  await renderReorder();
+  await screen.findByText('Legs day');
+
+  await dragBy(screen.getByRole('button', { name: 'Move Barbell squat' }), 70);
+
+  await waitFor(() => {
+    expect(order()).toEqual([
+      'Move Curl',
+      'Move Barbell squat',
+      'Move Leg press',
+    ]);
   });
 });
 

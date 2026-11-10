@@ -201,6 +201,38 @@ test('adds what was picked, in the order picked, and goes back', async () => {
   )?.[0];
   expect(await request?.clone().json()).toEqual({
     exerciseIds: ['lunge', 'press'],
+    asSuperset: false,
+  });
+});
+
+test('two picks can be added as a superset, and other counts say why not', async () => {
+  await renderAdd();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Lunge' }));
+  await fireEvent.press(
+    screen.getByRole('switch', { name: 'Add as superset' }),
+  );
+  expect(
+    await screen.findByText('Pick two exercises for a superset.'),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Leg press' }));
+  await fireEvent.press(
+    screen.getByRole('switch', { name: 'Add as superset' }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Add exercises' }));
+
+  await waitFor(() => {
+    expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
+      true,
+    );
+  });
+  const request = mockFetch.mock.calls.find(
+    ([sent]) => sent.method === 'POST',
+  )?.[0];
+  expect(await request?.clone().json()).toEqual({
+    exerciseIds: ['lunge', 'press'],
+    asSuperset: true,
   });
 });
 

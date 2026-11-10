@@ -46,7 +46,8 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
                 exercise.TargetSets,
                 exercise.TargetRepsFrom,
                 exercise.TargetRepsTo,
-                exercise.Exercise.DeletedAtUtc == null))
+                exercise.Exercise.DeletedAtUtc == null,
+                exercise.SupersetWithNext))
             .ToListAsync(cancellationToken);
 
     public Task<List<DayExerciseResponse>> ListWorkoutExercisesAsync(WorkoutId workoutId, CancellationToken cancellationToken) =>
@@ -63,7 +64,8 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
                 exercise.TargetSets,
                 exercise.TargetRepsFrom,
                 exercise.TargetRepsTo,
-                exercise.Exercise.DeletedAtUtc == null))
+                exercise.Exercise.DeletedAtUtc == null,
+                exercise.SupersetWithNext))
             .ToListAsync(cancellationToken);
 
     public Task<DayWorkout?> GetWorkoutAsync(DateOnly date, CancellationToken cancellationToken) =>

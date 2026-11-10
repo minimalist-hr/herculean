@@ -916,6 +916,26 @@ export interface paths {
         patch: operations["SwapWorkoutExercise"];
         trace?: never;
     };
+    "/api/v1/workouts/{id}/exercises/{workoutExerciseId}/superset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Start or end a superset in a workout
+         * @description Pairs an exercise of a workout in progress with the exercise after it, or ends its superset.
+         */
+        put: operations["UpdateWorkoutExerciseSuperset"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workouts/{id}/exercise-order": {
         parameters: {
             query?: never;
@@ -1037,6 +1057,11 @@ export interface components {
             /** @description The exercises to add at the end, with the starting targets. Their sets start from last time. */
             exerciseIds?: null | string[];
             removed?: null | components["schemas"]["RemovedExercise"];
+            /**
+             * @description Adds the two exercises as a superset: the first is done with the second, a set of each, then rest.
+             * @default false
+             */
+            asSuperset: boolean;
         };
         /** @description The best set of an exercise. */
         BestSetResponse: {
@@ -1177,6 +1202,11 @@ export interface components {
             targetRepsTo: number;
             /** @description Whether the exercise still exists, so it can be opened. False once it is deleted. */
             exists: boolean;
+            /**
+             * @description Whether it is done as a superset with the exercise after it: a set of each, then rest.
+             * @default false
+             */
+            supersetWithNext: boolean;
         };
         /** @description One day: its status, its routine and the day after it. */
         DayResponse: {
@@ -1248,6 +1278,11 @@ export interface components {
             exerciseId: string;
             /** @description Its sets in order, 1 to 20. Every set of a saved workout counts as done. */
             sets: components["schemas"]["EditedWorkoutSet"][];
+            /**
+             * @description Whether it is a superset with the exercise after it. A superset is two exercises, so the last exercise and the second of a superset can't start one.
+             * @default false
+             */
+            supersetWithNext: boolean;
         };
         /** @description A set of the edited workout. */
         EditedWorkoutSet: {
@@ -1408,6 +1443,8 @@ export interface components {
              * @description The high end of the target reps.
              */
             repsTo: number;
+            /** @description Whether it is done as a superset with the exercise after it. */
+            supersetWithNext: boolean;
         };
         /** @description A checked set. */
         ExportedSet: {
@@ -1693,6 +1730,16 @@ export interface components {
             targetRepsTo: number;
             /** @description Its sets in order, 1 to 20. */
             sets: components["schemas"]["RemovedExerciseSet"][];
+            /**
+             * @description Whether it was a superset with the exercise after it.
+             * @default false
+             */
+            supersetWithNext: boolean;
+            /**
+             * @description Whether it was a superset with the exercise before it.
+             * @default false
+             */
+            supersetWithPrevious: boolean;
         };
         /** @description A set of a removed exercise. */
         RemovedExerciseSet: {
@@ -1789,6 +1836,11 @@ export interface components {
              * @description The high end of the rep range, 1 to 100. It can't be below the low end.
              */
             targetRepsTo: number;
+            /**
+             * @description Whether it is done as a superset with the exercise after it: a set of each, then rest. A superset is two exercises, so the last exercise and the second of a superset can't start one.
+             * @default false
+             */
+            supersetWithNext: boolean;
         };
         /** @description An exercise in a routine and its targets. */
         RoutineExerciseResponse: {
@@ -1821,6 +1873,11 @@ export interface components {
              * @description The high end of the rep range.
              */
             targetRepsTo: number;
+            /**
+             * @description Whether it is done as a superset with the exercise after it: a set of each, then rest.
+             * @default false
+             */
+            supersetWithNext: boolean;
         };
         /** @description A routine in the list. */
         RoutineListItemResponse: {
@@ -2053,6 +2110,11 @@ export interface components {
             /** @description Every exercise in the workout, by its ID in the workout, once each, in the new order. */
             workoutExerciseIds: string[];
         };
+        /** @description Whether an exercise is a superset with the one after it. */
+        UpdateWorkoutExerciseSupersetRequest: {
+            /** @description True pairs it with the exercise after it, false ends its superset. A superset is two exercises, so the last exercise and the second of a superset can't start one, and nor can the exercise before one. */
+            supersetWithNext: boolean;
+        };
         /** @description What changes on a workout. */
         UpdateWorkoutRequest: {
             /** @description Where it stands now. Only completed can be set, which saves it. */
@@ -2202,6 +2264,11 @@ export interface components {
             lastTime: null | components["schemas"]["LastTimeResponse"];
             /** @description Whether the exercise still exists, so it can be opened. False once it is deleted. */
             exists: boolean;
+            /**
+             * @description Whether it is done as a superset with the exercise after it: a set of each, then rest.
+             * @default false
+             */
+            supersetWithNext: boolean;
         };
         /** @description A set that beat every earlier set of its exercise. */
         WorkoutRecordResponse: {
@@ -5087,6 +5154,71 @@ export interface operations {
                 };
             };
             /** @description The workout is not in progress, already has the new exercise, or the exercise has checked sets. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateWorkoutExerciseSuperset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+                /** @description The exercise's ID in the workout. */
+                workoutExerciseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkoutExerciseSupersetRequest"];
+            };
+        };
+        responses: {
+            /** @description The workout. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutDetailsResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout or the exercise does not exist, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout is not in progress, or the superset wouldn't be two exercises next to each other. */
             409: {
                 headers: {
                     [name: string]: unknown;

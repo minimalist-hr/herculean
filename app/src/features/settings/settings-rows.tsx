@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Platform, StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { AlertIcon, ChevronRightIcon } from '@/components/icons';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
+import { SwitchKnob } from '@/components/switch-field';
 import { Tappable } from '@/components/tappable';
 import { noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
@@ -126,11 +127,6 @@ export function SettingsRow({
   );
 }
 
-/** The web draws the knob of a switch that is on in its own color unless told otherwise. */
-function webKnob(color: string): object {
-  return Platform.OS === 'web' ? { activeThumbColor: color } : {};
-}
-
 /** A setting that is on or off. The whole row switches it, and it saves at once. */
 export function SettingsSwitchRow({
   label,
@@ -148,18 +144,7 @@ export function SettingsSwitchRow({
 
   function renderSwitch() {
     if (value !== undefined) {
-      // The row takes the tap, so the switch only shows the state.
-      return (
-        <View pointerEvents="none">
-          <Switch
-            {...webKnob(colors.text)}
-            value={value}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={colors.text}
-            ios_backgroundColor={colors.border}
-          />
-        </View>
-      );
+      return <SwitchKnob value={value} />;
     }
 
     return failed ? (

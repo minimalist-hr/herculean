@@ -230,6 +230,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("routine_id");
 
+                    b.Property<bool>("SupersetWithNext")
+                        .HasColumnType("boolean")
+                        .HasColumnName("superset_with_next");
+
                     b.Property<int>("TargetRepsFrom")
                         .HasColumnType("integer")
                         .HasColumnName("target_reps_from");
@@ -498,6 +502,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("integer")
                         .HasColumnName("order");
+
+                    b.Property<bool>("SupersetWithNext")
+                        .HasColumnType("boolean")
+                        .HasColumnName("superset_with_next");
 
                     b.Property<int>("TargetRepsFrom")
                         .HasColumnType("integer")

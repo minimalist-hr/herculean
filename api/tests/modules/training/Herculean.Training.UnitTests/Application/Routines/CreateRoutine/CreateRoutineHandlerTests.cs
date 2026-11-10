@@ -170,6 +170,33 @@ public sealed class CreateRoutineHandlerTests
         result.IsSuccess.ShouldBeTrue();
     }
 
+    [Fact]
+    public async Task ASupersetIsSavedOnItsFirstExercise()
+    {
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat with { SupersetWithNext = true }, Lunge);
+
+        result.IsSuccess.ShouldBeTrue();
+        _routineRepository.Routines.ShouldHaveSingleItem().Exercises.Select(exercise => exercise.SupersetWithNext).ShouldBe([true, false]);
+    }
+
+    [Fact]
+    public async Task TheLastExerciseCanNotStartASuperset()
+    {
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat, Lunge with { SupersetWithNext = true });
+
+        result.Error.ShouldNotBeNull().Fields.ShouldContainKey("exercises");
+    }
+
+    [Fact]
+    public async Task ASupersetIsTwoExercises()
+    {
+        RoutineExerciseItem press = new(Guid.CreateVersion7(), 3, 8, 10);
+
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat with { SupersetWithNext = true }, Lunge with { SupersetWithNext = true }, press);
+
+        result.Error.ShouldNotBeNull().Fields.ShouldContainKey("exercises");
+    }
+
     private Task<Result<RoutineSavedResponse>> HandleAsync(string name, params RoutineExerciseItem[] exercises) =>
         _handler.HandleAsync(new CreateRoutineRequest(name, [], [.. exercises]), TestContext.Current.CancellationToken);
 }

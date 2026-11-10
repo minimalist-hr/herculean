@@ -27,7 +27,8 @@ internal sealed record DayExerciseResponse(
     [property: Description("The sets to do.")] int TargetSets,
     [property: Description("The low end of the rep range.")] int TargetRepsFrom,
     [property: Description("The high end of the rep range.")] int TargetRepsTo,
-    [property: Description("Whether the exercise still exists, so it can be opened. False once it is deleted.")] bool Exists);
+    [property: Description("Whether the exercise still exists, so it can be opened. False once it is deleted.")] bool Exists,
+    [property: Description("Whether it is done as a superset with the exercise after it: a set of each, then rest.")] bool SupersetWithNext = false);
 
 [Description("The day after a day.")]
 internal sealed record UpNextResponse(

@@ -1,6 +1,6 @@
 # Screen index
 
-391 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+389 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -316,8 +316,6 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | R25 | Routines › Edit routine · exercise removed, with Undo | R3 Edit a routine | 390×844 | [png](screens/routines/R25-Routines-Edit-Exercise-Removed.png) · [html](html/routines/R25-Routines-Edit-Exercise-Removed.html) · [source](source/routines/R25-Routines-Edit-Exercise-Removed.dc.html) |
 | R26 | Routines › Edit routine › Discard changes · confirm | R3 Edit a routine | 390×844 | [png](screens/routines/R26-Routines-Edit-Discard.png) · [html](html/routines/R26-Routines-Edit-Discard.html) · [source](source/routines/R26-Routines-Edit-Discard.dc.html) |
 | R28 | Routines › Routine details · a day moved from another routine · full scroll | R3 Edit a routine | 390×1010 | [png](screens/routines/R28-Routines-Edit-Day-Moved.png) · [html](html/routines/R28-Routines-Edit-Day-Moved.html) · [source](source/routines/R28-Routines-Edit-Day-Moved.dc.html) |
-| R27 | Routines › Routine details · same group joined | R3 Edit a routine | 390×844 | [png](screens/routines/R27-Routines-Details-Same-Group.png) · [html](html/routines/R27-Routines-Details-Same-Group.html) · [source](source/routines/R27-Routines-Details-Same-Group.dc.html) |
-| R29 | Routines › Edit routine · same group joined · full scroll | R3 Edit a routine | 390×957 | [png](screens/routines/R29-Routines-Edit-Same-Group.png) · [html](html/routines/R29-Routines-Edit-Same-Group.html) · [source](source/routines/R29-Routines-Edit-Same-Group.dc.html) |
 | R21 | Routines › Edit routine › Sets and reps | R3 Edit a routine | 390×844 | [png](screens/routines/R21-Routines-Edit-Targets.png) · [html](html/routines/R21-Routines-Edit-Targets.html) · [source](source/routines/R21-Routines-Edit-Targets.dc.html) |
 | R23 | Routines › Edit routine › Remove exercise · confirm | R3 Edit a routine | 390×844 | [png](screens/routines/R23-Routines-Remove-Exercise-Confirm.png) · [html](html/routines/R23-Routines-Remove-Exercise-Confirm.html) · [source](source/routines/R23-Routines-Remove-Exercise-Confirm.dc.html) |
 | R22 | Routines › Delete routine · confirm | R3 Edit a routine | 390×844 | [png](screens/routines/R22-Routines-Delete-Confirm.png) · [html](html/routines/R22-Routines-Delete-Confirm.html) · [source](source/routines/R22-Routines-Delete-Confirm.dc.html) |

@@ -41,5 +41,7 @@ internal static class WorkoutErrors
 
     public static readonly Error TooManySets = Error.Conflict("workout.too_many_sets", $"An exercise can have at most {WorkoutExercise.MaxSets} sets.");
 
+    public static readonly Error SupersetNotTwo = Error.Conflict("workout.superset_not_two", "A superset is two exercises next to each other.");
+
     public static readonly Error LastSet = Error.Conflict("workout.last_set", "An exercise keeps at least one set. Use the exercise’s trash to remove it.");
 }

@@ -7,9 +7,9 @@ import { Tappable } from '@/components/tappable';
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
-import { groupBlocks } from './group-blocks';
 import { targetText } from '@/formats/formats';
-import { GroupStripe } from './group-stripe';
+import { supersetBlocks } from './superset-blocks';
+import { SupersetStripe } from './superset-stripe';
 
 interface ExerciseTarget {
   exerciseId: string;
@@ -19,23 +19,23 @@ interface ExerciseTarget {
   targetSets: number;
   targetRepsFrom: number;
   targetRepsTo: number;
+  /** Done as a superset with the exercise after it. */
+  supersetWithNext: boolean;
   /** What was actually done, shown instead of the target once a workout is saved. */
   done?: string;
   /** False once the exercise is deleted, so its row opens nothing. */
   exists?: boolean;
 }
 
-/** An exercise's name, and its targets and group below. In a block, the stripe names the group instead. */
+/** An exercise's name, and its targets and group below. */
 export function ExerciseTargetText({
   exercise,
-  showGroup = true,
 }: {
   exercise: Parameters<typeof targetText>[0] & {
     name: string;
     groupName: string;
     done?: string;
   };
-  showGroup?: boolean;
 }) {
   const { colors, text } = useTheme();
 
@@ -44,7 +44,7 @@ export function ExerciseTargetText({
       <Text style={[text.listItemName, { color: colors.text }]}>
         {exercise.name}
       </Text>
-      <ExerciseTargetLine exercise={exercise} showGroup={showGroup} />
+      <ExerciseTargetLine exercise={exercise} />
     </View>
   );
 }
@@ -52,13 +52,11 @@ export function ExerciseTargetText({
 /** An exercise's targets and group, for example "3 × 8–10 · Chest". */
 export function ExerciseTargetLine({
   exercise,
-  showGroup = true,
 }: {
   exercise: Parameters<typeof targetText>[0] & {
     groupName: string;
     done?: string;
   };
-  showGroup?: boolean;
 }) {
   const { colors, text } = useTheme();
 
@@ -67,7 +65,7 @@ export function ExerciseTargetLine({
       <Text style={{ color: colors.primaryText }}>
         {exercise.done ?? targetText(exercise)}
       </Text>
-      {showGroup && ` · ${exercise.groupName}`}
+      {` · ${exercise.groupName}`}
     </Text>
   );
 }
@@ -130,14 +128,13 @@ export function ExerciseBlocksSkeleton({ background }: { background: string }) {
               </View>
             ))}
           </View>
-          <GroupStripe name="" />
         </View>
       ))}
     </View>
   );
 }
 
-/** A routine's exercises with their targets. Neighbours in the same group join into one block, with the group up its edge. */
+/** A routine's exercises with their targets. A superset's two exercises join into one block, marked up its edge. */
 export function ExerciseTargets({
   exercises,
   background,
@@ -158,8 +155,8 @@ export function ExerciseTargets({
 
   return (
     <View style={{ gap: space.sm }}>
-      {groupBlocks(exercises).map((block) => {
-        const connected = block.length > 1;
+      {supersetBlocks(exercises).map((block) => {
+        const superset = block.length > 1;
 
         return (
           <View
@@ -196,10 +193,7 @@ export function ExerciseTargets({
                     },
                   ]}
                 >
-                  <ExerciseTargetText
-                    exercise={exercise}
-                    showGroup={!connected}
-                  />
+                  <ExerciseTargetText exercise={exercise} />
                   {trailing?.(exercise.exerciseId)}
                   {opens(exercise) && (
                     <ChevronRightIcon color={colors.muted} size={16} />
@@ -207,7 +201,7 @@ export function ExerciseTargets({
                 </Tappable>
               ))}
             </View>
-            {connected && <GroupStripe name={block[0].groupName} />}
+            {superset && <SupersetStripe />}
           </View>
         );
       })}

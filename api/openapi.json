@@ -3743,6 +3743,105 @@
         ]
       }
     },
+    "/api/v1/workouts/{id}/exercises/{workoutExerciseId}/superset": {
+      "put": {
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Start or end a superset in a workout",
+        "description": "Pairs an exercise of a workout in progress with the exercise after it, or ends its superset.",
+        "operationId": "UpdateWorkoutExerciseSuperset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The workout's ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "workoutExerciseId",
+            "in": "path",
+            "description": "The exercise's ID in the workout.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkoutExerciseSupersetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The workout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkoutDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The workout or the exercise does not exist, or belongs to another user.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workout is not in progress, or the superset wouldn't be two exercises next to each other.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/workouts/{id}/exercise-order": {
       "put": {
         "tags": [
@@ -4273,6 +4372,11 @@
                 "$ref": "#/components/schemas/RemovedExercise"
               }
             ]
+          },
+          "asSuperset": {
+            "type": "boolean",
+            "description": "Adds the two exercises as a superset: the first is done with the second, a set of each, then rest.",
+            "default": false
           }
         },
         "description": "Exercises to add to a workout: new ones, or a removed one to put back."
@@ -4570,6 +4674,11 @@
           "exists": {
             "type": "boolean",
             "description": "Whether the exercise still exists, so it can be opened. False once it is deleted."
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it is done as a superset with the exercise after it: a set of each, then rest.",
+            "default": false
           }
         },
         "description": "An exercise in a day's routine and its targets."
@@ -4734,6 +4843,11 @@
               "$ref": "#/components/schemas/EditedWorkoutSet"
             },
             "description": "Its sets in order, 1 to 20. Every set of a saved workout counts as done."
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it is a superset with the exercise after it. A superset is two exercises, so the last exercise and the second of a superset can't start one.",
+            "default": false
           }
         },
         "description": "An exercise of the edited workout."
@@ -5091,7 +5205,8 @@
           "name",
           "sets",
           "repsFrom",
-          "repsTo"
+          "repsTo",
+          "supersetWithNext"
         ],
         "type": "object",
         "properties": {
@@ -5113,6 +5228,10 @@
             "type": "integer",
             "description": "The high end of the target reps.",
             "format": "int32"
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it is done as a superset with the exercise after it."
           }
         },
         "description": "An exercise in a routine, with its targets."
@@ -5644,6 +5763,16 @@
               "$ref": "#/components/schemas/RemovedExerciseSet"
             },
             "description": "Its sets in order, 1 to 20."
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it was a superset with the exercise after it.",
+            "default": false
+          },
+          "supersetWithPrevious": {
+            "type": "boolean",
+            "description": "Whether it was a superset with the exercise before it.",
+            "default": false
           }
         },
         "description": "A removed exercise to put back."
@@ -5829,6 +5958,11 @@
             "type": "integer",
             "description": "The high end of the rep range, 1 to 100. It can't be below the low end.",
             "format": "int32"
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it is done as a superset with the exercise after it: a set of each, then rest. A superset is two exercises, so the last exercise and the second of a superset can't start one.",
+            "default": false
           }
         },
         "description": "An exercise in a routine and its targets."
@@ -5877,6 +6011,11 @@
             "type": "integer",
             "description": "The high end of the rep range.",
             "format": "int32"
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it is done as a superset with the exercise after it: a set of each, then rest.",
+            "default": false
           }
         },
         "description": "An exercise in a routine and its targets."
@@ -6368,6 +6507,19 @@
         },
         "description": "The order of a workout's exercises."
       },
+      "UpdateWorkoutExerciseSupersetRequest": {
+        "required": [
+          "supersetWithNext"
+        ],
+        "type": "object",
+        "properties": {
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "True pairs it with the exercise after it, false ends its superset. A superset is two exercises, so the last exercise and the second of a superset can't start one, and nor can the exercise before one."
+          }
+        },
+        "description": "Whether an exercise is a superset with the one after it."
+      },
       "UpdateWorkoutRequest": {
         "required": [
           "status"
@@ -6685,6 +6837,11 @@
           "exists": {
             "type": "boolean",
             "description": "Whether the exercise still exists, so it can be opened. False once it is deleted."
+          },
+          "supersetWithNext": {
+            "type": "boolean",
+            "description": "Whether it is done as a superset with the exercise after it: a set of each, then rest.",
+            "default": false
           }
         },
         "description": "An exercise in a workout."

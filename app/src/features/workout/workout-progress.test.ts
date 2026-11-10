@@ -21,6 +21,7 @@ function exercise(id: string, ...checked: boolean[]): WorkoutExercise {
     targetRepsFrom: 8,
     targetRepsTo: 10,
     exists: true,
+    supersetWithNext: false,
     sets: checked.map((value, order) => ({
       id: `${id}-${String(order)}`,
       order,

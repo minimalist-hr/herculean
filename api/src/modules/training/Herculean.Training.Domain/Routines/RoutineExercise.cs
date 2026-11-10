@@ -5,7 +5,7 @@ namespace Herculean.Training.Domain.Routines;
 
 internal sealed class RoutineExercise : Entity<RoutineExerciseId>
 {
-    private RoutineExercise(RoutineExerciseId id, UserId userId, RoutineId routineId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo) : base(id)
+    private RoutineExercise(RoutineExerciseId id, UserId userId, RoutineId routineId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo, bool supersetWithNext) : base(id)
     {
         UserId = userId;
         RoutineId = routineId;
@@ -14,6 +14,7 @@ internal sealed class RoutineExercise : Entity<RoutineExerciseId>
         TargetSets = targetSets;
         TargetRepsFrom = targetRepsFrom;
         TargetRepsTo = targetRepsTo;
+        SupersetWithNext = supersetWithNext;
     }
 
     public UserId UserId { get; private set; }
@@ -32,14 +33,18 @@ internal sealed class RoutineExercise : Entity<RoutineExerciseId>
 
     public int TargetRepsTo { get; private set; }
 
+    /// <summary>Done as a superset with the exercise after it: a set of each, then rest.</summary>
+    public bool SupersetWithNext { get; private set; }
+
     internal void Update(int order, RoutineExerciseValues values)
     {
         Order = order;
         TargetSets = values.TargetSets;
         TargetRepsFrom = values.TargetRepsFrom;
         TargetRepsTo = values.TargetRepsTo;
+        SupersetWithNext = values.SupersetWithNext;
     }
 
     internal static RoutineExercise Create(UserId userId, RoutineId routineId, int order, RoutineExerciseValues values) =>
-        new(RoutineExerciseId.New(), userId, routineId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo);
+        new(RoutineExerciseId.New(), userId, routineId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo, values.SupersetWithNext);
 }

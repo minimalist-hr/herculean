@@ -30,6 +30,7 @@ export function useCreateRoutine() {
             targetSets: exercise.targetSets,
             targetRepsFrom: exercise.targetRepsFrom,
             targetRepsTo: exercise.targetRepsTo,
+            supersetWithNext: exercise.supersetWithNext,
           })),
         },
       });

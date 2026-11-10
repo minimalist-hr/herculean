@@ -40,6 +40,19 @@ import {
   durationMinutes,
   typedDuration,
 } from './duration-field';
+import {
+  inSuperset,
+  supersetBlocked,
+  supersetBlocks,
+  withoutExercise,
+} from '@/features/routines/superset-blocks';
+
+import {
+  placeIn,
+  SupersetBlock,
+  type BlockPlace,
+} from '@/features/routines/superset-stripe';
+
 import { OpenExercise } from './log-exercise';
 import { maxExercisesPerWorkout, type SetField } from './set-values';
 import { useEditWorkout } from './use-finish-workout';
@@ -197,7 +210,9 @@ export function EditWorkoutScreen() {
 
   function removeExercise(exercise: WorkoutExercise) {
     const index = exercises.indexOf(exercise);
-    setExercises((current) => current.filter((kept) => kept !== exercise));
+    setExercises((current) =>
+      withoutExercise(current, current.indexOf(exercise)),
+    );
     notifySuccess(`${exercise.name} removed.`, {
       label: 'Undo',
       onPress: () => {
@@ -250,6 +265,10 @@ export function EditWorkoutScreen() {
                         weightKg: set.weightKg,
                         reps: set.reps,
                       })),
+                      supersetWithNext: inSuperset(
+                        exercise,
+                        exercises.at(exercises.indexOf(exercise) + 1),
+                      ),
                     })),
                   },
                   { onError: guard.block },
@@ -298,33 +317,65 @@ export function EditWorkoutScreen() {
           />
         </View>
       )}
-      {exercises.map((exercise) => (
-        <EditedExercise
-          key={exercise.id}
-          workoutId={workout.id}
-          before={workout.date}
-          added={!savedIds.has(exercise.id)}
-          exercise={exercise}
-          onEdit={(set, field) => {
-            router.push({
-              pathname: '/workout/edit/[id]/set',
-              params: {
-                id: workout.id,
-                exercise: exercise.id,
-                set: set.id,
-                field,
-              },
-            });
-          }}
-          onAddSet={() => {
-            addSet(exercise);
-          }}
-          onRemove={() => {
-            setRemoving(exercise);
-            setConfirmingRemove(true);
-          }}
-        />
-      ))}
+      {supersetBlocks(exercises).map((block) => {
+        const cards = block.map((exercise, row) => {
+          const index = exercises.indexOf(exercise);
+          const next = exercises.at(index + 1);
+
+          return (
+            <EditedExercise
+              key={exercise.id}
+              place={placeIn(block, row)}
+              superset={{
+                on: inSuperset(exercise, next),
+                unavailable: supersetBlocked(
+                  index > 0 ? exercises[index - 1] : undefined,
+                  next,
+                ),
+                onChange: (on) => {
+                  setExercises((current) =>
+                    current.map((item) =>
+                      item.id === exercise.id
+                        ? { ...item, supersetWithNext: on }
+                        : item,
+                    ),
+                  );
+                },
+              }}
+              workoutId={workout.id}
+              before={workout.date}
+              added={!savedIds.has(exercise.id)}
+              exercise={exercise}
+              onEdit={(set, field) => {
+                router.push({
+                  pathname: '/workout/edit/[id]/set',
+                  params: {
+                    id: workout.id,
+                    exercise: exercise.id,
+                    set: set.id,
+                    field,
+                  },
+                });
+              }}
+              onAddSet={() => {
+                addSet(exercise);
+              }}
+              onRemove={() => {
+                setRemoving(exercise);
+                setConfirmingRemove(true);
+              }}
+            />
+          );
+        });
+
+        return block.length > 1 ? (
+          <SupersetBlock key={block[0].id} open>
+            {cards}
+          </SupersetBlock>
+        ) : (
+          cards[0]
+        );
+      })}
       <View style={{ marginTop: space.lg }}>
         <Button
           label="Add exercise"
@@ -350,6 +401,8 @@ export function EditWorkoutScreen() {
 
 /** An exercise added here loads its own last time, from before the workout's date. */
 function EditedExercise({
+  place,
+  superset,
   workoutId,
   before,
   added,
@@ -358,6 +411,8 @@ function EditedExercise({
   onAddSet,
   onRemove,
 }: {
+  place: BlockPlace | undefined;
+  superset: Parameters<typeof OpenExercise>[0]['superset'];
   workoutId: string;
   before: string;
   added: boolean;
@@ -379,6 +434,8 @@ function EditedExercise({
       units={units}
       adding={false}
       canSwap={false}
+      place={place}
+      superset={superset}
       onEdit={onEdit}
       onAddSet={onAddSet}
       onRemove={onRemove}

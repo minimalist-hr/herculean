@@ -27,7 +27,8 @@ internal sealed record WorkoutExerciseResponse(
     [property: Description("The high end of the rep range.")] int TargetRepsTo,
     [property: Description("Its sets in order.")] List<SetResponse> Sets,
     [property: Description("Its latest completed workout before this one. Null if never done.")] LastTimeResponse? LastTime,
-    [property: Description("Whether the exercise still exists, so it can be opened. False once it is deleted.")] bool Exists);
+    [property: Description("Whether the exercise still exists, so it can be opened. False once it is deleted.")] bool Exists,
+    [property: Description("Whether it is done as a superset with the exercise after it: a set of each, then rest.")] bool SupersetWithNext = false);
 
 [Description("An exercise's sets the last time it was done.")]
 internal sealed record LastTimeResponse(

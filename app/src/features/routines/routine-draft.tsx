@@ -21,6 +21,8 @@ export interface RoutineExerciseDraft extends Targets {
   name: string;
   groupId: string;
   groupName: string;
+  /** Done as a superset with the exercise after it. */
+  supersetWithNext: boolean;
 }
 
 interface RoutineDraftPages {

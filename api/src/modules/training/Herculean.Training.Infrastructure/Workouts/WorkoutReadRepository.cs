@@ -46,6 +46,7 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                 exercise.TargetRepsFrom,
                 exercise.TargetRepsTo,
                 Exists = exercise.Exercise.DeletedAtUtc == null,
+                exercise.SupersetWithNext,
                 Sets = exercise.Sets
                     .OrderBy(set => set.Order)
                     .Select(set => new SetResponse(set.Id.Value, set.Order, set.WeightKg, set.Reps, set.Checked))
@@ -72,7 +73,8 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                     exercise.TargetRepsTo,
                     exercise.Sets,
                     lastTime.GetValueOrDefault(exercise.ExerciseId),
-                    exercise.Exists)),
+                    exercise.Exists,
+                    exercise.SupersetWithNext)),
             ],
             workout.FinishedAtUtc,
             workout.DurationSeconds);
@@ -84,7 +86,7 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
             .AsNoTracking()
             .Where(exercise => exercise.RoutineId == routineId && exercise.Exercise.DeletedAtUtc == null)
             .OrderBy(exercise => exercise.Order)
-            .Select(exercise => new RoutineExerciseValues(exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo))
+            .Select(exercise => new RoutineExerciseValues(exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext))
             .ToListAsync(cancellationToken);
 
     public Task<List<EarlierMostReps>> ListEarlierMostRepsAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken) =>

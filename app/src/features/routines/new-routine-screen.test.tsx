@@ -236,9 +236,35 @@ test('picked exercises come back at 3 × 8–10, and saving sends them', async (
         targetSets: 3,
         targetRepsFrom: 8,
         targetRepsTo: 10,
+        supersetWithNext: false,
       },
     ],
   });
+});
+
+test('two picks can be added as a superset, and save as one', async () => {
+  answer();
+  await openNew();
+  await openAddExercise();
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Bench press' }));
+  await fireEvent.press(
+    screen.getByRole('switch', { name: 'Add as superset' }),
+  );
+  await pressLast('Add exercises');
+  await addExerciseClosed();
+
+  expect(await screen.findByText('Superset')).toBeOnTheScreen();
+  await save();
+  await editorClosed();
+  expect(
+    (
+      saved as unknown as {
+        exercises: { supersetWithNext: boolean }[];
+      }
+    ).exercises.map((exercise) => exercise.supersetWithNext),
+  ).toEqual([true, false]);
 });
 
 test('the button names how many are picked, and says when none are', async () => {

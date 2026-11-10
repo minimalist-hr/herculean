@@ -51,6 +51,7 @@ const workout = {
         { id: 's2', order: 1, weightKg: 100, reps: 5, checked: true },
       ],
       lastTime: null,
+      supersetWithNext: false,
     },
   ],
 };
@@ -206,6 +207,7 @@ test('a changed value and an added set are saved together', async () => {
           { weightKg: 100, reps: 5 },
           { weightKg: 100, reps: 5 },
         ],
+        supersetWithNext: false,
       },
     ],
   });
@@ -332,6 +334,7 @@ test('an added exercise shows its last time before the workout, and is saved as 
           { weightKg: 100, reps: 5 },
           { weightKg: 100, reps: 5 },
         ],
+        supersetWithNext: false,
       },
       {
         id: null,
@@ -341,9 +344,44 @@ test('an added exercise shows its last time before the workout, and is saved as 
           { weightKg: 0, reps: 8 },
           { weightKg: 0, reps: 8 },
         ],
+        supersetWithNext: false,
       },
     ],
   });
+});
+
+test('an exercise can be linked to the next as a superset, and is saved so', async () => {
+  answerWith();
+  await renderEdit();
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Superset Barbell squat with next' }),
+  );
+  expect(
+    await screen.findByText('Add an exercise after this one first.'),
+  ).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Add exercise' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Lunge' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Add exercise' }));
+  await screen.findByText('Lunge');
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Superset Barbell squat with next' }),
+  );
+
+  expect(
+    await screen.findByRole('button', {
+      name: 'End superset of Barbell squat',
+    }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Superset')).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+  expect(await screen.findByText('Day screen')).toBeOnTheScreen();
+  expect(
+    (
+      (await sentBody()) as { exercises: { supersetWithNext: boolean }[] }
+    ).exercises.map((exercise) => exercise.supersetWithNext),
+  ).toEqual([true, false]);
 });
 
 test('shows the page while the workout loads, with Save muted', async () => {

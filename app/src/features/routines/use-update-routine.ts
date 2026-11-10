@@ -31,6 +31,7 @@ export function useUpdateRoutine(id: string) {
             targetSets: exercise.targetSets,
             targetRepsFrom: exercise.targetRepsFrom,
             targetRepsTo: exercise.targetRepsTo,
+            supersetWithNext: exercise.supersetWithNext,
           })),
         },
       });

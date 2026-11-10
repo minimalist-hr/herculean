@@ -1,5 +1,11 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react-native';
 import { router, Stack, type Href } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
@@ -41,6 +47,7 @@ const routine = {
       targetSets: 3,
       targetRepsFrom: 8,
       targetRepsTo: 10,
+      supersetWithNext: false,
     },
     {
       exerciseId: 'lunge',
@@ -50,6 +57,7 @@ const routine = {
       targetSets: 2,
       targetRepsFrom: 6,
       targetRepsTo: 6,
+      supersetWithNext: false,
     },
   ],
 };
@@ -57,7 +65,11 @@ const routine = {
 interface Saved {
   name: string;
   weekdays: string[];
-  exercises: { exerciseId: string; targetSets: number }[];
+  exercises: {
+    exerciseId: string;
+    targetSets: number;
+    supersetWithNext: boolean;
+  }[];
 }
 
 let saved: Saved | undefined;
@@ -366,6 +378,90 @@ test('at 30 exercises Add exercise says why and stays', async () => {
     'A routine can have at most 30 exercises.',
   );
   expect(screen.queryByRole('header', { name: 'Add exercise' })).toBeNull();
+});
+
+test('a superset is set on its first exercise, names the next, and saves', async () => {
+  answer();
+  await loaded();
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Squat, 3 × 8–10' }),
+  );
+  const superset = await screen.findByRole('switch', {
+    name: 'Superset with next',
+  });
+  expect(within(superset).getByText('Lunge')).toBeOnTheScreen();
+  await fireEvent.press(superset);
+  await fireEvent.press(screen.getByRole('button', { name: 'Save targets' }));
+  await screen.findByDisplayValue('Legs');
+  expect(screen.getByText('Superset')).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+
+  expect(await screen.findByText('Legs saved.')).toBeOnTheScreen();
+  expect(saved?.exercises.map((exercise) => exercise.supersetWithNext)).toEqual(
+    [true, false],
+  );
+});
+
+test('the last exercise can’t start a superset, and says why', async () => {
+  answer();
+  await loaded();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Lunge, 2 × 6' }));
+  await fireEvent.press(
+    await screen.findByRole('switch', { name: 'Superset with next' }),
+  );
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Add an exercise after this one first.',
+  );
+  expect(
+    screen.getByRole('switch', { name: 'Superset with next' }),
+  ).not.toBeChecked();
+});
+
+test('the second of a superset can’t start another, and says why', async () => {
+  answer(undefined, {
+    ...routine,
+    exercises: [
+      { ...routine.exercises[0], supersetWithNext: true },
+      routine.exercises[1],
+      { ...routine.exercises[0], exerciseId: 'press', name: 'Press' },
+    ],
+  });
+  await loaded();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Lunge, 2 × 6' }));
+  await fireEvent.press(
+    await screen.findByRole('switch', { name: 'Superset with next' }),
+  );
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'A superset is two exercises.',
+  );
+});
+
+test('removing the second of a superset ends it, and Undo brings it back', async () => {
+  answer(undefined, {
+    ...routine,
+    exercises: [
+      { ...routine.exercises[0], supersetWithNext: true },
+      routine.exercises[1],
+    ],
+  });
+  await loaded();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Remove Lunge' }));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Remove exercise' }),
+  );
+  await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+
+  expect(await screen.findByText('Legs saved.')).toBeOnTheScreen();
+  expect(saved?.exercises.map((exercise) => exercise.supersetWithNext)).toEqual(
+    [true, false],
+  );
 });
 
 test('targets and Add exercise open under the edit page', async () => {

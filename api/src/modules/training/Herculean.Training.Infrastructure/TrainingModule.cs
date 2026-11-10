@@ -61,6 +61,7 @@ using Herculean.Training.Application.Workouts.UpdateWorkout;
 using Herculean.Training.Application.Workouts.DeleteWorkoutExercise;
 using Herculean.Training.Application.Workouts.GetWorkout;
 using Herculean.Training.Application.Workouts.SwapWorkoutExercise;
+using Herculean.Training.Application.Workouts.UpdateWorkoutExerciseSuperset;
 using Herculean.Training.Application.Workouts.UpdateSet;
 using Herculean.Training.Application.Workouts.UpdateWorkoutExerciseOrder;
 using Herculean.Training.Domain;
@@ -178,6 +179,8 @@ public static class TrainingModule
         builder.Services.AddScoped<DeleteWorkoutExerciseHandler>();
         builder.Services.AddScoped<IValidator<SwapWorkoutExerciseRequest>, SwapWorkoutExerciseValidator>();
         builder.Services.AddScoped<SwapWorkoutExerciseHandler>();
+        builder.Services.AddScoped<IValidator<UpdateWorkoutExerciseSupersetRequest>, UpdateWorkoutExerciseSupersetValidator>();
+        builder.Services.AddScoped<UpdateWorkoutExerciseSupersetHandler>();
         builder.Services.AddScoped<IValidator<UpdateWorkoutExerciseOrderRequest>, UpdateWorkoutExerciseOrderValidator>();
         builder.Services.AddScoped<UpdateWorkoutExerciseOrderHandler>();
         builder.Services.AddScoped<GetGroupHandler>();
@@ -237,6 +240,7 @@ public static class TrainingModule
         AddWorkoutExercisesEndpoint.Map(endpoints);
         DeleteWorkoutExerciseEndpoint.Map(endpoints);
         SwapWorkoutExerciseEndpoint.Map(endpoints);
+        UpdateWorkoutExerciseSupersetEndpoint.Map(endpoints);
         UpdateWorkoutExerciseOrderEndpoint.Map(endpoints);
         GetGroupEndpoint.Map(endpoints);
         CreateExerciseEndpoint.Map(endpoints);

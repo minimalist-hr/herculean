@@ -94,7 +94,16 @@ function exerciseRows(data: Export): Field[][] {
 
 function routineRows(data: Export): Field[][] {
   return [
-    ['Routine', 'Days', 'Order', 'Exercise', 'Sets', 'Reps from', 'Reps to'],
+    [
+      'Routine',
+      'Days',
+      'Order',
+      'Exercise',
+      'Sets',
+      'Reps from',
+      'Reps to',
+      'Superset with next',
+    ],
     ...data.routines.flatMap((routine) =>
       routine.exercises.map((exercise, index) => [
         routine.name,
@@ -104,6 +113,7 @@ function routineRows(data: Export): Field[][] {
         exercise.sets,
         exercise.repsFrom,
         exercise.repsTo,
+        exercise.supersetWithNext ? 'Yes' : 'No',
       ]),
     ),
   ];

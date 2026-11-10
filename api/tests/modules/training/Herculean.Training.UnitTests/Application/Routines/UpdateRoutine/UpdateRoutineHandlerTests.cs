@@ -60,6 +60,16 @@ public sealed class UpdateRoutineHandlerTests
     }
 
     [Fact]
+    public async Task ASupersetIsSetAndEnded()
+    {
+        await HandleAsync(_routine.Id.Value, "Legs", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10, SupersetWithNext: true), new RoutineExerciseItem(_lunge.Id.Value, 3, 8, 10));
+        _routine.Exercises.Select(exercise => exercise.SupersetWithNext).ShouldBe([true, false]);
+
+        await HandleAsync(_routine.Id.Value, "Legs", new RoutineExerciseItem(_squat.Id.Value, 3, 8, 10), new RoutineExerciseItem(_lunge.Id.Value, 3, 8, 10));
+        _routine.Exercises.Select(exercise => exercise.SupersetWithNext).ShouldBe([false, false]);
+    }
+
+    [Fact]
     public async Task ADayFromALiveRoutineIsNamedAndOneFromADeletedRoutineIsLeftOut()
     {
         Routine push = Routine.Create(_userId, "Push", []);

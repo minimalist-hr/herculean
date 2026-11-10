@@ -51,8 +51,15 @@ function set(id: string, order: number, weightKg: number, checked = false) {
   return { id, order, weightKg, reps: 8, checked };
 }
 
-function exercise(id: string, name: string, groupId: string, sets: unknown[]) {
+function exercise(
+  id: string,
+  name: string,
+  groupId: string,
+  sets: unknown[],
+  supersetWithNext = false,
+) {
   return {
+    supersetWithNext,
     id,
     exerciseId: `${id}-exercise`,
     name,
@@ -638,6 +645,117 @@ test('Add set at 20 sets says why, and adds nothing', async () => {
   );
 });
 
+describe('a superset', () => {
+  beforeEach(() => {
+    current = {
+      ...workout,
+      exercises: [
+        exercise(
+          'squat',
+          'Barbell squat',
+          'legs',
+          [set('s1', 0, 80), set('s2', 1, 80)],
+          true,
+        ),
+        exercise('press', 'Leg press', 'legs', [set('p1', 0, 120)]),
+      ],
+    };
+  });
+
+  test('opens whole, without the stripe, which only a closed superset has', async () => {
+    await renderLog();
+
+    expect(await screen.findAllByTestId('open-exercise')).toHaveLength(2);
+    expect(screen.queryByText('Superset')).toBeNull();
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Superset Leg press with next' }),
+    );
+    expect(
+      await screen.findByText('Add an exercise after this one first.'),
+    ).toBeOnTheScreen();
+  });
+
+  test('rests only after a set of each', async () => {
+    patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+    await renderLog();
+
+    const [squatFirst] = await screen.findAllByRole('checkbox', {
+      name: 'Set 1 done',
+    });
+    await fireEvent.press(squatFirst);
+    await screen.findAllByRole('checkbox', {
+      name: 'Set 1 done',
+      checked: true,
+    });
+    expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
+
+    patched = () => [set('p1', 0, 120, true)];
+    const [, pressFirst] = screen.getAllByRole('checkbox', {
+      name: 'Set 1 done',
+    });
+    await fireEvent.press(pressFirst);
+
+    expect(
+      await screen.findByRole('button', { name: 'Start' }),
+    ).toBeOnTheScreen();
+  });
+
+  test('the link ends it, and the last exercise says why it can’t start one', async () => {
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('button', {
+        name: 'Superset Leg press with next',
+      }),
+    );
+    expect(
+      await screen.findByText('Add an exercise after this one first.'),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'End superset of Barbell squat' }),
+    );
+
+    await waitFor(() => {
+      expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'PUT')).toBe(
+        true,
+      );
+    });
+    const request = mockFetch.mock.calls.find(
+      ([sent]) => sent.method === 'PUT',
+    )?.[0];
+    expect(new URL(request?.url ?? '').pathname).toBe(
+      '/api/v1/workouts/w1/exercises/squat/superset',
+    );
+    expect(await request?.clone().json()).toEqual({ supersetWithNext: false });
+  });
+
+  test('removing the second, Undo puts it back in the superset', async () => {
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Remove Leg press' }),
+    );
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Remove exercise' }),
+    );
+    await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
+
+    await waitFor(() => {
+      expect(
+        mockFetch.mock.calls.some(([sent]) => sent.method === 'POST'),
+      ).toBe(true);
+    });
+    const undo = mockFetch.mock.calls.find(
+      ([sent]) => sent.method === 'POST',
+    )?.[0];
+    expect(await undo?.clone().json()).toMatchObject({
+      removed: { supersetWithNext: false, supersetWithPrevious: true },
+    });
+  });
+});
+
 describe('the size of the rest text', () => {
   test.each([
     [390, 1, 18],
@@ -969,7 +1087,10 @@ describe('removing an exercise', () => {
           { weightKg: 80, reps: 8, checked: false },
           { weightKg: 80, reps: 8, checked: false },
         ],
+        supersetWithNext: false,
+        supersetWithPrevious: false,
       },
+      asSuperset: false,
     });
   });
 

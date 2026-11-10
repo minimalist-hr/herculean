@@ -9,6 +9,8 @@ import {
   notifySuccess,
 } from '@/components/notifications';
 
+import { withoutExercise } from '@/features/routines/superset-blocks';
+
 import { dayKeys, workoutKeys } from './query-keys';
 
 type Workout = components['schemas']['WorkoutDetailsResponse'];
@@ -18,6 +20,8 @@ interface RemovedExercise {
   exercise: WorkoutExercise;
   /** Its place in the workout, to put it back there. */
   order: number;
+  /** It was the second of a superset, which undoing it brings back. */
+  supersetWithPrevious: boolean;
 }
 
 /** Removes an exercise with its sets, and offers to undo it. */
@@ -27,7 +31,11 @@ export function useRemoveExercise(workoutId: string) {
     queryClient.invalidateQueries({ queryKey: dayKeys.allDay });
 
   const restore = useMutation({
-    mutationFn: async ({ exercise, order }: RemovedExercise) => {
+    mutationFn: async ({
+      exercise,
+      order,
+      supersetWithPrevious,
+    }: RemovedExercise) => {
       const { data, error } = await api.POST(
         '/api/v1/workouts/{id}/exercises',
         {
@@ -44,7 +52,10 @@ export function useRemoveExercise(workoutId: string) {
                 reps: set.reps,
                 checked: set.checked,
               })),
+              supersetWithNext: exercise.supersetWithNext,
+              supersetWithPrevious,
             },
+            asSuperset: false,
           },
         },
       );
@@ -84,8 +95,9 @@ export function useRemoveExercise(workoutId: string) {
         (workout) =>
           workout && {
             ...workout,
-            exercises: workout.exercises.filter(
-              (other) => other.id !== exercise.id,
+            exercises: withoutExercise(
+              workout.exercises,
+              workout.exercises.findIndex((other) => other.id === exercise.id),
             ),
           },
       );

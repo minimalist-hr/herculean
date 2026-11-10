@@ -3,9 +3,16 @@ import { render, screen } from '@testing-library/react-native';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ExerciseTargets } from './exercise-targets';
-import { groupBlocks } from './group-blocks';
+import { supersetBlocks } from './superset-blocks';
 
-function exercise(id: string, groupName: string, done?: string) {
+function exercise(
+  id: string,
+  groupName: string,
+  {
+    done,
+    supersetWithNext = false,
+  }: { done?: string; supersetWithNext?: boolean } = {},
+) {
   return {
     exerciseId: id,
     name: `Exercise ${id}`,
@@ -14,6 +21,7 @@ function exercise(id: string, groupName: string, done?: string) {
     targetSets: 3,
     targetRepsFrom: 8,
     targetRepsTo: 10,
+    supersetWithNext,
     done,
   };
 }
@@ -26,55 +34,44 @@ async function renderTargets(exercises: ReturnType<typeof exercise>[]) {
   );
 }
 
-test('a solo exercise keeps its group below its name', async () => {
-  await renderTargets([exercise('a', 'Chest')]);
-
-  expect(screen.getByText('3 × 8–10')).toBeOnTheScreen();
-  expect(screen.getByText(/· Chest/)).toBeOnTheScreen();
-});
-
-test('connected exercises name their group once, up the stripe', async () => {
-  await renderTargets([exercise('a', 'Chest'), exercise('b', 'Chest')]);
-
-  expect(screen.getByText('Chest')).toBeOnTheScreen();
-  expect(screen.queryByText(/· Chest/)).toBeNull();
-});
-
-test('each block has its own stripe, and a solo exercise between them has none', async () => {
+test('every exercise keeps its group below its name', async () => {
   await renderTargets([
-    exercise('a', 'Chest'),
-    exercise('b', 'Chest'),
-    exercise('c', 'Back'),
-    exercise('d', 'Arms'),
-    exercise('e', 'Arms'),
+    exercise('a', 'Chest', { supersetWithNext: true }),
+    exercise('b', 'Back'),
   ]);
 
-  expect(screen.getByText('Chest')).toBeOnTheScreen();
-  expect(screen.getByText('Arms')).toBeOnTheScreen();
-  expect(screen.queryByText('Back')).toBeNull();
+  expect(screen.getByText(/· Chest/)).toBeOnTheScreen();
   expect(screen.getByText(/· Back/)).toBeOnTheScreen();
 });
 
+test('a superset is one block, named up its stripe', async () => {
+  await renderTargets([
+    exercise('a', 'Chest', { supersetWithNext: true }),
+    exercise('b', 'Back'),
+  ]);
+
+  expect(screen.getByText('Superset')).toBeOnTheScreen();
+});
+
+test('neighbours of the same group no longer join', async () => {
+  await renderTargets([exercise('a', 'Chest'), exercise('b', 'Chest')]);
+
+  expect(screen.queryByText('Superset')).toBeNull();
+});
+
 test('a saved exercise shows what was done instead of its target', async () => {
-  await renderTargets([exercise('a', 'Chest', '3 sets · 990 kg')]);
+  await renderTargets([exercise('a', 'Chest', { done: '3 sets · 990 kg' })]);
 
   expect(screen.getByText('3 sets · 990 kg')).toBeOnTheScreen();
   expect(screen.queryByText('3 × 8–10')).toBeNull();
 });
 
-test('a long group name stays on one line', async () => {
-  const name = 'A very long group name here';
-  await renderTargets([exercise('a', name), exercise('b', name)]);
-
-  expect(screen.getByText(name).props.numberOfLines).toBe(1);
-});
-
-test('only neighbours of the same group form a block', () => {
-  const blocks = groupBlocks([
-    { groupId: 'a' },
-    { groupId: 'a' },
-    { groupId: 'b' },
-    { groupId: 'a' },
+test('only an exercise and the one after it form a block', () => {
+  const blocks = supersetBlocks([
+    { supersetWithNext: true },
+    { supersetWithNext: false },
+    { supersetWithNext: false },
+    { supersetWithNext: true },
   ]);
 
   expect(blocks.map((block) => block.length)).toEqual([2, 1, 1]);

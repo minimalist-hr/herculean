@@ -73,7 +73,8 @@ internal sealed class RoutineReadRepository(TrainingDbContext dbContext) : IRout
                         exercise.Exercise.Group.Name,
                         exercise.TargetSets,
                         exercise.TargetRepsFrom,
-                        exercise.TargetRepsTo))
+                        exercise.TargetRepsTo,
+                        exercise.SupersetWithNext))
                     .ToList(),
             })
             .SingleOrDefaultAsync(cancellationToken);

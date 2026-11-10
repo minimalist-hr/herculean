@@ -40,6 +40,7 @@ function routine(weekdays: string[] = ['monday']) {
         targetSets: 3,
         targetRepsFrom: 8,
         targetRepsTo: 10,
+        supersetWithNext: true,
       },
       {
         exerciseId: 'lunge',
@@ -49,6 +50,7 @@ function routine(weekdays: string[] = ['monday']) {
         targetSets: 2,
         targetRepsFrom: 6,
         targetRepsTo: 6,
+        supersetWithNext: false,
       },
     ],
   };
@@ -147,8 +149,8 @@ test('shows the skeleton, then the routine for display', async () => {
   expect(await screen.findByRole('header', { name: 'Legs' })).toBeOnTheScreen();
   expect(screen.getByText('2 exercises · 5 sets')).toBeOnTheScreen();
   expect(screen.getByText('3 × 8–10')).toBeOnTheScreen();
-  expect(screen.queryByText(/· Legs$/)).toBeNull();
-  expect(screen.getAllByText('Legs')).toHaveLength(2);
+  expect(screen.getAllByText(/· Legs$/)).toHaveLength(2);
+  expect(screen.getByText('Superset')).toBeOnTheScreen();
   expect(screen.getByText('2 × 6')).toBeOnTheScreen();
 });
 

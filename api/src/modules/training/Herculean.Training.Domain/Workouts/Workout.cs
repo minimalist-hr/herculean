@@ -85,9 +85,14 @@ internal sealed class Workout : Entity<WorkoutId>
         return workout;
     }
 
-    /// <summary>Adds exercises at the end, with the starting targets. Their sets start from last time.</summary>
-    public Result AddExercises(IReadOnlyList<ExerciseId> exerciseIds, IReadOnlyDictionary<ExerciseId, List<SetValues>> lastTime)
+    /// <summary>Adds exercises at the end, with the starting targets. Their sets start from last time. Two can be added as a superset.</summary>
+    public Result AddExercises(IReadOnlyList<ExerciseId> exerciseIds, IReadOnlyDictionary<ExerciseId, List<SetValues>> lastTime, bool asSuperset = false)
     {
+        if (asSuperset && exerciseIds.Count != 2)
+        {
+            return WorkoutErrors.SupersetNotTwo;
+        }
+
         Result room = CheckRoomFor(exerciseIds);
         if (!room.IsSuccess)
         {
@@ -97,7 +102,7 @@ internal sealed class Workout : Entity<WorkoutId>
         int order = _exercises.Count == 0 ? 0 : _exercises.Max(exercise => exercise.Order) + 1;
         foreach (ExerciseId exerciseId in exerciseIds)
         {
-            RoutineExerciseValues values = new(exerciseId, WorkoutExercise.StartingTargetSets, WorkoutExercise.StartingTargetRepsFrom, WorkoutExercise.StartingTargetRepsTo);
+            RoutineExerciseValues values = new(exerciseId, WorkoutExercise.StartingTargetSets, WorkoutExercise.StartingTargetRepsFrom, WorkoutExercise.StartingTargetRepsTo, asSuperset && exerciseId == exerciseIds[0]);
             _exercises.Add(WorkoutExercise.Start(UserId, Id, order, values, lastTime.GetValueOrDefault(exerciseId) ?? []));
             order++;
         }
@@ -105,8 +110,8 @@ internal sealed class Workout : Entity<WorkoutId>
         return Result.Success();
     }
 
-    /// <summary>Puts a removed exercise back where it was, with its sets.</summary>
-    public Result RestoreExercise(int order, RoutineExerciseValues values, IReadOnlyList<LoggedSetValues> sets)
+    /// <summary>Puts a removed exercise back where it was, with its sets, and back in the superset it was in.</summary>
+    public Result RestoreExercise(int order, RoutineExerciseValues values, IReadOnlyList<LoggedSetValues> sets, bool supersetWithPrevious = false)
     {
         Result room = CheckRoomFor([values.ExerciseId]);
         if (!room.IsSuccess)
@@ -121,6 +126,10 @@ internal sealed class Workout : Entity<WorkoutId>
         }
 
         _exercises.Add(WorkoutExercise.Restore(UserId, Id, position, values, sets));
+        if (supersetWithPrevious)
+        {
+            _exercises.Find(exercise => exercise.Order == position - 1)?.JoinNext();
+        }
 
         return Result.Success();
     }
@@ -134,11 +143,14 @@ internal sealed class Workout : Entity<WorkoutId>
             return exercise;
         }
 
-        _exercises.Remove(exercise.Value);
-        foreach (WorkoutExercise later in _exercises.Where(other => other.Order > exercise.Value.Order))
+        KeepSupersets(() =>
         {
-            later.MoveTo(later.Order - 1);
-        }
+            _exercises.Remove(exercise.Value);
+            foreach (WorkoutExercise later in _exercises.Where(other => other.Order > exercise.Value.Order))
+            {
+                later.MoveTo(later.Order - 1);
+            }
+        });
 
         return Result.Success();
     }
@@ -159,6 +171,32 @@ internal sealed class Workout : Entity<WorkoutId>
         return exercise.IsSuccess ? exercise.Value.SwapBack(exerciseId, values) : exercise;
     }
 
+    /// <summary>Pairs an exercise with the one after it, or ends its superset. A superset is two exercises next to each other.</summary>
+    public Result ChangeSuperset(WorkoutExerciseId id, bool withNext)
+    {
+        Result<WorkoutExercise> exercise = FindExerciseToLog(id);
+        if (!exercise.IsSuccess)
+        {
+            return exercise;
+        }
+
+        if (!withNext)
+        {
+            exercise.Value.EndSuperset();
+            return Result.Success();
+        }
+
+        List<bool> flags = [.. _exercises.OrderBy(other => other.Order).Select(other => other == exercise.Value || other.SupersetWithNext)];
+        if (!AreSupersetsOfTwo(flags))
+        {
+            return WorkoutErrors.SupersetNotTwo;
+        }
+
+        exercise.Value.JoinNext();
+
+        return Result.Success();
+    }
+
     /// <summary>Puts the exercises in this order, which has to name each of them once.</summary>
     public Result ReorderExercises(List<WorkoutExerciseId> order)
     {
@@ -172,10 +210,13 @@ internal sealed class Workout : Entity<WorkoutId>
             return WorkoutErrors.OrderOutOfDate;
         }
 
-        foreach (WorkoutExercise exercise in _exercises)
+        KeepSupersets(() =>
         {
-            exercise.MoveTo(order.IndexOf(exercise.Id));
-        }
+            foreach (WorkoutExercise exercise in _exercises)
+            {
+                exercise.MoveTo(order.IndexOf(exercise.Id));
+            }
+        });
 
         return Result.Success();
     }
@@ -228,12 +269,15 @@ internal sealed class Workout : Entity<WorkoutId>
             return WorkoutErrors.NothingChecked;
         }
 
-        _exercises.ForEach(exercise => exercise.RemoveUncheckedSets());
-        _exercises.RemoveAll(exercise => exercise.Sets.Count == 0);
-        foreach ((WorkoutExercise exercise, int order) in _exercises.OrderBy(exercise => exercise.Order).Select((exercise, order) => (exercise, order)))
+        KeepSupersets(() =>
         {
-            exercise.MoveTo(order);
-        }
+            _exercises.ForEach(exercise => exercise.RemoveUncheckedSets());
+            _exercises.RemoveAll(exercise => exercise.Sets.Count == 0);
+            foreach ((WorkoutExercise exercise, int order) in _exercises.OrderBy(exercise => exercise.Order).Select((exercise, order) => (exercise, order)))
+            {
+                exercise.MoveTo(order);
+            }
+        });
 
         Status = WorkoutStatus.Completed;
         FinishedAtUtc = finishedAtUtc;
@@ -242,7 +286,7 @@ internal sealed class Workout : Entity<WorkoutId>
         return Result.Success();
     }
 
-    /// <summary>Corrects a saved workout: its exercises become these, in this order, each with these sets. A new exercise gets the starting targets.</summary>
+    /// <summary>Corrects a saved workout: its exercises become these, in this order, each with these sets and supersets. A new exercise gets the starting targets.</summary>
     public Result Edit(IReadOnlyList<EditedExercise> exercises, int? durationMinutes = null)
     {
         if (Status != WorkoutStatus.Completed)
@@ -280,19 +324,34 @@ internal sealed class Workout : Entity<WorkoutId>
             return WorkoutErrors.TooManySets;
         }
 
+        if (!AreSupersetsOfTwo([.. exercises.Select(exercise => exercise.SupersetWithNext)]))
+        {
+            return WorkoutErrors.SupersetNotTwo;
+        }
+
         _exercises.RemoveAll(kept => !exercises.Any(exercise => exercise.Id == kept.Id));
         foreach ((EditedExercise edited, int order) in exercises.Select((edited, order) => (edited, order)))
         {
-            WorkoutExercise? kept = _exercises.Find(exercise => exercise.Id == edited.Id);
-            if (kept is null)
+            WorkoutExercise? placed = _exercises.Find(exercise => exercise.Id == edited.Id);
+            if (placed is null)
             {
                 RoutineExerciseValues values = new(edited.ExerciseId, WorkoutExercise.StartingTargetSets, WorkoutExercise.StartingTargetRepsFrom, WorkoutExercise.StartingTargetRepsTo);
-                _exercises.Add(WorkoutExercise.Restore(UserId, Id, order, values, [.. edited.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, true))]));
+                placed = WorkoutExercise.Restore(UserId, Id, order, values, [.. edited.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, true))]);
+                _exercises.Add(placed);
             }
             else
             {
-                kept.MoveTo(order);
-                kept.ReplaceSets(edited.Sets);
+                placed.MoveTo(order);
+                placed.ReplaceSets(edited.Sets);
+            }
+
+            if (edited.SupersetWithNext)
+            {
+                placed.JoinNext();
+            }
+            else
+            {
+                placed.EndSuperset();
             }
         }
 
@@ -319,6 +378,25 @@ internal sealed class Workout : Entity<WorkoutId>
     public void Restore()
     {
         DeletedAtUtc = null;
+    }
+
+    /// <summary>Whether each flagged exercise has one after it, and no two flagged exercises are neighbours, so every superset is two exercises.</summary>
+    private static bool AreSupersetsOfTwo(List<bool> withNext) =>
+        withNext is not [.., true] && !withNext.Zip(withNext.Skip(1)).Any(pair => pair.First && pair.Second);
+
+    /// <summary>Makes a change to the exercises, and ends each superset whose two exercises are no longer next to each other.</summary>
+    private void KeepSupersets(Action change)
+    {
+        List<WorkoutExercise> ordered = [.. _exercises.OrderBy(exercise => exercise.Order)];
+        List<(WorkoutExercise First, WorkoutExercise Second)> pairs = [.. ordered.Zip(ordered.Skip(1)).Where(pair => pair.First.SupersetWithNext)];
+        change();
+        foreach ((WorkoutExercise first, WorkoutExercise second) in pairs)
+        {
+            if (!_exercises.Contains(second) || second.Order != first.Order + 1)
+            {
+                first.EndSuperset();
+            }
+        }
     }
 
     private Result CheckRoomFor(IReadOnlyCollection<ExerciseId> exerciseIds)
