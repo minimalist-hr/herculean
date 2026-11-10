@@ -82,9 +82,13 @@ export function HomeScreen() {
       }
     >
       <View style={[styles.header, { gap: space.md }]}>
+        {/* One line before the avatar. A long name shrinks it instead of wrapping. */}
         <Text
-          numberOfLines={2}
-          style={[text.pageTitle, styles.title, { color: colors.text }]}
+          accessibilityRole="header"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.6}
+          style={[text.greeting, styles.title, { color: colors.text }]}
         >
           {greeting(now.getHours(), user.data?.name)}
         </Text>

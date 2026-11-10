@@ -72,7 +72,7 @@ export function ChangePasswordScreen() {
   return (
     <>
       <FormPage
-        back="Settings"
+        back="Profile"
         title="Change password"
         subtitle="You’ll be signed out of other devices."
         action={

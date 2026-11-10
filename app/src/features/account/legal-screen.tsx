@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 import type { LegalDocument } from './legal-documents';
 
-/** A legal document as full-page text, opened from create account or Settings. */
+/** A legal document as full-page text, opened from create account or Profile. */
 export function LegalScreen({
   document,
   back,

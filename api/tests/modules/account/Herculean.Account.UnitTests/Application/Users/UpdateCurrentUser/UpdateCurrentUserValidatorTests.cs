@@ -18,7 +18,7 @@ public sealed class UpdateCurrentUserValidatorTests
     [Fact]
     public void RequestWithEveryFieldPasses()
     {
-        _validator.Validate(new UpdateCurrentUserRequest(" Filip ", Units.Imperial, Theme.Light, Color.Chrome, "Europe/London")).IsValid.ShouldBeTrue();
+        _validator.Validate(new UpdateCurrentUserRequest(" Filip ", Units.Imperial, Theme.Light, Color.Titanium, "Europe/London")).IsValid.ShouldBeTrue();
     }
 
     [Theory]

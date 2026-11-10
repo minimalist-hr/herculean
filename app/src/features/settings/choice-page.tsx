@@ -17,6 +17,8 @@ export interface Choice<Value extends string> {
   value: Value;
   label: string;
   detail?: string;
+  /** A color shown before the label. */
+  swatch?: string;
 }
 
 interface ChoicePageProps<Value extends string> {
@@ -70,7 +72,7 @@ function ChoiceForm<Value extends string>({
   return (
     <>
       <FormPage
-        back="Settings"
+        back="Profile"
         title={title}
         subtitle={subtitle}
         action={
@@ -94,6 +96,7 @@ function ChoiceForm<Value extends string>({
               key={choice.value}
               label={choice.label}
               detail={choice.detail}
+              swatch={choice.swatch}
               selected={picked === choice.value}
               onSelect={() => {
                 setPicked(choice.value);

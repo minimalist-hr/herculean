@@ -112,7 +112,7 @@ test('an expired link says so, with a way back', async () => {
 
   expect(await screen.findByText('Link expired')).toBeOnTheScreen();
   await fireEvent.press(
-    screen.getByRole('button', { name: 'Back to Settings' }),
+    screen.getByRole('button', { name: 'Back to Profile' }),
   );
   expect(await screen.findByText('Settings page')).toBeOnTheScreen();
 });
@@ -178,13 +178,13 @@ test('signed out, an expired link says to sign in first', async () => {
 
   expect(
     await screen.findByText(
-      'This link has expired. Sign in and send a new one from Settings.',
+      'This link has expired. Sign in and send a new one from Profile.',
     ),
   ).toBeOnTheScreen();
 });
 
 test.each([
-  [true, 'Back to Settings', 'Settings page'],
+  [true, 'Back to Profile', 'Settings page'],
   [false, 'Go to sign in', 'Sign in page'],
 ])(
   'a failure can be left (signed in: %s)',

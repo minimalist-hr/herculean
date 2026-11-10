@@ -91,7 +91,7 @@ export function ProfilePhotoSheet({
     <Sheet
       visible={visible}
       title="Profile photo"
-      message="Shown on Home and in Settings."
+      message="Shown on Home and in Profile."
       onClose={onClose}
       body={
         <View>

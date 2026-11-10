@@ -47,7 +47,7 @@ export interface paths {
         head?: never;
         /**
          * Change the signed-in user
-         * @description Changes the name, units, theme, color or time zone. Setup sends the name and units, Settings the others; the app sends a new time zone when the phone's changes.
+         * @description Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes.
          */
         patch: operations["UpdateCurrentUser"];
         trace?: never;
@@ -1069,7 +1069,7 @@ export interface components {
          * @description The accent color of buttons, links and highlights.
          * @enum {unknown}
          */
-        Color: "nitro" | "chrome";
+        Color: "nitro" | "titanium" | "flux" | "plasma" | "neon";
         /** @description The token from the reset link, and the new password. */
         CompletePasswordResetRequest: {
             /** @description The token from the reset link. It works once. */

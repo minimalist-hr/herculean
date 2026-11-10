@@ -9,7 +9,7 @@ import { useTheme } from '@/theme/theme-provider';
 import { initialsOf } from './settings-labels';
 import { photoUri, useUserPhoto } from './use-user-photo';
 
-/** The avatar on Home, which opens Settings. */
+/** The avatar on Home, which opens Profile. */
 export function ProfileButton() {
   const router = useRouter();
   const { colors, radius, size, text } = useTheme();

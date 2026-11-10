@@ -7,7 +7,7 @@ export interface LegalDocument {
 
 export const termsOfService: LegalDocument = {
   title: 'Terms of service',
-  lastUpdated: 'Last updated 22 October 2026',
+  lastUpdated: 'Last updated 10 November 2026',
   intro:
     'These terms cover your use of Herculean, a workout log made by Minimalist.',
   sections: [
@@ -29,7 +29,7 @@ export const termsOfService: LegalDocument = {
     },
     {
       title: '5. Ending',
-      body: 'You can delete your account at any time in Settings. We can close accounts that break these terms.',
+      body: 'You can delete your account at any time in Profile. We can close accounts that break these terms.',
     },
     {
       title: '6. Contact',
@@ -61,7 +61,7 @@ export const privacyPolicy: LegalDocument = {
     },
     {
       title: '5. Your rights',
-      body: 'You can see, correct and delete your data, and download a copy in Settings. Deleting your account in Settings removes everything permanently after 14 days.',
+      body: 'You can see, correct and delete your data, and download a copy in Profile. Deleting your account in Profile removes everything permanently after 14 days.',
     },
     {
       title: '6. Contact',

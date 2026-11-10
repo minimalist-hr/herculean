@@ -81,7 +81,7 @@ function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   return (
     <>
       <FormPage
-        back="Settings"
+        back="Profile"
         title={title}
         subtitle={subtitle}
         action={

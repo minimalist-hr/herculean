@@ -26,6 +26,7 @@ import { userNameSchema } from '@/features/account/setup-schema';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
 import { formatClock, formatSpokenDuration } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ChoicePage } from './choice-page';
@@ -59,7 +60,17 @@ export function ThemeScreen() {
   );
 }
 
+/** Each color shows a square of its buttons' color, in the mode in use. */
+const colors: Schemas['Color'][] = [
+  'nitro',
+  'titanium',
+  'flux',
+  'plasma',
+  'neon',
+];
+
 export function ColorScreen() {
+  const { scheme } = useTheme();
   const user = useCurrentUser();
   const update = useUpdateUser();
 
@@ -67,10 +78,11 @@ export function ColorScreen() {
     <ChoicePage<Schemas['Color']>
       title="Color"
       subtitle="Used for buttons, today and completed sets."
-      choices={[
-        { value: 'nitro', label: colorLabels.nitro },
-        { value: 'chrome', label: colorLabels.chrome },
-      ]}
+      choices={colors.map((color) => ({
+        value: color,
+        label: colorLabels[color],
+        swatch: tokens.color.accent[color][scheme].primary,
+      }))}
       saved={user.data?.color}
       saving={update.isPending}
       onSave={(color) => update.mutateAsync({ color })}
@@ -107,7 +119,7 @@ export function DefaultRestScreen() {
   if (settings.data === undefined) {
     return (
       <FormPage
-        back="Settings"
+        back="Profile"
         title={restTitle}
         subtitle={restSubtitle}
         action={<NotLoadedButton label="Save rest time" />}
@@ -152,7 +164,7 @@ function DefaultRestForm({ saved }: { saved: number }) {
   return (
     <>
       <FormPage
-        back="Settings"
+        back="Profile"
         title={restTitle}
         subtitle={restSubtitle}
         action={
@@ -211,7 +223,7 @@ function RestSkeleton() {
 }
 
 const nameTitle = 'Name';
-const nameSubtitle = 'Shown on Home and in Settings.';
+const nameSubtitle = 'Shown on Home and in Profile.';
 const nameLabel = 'Name';
 const nameFormSchema = z.object({ name: userNameSchema });
 
@@ -256,7 +268,7 @@ function NameForm({ saved }: { saved: string }) {
   return (
     <>
       <FormPage
-        back="Settings"
+        back="Profile"
         title={nameTitle}
         subtitle={nameSubtitle}
         action={

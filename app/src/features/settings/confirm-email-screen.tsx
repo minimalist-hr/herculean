@@ -21,7 +21,7 @@ const expired = {
 };
 
 const expiredSignedOut =
-  'This link has expired. Sign in and send a new one from Settings.';
+  'This link has expired. Sign in and send a new one from Profile.';
 
 /** What to say when the link won't work again, so trying again can't help. */
 function linkProblemOf(error: unknown) {
@@ -72,7 +72,7 @@ export function ConfirmEmailScreen() {
 
   const leave = (
     <Button
-      label={status === 'signedOut' ? 'Go to sign in' : 'Back to Settings'}
+      label={status === 'signedOut' ? 'Go to sign in' : 'Back to Profile'}
       onPress={() => {
         router.replace(status === 'signedOut' ? '/sign-in' : '/settings');
       }}

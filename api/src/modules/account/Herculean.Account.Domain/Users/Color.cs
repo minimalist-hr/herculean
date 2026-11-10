@@ -6,5 +6,8 @@ namespace Herculean.Account.Domain.Users;
 internal enum Color
 {
     Nitro,
-    Chrome,
+    Titanium,
+    Flux,
+    Plasma,
+    Neon,
 }

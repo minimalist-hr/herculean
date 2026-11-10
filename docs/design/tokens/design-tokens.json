@@ -3,22 +3,34 @@
   "color": {
     "neutral": {
       "dark":  { "bg": "#050506", "card": "#0F1012", "raised": "#17181B", "border": "#2C2F34", "text": "#F2F3F5", "muted": "#A9AEB6" },
-      "light": { "bg": "#F4F5F7", "card": "#ECEEF1", "raised": "#E2E5E9", "border": "#D0D4DA", "text": "#0A0B0D", "muted": "#4F555D" }
+      "light": { "bg": "#F4F5F7", "card": "#ECEEF1", "raised": "#E2E5E9", "border": "#C5CAD1", "text": "#0A0B0D", "muted": "#4F555D" }
     },
     "accent": {
       "Nitro": {
         "default": true,
-        "dark":  { "primary": "#1A55E6", "primaryText": "#7EA2FF", "onPrimary": "#FFFFFF" },
+        "dark":  { "primary": "#2A62F0", "primaryText": "#7EA2FF", "onPrimary": "#FFFFFF" },
         "light": { "primary": "#1446C8", "primaryText": "#1446C8", "onPrimary": "#FFFFFF" }
       },
-      "Chrome": {
-        "dark":  { "primary": "#C9CED6", "primaryText": "#DDE1E6", "onPrimary": "#050506" },
-        "light": { "primary": "#2A2D33", "primaryText": "#1446C8", "onPrimary": "#FFFFFF" }
+      "Titanium": {
+        "dark":  { "primary": "#C9CED6", "primaryText": "#9DB4D6", "onPrimary": "#050506" },
+        "light": { "primary": "#2A2D33", "primaryText": "#3B5B8C", "onPrimary": "#FFFFFF" }
+      },
+      "Flux": {
+        "dark":  { "primary": "#D946EF", "primaryText": "#F0ABFC", "onPrimary": "#050506" },
+        "light": { "primary": "#A21CAF", "primaryText": "#A21CAF", "onPrimary": "#FFFFFF" }
+      },
+      "Plasma": {
+        "dark":  { "primary": "#7C4DFF", "primaryText": "#B9A2FF", "onPrimary": "#FFFFFF" },
+        "light": { "primary": "#6431D9", "primaryText": "#6431D9", "onPrimary": "#FFFFFF" }
+      },
+      "Neon": {
+        "dark":  { "primary": "#22C3DD", "primaryText": "#6FE0F0", "onPrimary": "#050506" },
+        "light": { "primary": "#0B6F86", "primaryText": "#0B6F86", "onPrimary": "#FFFFFF" }
       }
     },
     "status": {
       "dark":  { "success": "#4ADE80", "skipped": "#FB923C", "danger": "#F87171", "dangerFill": "#DC2626", "onDanger": "#FFFFFF", "warn": "#F5B83D" },
-      "light": { "success": "#166534", "skipped": "#9A3412", "danger": "#DC2626", "dangerFill": "#DC2626", "onDanger": "#FFFFFF", "warn": "#B45309" }
+      "light": { "success": "#166534", "skipped": "#9A3412", "danger": "#B91C1C", "dangerFill": "#DC2626", "onDanger": "#FFFFFF", "warn": "#B45309" }
     },
     "meaning": {
       "success": "Completed / Done",
@@ -46,6 +58,7 @@
     "numerals": "tabular",
     "roles": {
       "pageTitle":     { "size": 32, "weight": 700, "lineHeight": 1.05, "letterSpacing": "-0.01em" },
+      "greeting":      { "size": 28, "weight": 700, "lineHeight": 1.05, "letterSpacing": "-0.01em" },
       "cardTitle":     { "size": 22, "weight": 700 },
       "bigStat":       { "size": 24, "weight": 700 },
       "statValue":     { "size": 18, "weight": 700 },

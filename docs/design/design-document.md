@@ -1,6 +1,10 @@
 # Herculean: design document
 
-Version 0.73 · 10 November 2026 · Minimalist
+Version 0.75 · 10 November 2026 · Minimalist
+
+> Changes since 0.74: H10 is titled Profile, and every back link, hint and legal line that named it says Profile. Sign out and Delete account have a chevron like every row that opens something. The Terms of service date moves to 10 November 2026.
+
+> Changes since 0.73: a color pass. Chrome is called Titanium again, and its accent text is a steel blue, so links and In progress stand apart from plain text in both modes. Flux (fuchsia), Plasma (violet) and Neon (cyan) are new colors, chosen away from the status hues. H13 shows each color as a square before its name. On Home, the greeting is one line at 28 px, a new `greeting` text style, shrinking for a long name, with the avatar on the right. Nitro's dark `primary` is #2A62F0, so selected outlines read on raised surfaces. In light, `danger` text is #B91C1C and `border` is #C5CAD1, so errors and card edges read on every surface. Every text color passes 4.5:1 and every fill and outline 3:1 on the backgrounds it sits on.
 
 > Changes since 0.72: New exercise, New group and New routine are a square 56 px + button with the `primary` fill, floating at the bottom right of E01 to E04, E30 and R01 to R03, above the tab bar, a floating bar or the phone's own buttons, in place of the full-width button in a box. The Resume bar and the rest bar are 56 px tall, with 36 px controls that keep a 44 px tap area, 14 px names and an 18 px rest time. Finish on L01 is a full-width primary button at the end of the page, below Add exercise and Reorder. The trash on a set's page asks first (L73), then Undo stays.
 
@@ -194,7 +198,7 @@ Every color is a token (`{{c.*}}`). No screen uses a raw hex value for app UI. M
 | `bg` | #050506 | #F4F5F7 | Screen background, tab bar |
 | `card` | #0F1012 | #ECEEF1 | Cards, sheets, the bottom action box |
 | `raised` | #17181B | #E2E5E9 | Inputs, secondary buttons, undo bar, header icon buttons |
-| `border` | #2C2F34 | #D0D4DA | Every 1px border and divider |
+| `border` | #2C2F34 | #C5CAD1 | Every 1px border and divider |
 | `text` | #F2F3F5 | #0A0B0D | Main text |
 | `muted` | #A9AEB6 | #4F555D | Labels, secondary text, inactive tabs |
 
@@ -202,12 +206,18 @@ Every color is a token (`{{c.*}}`). No screen uses a raw hex value for app UI. M
 
 | Palette | Mode | `primary` (buttons, fills) | `primaryText` (accent text) | `onPrimary` (text on primary) |
 |---|---|---|---|---|
-| **Nitro** (default) | Dark | #1A55E6 | #7EA2FF | #FFFFFF |
+| **Nitro** (default) | Dark | #2A62F0 | #7EA2FF | #FFFFFF |
 | | Light | #1446C8 | #1446C8 | #FFFFFF |
-| **Chrome** | Dark | #C9CED6 | #DDE1E6 | #050506 |
-| | Light | #2A2D33 | #1446C8 | #FFFFFF |
+| **Titanium** | Dark | #C9CED6 | #9DB4D6 | #050506 |
+| | Light | #2A2D33 | #3B5B8C | #FFFFFF |
+| **Flux** | Dark | #D946EF | #F0ABFC | #050506 |
+| | Light | #A21CAF | #A21CAF | #FFFFFF |
+| **Plasma** | Dark | #7C4DFF | #B9A2FF | #FFFFFF |
+| | Light | #6431D9 | #6431D9 | #FFFFFF |
+| **Neon** | Dark | #22C3DD | #6FE0F0 | #050506 |
+| | Light | #0B6F86 | #0B6F86 | #FFFFFF |
 
-The accent is used for primary buttons, the active tab, today in the week strip and month, checked sets, links and "In progress".
+The accent is used for primary buttons, the active tab, today in the week strip and month, checked sets, links and "In progress". `primaryText` passes 4.5:1 on `bg`, `card` and `raised`, `primary` passes 3:1 against them, and `onPrimary` passes 4.5:1 on `primary`, in every palette and mode. An accent never takes a status hue (green, orange, red), so In progress never reads as done, skipped or missed.
 
 **Status and feedback**
 
@@ -215,7 +225,7 @@ The accent is used for primary buttons, the active tab, today in the week strip 
 |---|---|---|---|
 | `success` | #4ADE80 | #166534 | Completed / Done |
 | `skipped` | #FB923C | #9A3412 | Skipped |
-| `danger` | #F87171 | #DC2626 | Missed, errors |
+| `danger` | #F87171 | #B91C1C | Missed, errors |
 | `dangerFill` | #DC2626 | #DC2626 | Danger buttons and trash icons |
 | `onDanger` | #FFFFFF | #FFFFFF | Text on danger buttons |
 | `warn` | #F5B83D | #B45309 | Warning icon only (L30, L31, H32) |
@@ -232,6 +242,7 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 |---|---|---|
 | Logo | 32 / 700 | Line height 1, letter spacing 0.14em |
 | Page title | 32 / 700 | Line height 1.05, letter spacing −0.01em |
+| Greeting | 28 / 700 | Home's one-line greeting, like the page title |
 | Card title, sheet title | 22 / 700 | |
 | Big stat number | 24 / 700 | Month summary tiles |
 | Stat value | 18 / 700 | Best set, Done count, totals |
@@ -284,7 +295,7 @@ Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16
 | **Text link** | 44 px tall, 13 px uppercase, `primaryText` | Forgot password?, Try again, Open day, and the way between A01 and A20 |
 | **Header icon button** | 44 × 44 px, outlined, `raised` fill | W01 calendar, the Home avatar, R20 and R30 add exercise, R05, E10, E11 and E35 edit and delete |
 
-**Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Settings.
+**Waiting state.** Every button that waits on the server shows a spinner and its label in the -ing form, and the other actions on the screen are dimmed (A03 is the reference). The spinner is `size.spinner` and turns every `motion.spinMs`, and stands still when the phone asks for reduced motion. Dimmed actions use `opacity.dimmed`. This applies to Create account, Send reset link, Save password, Finish setup, Save workout and every Save in Profile.
 
 ### Bottom action box
 Bottom actions sit in a box pinned to the bottom of the screen. It has the `card` fill, a top border and 12/16/28 px padding. Above a navigation bar or home indicator, the bottom padding is that bar plus 12 px, so the buttons never touch it. The primary button comes first, and any other button goes below it, such as Discard workout on L30. While the keyboard is open, the box stays behind it and only the form makes room. The keyboard's return key moves to the next text field. On the last field of a form it does the primary action; when choices that are not text follow, it closes the keyboard.
@@ -374,7 +385,7 @@ A short title, one sentence saying what to do, and the one action that fixes it.
   - **Exercises** is your exercise library and the groups.
 - **Settings** opens from the FM avatar on Home. The avatar appears only on Home.
 - **Logging** opens from Start workout (W01, Home), Log workout (W21) or a routine picked in W10. While a workout runs, the Resume bar takes you back to it from any tab.
-- **Sub-pages** have a back link above the title, named after the page it returns to (for example "‹ Settings"). Sub-pages never have both a back link and a bottom Cancel.
+- **Sub-pages** have a back link above the title, named after the page it returns to (for example "‹ Profile"). Sub-pages never have both a back link and a bottom Cancel.
 - **Moving between pages:** pages cross-fade, going forward and back. The screen behind them keeps the theme's background, never white.
 - **Tabs** always open their first page. Leaving a tab returns it there, and pressing the open tab does too.
 - **The tab bar** shows only on a tab's first page. Every page with a back link hides it and the Resume bar, like a modal: you go back, or save on a form.
@@ -508,14 +519,14 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | **A0 Launch** | A00 Splash, A02 Couldn't connect | The logo on a soft accent glow while the app checks whether you are signed in. If you are signed out, A01 opens; if you are signed in, H07 opens, or A30 if setup isn't finished. Without a connection, A02 shows "Couldn't connect." and a Try again text link below the logo, which stays in place. |
 | **A1 Sign in** | A01 Sign in, A03 Signing in, A04 Fields missing, A05 Wrong email or password, A06 Couldn't sign in, A58 Keeping, A59 Couldn't keep | Logo, Email and Password, the Forgot password? link, and Sign in. Below it, "New here?" and a Create account text link. A03 is the waiting state. A01 also opens on first launch, after Sign out and after Delete account. |
 | **A2 Reset password** | A10 Reset password, A11 Link sent, A13 Reset email, A14 Opening the app, A12 New password, A15 Link expired, A16 Passwords differ, A17 Sending, A18 Couldn't send, A19 Link can be sent again, A50 Sending again, A51 Link sent again, A52 Couldn't send again, A53 Saving, A54 Couldn't save, A55 Password changed, A56 Discard changes, A57 Link no longer valid, A60 Send again says why | Email → Send reset link → "Check your email" (the link works for one hour; Send link again) → the link in A13 opens A14, which opens the app → New password twice → Save password → A01, which says "Password changed. Sign in with the new one." If saving fails, A12 stays open and a notification says so. A14 is the page a browser shows for a moment; its button is there in case the app doesn't open by itself. An expired or used link opens A10 with the notification "This link has expired. Send a new one." If the link expires while the user types, A12 says the link is no longer valid (A57). Leaving A10 with an email typed asks first (A56). |
-| **A3 Create account** | A20 Create account, A30 Setup, A21 Fields missing, A22 Email taken, A31 Name missing, A23 Creating, A24 Couldn't create, A32 Finishing, A33 Couldn't finish, A25 Discard changes | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Settings. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. Leaving A20 with anything typed asks first (A25). |
+| **A3 Create account** | A20 Create account, A30 Setup, A21 Fields missing, A22 Email taken, A31 Name missing, A23 Creating, A24 Couldn't create, A32 Finishing, A33 Couldn't finish, A25 Discard changes | Email and password twice, with links to the terms (H20) and privacy policy (H21). Below Create account, "Already have an account?" and a Sign in text link. Then Setup: name, units and default rest time, all changeable later in Profile. The rest time steps by 15 seconds from 0:15 to 10:00, with quick picks of 1, 2, 3, 4 and 5 minutes. A new account starts at 3:00. Finish setup → H05. Leaving A20 with anything typed asks first (A25). |
 
 ### H · Home
 
 | Row | Screens | What happens |
 |---|---|---|
-| **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 New account, H08 A section failed, H09 Setup complete, H44 Are you ready, H45 Every section failed, H46 Starting, H47 Couldn't start, H48 Start says why | A greeting with the FM avatar, then five sections that each load and fail on their own: Today, This week, This month, Streak and Recent records. Today has one action at most. H01: the planned routine and Start workout, which asks first on H44. H02: progress and time, Resume workout, and the Resume bar. H03: Done and Up next. H06: Skipped and Up next. H04: Rest day and Up next. H05: No routines yet and New routine, with every other section empty. Open day opens the Workout tab on today, and another day in This week opens the Workout tab on that day. This month compares workouts, on plan and volume with last month, and Open month opens W40, whose back link goes to the Workout tab. Streak only shows, and a streak that ended says No streak right now and keeps the best. Records sit in one card with a line between rows, and a record opens E10 (E75). Resume workout opens logging with Home as its back link. Pulling down reads everything again, with the phone's own spinner. |
-| **H2 Settings** | H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed, H52 Name saving, H53 Name couldn't save, H56 Email saving, H57 Couldn't send, H58 Send again says why, H59 Sending again, H60 Sent again, H61 Couldn't send again, H62 Password saving, H63 Password couldn't save, H64 Password saved, H65 Rest time loading, H66 Rest time couldn't load, H67 Rest time saving, H68 Rest time couldn't save, H69 Couldn't remove photo, H70 Signing out, H71 Password empty, H72 Deleting, H73 Email confirmed, H74 Email confirmed signed out, H75 Link expired signed out, H76 Could not confirm signed out, H84 Email taken, H86 Exporting data, H87 Couldn't export, H88 Data exported, H89 Notifications blocked, H90 Couldn't save a rest alert | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time, Sound when rest ends, Vibrate when rest ends); Account (Name, Email, Password, Export data); About (Terms of service, Privacy policy, Version, which is the app's real version); then Sign out and Delete account. The rest alert switches save at once; every other row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro and Chrome. The units are Metric (kg) and Imperial (lb). |
+| **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 New account, H08 A section failed, H09 Setup complete, H44 Are you ready, H45 Every section failed, H46 Starting, H47 Couldn't start, H48 Start says why | The greeting on one line at 28 px (`greeting`), shrinking for a long name instead of wrapping, with the FM avatar after it on the right, then five sections that each load and fail on their own: Today, This week, This month, Streak and Recent records. Today has one action at most. H01: the planned routine and Start workout, which asks first on H44. H02: progress and time, Resume workout, and the Resume bar. H03: Done and Up next. H06: Skipped and Up next. H04: Rest day and Up next. H05: No routines yet and New routine, with every other section empty. Open day opens the Workout tab on today, and another day in This week opens the Workout tab on that day. This month compares workouts, on plan and volume with last month, and Open month opens W40, whose back link goes to the Workout tab. Streak only shows, and a streak that ended says No streak right now and keeps the best. Records sit in one card with a line between rows, and a record opens E10 (E75). Resume workout opens logging with Home as its back link. Pulling down reads everything again, with the phone's own spinner. |
+| **H2 Settings** | H10 Profile, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed, H52 Name saving, H53 Name couldn't save, H56 Email saving, H57 Couldn't send, H58 Send again says why, H59 Sending again, H60 Sent again, H61 Couldn't send again, H62 Password saving, H63 Password couldn't save, H64 Password saved, H65 Rest time loading, H66 Rest time couldn't load, H67 Rest time saving, H68 Rest time couldn't save, H69 Couldn't remove photo, H70 Signing out, H71 Password empty, H72 Deleting, H73 Email confirmed, H74 Email confirmed signed out, H75 Link expired signed out, H76 Could not confirm signed out, H84 Email taken, H86 Exporting data, H87 Couldn't export, H88 Data exported, H89 Notifications blocked, H90 Couldn't save a rest alert | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time, Sound when rest ends, Vibrate when rest ends); Account (Name, Email, Password, Export data); About (Terms of service, Privacy policy, Version, which is the app's real version); then Sign out and Delete account. The rest alert switches save at once; every other row opens its own page. The theme options are Match my phone (default), Dark and Light. The colors are Nitro, Titanium, Flux, Plasma and Neon, each with a square of its buttons' color, in the mode in use, before its name. The units are Metric (kg) and Imperial (lb). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout
@@ -592,4 +603,4 @@ This is what the capture tool answers with. Screens captured before version 0.64
 **Decided**
 - Filter chips stay on one line and scroll sideways. Chips for picking in a form wrap.
 - Completed is green, skipped is orange, missed is red and in progress uses the accent.
-- The second accent is called Chrome.
+- The accents are called Nitro, Titanium, Flux, Plasma and Neon.

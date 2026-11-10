@@ -84,7 +84,7 @@ export function SetupScreen() {
           <ScreenHeading
             label="Welcome to Herculean"
             title="Set up"
-            subtitle="You can change all of this later in Settings."
+            subtitle="You can change all of this later in Profile."
           />
 
           <View style={{ gap: space.lg }}>

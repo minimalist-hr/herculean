@@ -256,7 +256,7 @@ Changes on W30 stay in the app until Save workout.
 
 **What it does:** you manage your profile photo, theme, color, units, default rest time, name, email and password. You can sign out or delete your account.
 
-**Screens:** H10 Settings, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email, H27 to H29 Confirming a new email, H30 Confirmation email, H31 Email changed notice, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email.
+**Screens:** H10 Profile, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email, H27 to H29 Confirming a new email, H30 Confirmation email, H31 Email changed notice, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email.
 
 **Flows**
 - **Open:** the FM avatar on Home → H10.

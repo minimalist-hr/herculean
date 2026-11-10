@@ -82,7 +82,7 @@ export function SettingsScreen() {
               router.back();
             }}
           />
-          <ScreenHeading title="Settings" />
+          <ScreenHeading title="Profile" />
         </View>
 
         <Profile name={user.data?.name} email={user.data?.email} />
@@ -192,7 +192,7 @@ export function SettingsScreen() {
             label="Terms of service"
             hasValue={false}
             onPress={() => {
-              router.push({ pathname: '/terms', params: { back: 'Settings' } });
+              router.push({ pathname: '/terms', params: { back: 'Profile' } });
             }}
           />
           <SettingsRow
@@ -201,7 +201,7 @@ export function SettingsScreen() {
             onPress={() => {
               router.push({
                 pathname: '/privacy',
-                params: { back: 'Settings' },
+                params: { back: 'Profile' },
               });
             }}
           />
@@ -216,7 +216,6 @@ export function SettingsScreen() {
             first
             label="Sign out"
             hasValue={false}
-            action
             onPress={() => {
               setOpenSheet('signOut');
             }}
@@ -224,7 +223,6 @@ export function SettingsScreen() {
           <SettingsRow
             label="Delete account"
             hasValue={false}
-            action
             danger
             onPress={() => {
               setOpenSheet('deleteAccount');

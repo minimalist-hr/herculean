@@ -54,7 +54,7 @@ async function renderProvider() {
 }
 
 const nitroDark = `dark ${tokens.color.accent.nitro.dark.primary}`;
-const chromeLight = `light ${tokens.color.accent.chrome.light.primary}`;
+const titaniumLight = `light ${tokens.color.accent.titanium.light.primary}`;
 
 beforeEach(() => {
   mockFetch.mockReset();
@@ -63,10 +63,10 @@ beforeEach(() => {
 });
 
 test('the copy on the phone shows before anyone is signed in', async () => {
-  mockStored.set('appearance', '{"theme":"light","color":"chrome"}');
+  mockStored.set('appearance', '{"theme":"light","color":"titanium"}');
   await renderProvider();
 
-  expect(await screen.findByText(chromeLight)).toBeOnTheScreen();
+  expect(await screen.findByText(titaniumLight)).toBeOnTheScreen();
 });
 
 test.each([
@@ -83,12 +83,12 @@ test.each([
       new RegExp(`${nitro.dark.primary}|${nitro.light.primary}`),
     ),
   ).toBeOnTheScreen();
-  expect(screen.queryByText(chromeLight)).toBeNull();
+  expect(screen.queryByText(titaniumLight)).toBeNull();
 });
 
 test('the signed-in user’s theme and color show, and are kept on the phone', async () => {
   mockStatus = 'ready';
-  mockStored.set('appearance', '{"theme":"light","color":"chrome"}');
+  mockStored.set('appearance', '{"theme":"light","color":"titanium"}');
   mockFetch.mockResolvedValue(
     Response.json({
       email: 'filip@example.com',

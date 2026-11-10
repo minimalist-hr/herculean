@@ -85,6 +85,7 @@ export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
     size: tokens.size,
     text: {
       pageTitle: toTextStyle(roles.pageTitle, colors),
+      greeting: toTextStyle(roles.greeting, colors),
       cardTitle: toTextStyle(roles.cardTitle, colors),
       bigStat: toTextStyle(roles.bigStat, colors),
       statValue: toTextStyle(roles.statValue, colors),

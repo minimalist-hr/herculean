@@ -16,7 +16,7 @@ const darkColors = {
   danger: '#F87171',
   muted: '#A9AEB6',
   onPrimary: '#FFFFFF',
-  primary: '#1A55E6',
+  primary: '#2A62F0',
   skipped: '#FB923C',
 };
 

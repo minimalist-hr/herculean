@@ -11,6 +11,7 @@ import {
   readRefreshToken,
   saveTokens,
 } from '@/features/account/session';
+import { tokens } from '@/theme/tokens';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ChangeEmailScreen } from './change-email-screen';
@@ -161,14 +162,14 @@ async function renderSettings() {
   await fireEvent.press(
     await screen.findByRole('button', { name: 'Profile and settings' }),
   );
-  await screen.findByText('Settings');
+  await screen.findByRole('header', { name: 'Profile' });
 }
 
 beforeEach(() => {
   mockFetch.mockReset();
 });
 
-test('the avatar shows the initials and opens Settings with every value', async () => {
+test('the avatar shows the initials and opens Profile with every value', async () => {
   answerWith();
   await renderSettings();
 
@@ -189,10 +190,10 @@ function patchBody() {
 
 test.each([
   ['Theme, Match my phone', 'Light', 'Save theme', { theme: 'light' }],
-  ['Color, Nitro', 'Chrome', 'Save color', { color: 'chrome' }],
+  ['Color, Nitro', 'Titanium', 'Save color', { color: 'titanium' }],
   ['Units, Metric', 'Imperial, lb', 'Save units', { units: 'imperial' }],
 ])(
-  '%s: a picked choice is saved, and Settings shows it',
+  '%s: a picked choice is saved, and Profile shows it',
   async (row, choice, save, body) => {
     answerWith();
     await renderSettings();
@@ -208,6 +209,24 @@ test.each([
     ).toBeOnTheScreen();
   },
 );
+
+test('each color shows a square of its buttons’ color', async () => {
+  answerWith();
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Color, Nitro' }),
+  );
+
+  const swatches = await screen.findAllByTestId('swatch');
+  const colors = ['nitro', 'titanium', 'flux', 'plasma', 'neon'] as const;
+  expect(swatches).toHaveLength(colors.length);
+  colors.forEach((color, index) => {
+    expect(swatches[index]).toHaveStyle({
+      backgroundColor: tokens.color.accent[color].dark.primary,
+    });
+  });
+});
 
 test('the default rest time is saved from its page', async () => {
   answerWith();
@@ -249,12 +268,12 @@ test('leaving with a changed choice asks first', async () => {
     await screen.findByRole('button', { name: 'Theme, Match my phone' }),
   );
   await fireEvent.press(await screen.findByRole('radio', { name: 'Dark' }));
-  await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
+  await fireEvent.press(screen.getByRole('link', { name: 'Profile' }));
 
   expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
 });
 
-test('Terms of service opens with a back link to Settings', async () => {
+test('Terms of service opens with a back link to Profile', async () => {
   answerWith();
   await renderSettings();
 
@@ -262,7 +281,7 @@ test('Terms of service opens with a back link to Settings', async () => {
     screen.getByRole('button', { name: 'Terms of service' }),
   );
 
-  expect(await screen.findByText('Terms, back to Settings')).toBeOnTheScreen();
+  expect(await screen.findByText('Terms, back to Profile')).toBeOnTheScreen();
 });
 
 test.each([
@@ -310,7 +329,7 @@ test('the rest time page keeps Save in place, muted, until it has loaded', async
   ).toHaveLength(0);
 });
 
-test('the name is saved trimmed, and Settings shows it', async () => {
+test('the name is saved trimmed, and Profile shows it', async () => {
   answerWith();
   await renderSettings();
 
@@ -380,7 +399,7 @@ test('leaving with a changed name asks first', async () => {
     await screen.findByRole('button', { name: 'Name, Filip Mučnjak' }),
   );
   await fireEvent.changeText(await screen.findByLabelText('Name'), 'Filip');
-  await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
+  await fireEvent.press(screen.getByRole('link', { name: 'Profile' }));
 
   expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
 });
@@ -543,7 +562,7 @@ describe('change password', () => {
       await screen.findByLabelText('Current password'),
       'old',
     );
-    await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
+    await fireEvent.press(screen.getByRole('link', { name: 'Profile' }));
 
     expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
   });

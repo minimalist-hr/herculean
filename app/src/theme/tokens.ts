@@ -14,7 +14,7 @@ export const tokens = {
         bg: '#F4F5F7',
         card: '#ECEEF1',
         raised: '#E2E5E9',
-        border: '#D0D4DA',
+        border: '#C5CAD1',
         text: '#0A0B0D',
         muted: '#4F555D',
       },
@@ -22,7 +22,7 @@ export const tokens = {
     accent: {
       nitro: {
         dark: {
-          primary: '#1A55E6',
+          primary: '#2A62F0',
           primaryText: '#7EA2FF',
           onPrimary: '#FFFFFF',
         },
@@ -32,15 +32,51 @@ export const tokens = {
           onPrimary: '#FFFFFF',
         },
       },
-      chrome: {
+      titanium: {
         dark: {
           primary: '#C9CED6',
-          primaryText: '#DDE1E6',
+          primaryText: '#9DB4D6',
           onPrimary: '#050506',
         },
         light: {
           primary: '#2A2D33',
-          primaryText: '#1446C8',
+          primaryText: '#3B5B8C',
+          onPrimary: '#FFFFFF',
+        },
+      },
+      flux: {
+        dark: {
+          primary: '#D946EF',
+          primaryText: '#F0ABFC',
+          onPrimary: '#050506',
+        },
+        light: {
+          primary: '#A21CAF',
+          primaryText: '#A21CAF',
+          onPrimary: '#FFFFFF',
+        },
+      },
+      plasma: {
+        dark: {
+          primary: '#7C4DFF',
+          primaryText: '#B9A2FF',
+          onPrimary: '#FFFFFF',
+        },
+        light: {
+          primary: '#6431D9',
+          primaryText: '#6431D9',
+          onPrimary: '#FFFFFF',
+        },
+      },
+      neon: {
+        dark: {
+          primary: '#22C3DD',
+          primaryText: '#6FE0F0',
+          onPrimary: '#050506',
+        },
+        light: {
+          primary: '#0B6F86',
+          primaryText: '#0B6F86',
           onPrimary: '#FFFFFF',
         },
       },
@@ -57,7 +93,7 @@ export const tokens = {
       light: {
         success: '#166534',
         skipped: '#9A3412',
-        danger: '#DC2626',
+        danger: '#B91C1C',
         dangerFill: '#DC2626',
         onDanger: '#FFFFFF',
         warn: '#B45309',
@@ -90,6 +126,12 @@ export const tokens = {
     roles: {
       pageTitle: {
         size: 32,
+        weight: 700,
+        lineHeight: 1.05,
+        letterSpacing: '-0.01em',
+      },
+      greeting: {
+        size: 28,
         weight: 700,
         lineHeight: 1.05,
         letterSpacing: '-0.01em',

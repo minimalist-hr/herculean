@@ -50,9 +50,7 @@ interface SettingsRowProps {
   /** Not available yet: it looks muted but still says why when tapped. */
   muted?: boolean;
   danger?: boolean;
-  /** Does something rather than open a page, so it has no chevron. */
-  action?: boolean;
-  /** Opens its page. Without it, the row only shows its value. */
+  /** Opens its page or sheet, with a chevron. Without it, the row only shows its value. */
   onPress?: () => void;
   /** Whether the row has a value at all, so a skeleton shows while it loads. */
   hasValue?: boolean;
@@ -65,7 +63,6 @@ export function SettingsRow({
   first = false,
   muted = false,
   danger = false,
-  action = false,
   onPress,
   hasValue = true,
 }: SettingsRowProps) {
@@ -122,7 +119,7 @@ export function SettingsRow({
         {attention !== undefined && <AlertIcon color={colors.warn} size={16} />}
       </View>
       {renderValue()}
-      {onPress !== undefined && !action && (
+      {onPress !== undefined && (
         <ChevronRightIcon color={colors.muted} size={16} />
       )}
     </Tappable>

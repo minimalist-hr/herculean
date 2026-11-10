@@ -48,11 +48,11 @@ public sealed class UpdateCurrentUserHandlerTests
     public async Task ThemeAndColorChange()
     {
         Result<UserResponse> result = await _handler.HandleAsync(
-            new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Chrome),
+            new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Titanium),
             TestContext.Current.CancellationToken);
 
         result.Value.Theme.ShouldBe(Theme.Light);
-        result.Value.Color.ShouldBe(Color.Chrome);
+        result.Value.Color.ShouldBe(Color.Titanium);
     }
 
     [Fact]

@@ -36,7 +36,7 @@ erDiagram
 | Photo | UserPhoto? | |
 | TimeZone | string | IANA name, for example `Europe/Zagreb` |
 | Theme | enum | `MatchPhone`, `Dark`, `Light`. Starts at `MatchPhone` |
-| Color | enum | `Nitro`, `Chrome`. Starts at `Nitro` |
+| Color | enum | `Nitro`, `Titanium`, `Flux`, `Plasma`, `Neon`. Starts at `Nitro` |
 | Units | enum | `Metric`, `Imperial`. Starts at `Metric` |
 | DeletionScheduledForUtc | DateTimeOffset? | Set while the account waits to be deleted |
 | RefreshTokens | list of RefreshToken | |

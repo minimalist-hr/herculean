@@ -4,12 +4,12 @@ test('dark Nitro uses the dark neutrals and the Nitro accent', () => {
   const { colors } = createTheme('dark', 'nitro');
 
   expect(colors.bg).toBe('#050506');
-  expect(colors.primary).toBe('#1A55E6');
+  expect(colors.primary).toBe('#2A62F0');
   expect(colors.success).toBe('#4ADE80');
 });
 
-test('light Chrome uses the light neutrals and the Chrome accent', () => {
-  const { colors } = createTheme('light', 'chrome');
+test('light Titanium uses the light neutrals and the Titanium accent', () => {
+  const { colors } = createTheme('light', 'titanium');
 
   expect(colors.bg).toBe('#F4F5F7');
   expect(colors.primary).toBe('#2A2D33');
