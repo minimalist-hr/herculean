@@ -25,6 +25,8 @@ using Herculean.Training.Application.Exercises.ListExerciseSessions;
 using Herculean.Training.Application.Exercises.ListExercises;
 using Herculean.Training.Application.Exercises.RestoreExercise;
 using Herculean.Training.Application.Exercises.UpdateExercise;
+using Herculean.Training.Application.Export;
+using Herculean.Training.Application.Export.GetExport;
 using Herculean.Training.Application.Groups;
 using Herculean.Training.Application.Groups.CreateGroup;
 using Herculean.Training.Application.Groups.DeleteGroup;
@@ -70,6 +72,7 @@ using Herculean.Training.Domain.WeekPlan;
 using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure.Days;
 using Herculean.Training.Infrastructure.Exercises;
+using Herculean.Training.Infrastructure.Export;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.Settings;
@@ -114,6 +117,7 @@ public static class TrainingModule
         builder.Services.AddScoped<IRoutineReadRepository, RoutineReadRepository>();
         builder.Services.AddScoped<IWeekPlanReadRepository, WeekPlanReadRepository>();
         builder.Services.AddScoped<IDayReadRepository, DayReadRepository>();
+        builder.Services.AddScoped<IExportReadRepository, ExportReadRepository>();
         builder.Services.AddScoped<IWorkoutSettingsReadRepository, WorkoutSettingsReadRepository>();
         builder.Services.AddScoped<IWorkoutReadRepository, WorkoutReadRepository>();
 
@@ -148,6 +152,7 @@ public static class TrainingModule
         builder.Services.AddScoped<GetDayHandler>();
         builder.Services.AddScoped<GetFirstDayHandler>();
         builder.Services.AddScoped<GetStreakHandler>();
+        builder.Services.AddScoped<GetExportHandler>();
         builder.Services.AddScoped<ListRecentRecordsHandler>();
         builder.Services.AddScoped<IValidator<GetMonthSummaryRequest>, GetMonthSummaryValidator>();
         builder.Services.AddScoped<GetMonthSummaryHandler>();
@@ -214,6 +219,7 @@ public static class TrainingModule
         ListDaysEndpoint.Map(endpoints);
         GetFirstDayEndpoint.Map(endpoints);
         GetStreakEndpoint.Map(endpoints);
+        GetExportEndpoint.Map(endpoints);
         ListRecentRecordsEndpoint.Map(endpoints);
         GetDayEndpoint.Map(endpoints);
         GetMonthSummaryEndpoint.Map(endpoints);

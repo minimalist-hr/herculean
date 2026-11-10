@@ -518,7 +518,11 @@ export const screens = [
     await on.tap('Finish setup');
   } },
   { id: 'H20', file: 'H20-Settings-Terms', title: 'Settings › Terms of service', row: 'H3 About and legal', signedIn: false, steps: (on) => on.go('/terms') },
-  { id: 'H21', file: 'H21-Settings-Privacy', title: 'Settings › Privacy policy', row: 'H3 About and legal', signedIn: false, steps: (on) => on.go('/privacy') },
+  { id: 'H21', file: 'H21-Settings-Privacy', title: 'Settings › Privacy policy', row: 'H3 About and legal', signedIn: false, steps: async (on) => {
+    await on.go('/privacy');
+    await on.waitFor('5. Your rights');
+    await on.sleep(400);
+  } },
 
   { id: 'A06', file: 'A06-Account-Sign-In-Failed', title: "Account › Sign in · couldn't sign in", row: 'A1 Sign in', signedIn: false, full: false, answers: { 'POST /api/v1/sessions': 'fail' }, steps: async (on) => {
     await on.type('Email', 'filip@example.com');
@@ -660,6 +664,37 @@ export const screens = [
     await goToSetup(on);
     await on.waitFor('Setup complete. Welcome to Herculean.');
     await on.sleep(600);
+  } },
+  { id: 'H86', file: 'H86-Settings-Exporting', title: 'Settings · exporting data, full scroll', row: 'H2 Settings', answers: { 'GET /api/v1/export': 'hold' }, steps: async (on) => {
+    await on.go('/settings');
+    await on.waitFor('Match my phone');
+    await on.sleep(400);
+    await on.end();
+    await on.tap('Export data');
+    await on.waitFor('Exporting');
+  } },
+  { id: 'H90', file: 'H90-Settings-Rest-Alert-Failed', title: "Settings · couldn't save a rest alert", row: 'H2 Settings', full: false, answers: { 'PATCH /api/v1/workout-settings': 'fail' }, steps: async (on) => {
+    await on.go('/settings');
+    await on.waitFor('Match my phone');
+    await on.sleep(400);
+    await on.tap('Sound when rest ends');
+    await on.waitFor('Couldn’t save the setting. Try again.');
+  } },
+  { id: 'H88', file: 'H88-Settings-Data-Exported', title: 'Settings · data exported', row: 'H2 Settings', full: false, answers: { 'GET /api/v1/export': { status: 200, body: { exercises: [], routines: [], workouts: [] } } }, steps: async (on) => {
+    await on.go('/settings');
+    await on.waitFor('Match my phone');
+    await on.sleep(400);
+    await on.end();
+    await on.tap('Export data');
+    await on.waitFor('Data exported.');
+  } },
+  { id: 'H87', file: 'H87-Settings-Export-Failed', title: "Settings · couldn't export", row: 'H2 Settings', full: false, answers: { 'GET /api/v1/export': 'fail' }, steps: async (on) => {
+    await on.go('/settings');
+    await on.waitFor('Match my phone');
+    await on.sleep(400);
+    await on.end();
+    await on.tap('Export data');
+    await on.waitFor('Couldn’t export your data. Try again.');
   } },
   { id: 'H10', file: 'H10-Settings', title: 'Settings · full scroll', row: 'H2 Settings', steps: async (on) => {
     await on.go('/');

@@ -10,6 +10,7 @@ import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
 import { TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
+import { useRestAlertsBlocked } from '@/features/workout/rest-alert';
 import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
 import { formatClock, noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
@@ -21,9 +22,15 @@ import {
   themeLabels,
   unitLabels,
 } from './settings-labels';
-import { SettingsRow, SettingsSection } from './settings-rows';
+import {
+  SettingsRow,
+  SettingsSection,
+  SettingsSwitchRow,
+} from './settings-rows';
 import { ProfilePhotoSheet } from './profile-photo-sheet';
 import { usePendingEmailChange } from './use-email-change';
+import { useExportData } from './use-export-data';
+import { useUpdateRestAlerts } from './use-update-settings';
 import { photoUri, savePhotoKey, useUserPhoto } from './use-user-photo';
 
 /** The user's profile, preferences and account. */
@@ -34,6 +41,9 @@ export function SettingsScreen() {
   const user = useCurrentUser();
   const workoutSettings = useWorkoutSettings();
   const pendingEmail = usePendingEmailChange();
+  const exportData = useExportData();
+  const updateRestAlerts = useUpdateRestAlerts();
+  const restAlertsBlocked = useRestAlertsBlocked();
   const [openSheet, setOpenSheet] = useState<
     'signOut' | 'deleteAccount' | null
   >(null);
@@ -95,7 +105,14 @@ export function SettingsScreen() {
           />
         </SettingsSection>
 
-        <SettingsSection title="Workout">
+        <SettingsSection
+          title="Workout"
+          note={
+            restAlertsBlocked
+              ? 'Allow notifications in your phone’s settings to get rest alerts.'
+              : undefined
+          }
+        >
           <SettingsRow
             first
             label="Units"
@@ -109,6 +126,22 @@ export function SettingsScreen() {
             value={restValue()}
             onPress={() => {
               router.push('/settings/rest-time');
+            }}
+          />
+          <SettingsSwitchRow
+            label="Sound when rest ends"
+            value={workoutSettings.data?.restSound}
+            failed={workoutSettings.isLoadingError}
+            onChange={(restSound) => {
+              updateRestAlerts.mutate({ restSound });
+            }}
+          />
+          <SettingsSwitchRow
+            label="Vibrate when rest ends"
+            value={workoutSettings.data?.restVibrate}
+            failed={workoutSettings.isLoadingError}
+            onChange={(restVibrate) => {
+              updateRestAlerts.mutate({ restVibrate });
             }}
           />
         </SettingsSection>
@@ -139,6 +172,16 @@ export function SettingsScreen() {
             value="Change"
             onPress={() => {
               router.push('/settings/password');
+            }}
+          />
+          <SettingsRow
+            label="Export data"
+            value={exportData.isPending ? 'Exporting' : undefined}
+            hasValue={exportData.isPending}
+            onPress={() => {
+              if (!exportData.isPending) {
+                exportData.mutate();
+              }
             }}
           />
         </SettingsSection>

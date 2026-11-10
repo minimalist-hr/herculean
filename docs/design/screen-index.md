@@ -1,6 +1,6 @@
 # Screen index
 
-387 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+391 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -52,7 +52,11 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H05 | Home · new account · full scroll | H1 Today states | 390×1009 | [png](screens/home/H05-Home-No-Routines.png) · [html](html/home/H05-Home-No-Routines.html) · [source](source/home/H05-Home-No-Routines.dc.html) |
 | H08 | Home · a section failed · full scroll | H1 Today states | 390×1030 | [png](screens/home/H08-Home-Section-Failed.png) · [html](html/home/H08-Home-Section-Failed.html) · [source](source/home/H08-Home-Section-Failed.dc.html) |
 | H09 | Home · setup complete | H1 Today states | 390×844 | [png](screens/home/H09-Home-Setup-Complete.png) · [html](html/home/H09-Home-Setup-Complete.html) · [source](source/home/H09-Home-Setup-Complete.dc.html) |
-| H10 | Settings · full scroll · full scroll | H2 Settings | 390×1156 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
+| H86 | Settings · exporting data, full scroll · full scroll | H2 Settings | 390×1324 | [png](screens/home/H86-Settings-Exporting.png) · [html](html/home/H86-Settings-Exporting.html) · [source](source/home/H86-Settings-Exporting.dc.html) |
+| H90 | Settings · couldn't save a rest alert | H2 Settings | 390×844 | [png](screens/home/H90-Settings-Rest-Alert-Failed.png) · [html](html/home/H90-Settings-Rest-Alert-Failed.html) · [source](source/home/H90-Settings-Rest-Alert-Failed.dc.html) |
+| H88 | Settings · data exported | H2 Settings | 390×844 | [png](screens/home/H88-Settings-Data-Exported.png) · [html](html/home/H88-Settings-Data-Exported.html) · [source](source/home/H88-Settings-Data-Exported.dc.html) |
+| H87 | Settings · couldn't export | H2 Settings | 390×844 | [png](screens/home/H87-Settings-Export-Failed.png) · [html](html/home/H87-Settings-Export-Failed.html) · [source](source/home/H87-Settings-Export-Failed.dc.html) |
+| H10 | Settings · full scroll · full scroll | H2 Settings | 390×1324 | [png](screens/home/H10-Settings.png) · [html](html/home/H10-Settings.html) · [source](source/home/H10-Settings.dc.html) |
 | H11 | Settings › Profile photo · sheet | H2 Settings | 390×844 | [png](screens/home/H11-Settings-Photo.png) · [html](html/home/H11-Settings-Photo.html) · [source](source/home/H11-Settings-Photo.dc.html) |
 | H39 | Settings · with a photo · full scroll | H2 Settings | 390×1156 | [png](screens/home/H39-Settings-With-Photo.png) · [html](html/home/H39-Settings-With-Photo.html) · [source](source/home/H39-Settings-With-Photo.dc.html) |
 | H40 | Settings › Profile photo · no photo | H2 Settings | 390×844 | [png](screens/home/H40-Settings-Photo-None.png) · [html](html/home/H40-Settings-Photo-None.html) · [source](source/home/H40-Settings-Photo-None.dc.html) |

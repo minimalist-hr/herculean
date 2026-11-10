@@ -2,6 +2,7 @@ using Herculean.Training.Application.Auth;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Infrastructure;
 using Herculean.Training.Infrastructure.Exercises;
+using Herculean.Training.Infrastructure.Export;
 using Herculean.Training.UnitTests.Application;
 
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,10 @@ public sealed class PostgresTranslationTests
     [Fact]
     public Task SessionsTranslate() =>
         ShouldTranslateAsync(dbContext => new ExerciseReadRepository(dbContext).ListSessionsAsync(ExerciseId.New(), new DateOnly(2026, 10, 16), 21, Token));
+
+    [Fact]
+    public Task TheExportTranslates() =>
+        ShouldTranslateAsync(dbContext => new ExportReadRepository(dbContext).GetAsync(Token));
 
     private static async Task ShouldTranslateAsync(Func<TrainingDbContext, Task> read)
     {

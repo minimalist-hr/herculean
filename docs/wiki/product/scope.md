@@ -39,7 +39,7 @@ Each feature lists its main screens. Every state is in `docs/design/screen-index
 - **Reset password:** A01 → A10 → A11 → A13, the email → A14, the page its link opens → A12 → A01. An expired or used link opens A10 with an error line.
 - **Create account:** A01 → A20 → A30 → H05. A20 links to H20 and H21, whose back link reads "Create account".
 
-**Entities:** User, Refresh token, Password reset token. Creating an account also gives Training its settings and the 6 groups, through the "Account created" event.
+**Entities:** User, Refresh token, Password reset token. Creating an account also gives Training its settings, the 6 groups and the starter exercises, through the "Account created" event.
 
 **Endpoints**
 
@@ -261,9 +261,11 @@ Changes on W30 stay in the app until Save workout.
 **Flows**
 - **Open:** the FM avatar on Home → H10.
 - **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name, password, email, profile photo, sign out and delete account are built.
+- **Rest alerts:** the two switches under Workout on H10 save at once. A failed save switches back and says so (H90). Blocked notifications show a note under Workout (H89).
 - **Photo:** H11 → Take photo or Choose from library, dragged and zoomed to a square, made 512 × 512 px on the phone → H39. It also shows on the Home avatar. Remove photo → H41, with an undo bar. With no photo, Remove photo looks muted (H40).
 - **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send link again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
 - **Sign out:** → H36 → A01. Without a connection it still signs out on the phone. Signing out, however it happens, clears what the phone holds for the user.
+- **Export data:** the row on H10 → the phone's share sheet with a ZIP: one row per set in `workouts.csv`, and `exercises.csv`, `routines.csv`, `account.csv`, with the profile photo if there is one. Weights follow the Units setting. On the web it downloads. Then it says "Data exported." (H88), and a failure says so (H87).
 - **Delete account:** → H19, with the current password → A01, which says so (A07), and H38 says when. A wrong password shows on H34, and a failure on H35. Signing in within 14 days opens A08, to keep the account. After 14 days a daily job deletes it: an account deleted event tells Training to delete the user's training data, workouts included, and H37 is the last email.
 
 **Entities:** User, Email change token, Refresh token, Workout settings.
@@ -278,6 +280,7 @@ Changes on W30 stay in the app until Save workout.
 | PUT | `/api/v1/users/me/photo` | H11, undo on H41 |
 | DELETE | `/api/v1/users/me/photo` | H11 Remove photo |
 | PUT | `/api/v1/users/me/password` | H18 |
+| GET | `/api/v1/export` | H10 |
 | POST | `/api/v1/email-changes` | H17 |
 | GET | `/api/v1/email-changes/pending` | H10, H33 |
 | POST | `/api/v1/email-changes/resend` | H33 Send link again |

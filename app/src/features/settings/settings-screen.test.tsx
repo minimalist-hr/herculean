@@ -27,6 +27,12 @@ import {
 import { SettingsScreen } from './settings-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
+import { shareFile } from './share-file';
+
+jest.mock('./share-file', () => ({
+  shareFile: jest.fn(() => Promise.resolve()),
+}));
+
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 const mockRefreshTokens = jest.fn<Promise<boolean>, []>();
 const mockPickPhoto = jest.fn<Promise<unknown>, [string]>();
@@ -88,7 +94,12 @@ function answerWith({
       return Response.json(
         pathname === '/api/v1/users/me'
           ? { ...user, ...changes }
-          : { defaultRestSeconds: 90, ...changes },
+          : {
+              defaultRestSeconds: 90,
+              restSound: true,
+              restVibrate: true,
+              ...changes,
+            },
       );
     }
     if (pathname === '/api/v1/users/me') {
@@ -99,8 +110,8 @@ function answerWith({
       restStatus === 200
         ? Response.json({
             defaultRestSeconds: 90,
-            soundWhenRestEnds: true,
-            vibrateWhenRestEnds: true,
+            restSound: true,
+            restVibrate: true,
           })
         : new Response(null, { status: restStatus }),
     );
@@ -1081,4 +1092,99 @@ test('a failed rest time save says so and stays', async () => {
   expect(
     await screen.findByText('Couldn’t save the rest time. Try again.'),
   ).toBeOnTheScreen();
+});
+
+/** Answers the export and the photo, and everything else as before. */
+function answerExport(status = 200) {
+  const answerRest = mockFetch.getMockImplementation();
+  mockFetch.mockImplementation((request) => {
+    const { pathname } = new URL(request.url);
+    if (pathname === '/api/v1/export') {
+      return Promise.resolve(
+        status === 200
+          ? Response.json({ exercises: [], routines: [], workouts: [] })
+          : new Response(null, { status }),
+      );
+    }
+    if (pathname === '/api/v1/users/me/photo') {
+      return Promise.resolve(Response.json({ image: null }));
+    }
+
+    return answerRest === undefined
+      ? Promise.resolve(new Response(null, { status: 404 }))
+      : answerRest(request);
+  });
+}
+
+test('Export data shares a zip of the data', async () => {
+  answerWith();
+  answerExport();
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Export data' }),
+  );
+
+  await waitFor(() => {
+    expect(shareFile).toHaveBeenCalledWith(
+      expect.stringMatching(/^herculean-export-\d{4}-\d{2}-\d{2}\.zip$/),
+      expect.any(Uint8Array),
+    );
+  });
+  expect(await screen.findByText('Data exported.')).toBeOnTheScreen();
+});
+
+test('an export that fails says so', async () => {
+  answerWith();
+  answerExport(500);
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Export data' }),
+  );
+
+  expect(
+    await screen.findByText('Couldn’t export your data. Try again.'),
+  ).toBeOnTheScreen();
+});
+
+/** A rest alert switch once the settings have loaded. */
+async function loadedSwitch(name: string) {
+  await waitFor(() => {
+    expect(screen.getByRole('switch', { name })).toBeChecked();
+  });
+
+  return screen.getByRole('switch', { name });
+}
+
+test('the rest alert switches show the settings and save at once', async () => {
+  answerWith();
+  await renderSettings();
+
+  await fireEvent.press(await loadedSwitch('Sound when rest ends'));
+
+  await waitFor(() => {
+    expect(
+      screen.getByRole('switch', { name: 'Sound when rest ends' }),
+    ).not.toBeChecked();
+  });
+  await waitFor(() => {
+    expect(
+      mockFetch.mock.calls.some(([request]) => request.method === 'PATCH'),
+    ).toBe(true);
+  });
+});
+
+test('a rest alert that fails to save goes back and says so', async () => {
+  answerWith({ patchStatus: 500 });
+  await renderSettings();
+
+  await fireEvent.press(await loadedSwitch('Vibrate when rest ends'));
+
+  expect(
+    await screen.findByText('Couldn’t save the setting. Try again.'),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('switch', { name: 'Vibrate when rest ends' }),
+  ).toBeChecked();
 });

@@ -2455,6 +2455,43 @@
         ]
       }
     },
+    "/api/v1/export": {
+      "get": {
+        "tags": [
+          "Export"
+        ],
+        "summary": "Export the training data",
+        "description": "Returns every exercise, routine and workout of the signed-in user, for a copy of their data. Deleted ones are left out.",
+        "operationId": "GetExport",
+        "responses": {
+          "200": {
+            "description": "The data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/records/recent": {
       "get": {
         "tags": [
@@ -4981,6 +5018,211 @@
         },
         "description": "A page of an exercise's sessions, newest first."
       },
+      "ExportedExercise": {
+        "required": [
+          "name",
+          "group",
+          "alsoWorks"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Its name."
+          },
+          "group": {
+            "type": "string",
+            "description": "Its group's name."
+          },
+          "alsoWorks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The names of the other groups it works."
+          }
+        },
+        "description": "An exercise."
+      },
+      "ExportedRoutine": {
+        "required": [
+          "name",
+          "days",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Its name."
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Weekday"
+            },
+            "description": "The weekdays it is on in the week plan, Monday first."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportedRoutineExercise"
+            },
+            "description": "Its exercises, in order."
+          }
+        },
+        "description": "A routine."
+      },
+      "ExportedRoutineExercise": {
+        "required": [
+          "name",
+          "sets",
+          "repsFrom",
+          "repsTo"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The exercise's name."
+          },
+          "sets": {
+            "type": "integer",
+            "description": "The target sets.",
+            "format": "int32"
+          },
+          "repsFrom": {
+            "type": "integer",
+            "description": "The low end of the target reps.",
+            "format": "int32"
+          },
+          "repsTo": {
+            "type": "integer",
+            "description": "The high end of the target reps.",
+            "format": "int32"
+          }
+        },
+        "description": "An exercise in a routine, with its targets."
+      },
+      "ExportedSet": {
+        "required": [
+          "weightKg",
+          "reps"
+        ],
+        "type": "object",
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "description": "The weight in kg. A bodyweight set has 0.",
+            "format": "double"
+          },
+          "reps": {
+            "type": "integer",
+            "description": "The reps.",
+            "format": "int32"
+          }
+        },
+        "description": "A checked set."
+      },
+      "ExportedWorkout": {
+        "required": [
+          "date",
+          "name",
+          "status",
+          "durationSeconds",
+          "exercises"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Its date, in the user's time zone.",
+            "format": "date"
+          },
+          "name": {
+            "type": "string",
+            "description": "Its name, from the routine when it was created."
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/WorkoutStatus"
+          },
+          "durationSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "How long it took. Null when it has no duration.",
+            "format": "int32"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportedWorkoutExercise"
+            },
+            "description": "Its exercises, in order."
+          }
+        },
+        "description": "A workout."
+      },
+      "ExportedWorkoutExercise": {
+        "required": [
+          "name",
+          "group",
+          "sets"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The exercise's name, even if it was deleted since."
+          },
+          "group": {
+            "type": "string",
+            "description": "The exercise's group."
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportedSet"
+            },
+            "description": "Its checked sets, in order. A skipped workout has none."
+          }
+        },
+        "description": "An exercise in a workout."
+      },
+      "ExportResponse": {
+        "required": [
+          "exercises",
+          "routines",
+          "workouts"
+        ],
+        "type": "object",
+        "properties": {
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportedExercise"
+            },
+            "description": "The exercises, by group and then name."
+          },
+          "routines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportedRoutine"
+            },
+            "description": "The routines, by name."
+          },
+          "workouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExportedWorkout"
+            },
+            "description": "The workouts, oldest first."
+          }
+        },
+        "description": "Everything the user planned and logged, for a copy of their data."
+      },
       "FirstDayResponse": {
         "required": [
           "date"
@@ -6614,6 +6856,9 @@
     },
     {
       "name": "Days"
+    },
+    {
+      "name": "Export"
     },
     {
       "name": "Records"

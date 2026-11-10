@@ -33,6 +33,7 @@ import { RestBar, restBarRoom } from './rest-bar';
 import { afterCheck, afterUncheck } from './rest-timer';
 import { useElapsed } from './use-elapsed';
 import { useRemoveExercise } from './use-remove-exercise';
+import { useRestAlert } from './rest-alert';
 import { useRestTimer } from './use-rest-timer';
 import { useWorkoutSettings } from './use-workout-settings';
 import { useUpdateSet } from './use-update-set';
@@ -58,6 +59,7 @@ export function LogScreen({ id }: { id: string }) {
   const workout = useWorkout(id);
   const settings = useWorkoutSettings();
   const { rest, update } = useRestTimer(id);
+  useRestAlert(rest?.endsAt ?? null, id);
   // A past day is logged after the fact, so nothing is timed.
   const timed = Boolean(workout.data?.startedAtUtc);
 

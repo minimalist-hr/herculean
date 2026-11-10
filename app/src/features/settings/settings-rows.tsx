@@ -1,21 +1,24 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { AlertIcon, ChevronRightIcon } from '@/components/icons';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
 import { Tappable } from '@/components/tappable';
+import { noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-/** A titled card of settings rows. */
+/** A titled card of settings rows, with an optional note below it. */
 export function SettingsSection({
   title,
+  note,
   children,
 }: {
   title?: string;
+  note?: string;
   children: ReactNode;
 }) {
-  const { colors, radius, space } = useTheme();
+  const { colors, radius, space, text } = useTheme();
 
   return (
     <View style={{ gap: space.sm }}>
@@ -32,6 +35,7 @@ export function SettingsSection({
       >
         {children}
       </View>
+      {note !== undefined && <Text style={text.meta}>{note}</Text>}
     </View>
   );
 }
@@ -121,6 +125,80 @@ export function SettingsRow({
       {onPress !== undefined && !action && (
         <ChevronRightIcon color={colors.muted} size={16} />
       )}
+    </Tappable>
+  );
+}
+
+/** The web draws the knob of a switch that is on in its own color unless told otherwise. */
+function webKnob(color: string): object {
+  return Platform.OS === 'web' ? { activeThumbColor: color } : {};
+}
+
+/** A setting that is on or off. The whole row switches it, and it saves at once. */
+export function SettingsSwitchRow({
+  label,
+  value,
+  failed = false,
+  onChange,
+}: {
+  label: string;
+  /** Undefined while it loads. */
+  value?: boolean;
+  failed?: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  const { colors, size, space, text } = useTheme();
+
+  function renderSwitch() {
+    if (value !== undefined) {
+      // The row takes the tap, so the switch only shows the state.
+      return (
+        <View pointerEvents="none">
+          <Switch
+            {...webKnob(colors.text)}
+            value={value}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor={colors.text}
+            ios_backgroundColor={colors.border}
+          />
+        </View>
+      );
+    }
+
+    return failed ? (
+      <Text style={[text.body, { color: colors.muted }]}>{noValue}</Text>
+    ) : (
+      <Skeleton width={44} height={24} />
+    );
+  }
+
+  return (
+    <Tappable
+      feedback="fill"
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value === true }}
+      disabled={value === undefined}
+      onPress={() => {
+        if (value !== undefined) {
+          onChange(!value);
+        }
+      }}
+      style={[
+        styles.row,
+        {
+          gap: space.md,
+          minHeight: size.listRowMin,
+          paddingHorizontal: space.lg,
+          borderTopWidth: 1,
+          borderColor: colors.border,
+        },
+      ]}
+    >
+      <View style={[styles.label, { gap: space.sm }]}>
+        <Text style={[text.listItemName, { color: colors.text }]}>{label}</Text>
+      </View>
+      {renderSwitch()}
     </Tappable>
   );
 }

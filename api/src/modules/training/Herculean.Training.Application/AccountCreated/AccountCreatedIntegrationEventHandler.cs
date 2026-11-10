@@ -1,6 +1,7 @@
 using Herculean.Account.Contracts;
 using Herculean.SharedKernel.Events;
 using Herculean.Training.Domain;
+using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
 
@@ -9,6 +10,7 @@ namespace Herculean.Training.Application.AccountCreated;
 internal sealed class AccountCreatedIntegrationEventHandler(
     IWorkoutSettingsRepository workoutSettingsRepository,
     IGroupRepository groupRepository,
+    IExerciseRepository exerciseRepository,
     IUnitOfWork unitOfWork) : IIntegrationEventHandler<AccountCreatedIntegrationEvent>
 {
     public async Task HandleAsync(AccountCreatedIntegrationEvent @event, CancellationToken cancellationToken)
@@ -22,9 +24,15 @@ internal sealed class AccountCreatedIntegrationEventHandler(
             workoutSettingsRepository.Add(WorkoutSettings.CreateStarting(userId));
         }
 
+        // The starter exercises come with the groups, so they are added once too.
         if (!await groupRepository.AnyForUserAsync(userId, cancellationToken))
         {
-            groupRepository.AddRange(Group.CreateStarting(userId));
+            IReadOnlyList<Group> groups = Group.CreateStarting(userId);
+            groupRepository.AddRange(groups);
+            foreach (Exercise exercise in Exercise.CreateStarting(userId, groups))
+            {
+                exerciseRepository.Add(exercise);
+            }
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

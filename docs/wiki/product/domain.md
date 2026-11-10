@@ -52,7 +52,13 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A token is deleted once it is used or revoked.
 - Deleting an account needs the current password, signs out every device and schedules the deletion for 14 days later. An email says when. Signing in before then offers to keep the account, and the email address stays taken until the deletion.
 - After the 14 days, all the account's data is deleted, soft-deleted rows included, and there is no undo. A last email tells the user.
-- A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and no exercises.
+- A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and 28 starter exercises, which can be edited or deleted like any other:
+  - Chest: Flat barbell bench press (also Shoulders, Triceps), Incline dumbbell bench press (Triceps), Cable crossover, Smith machine incline bench press (Shoulders, Triceps), Flat dumbbell bench press (Triceps), Machine crossover.
+  - Back: Pull-up (Biceps), Machine row, Lat pulldown, T-bar row, Cable row.
+  - Shoulders: Smith machine press, Dumbbell press, Lateral dumbbell raise, Machine press, Lateral machine raise.
+  - Biceps: EZ bar curl, Incline dumbbell curl, Barbell curl, Incline hammer curl.
+  - Triceps: EZ bar skullcrusher, Rope pushdown, Parallel bar dips (Chest), Straight bar pushdown.
+  - Legs: Barbell squat, Romanian deadlift, Leg extension, Smith machine calf raise.
 - The greeting uses the first word of the name.
 
 ### Units and time
@@ -97,6 +103,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Hidden, it keeps running, and checking a set doesn't open it again until it is opened by hand. Skip and Done tuck it away, and the next checked set opens it.
 - Unchecking a set hides a timer that hasn't started, and leaves a running one alone.
 - It lives on the phone, and survives closing the app.
+- When it runs out, a notification says "Rest is over", even with the phone locked. Its sound and vibration follow the two settings on H10. The app asks to send notifications the first time a timer starts. Stopping the timer, or saving the workout, cancels it. Tapping it opens the workout's logging page.
 
 ### How a day is shown
 

@@ -10,10 +10,12 @@ import {
 } from '@/components/icons';
 import { TabBar } from '@/components/tab-bar';
 import { useKeepTimeZone } from '@/features/account/use-keep-time-zone';
+import { useOpenFromRestAlert } from '@/features/workout/rest-alert';
 import { ResumeBar } from '@/features/workout/resume-bar';
 
 export default function TabsLayout() {
   useKeepTimeZone();
+  useOpenFromRestAlert();
 
   return (
     <InTabsContext.Provider value>

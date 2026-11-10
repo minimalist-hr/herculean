@@ -652,6 +652,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the training data
+         * @description Returns every exercise, routine and workout of the signed-in user, for a copy of their data. Deleted ones are left out.
+         */
+        get: operations["GetExport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/records/recent": {
         parameters: {
             query?: never;
@@ -1346,6 +1366,94 @@ export interface components {
             months: components["schemas"]["SessionMonthResponse"][];
             /** @description Pass it as cursor for the next page. Null on the last page. */
             nextCursor: null | string;
+        };
+        /** @description An exercise. */
+        ExportedExercise: {
+            /** @description Its name. */
+            name: string;
+            /** @description Its group's name. */
+            group: string;
+            /** @description The names of the other groups it works. */
+            alsoWorks: string[];
+        };
+        /** @description A routine. */
+        ExportedRoutine: {
+            /** @description Its name. */
+            name: string;
+            /** @description The weekdays it is on in the week plan, Monday first. */
+            days: components["schemas"]["Weekday"][];
+            /** @description Its exercises, in order. */
+            exercises: components["schemas"]["ExportedRoutineExercise"][];
+        };
+        /** @description An exercise in a routine, with its targets. */
+        ExportedRoutineExercise: {
+            /** @description The exercise's name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description The target sets.
+             */
+            sets: number;
+            /**
+             * Format: int32
+             * @description The low end of the target reps.
+             */
+            repsFrom: number;
+            /**
+             * Format: int32
+             * @description The high end of the target reps.
+             */
+            repsTo: number;
+        };
+        /** @description A checked set. */
+        ExportedSet: {
+            /**
+             * Format: double
+             * @description The weight in kg. A bodyweight set has 0.
+             */
+            weightKg: number;
+            /**
+             * Format: int32
+             * @description The reps.
+             */
+            reps: number;
+        };
+        /** @description A workout. */
+        ExportedWorkout: {
+            /**
+             * Format: date
+             * @description Its date, in the user's time zone.
+             */
+            date: string;
+            /** @description Its name, from the routine when it was created. */
+            name: string;
+            /** @description Where it stands. */
+            status: components["schemas"]["WorkoutStatus"];
+            /**
+             * Format: int32
+             * @description How long it took. Null when it has no duration.
+             */
+            durationSeconds: null | number;
+            /** @description Its exercises, in order. */
+            exercises: components["schemas"]["ExportedWorkoutExercise"][];
+        };
+        /** @description An exercise in a workout. */
+        ExportedWorkoutExercise: {
+            /** @description The exercise's name, even if it was deleted since. */
+            name: string;
+            /** @description The exercise's group. */
+            group: string;
+            /** @description Its checked sets, in order. A skipped workout has none. */
+            sets: components["schemas"]["ExportedSet"][];
+        };
+        /** @description Everything the user planned and logged, for a copy of their data. */
+        ExportResponse: {
+            /** @description The exercises, by group and then name. */
+            exercises: components["schemas"]["ExportedExercise"][];
+            /** @description The routines, by name. */
+            routines: components["schemas"]["ExportedRoutine"][];
+            /** @description The workouts, oldest first. */
+            workouts: components["schemas"]["ExportedWorkout"][];
         };
         /** @description The first day the user can reach. */
         FirstDayResponse: {
@@ -4066,6 +4174,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StreakResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The data. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportResponse"];
                 };
             };
             /** @description Not signed in, or the access token expired. */

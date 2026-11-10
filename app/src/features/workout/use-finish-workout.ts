@@ -13,6 +13,7 @@ import { exerciseKeys } from '@/features/exercises/query-keys';
 import { routineKeys } from '@/features/routines/query-keys';
 
 import { dayDataKeys, workoutKeys } from './query-keys';
+import { cancelRestAlert } from './rest-alert';
 
 /** How many pages back the day is, from the finish page: past logging. */
 const pagesBackToDay = 2;
@@ -50,6 +51,7 @@ export function useSaveWorkout(id: string) {
       return data;
     },
     onSuccess: async (saved) => {
+      void cancelRestAlert().catch(() => undefined);
       router.dismiss(pagesBackToDay);
       notifySuccess(`${saved.name} saved.`);
       await Promise.all(
