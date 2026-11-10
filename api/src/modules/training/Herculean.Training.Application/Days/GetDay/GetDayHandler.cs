@@ -22,7 +22,10 @@ internal sealed class GetDayHandler(IDayReadRepository dayReadRepository, UserCl
             List<DayExerciseResponse> exercises = workout is null
                 ? await dayReadRepository.ListExercisesAsync(routineId, cancellationToken)
                 : await dayReadRepository.ListWorkoutExercisesAsync(WorkoutId.From(workout.Id), cancellationToken);
-            routine = new DayRoutineResponse(routineId.Value, shownName, exercises);
+            bool exists = workout is null
+                ? planned?.RoutineDeletedAtUtc is null
+                : await dayReadRepository.RoutineExistsAsync(routineId, cancellationToken);
+            routine = new DayRoutineResponse(routineId.Value, shownName, exists, exercises);
         }
 
         DateOnly nextDate = date.AddDays(1);
@@ -33,6 +36,13 @@ internal sealed class GetDayHandler(IDayReadRepository dayReadRepository, UserCl
             await dayReadRepository.HasRoutinesAsync(cancellationToken),
             workout?.Id,
             routine,
-            new UpNextResponse(nextDate, plan.RoutineOn(nextDate)?.RoutineName));
+            UpNextOn(plan, nextDate));
+    }
+
+    private static UpNextResponse UpNextOn(DayPlan plan, DateOnly date)
+    {
+        PlanChange? next = plan.RoutineOn(date);
+
+        return new UpNextResponse(date, next?.RoutineId?.Value, next?.RoutineName);
     }
 }

@@ -30,6 +30,8 @@ import {
   UndoSkipButton,
 } from './day-actions';
 import { savedExercises, savedMeta } from './saved-workout';
+import { useLinks } from '@/features/links/use-links';
+
 import { UpNext } from './up-next';
 import { useElapsed } from './use-elapsed';
 import { useWorkout } from './use-workout';
@@ -38,6 +40,18 @@ import { checkedSets, progressText, workoutProgress } from './workout-progress';
 
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
+
+/** Opens a day's routine while it still exists. A deleted one's name stays plain. */
+export function routineLink(
+  routine: DayRoutine,
+  links: { routine: (id: string) => void },
+) {
+  return routine.exists
+    ? () => {
+        links.routine(routine.id);
+      }
+    : undefined;
+}
 
 /** A routine's size in words, for example "4 exercises · 12 sets". */
 export function routineMeta(routine: DayRoutine) {
@@ -56,6 +70,7 @@ function PlannedContent({
   date: Date;
   routine: DayRoutine;
 }) {
+  const links = useLinks('day');
   const { colors } = useTheme();
 
   return (
@@ -63,14 +78,20 @@ function PlannedContent({
       <CardHeading
         label={`Planned for ${dayNameOf(date).full}`}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={routineMeta(routine)}
       />
-      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      <ExerciseTargets
+        onOpen={links.exercise}
+        exercises={routine.exercises}
+        background={colors.bg}
+      />
     </>
   );
 }
 
 function MissedCard({ date, routine }: { date: string; routine: DayRoutine }) {
+  const links = useLinks('day');
   const { colors } = useTheme();
 
   return (
@@ -79,9 +100,14 @@ function MissedCard({ date, routine }: { date: string; routine: DayRoutine }) {
         label="Missed"
         labelColor={colors.danger}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta="Planned, but nothing was logged."
       />
-      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      <ExerciseTargets
+        onOpen={links.exercise}
+        exercises={routine.exercises}
+        background={colors.bg}
+      />
       <StartButton date={date} label="Log workout" />
       <Actions>
         {[
@@ -104,6 +130,7 @@ function SkippedCard({
   today: string;
   workoutId: string;
 }) {
+  const links = useLinks('day');
   const { colors } = useTheme();
   const isToday = day.date === today;
 
@@ -113,11 +140,16 @@ function SkippedCard({
         label="Skipped"
         labelColor={colors.skipped}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={
           isToday ? 'You skipped today’s workout.' : 'You skipped this workout.'
         }
       />
-      <ExerciseTargets exercises={routine.exercises} background={colors.bg} />
+      <ExerciseTargets
+        onOpen={links.exercise}
+        exercises={routine.exercises}
+        background={colors.bg}
+      />
       {isToday && <UpNext upNext={day.upNext} today={today} />}
       <UndoSkipButton workoutId={workoutId} />
     </Card>
@@ -149,6 +181,7 @@ function InProgressCard({
   today: string;
   workoutId: string;
 }) {
+  const links = useLinks('day');
   const { colors, text } = useTheme();
   const router = useRouter();
   const { workout, progress, meta } = useInProgress(workoutId);
@@ -159,10 +192,12 @@ function InProgressCard({
         label="In progress"
         labelColor={colors.primaryText}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={meta}
       />
       <ProgressBar done={progress.done} total={progress.total} />
       <ExerciseTargets
+        onOpen={links.exercise}
         exercises={routine.exercises}
         background={colors.bg}
         trailing={(exerciseId) => {
@@ -202,6 +237,7 @@ function CompletedCard({
   today: string;
   workoutId: string;
 }) {
+  const links = useLinks('day');
   const { colors, space } = useTheme();
   const router = useRouter();
   const units = useUnits();
@@ -212,6 +248,7 @@ function CompletedCard({
     if (workout.data !== undefined) {
       return (
         <ExerciseTargets
+          onOpen={links.exercise}
           exercises={savedExercises(workout.data, units)}
           background={colors.bg}
         />
@@ -244,16 +281,14 @@ function CompletedCard({
         label="Done"
         labelColor={colors.success}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={savedMeta(routine.exercises.length, summary.data)}
       />
       {renderExercises()}
       <Button
         label="View workout"
         onPress={() => {
-          router.push({
-            pathname: '/workout/details/[id]',
-            params: { id: workoutId },
-          });
+          links.workout(workoutId);
         }}
       />
       <Actions>

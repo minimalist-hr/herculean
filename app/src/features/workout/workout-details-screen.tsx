@@ -1,8 +1,6 @@
-import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { BackLink } from '@/components/back-link';
 import { LoadFailure } from '@/components/load-failure';
 import { blankLine, ScreenHeading } from '@/components/screen-heading';
 import { SectionTitle } from '@/components/section-title';
@@ -18,6 +16,9 @@ import {
   weightUnitOf,
 } from '@/formats/formats';
 import { tokens } from '@/theme/tokens';
+import { FromBackLink } from '@/features/links/from-back-link';
+import { NameLink } from '@/components/name-link';
+import { useLinks } from '@/features/links/use-links';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText } from '@/formats/dates';
@@ -136,15 +137,15 @@ function SetTable({
 /** A saved workout: what it comes to, and every set. */
 export function WorkoutDetailsScreen({
   id,
-  backLabel = 'Workout',
+  from,
 }: {
   id: string;
-  /** The screen it opened from, which the back link is named after. */
-  backLabel?: string;
+  /** What opened it, for its back link, for example "month". */
+  from?: string;
 }) {
-  const router = useRouter();
   const { colors, radius, size, space, text } = useTheme();
   const pageEnd = usePageEnd();
+  const links = useLinks(`workout:${id}`);
   const units = useUnits();
   const workout = useWorkout(id);
   const summary = useWorkoutSummary(id);
@@ -229,11 +230,21 @@ export function WorkoutDetailsScreen({
                   >
                     <View style={[styles.heading, { gap: space.md }]}>
                       <View style={styles.name}>
-                        <Text
-                          style={[text.listItemName, { color: colors.text }]}
-                        >
-                          {exercise.name}
-                        </Text>
+                        {exercise.exists ? (
+                          <NameLink
+                            name={exercise.name}
+                            style={text.listItemName}
+                            onPress={() => {
+                              links.exercise(exercise.exerciseId);
+                            }}
+                          />
+                        ) : (
+                          <Text
+                            style={[text.listItemName, { color: colors.text }]}
+                          >
+                            {exercise.name}
+                          </Text>
+                        )}
                         {!connected && (
                           <Text style={text.meta}>{exercise.groupName}</Text>
                         )}
@@ -272,12 +283,7 @@ export function WorkoutDetailsScreen({
       }}
     >
       <View>
-        <BackLink
-          label={backLabel}
-          onPress={() => {
-            router.back();
-          }}
-        />
+        <FromBackLink from={from} fallback="Workout" />
         <ScreenHeading
           label={headingLabel()}
           title={naming ? null : (named?.name ?? 'Workout')}

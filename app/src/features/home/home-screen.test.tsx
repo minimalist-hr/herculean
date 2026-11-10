@@ -12,6 +12,7 @@ import { createTestQueryClient } from '@/test-utils/query-client';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { takeOpenedDay } from '@/features/workout/open-day';
+import { OpenedPage } from '@/test-utils/opened-page';
 import { HomeScreen } from './home-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -174,6 +175,7 @@ async function renderHome() {
     'workout/month': stub('Month page'),
     'exercises/[id]': stubOpenedFrom('Exercise page'),
     'workout/log/w1': stub('Logging page'),
+    'workout/details/[id]': OpenedPage,
   });
 }
 
@@ -344,8 +346,26 @@ test.each([
   expect(await screen.findByText('Logging page')).toBeOnTheScreen();
 });
 
+test('done shows View workout, which opens the workout with Home as its back link, and what comes next', async () => {
+  answerWith({
+    [`/api/v1/days/${today}`]: {
+      ...plannedDay,
+      status: 'completed',
+      workoutId: 'w1',
+    },
+  });
+  await renderHome();
+
+  expect(await screen.findByText('Done')).toBeOnTheScreen();
+  expect(await screen.findByText('Arms')).toBeOnTheScreen();
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'View workout' }),
+  );
+
+  expect(await screen.findByText('Opened from home')).toBeOnTheScreen();
+});
+
 test.each([
-  ['done', { ...plannedDay, status: 'completed', workoutId: 'w1' }, 'Done'],
   ['skipped', { ...plannedDay, status: 'skipped', workoutId: 'w1' }, 'Skipped'],
   ['a rest day', { ...plannedDay, status: 'rest', routine: null }, 'Rest day'],
 ])('%s shows what comes next instead of a button', async (_, day, label) => {

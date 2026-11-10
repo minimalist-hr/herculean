@@ -1,5 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { NameLink } from '@/components/name-link';
+import { useLinks } from '@/features/links/use-links';
+
 import type { components } from '@/api/schema';
 import { SectionTitle } from '@/components/section-title';
 import { daysFrom } from '@/formats/dates';
@@ -25,6 +28,9 @@ export function UpNext({
   today: string;
 }) {
   const { colors, space, text } = useTheme();
+  const links = useLinks('day');
+  // Read as maybe missing, since an API from before it was added leaves it out.
+  const routineId = upNext.routineId as string | null | undefined;
 
   return (
     <View
@@ -39,9 +45,19 @@ export function UpNext({
     >
       <View style={{ gap: space.xxxs }}>
         <SectionTitle>Up next</SectionTitle>
-        <Text style={[text.listItemName, { color: colors.text }]}>
-          {upNext.routineName ?? 'Rest'}
-        </Text>
+        {typeof routineId === 'string' && upNext.routineName !== null ? (
+          <NameLink
+            name={upNext.routineName}
+            style={text.listItemName}
+            onPress={() => {
+              links.routine(routineId);
+            }}
+          />
+        ) : (
+          <Text style={[text.listItemName, { color: colors.text }]}>
+            {upNext.routineName ?? 'Rest'}
+          </Text>
+        )}
       </View>
       <Text style={text.meta}>{upNextWhen(upNext.date, today)}</Text>
     </View>

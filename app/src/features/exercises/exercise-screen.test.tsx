@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ExerciseScreen } from './exercise-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
+import { OpenedPage } from '@/test-utils/opened-page';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 // Sessions and the chart have their own answers, so the other tests needn't know about them.
@@ -113,10 +114,14 @@ async function renderExercise(openedFromHome = false) {
     {
       _layout: Layout,
       index: () => <PlaceholderScreen title="List screen" />,
-      '[id]': () => <ExerciseScreen id={id} openedFromHome={openedFromHome} />,
+      '[id]': () => (
+        <ExerciseScreen id={id} from={openedFromHome ? 'home' : undefined} />
+      ),
       'exercise/[id]/edit': () => (
         <PlaceholderScreen title="Edit exercise page" />
       ),
+      'workout/routine/[id]': OpenedPage,
+      'workout/details/[id]': OpenedPage,
     },
     { initialUrl: `/${id}` },
   );
@@ -689,4 +694,36 @@ test('past 20 points, only the last one has a dot', async () => {
   await screen.findByText('60 → 84 kg');
 
   expect(screen.getAllByTestId('chart-dot')).toHaveLength(1);
+});
+
+test('a routine under Used in opens it, with the exercise as its back link', async () => {
+  answer({ ...exercise('Chest'), routines: [{ id: 'r1', name: 'Push day' }] });
+  await renderExercise();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Push day' }),
+  );
+
+  expect(
+    await screen.findByText(`Opened from exercise:${id}`),
+  ).toBeOnTheScreen();
+});
+
+test('a session opens its workout, with the exercise as its back link', async () => {
+  answer(doneExercise, () =>
+    Response.json({
+      sessions: [session('2026-10-16', [[80, 10]])],
+      months: [{ month: '2026-10', sessions: 1 }],
+      nextCursor: null,
+    }),
+  );
+  await renderExercise();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: /Chest and arms 2$/ }),
+  );
+
+  expect(
+    await screen.findByText(`Opened from exercise:${id}`),
+  ).toBeOnTheScreen();
 });

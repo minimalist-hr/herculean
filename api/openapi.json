@@ -4529,7 +4529,8 @@
           "groupName",
           "targetSets",
           "targetRepsFrom",
-          "targetRepsTo"
+          "targetRepsTo",
+          "exists"
         ],
         "type": "object",
         "properties": {
@@ -4565,6 +4566,10 @@
             "type": "integer",
             "description": "The high end of the rep range.",
             "format": "int32"
+          },
+          "exists": {
+            "type": "boolean",
+            "description": "Whether the exercise still exists, so it can be opened. False once it is deleted."
           }
         },
         "description": "An exercise in a day's routine and its targets."
@@ -4623,6 +4628,7 @@
         "required": [
           "id",
           "name",
+          "exists",
           "exercises"
         ],
         "type": "object",
@@ -4635,6 +4641,10 @@
           "name": {
             "type": "string",
             "description": "The routine's name."
+          },
+          "exists": {
+            "type": "boolean",
+            "description": "Whether the routine still exists, so it can be opened. False once it is deleted."
           },
           "exercises": {
             "type": "array",
@@ -6410,6 +6420,7 @@
       "UpNextResponse": {
         "required": [
           "date",
+          "routineId",
           "routineName"
         ],
         "type": "object",
@@ -6418,6 +6429,14 @@
             "type": "string",
             "description": "Its date.",
             "format": "date"
+          },
+          "routineId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The ID of the routine planned on it. Null on a rest day.",
+            "format": "uuid"
           },
           "routineName": {
             "type": [
@@ -6602,7 +6621,8 @@
           "targetRepsFrom",
           "targetRepsTo",
           "sets",
-          "lastTime"
+          "lastTime",
+          "exists"
         ],
         "type": "object",
         "properties": {
@@ -6661,6 +6681,10 @@
                 "$ref": "#/components/schemas/LastTimeResponse"
               }
             ]
+          },
+          "exists": {
+            "type": "boolean",
+            "description": "Whether the exercise still exists, so it can be opened. False once it is deleted."
           }
         },
         "description": "An exercise in a workout."

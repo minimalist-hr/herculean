@@ -5,10 +5,5 @@ import { WorkoutDetailsScreen } from '@/features/workout/workout-details-screen'
 export default function WorkoutDetailsRoute() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
-  return (
-    <WorkoutDetailsScreen
-      id={id}
-      backLabel={from === 'month' ? 'Month' : 'Workout'}
-    />
-  );
+  return <WorkoutDetailsScreen id={id} from={from} />;
 }

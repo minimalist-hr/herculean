@@ -45,6 +45,7 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                 exercise.TargetSets,
                 exercise.TargetRepsFrom,
                 exercise.TargetRepsTo,
+                Exists = exercise.Exercise.DeletedAtUtc == null,
                 Sets = exercise.Sets
                     .OrderBy(set => set.Order)
                     .Select(set => new SetResponse(set.Id.Value, set.Order, set.WeightKg, set.Reps, set.Checked))
@@ -70,7 +71,8 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                     exercise.TargetRepsFrom,
                     exercise.TargetRepsTo,
                     exercise.Sets,
-                    lastTime.GetValueOrDefault(exercise.ExerciseId))),
+                    lastTime.GetValueOrDefault(exercise.ExerciseId),
+                    exercise.Exists)),
             ],
             workout.FinishedAtUtc,
             workout.DurationSeconds);

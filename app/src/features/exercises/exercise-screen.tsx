@@ -10,11 +10,9 @@ import {
 } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { BackLink } from '@/components/back-link';
 import { EmptyCard } from '@/components/empty-card';
 import { HeaderIconButton } from '@/components/header-icon-button';
-import { useGoBack } from '@/features/home/use-go-back';
-import { PencilIcon, TrashIcon } from '@/components/icons';
+import { ChevronRightIcon, PencilIcon, TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import {
@@ -27,6 +25,9 @@ import {
 import { SectionTitle } from '@/components/section-title';
 import { StatTile } from '@/components/stat-tile';
 import { useUnits } from '@/features/account/use-units';
+import { FromBackLink } from '@/features/links/from-back-link';
+import { useLinks } from '@/features/links/use-links';
+import { Tappable } from '@/components/tappable';
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -46,17 +47,14 @@ const loadMoreDistance = 600;
 
 export function ExerciseScreen({
   id,
-  backLabel = 'Exercises',
-  openedFromHome = false,
+  from,
 }: {
   id: string;
-  /** The screen its back link returns to. */
-  backLabel?: string;
-  openedFromHome?: boolean;
+  /** What opened it, for its back link, for example "group:<id>". */
+  from?: string;
 }) {
   const { colors, size } = useTheme();
   const pageEnd = usePageEnd();
-  const goBack = useGoBack(openedFromHome);
   const exercise = useExercise(id);
   const sessions = useExerciseSessions(id);
 
@@ -107,7 +105,7 @@ export function ExerciseScreen({
         paddingBottom: pageEnd,
       }}
     >
-      <BackLink label={openedFromHome ? 'Home' : backLabel} onPress={goBack} />
+      <FromBackLink from={from} fallback="Exercises" />
       {renderContent()}
     </ScrollView>
   );
@@ -123,6 +121,7 @@ function Details({
   const { colors, opacity, radius, size, space, text } = useTheme();
   const router = useRouter();
   const units = useUnits();
+  const links = useLinks(`exercise:${exercise.id}`);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const inUse = exercise.routines.length > 0;
 
@@ -196,21 +195,36 @@ function Details({
             ]}
           >
             {exercise.routines.map((routine, index) => (
-              <Text
+              <Tappable
                 key={routine.id}
+                feedback="fill"
+                accessibilityRole="button"
+                accessibilityLabel={routine.name}
+                onPress={() => {
+                  links.routine(routine.id);
+                }}
                 style={[
-                  text.listItemName,
+                  styles.usedInRow,
                   {
+                    gap: space.md,
                     paddingVertical: space.lg,
                     paddingHorizontal: space.lg,
                     borderTopWidth: index === 0 ? 0 : 1,
                     borderTopColor: colors.border,
-                    color: colors.text,
                   },
                 ]}
               >
-                {routine.name}
-              </Text>
+                <Text
+                  style={[
+                    text.listItemName,
+                    styles.usedInName,
+                    { color: colors.text },
+                  ]}
+                >
+                  {routine.name}
+                </Text>
+                <ChevronRightIcon color={colors.muted} size={16} />
+              </Tappable>
             ))}
           </View>
         ) : (
@@ -221,7 +235,11 @@ function Details({
         )}
       </View>
 
-      <ExerciseSessions sessions={sessions} units={units} />
+      <ExerciseSessions
+        sessions={sessions}
+        units={units}
+        onOpen={links.workout}
+      />
 
       <DeleteExerciseSheet
         exercise={exercise}
@@ -297,6 +315,14 @@ const styles = StyleSheet.create({
   },
   usedIn: {
     borderWidth: 1,
+    overflow: 'hidden',
+  },
+  usedInRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  usedInName: {
+    flex: 1,
   },
   tiles: {
     flexDirection: 'row',

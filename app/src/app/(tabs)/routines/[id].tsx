@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { RoutineScreen } from '@/features/routines/routine-screen';
 
 export default function RoutineRoute() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
-  return <RoutineScreen id={id} />;
+  return <RoutineScreen id={id} from={from} />;
 }

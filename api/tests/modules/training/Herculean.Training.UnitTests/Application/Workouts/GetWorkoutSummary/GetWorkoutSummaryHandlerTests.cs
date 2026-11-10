@@ -28,7 +28,7 @@ public sealed class GetWorkoutSummaryHandlerTests
         new(Guid.CreateVersion7(), 0, weightKg, reps, isChecked);
 
     private static WorkoutExerciseResponse Exercise(ExerciseId id, string name, params SetResponse[] sets) =>
-        new(Guid.CreateVersion7(), id.Value, name, Guid.CreateVersion7(), "Legs", sets.Length, 8, 10, [.. sets], null);
+        new(Guid.CreateVersion7(), id.Value, name, Guid.CreateVersion7(), "Legs", sets.Length, 8, 10, [.. sets], null, true);
 
     private Guid Answer(DateTimeOffset? startedAtUtc, DateTimeOffset? finishedAtUtc, params WorkoutExerciseResponse[] exercises)
     {

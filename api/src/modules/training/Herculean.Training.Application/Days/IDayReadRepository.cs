@@ -26,6 +26,9 @@ internal interface IDayReadRepository
 
     Task<DateOnly?> GetFirstWorkoutDateAsync(CancellationToken cancellationToken);
 
+    /// <summary>Whether a routine still exists, so a day can open it.</summary>
+    Task<bool> RoutineExistsAsync(RoutineId routineId, CancellationToken cancellationToken);
+
     /// <summary>Whether the current user has a routine that isn't deleted.</summary>
     Task<bool> HasRoutinesAsync(CancellationToken cancellationToken);
 }

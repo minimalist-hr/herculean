@@ -14,6 +14,7 @@ import { Sheet } from '@/components/sheet';
 import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
 import { tokens } from '@/theme/tokens';
+import { useLinks } from '@/features/links/use-links';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseRow } from './exercise-row';
@@ -76,6 +77,7 @@ function Details({ group }: { group: Group }) {
   const { colors, opacity, size, space, text } = useTheme();
   const router = useRouter();
   const units = useUnits();
+  const links = useLinks(`group:${group.id}`);
   const deleteGroup = useDeleteGroup();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const exerciseCount =
@@ -94,6 +96,9 @@ function Details({ group }: { group: Group }) {
         units={units}
         first={index === 0}
         last={index === exercises.length - 1}
+        onPress={() => {
+          links.exercise(exercise.id);
+        }}
       />
     ));
   }

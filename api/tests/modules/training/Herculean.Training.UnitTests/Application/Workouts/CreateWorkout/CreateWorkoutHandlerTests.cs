@@ -294,8 +294,8 @@ public sealed class CreateWorkoutHandlerTests
         Plan(Weekday.Tuesday);
         Guid squat = Guid.CreateVersion7();
         Guid lunge = Guid.CreateVersion7();
-        _dayReadRepository.Exercises.Add(new DayExerciseResponse(squat, "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10));
-        _dayReadRepository.Exercises.Add(new DayExerciseResponse(lunge, "Lunge", Guid.CreateVersion7(), "Legs", 4, 6, 6));
+        _dayReadRepository.Exercises.Add(new DayExerciseResponse(squat, "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10, true));
+        _dayReadRepository.Exercises.Add(new DayExerciseResponse(lunge, "Lunge", Guid.CreateVersion7(), "Legs", 4, 6, 6, true));
 
         await SkipAsync(Today);
 

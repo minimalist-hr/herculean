@@ -13,11 +13,13 @@ import {
 } from '@/components/skeleton';
 import {
   NoRoutinesCard,
+  routineLink,
   routineMeta,
   useInProgress,
 } from '@/features/workout/day-card';
 import { Card, CardHeading } from '@/components/card';
 import { StartButton } from '@/features/workout/day-actions';
+import { useLinks } from '@/features/links/use-links';
 import { UpNext } from '@/features/workout/up-next';
 import { savedMeta } from '@/features/workout/saved-workout';
 import { useWorkoutSummary } from '@/features/workout/use-workout-summary';
@@ -34,6 +36,7 @@ function InProgress({
   routine: DayRoutine;
   workoutId: string;
 }) {
+  const links = useLinks('home');
   const { colors } = useTheme();
   const router = useRouter();
   const { progress, meta } = useInProgress(workoutId);
@@ -44,6 +47,7 @@ function InProgress({
         label="In progress"
         labelColor={colors.primaryText}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={meta}
       />
       <ProgressBar done={progress.done} total={progress.total} />
@@ -74,6 +78,7 @@ function Completed({
 }) {
   const { colors } = useTheme();
   const summary = useWorkoutSummary(workoutId);
+  const links = useLinks('home');
 
   return (
     <Card>
@@ -81,7 +86,14 @@ function Completed({
         label="Done"
         labelColor={colors.success}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={savedMeta(routine.exercises.length, summary.data)}
+      />
+      <Button
+        label="View workout"
+        onPress={() => {
+          links.workout(workoutId);
+        }}
       />
       <UpNext upNext={day.upNext} today={day.date} />
     </Card>
@@ -113,6 +125,7 @@ export function TodayCardSkeleton() {
 /** Today in short: what to do now, or what comes next once it's done. */
 export function TodayCard({ day }: { day: Day }) {
   const { colors } = useTheme();
+  const links = useLinks('home');
   const { routine, workoutId } = day;
 
   if (routine === null) {
@@ -145,6 +158,7 @@ export function TodayCard({ day }: { day: Day }) {
           label="Skipped"
           labelColor={colors.skipped}
           title={routine.name}
+          onTitlePress={routineLink(routine, links)}
           meta="You skipped today’s workout."
         />
         <UpNext upNext={day.upNext} today={day.date} />
@@ -159,6 +173,7 @@ export function TodayCard({ day }: { day: Day }) {
       <CardHeading
         label={`Planned for ${dayNameOf(dateFromText(day.date)).full}`}
         title={routine.name}
+        onTitlePress={routineLink(routine, links)}
         meta={meta}
       />
       <StartButton

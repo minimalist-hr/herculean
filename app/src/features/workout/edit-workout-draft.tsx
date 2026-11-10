@@ -38,6 +38,7 @@ export function addedExercise(picked: PickedExercise): WorkoutExercise {
       checked: true,
     })),
     lastTime: null,
+    exists: true,
   };
 }
 

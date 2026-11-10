@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { ChevronRightIcon } from '@/components/icons';
 import { Skeleton, SkeletonLine, textLine } from '@/components/skeleton';
+import { Tappable } from '@/components/tappable';
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -19,6 +21,8 @@ interface ExerciseTarget {
   targetRepsTo: number;
   /** What was actually done, shown instead of the target once a workout is saved. */
   done?: string;
+  /** False once the exercise is deleted, so its row opens nothing. */
+  exists?: boolean;
 }
 
 /** An exercise's name, and its targets and group below. In a block, the stripe names the group instead. */
@@ -138,14 +142,19 @@ export function ExerciseTargets({
   exercises,
   background,
   trailing,
+  onOpen,
 }: {
   exercises: ExerciseTarget[];
   /** The rows' fill, when they sit on a card and not on the page. */
   background?: string;
   /** Shows at a row's end, for example how many sets are done. */
   trailing?: (exerciseId: string) => ReactNode;
+  /** Opens an exercise. Its row then has a chevron. */
+  onOpen?: (exerciseId: string) => void;
 }) {
   const { colors, radius, size, space } = useTheme();
+  const opens = (exercise: ExerciseTarget) =>
+    onOpen !== undefined && exercise.exists !== false;
 
   return (
     <View style={{ gap: space.sm }}>
@@ -166,8 +175,15 @@ export function ExerciseTargets({
           >
             <View style={styles.rows}>
               {block.map((exercise, index) => (
-                <View
+                <Tappable
                   key={exercise.exerciseId}
+                  feedback="fill"
+                  accessibilityRole={opens(exercise) ? 'button' : undefined}
+                  accessibilityLabel={exercise.name}
+                  disabled={!opens(exercise)}
+                  onPress={() => {
+                    onOpen?.(exercise.exerciseId);
+                  }}
                   style={[
                     styles.exercise,
                     {
@@ -185,7 +201,10 @@ export function ExerciseTargets({
                     showGroup={!connected}
                   />
                   {trailing?.(exercise.exerciseId)}
-                </View>
+                  {opens(exercise) && (
+                    <ChevronRightIcon color={colors.muted} size={16} />
+                  )}
+                </Tappable>
               ))}
             </View>
             {connected && <GroupStripe name={block[0].groupName} />}

@@ -20,6 +20,7 @@ function exercise(id: string, ...checked: boolean[]): WorkoutExercise {
     targetSets: checked.length,
     targetRepsFrom: 8,
     targetRepsTo: 10,
+    exists: true,
     sets: checked.map((value, order) => ({
       id: `${id}-${String(order)}`,
       order,

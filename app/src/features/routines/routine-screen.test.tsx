@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { RoutineScreen } from './routine-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
+import { OpenedPage } from '@/test-utils/opened-page';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -149,7 +150,24 @@ test('shows the skeleton, then the routine for display', async () => {
   expect(screen.queryByText(/· Legs$/)).toBeNull();
   expect(screen.getAllByText('Legs')).toHaveLength(2);
   expect(screen.getByText('2 × 6')).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: 'Squat' })).toBeNull();
+});
+
+test('an exercise row opens the exercise, inside the Routines tab, with the routine as its back link', async () => {
+  answer(routine());
+  await renderRouter(
+    {
+      _layout: Layout,
+      'routines/[id]': () => <RoutineScreen id={id} />,
+      'routines/exercise/[id]': OpenedPage,
+    },
+    { initialUrl: `/routines/${id}` },
+  );
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Squat' }));
+
+  expect(
+    await screen.findByText(`Opened from routine:${id}`),
+  ).toBeOnTheScreen();
 });
 
 test('its days show, and can only be changed by editing', async () => {

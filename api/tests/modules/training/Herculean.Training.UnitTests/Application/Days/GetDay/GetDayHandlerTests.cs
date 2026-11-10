@@ -37,7 +37,7 @@ public sealed class GetDayHandlerTests
     public async Task TodayWithARoutineIsPlanned()
     {
         Plan(Weekday.Tuesday, "Legs");
-        DayExerciseResponse squat = new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10);
+        DayExerciseResponse squat = new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10, true);
         _dayReadRepository.Exercises.Add(squat);
 
         DayResponse day = await GetAsync(Today);
@@ -135,8 +135,8 @@ public sealed class GetDayHandlerTests
     public async Task ASkippedDayShowsTheWorkoutsNameAndExercises()
     {
         Plan(Weekday.Tuesday, "Renamed since");
-        DayExerciseResponse squat = new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10);
-        DayExerciseResponse addedSince = new(Guid.CreateVersion7(), "Lunge", Guid.CreateVersion7(), "Legs", 4, 6, 6);
+        DayExerciseResponse squat = new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", 3, 8, 10, true);
+        DayExerciseResponse addedSince = new(Guid.CreateVersion7(), "Lunge", Guid.CreateVersion7(), "Legs", 4, 6, 6, true);
         _dayReadRepository.WorkoutExercises.Add(squat);
         _dayReadRepository.Exercises.Add(addedSince);
         Guid workoutId = Guid.CreateVersion7();
@@ -187,13 +187,36 @@ public sealed class GetDayHandlerTests
     }
 
     [Fact]
+    public async Task APlannedRoutineExists()
+    {
+        Plan(Weekday.Tuesday, "Legs");
+
+        DayResponse day = await GetAsync(Today);
+
+        day.Routine.ShouldNotBeNull().Exists.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ADoneDaysRoutineDoesNotExistOnceDeleted()
+    {
+        RoutineId legs = RoutineId.New();
+        _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), Today, WorkoutStatus.Completed, "Legs", legs));
+        _dayReadRepository.DeletedRoutines.Add(legs);
+
+        DayResponse day = await GetAsync(Today);
+
+        day.Routine.ShouldNotBeNull().Exists.ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task UpNextIsTheRoutineOnTheDayAfter()
     {
         Plan(Weekday.Wednesday, "Legs");
 
         DayResponse day = await GetAsync(Today);
 
-        day.UpNext.ShouldBe(new UpNextResponse(Today.AddDays(1), "Legs"));
+        PlanChange legs = _dayReadRepository.Changes.ShouldHaveSingleItem();
+        day.UpNext.ShouldBe(new UpNextResponse(Today.AddDays(1), legs.RoutineId?.Value, "Legs"));
     }
 
     [Fact]
@@ -201,7 +224,7 @@ public sealed class GetDayHandlerTests
     {
         DayResponse day = await GetAsync(Today);
 
-        day.UpNext.ShouldBe(new UpNextResponse(Today.AddDays(1), null));
+        day.UpNext.ShouldBe(new UpNextResponse(Today.AddDays(1), null, null));
     }
 
     [Theory]

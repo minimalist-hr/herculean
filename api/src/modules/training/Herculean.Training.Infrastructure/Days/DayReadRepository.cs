@@ -45,7 +45,8 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
                 exercise.Exercise.Group.Name,
                 exercise.TargetSets,
                 exercise.TargetRepsFrom,
-                exercise.TargetRepsTo))
+                exercise.TargetRepsTo,
+                exercise.Exercise.DeletedAtUtc == null))
             .ToListAsync(cancellationToken);
 
     public Task<List<DayExerciseResponse>> ListWorkoutExercisesAsync(WorkoutId workoutId, CancellationToken cancellationToken) =>
@@ -61,7 +62,8 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
                 exercise.Exercise.Group.Name,
                 exercise.TargetSets,
                 exercise.TargetRepsFrom,
-                exercise.TargetRepsTo))
+                exercise.TargetRepsTo,
+                exercise.Exercise.DeletedAtUtc == null))
             .ToListAsync(cancellationToken);
 
     public Task<DayWorkout?> GetWorkoutAsync(DateOnly date, CancellationToken cancellationToken) =>
@@ -94,6 +96,9 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
         dbContext.Workouts
             .AsNoTracking()
             .MinAsync(workout => (DateOnly?)workout.Date, cancellationToken);
+
+    public Task<bool> RoutineExistsAsync(RoutineId routineId, CancellationToken cancellationToken) =>
+        dbContext.Routines.AsNoTracking().AnyAsync(routine => routine.Id == routineId, cancellationToken);
 
     public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) =>
         dbContext.Routines.AsNoTracking().AnyAsync(cancellationToken);

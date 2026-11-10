@@ -11,6 +11,8 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { Button } from '@/components/button';
 
+import { OpenedPage } from '@/test-utils/opened-page';
+
 import { useOpenDay } from './open-day';
 import { WorkoutScreen } from './workout-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
@@ -31,6 +33,7 @@ jest.mock('@/api/client', () => {
 const legs = {
   id: 'legs',
   name: 'Legs',
+  exists: true,
   exercises: [
     {
       exerciseId: 'squat',
@@ -59,7 +62,7 @@ const restDay = {
   hasRoutines: true,
   workoutId: null,
   routine: null,
-  upNext: { date: '2026-11-04', routineName: 'Arms' },
+  upNext: { date: '2026-11-04', routineId: 'arms', routineName: 'Arms' },
 };
 
 const plannedDay = { ...restDay, status: 'planned', routine: legs };
@@ -1365,4 +1368,69 @@ test('a day opened from elsewhere shows selected, with Back to today', async () 
   expect(
     screen.getByRole('button', { name: 'Back to today' }),
   ).toBeOnTheScreen();
+});
+
+describe('links from the day', () => {
+  async function renderDay(day: unknown = plannedDay) {
+    answer(day);
+    await renderRouter(
+      {
+        _layout: Layout,
+        'workout/index': () => <WorkoutScreen />,
+        'workout/exercise/[id]': OpenedPage,
+        'workout/routine/[id]': OpenedPage,
+      },
+      { initialUrl: '/workout' },
+    );
+  }
+
+  test('an exercise row opens the exercise', async () => {
+    await renderDay();
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Leg press' }),
+    );
+
+    expect(await screen.findByText('Opened from day')).toBeOnTheScreen();
+  });
+
+  test('the planned routine’s name opens the routine', async () => {
+    await renderDay();
+
+    await fireEvent.press(
+      await screen.findByRole('link', { name: 'Legs details' }),
+    );
+
+    expect(await screen.findByText('Opened from day')).toBeOnTheScreen();
+  });
+
+  test('a deleted routine’s name opens nothing', async () => {
+    await renderDay({ ...plannedDay, routine: { ...legs, exists: false } });
+
+    expect(await screen.findByText('Legs')).toBeOnTheScreen();
+    expect(screen.queryByRole('link', { name: 'Legs details' })).toBeNull();
+  });
+
+  test('a deleted exercise’s row opens nothing', async () => {
+    await renderDay({
+      ...plannedDay,
+      routine: {
+        ...legs,
+        exercises: legs.exercises.map((item) => ({ ...item, exists: false })),
+      },
+    });
+
+    expect(await screen.findByText('Leg press')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Leg press' })).toBeNull();
+  });
+
+  test('the routine up next opens', async () => {
+    await renderDay(restDay);
+
+    await fireEvent.press(
+      await screen.findByRole('link', { name: 'Arms details' }),
+    );
+
+    expect(await screen.findByText('Opened from day')).toBeOnTheScreen();
+  });
 });

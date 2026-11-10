@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { WorkoutDetailsScreen } from './workout-details-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
+import { OpenedPage } from '@/test-utils/opened-page';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -36,6 +37,7 @@ function exercise(
     targetSets: sets.length,
     targetRepsFrom: 8,
     targetRepsTo: 10,
+    exists: !name.startsWith('Deleted'),
     sets: sets.map(([weightKg, reps], order) => ({
       id: `${id}-${String(order)}`,
       order,
@@ -92,7 +94,13 @@ function answer({
   units = 'metric',
   summaryAnswer = summary,
   status = 200,
-}: { units?: string; summaryAnswer?: unknown; status?: number } = {}) {
+  workoutAnswer = workout,
+}: {
+  units?: string;
+  summaryAnswer?: unknown;
+  status?: number;
+  workoutAnswer?: unknown;
+} = {}) {
   mockFetch.mockImplementation((request) => {
     const { pathname } = new URL(request.url);
     if (pathname === '/api/v1/users/me') {
@@ -102,7 +110,9 @@ function answer({
       return Promise.resolve(new Response(null, { status }));
     }
     return Promise.resolve(
-      Response.json(pathname.endsWith('/summary') ? summaryAnswer : workout),
+      Response.json(
+        pathname.endsWith('/summary') ? summaryAnswer : workoutAnswer,
+      ),
     );
   });
 }
@@ -218,7 +228,7 @@ test('from the month, the back link says Month', async () => {
   await renderRouter(
     {
       _layout: Layout,
-      index: () => <WorkoutDetailsScreen id="w1" backLabel="Month" />,
+      index: () => <WorkoutDetailsScreen id="w1" from="month" />,
     },
     { initialUrl: '/' },
   );
@@ -258,4 +268,37 @@ test('when nothing could load, the title falls back to Workout', async () => {
   expect(
     await screen.findByRole('header', { name: 'Workout' }),
   ).toBeOnTheScreen();
+});
+
+test('an exercise name opens the exercise, with the workout as its back link', async () => {
+  answer();
+  await renderRouter(
+    {
+      _layout: Layout,
+      'workout/details/[id]': () => <WorkoutDetailsScreen id="w1" />,
+      'workout/exercise/[id]': OpenedPage,
+    },
+    { initialUrl: '/workout/details/w1' },
+  );
+
+  await fireEvent.press(
+    await screen.findByRole('link', { name: 'Machine row details' }),
+  );
+
+  expect(await screen.findByText('Opened from workout:w1')).toBeOnTheScreen();
+});
+
+test('a deleted exercise’s name opens nothing', async () => {
+  answer({
+    workoutAnswer: {
+      ...workout,
+      exercises: [exercise('curl', 'Deleted curl', [[20, 10]])],
+    },
+  });
+  await renderDetails();
+
+  expect(await screen.findByText('Deleted curl')).toBeOnTheScreen();
+  expect(
+    screen.queryByRole('link', { name: 'Deleted curl details' }),
+  ).toBeNull();
 });

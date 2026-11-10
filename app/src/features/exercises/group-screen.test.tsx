@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { GroupsScreen } from './groups-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
+import { OpenedPage } from '@/test-utils/opened-page';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -145,6 +146,7 @@ async function openGroup(name: RegExp) {
       'exercises/groups/index': GroupsScreen,
       'exercises/groups/[id]': GroupRoute,
       'group/[id]/edit': EditGroupRoute,
+      'exercises/[id]': OpenedPage,
     },
     { initialUrl: '/exercises/groups' },
   );
@@ -224,12 +226,15 @@ test('a failed read says so, and Try again reads it again', async () => {
   expect(await screen.findByRole('header', { name: 'Core' })).toBeOnTheScreen();
 });
 
-test('an exercise row shows the exercise and opens nothing', async () => {
+test('an exercise row opens the exercise, with the group as its back link', async () => {
   answer();
   await openGroup(/^Chest/);
 
-  expect(await screen.findByText('Bench press')).toBeOnTheScreen();
-  expect(screen.queryByRole('button', { name: /Bench press/ })).toBeNull();
+  await fireEvent.press(
+    await screen.findByRole('button', { name: /^Bench press/ }),
+  );
+
+  expect(await screen.findByText(/^Opened from group:/)).toBeOnTheScreen();
 });
 
 test('the edit button opens Edit group, which saves the name', async () => {

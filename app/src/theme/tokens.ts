@@ -217,7 +217,7 @@ export const tokens = {
     input: 44,
     headerIconButton: 44,
     floatingBar: { height: 56, control: 36 },
-    newButton: 56,
+    newButton: 48,
     tabItem: 52,
     tabBar: {
       paddingTop: 8,

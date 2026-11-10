@@ -163,7 +163,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 | Method | Route | Used by |
 |---|---|---|
-| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after. Up next doesn't show on past days |
+| GET | `/api/v1/days/{date}` | W01–W09, W21–W25: status, routine, and up next, which is always the day after, with its routine's ID and name. The routine and each exercise say whether they still exist, so a deleted one doesn't link. Up next doesn't show on past days |
 | GET | `/api/v1/days` | Week strip, with `from` and `to` filters |
 | GET | `/api/v1/days/first` | Week strip: how far back it reaches |
 | POST | `/api/v1/workouts` | Skip workout: a workout with status skipped |
@@ -305,7 +305,7 @@ Changes on W30 stay in the app until Save workout.
 **Screens:** H01 Home, H02 In progress, H03 Completed, H04 Rest day, H05 New account, H06 Skipped, H07 Loading, H08 A section failed, H09 Setup complete, H44 Are you ready.
 
 **Flows**
-- **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's done, skipped or a rest day. Open day → the Workout tab on today.
+- **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's skipped or a rest day; once done, View workout → W67 and what's up next. Open day → the Workout tab on today.
 - **This week:** a day → the Workout tab on that day.
 - **This month:** workouts, how much of the plan was done, and volume, each compared with last month. Open month → W40, whose back link goes to the Workout tab.
 - **Streak:** read-only, with the best so far.

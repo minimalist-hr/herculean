@@ -33,7 +33,7 @@ public sealed class GetMonthSummaryHandlerTests
         _handler.HandleAsync(new GetMonthSummaryRequest(month), TestContext.Current.CancellationToken);
 
     private static DayExerciseResponse Exercise(int targetSets) =>
-        new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", targetSets, 8, 10);
+        new(Guid.CreateVersion7(), "Squat", Guid.CreateVersion7(), "Legs", targetSets, 8, 10, true);
 
     private static DoneWorkoutTotals Done(DateOnly date, int plannedSets = 5, int setsDone = 4, decimal volumeKg = 1000, int minutes = 60) =>
         new(

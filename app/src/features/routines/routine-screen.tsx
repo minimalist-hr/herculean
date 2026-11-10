@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { PencilIcon, TrashIcon } from '@/components/icons';
@@ -12,6 +11,8 @@ import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { SectionTitle } from '@/components/section-title';
 import { tokens } from '@/theme/tokens';
+import { FromBackLink } from '@/features/links/from-back-link';
+import { useLinks } from '@/features/links/use-links';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseTargets } from './exercise-targets';
@@ -22,10 +23,16 @@ import { usePageEnd } from '@/components/above-tab-bar';
 
 type Routine = components['schemas']['RoutineDetailsResponse'];
 
-export function RoutineScreen({ id }: { id: string }) {
+export function RoutineScreen({
+  id,
+  from,
+}: {
+  id: string;
+  /** What opened it, for its back link, for example "exercise:<id>". */
+  from?: string;
+}) {
   const { colors, size } = useTheme();
   const pageEnd = usePageEnd();
-  const router = useRouter();
   const routine = useRoutine(id);
 
   function renderContent() {
@@ -56,12 +63,7 @@ export function RoutineScreen({ id }: { id: string }) {
         paddingBottom: pageEnd,
       }}
     >
-      <BackLink
-        label="Routines"
-        onPress={() => {
-          router.back();
-        }}
-      />
+      <FromBackLink from={from} fallback="Routines" />
       {renderContent()}
     </ScrollView>
   );
@@ -70,6 +72,7 @@ export function RoutineScreen({ id }: { id: string }) {
 function Details({ routine }: { routine: Routine }) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
+  const links = useLinks(`routine:${routine.id}`);
   const deleteRoutine = useDeleteRoutine();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -133,7 +136,10 @@ function Details({ routine }: { routine: Routine }) {
 
       <View style={{ gap: space.sm }}>
         <SectionTitle>Exercises</SectionTitle>
-        <ExerciseTargets exercises={routine.exercises} />
+        <ExerciseTargets
+          exercises={routine.exercises}
+          onOpen={links.exercise}
+        />
       </View>
 
       <Sheet

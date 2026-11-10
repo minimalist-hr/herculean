@@ -295,6 +295,11 @@ internal sealed class FakeDayReadRepository : IDayReadRepository
     public Task<List<DayExerciseResponse>> ListExercisesAsync(RoutineId routineId, CancellationToken cancellationToken) => Task.FromResult(Exercises);
 
     public Task<bool> HasRoutinesAsync(CancellationToken cancellationToken) => Task.FromResult(HasRoutines);
+
+    public HashSet<RoutineId> DeletedRoutines { get; } = [];
+
+    public Task<bool> RoutineExistsAsync(RoutineId routineId, CancellationToken cancellationToken) =>
+        Task.FromResult(!DeletedRoutines.Contains(routineId));
 }
 
 internal sealed class FakeWorkoutReadRepository : IWorkoutReadRepository

@@ -1175,6 +1175,8 @@ export interface components {
              * @description The high end of the rep range.
              */
             targetRepsTo: number;
+            /** @description Whether the exercise still exists, so it can be opened. False once it is deleted. */
+            exists: boolean;
         };
         /** @description One day: its status, its routine and the day after it. */
         DayResponse: {
@@ -1205,6 +1207,8 @@ export interface components {
             id: string;
             /** @description The routine's name. */
             name: string;
+            /** @description Whether the routine still exists, so it can be opened. False once it is deleted. */
+            exists: boolean;
             /** @description Its exercises in order. */
             exercises: components["schemas"]["DayExerciseResponse"][];
         };
@@ -2078,6 +2082,11 @@ export interface components {
              * @description Its date.
              */
             date: string;
+            /**
+             * Format: uuid
+             * @description The ID of the routine planned on it. Null on a rest day.
+             */
+            routineId: null | string;
             /** @description The name of the routine planned on it. Null on a rest day. */
             routineName: null | string;
         };
@@ -2191,6 +2200,8 @@ export interface components {
             /** @description Its sets in order. */
             sets: components["schemas"]["SetResponse"][];
             lastTime: null | components["schemas"]["LastTimeResponse"];
+            /** @description Whether the exercise still exists, so it can be opened. False once it is deleted. */
+            exists: boolean;
         };
         /** @description A set that beat every earlier set of its exercise. */
         WorkoutRecordResponse: {

@@ -267,6 +267,41 @@ public sealed class WorkoutTotalsReadTests : IDisposable
         (await repository.GetDeletedAsync(workout.Id, Token)).ShouldBe(workout);
     }
 
+    [Fact]
+    public async Task ADeletedExerciseInAWorkoutDoesNotExist()
+    {
+        Exercise kept = await SaveExerciseAsync();
+        Exercise deleted = await SaveExerciseAsync();
+        Workout keptWorkout = await SaveWorkoutAsync(kept, Date, finish: true, (100m, 5));
+        Workout deletedWorkout = await SaveWorkoutAsync(deleted, Date.AddDays(1), finish: true, (100m, 5));
+        deleted.Delete(Now);
+        await _dbContext.SaveChangesAsync(Token);
+        DayReadRepository days = new(_dbContext);
+        WorkoutReadRepository workouts = new(_dbContext);
+
+        (await days.ListWorkoutExercisesAsync(keptWorkout.Id, Token)).ShouldHaveSingleItem().Exists.ShouldBeTrue();
+        (await days.ListWorkoutExercisesAsync(deletedWorkout.Id, Token)).ShouldHaveSingleItem().Exists.ShouldBeFalse();
+        (await workouts.GetAsync(keptWorkout.Id, Token)).ShouldNotBeNull().Exercises.ShouldHaveSingleItem().Exists.ShouldBeTrue();
+        (await workouts.GetAsync(deletedWorkout.Id, Token)).ShouldNotBeNull().Exercises.ShouldHaveSingleItem().Exists.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ARoutineExistsUntilItIsDeleted()
+    {
+        Exercise exercise = await SaveExerciseAsync();
+        Routine routine = Routine.Create(_userId, "Legs", [new RoutineExerciseValues(exercise.Id, 3, 8, 10)]);
+        _dbContext.Routines.Add(routine);
+        await _dbContext.SaveChangesAsync(Token);
+        DayReadRepository days = new(_dbContext);
+
+        (await days.RoutineExistsAsync(routine.Id, Token)).ShouldBeTrue();
+
+        routine.Delete(Now);
+        await _dbContext.SaveChangesAsync(Token);
+
+        (await days.RoutineExistsAsync(routine.Id, Token)).ShouldBeFalse();
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

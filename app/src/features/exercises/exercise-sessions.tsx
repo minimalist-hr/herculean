@@ -2,9 +2,11 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { ChevronRightIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
+import { Tappable } from '@/components/tappable';
 import { dateFromText } from '@/formats/dates';
 import {
   formatLastTime,
@@ -26,9 +28,12 @@ type Sessions = ReturnType<typeof useExerciseSessions>;
 export function ExerciseSessions({
   sessions,
   units,
+  onOpen,
 }: {
   sessions: Sessions;
   units: Units;
+  /** Opens a session's workout. */
+  onOpen: (workoutId: string) => void;
 }) {
   const { space } = useTheme();
 
@@ -73,6 +78,7 @@ export function ExerciseSessions({
             count={counts.get(month) ?? monthSessions.length}
             sessions={monthSessions}
             units={units}
+            onOpen={onOpen}
           />
         ))}
         {sessions.isFetchingNextPage && (
@@ -103,11 +109,13 @@ function Month({
   count,
   sessions,
   units,
+  onOpen,
 }: {
   month: string;
   count: number;
   sessions: Session[];
   units: Units;
+  onOpen: (workoutId: string) => void;
 }) {
   const { colors, space, text } = useTheme();
 
@@ -129,6 +137,9 @@ function Month({
             session={session}
             units={units}
             first={index === 0}
+            onOpen={() => {
+              onOpen(session.workoutId);
+            }}
           />
         ))}
       </Card>
@@ -176,17 +187,25 @@ function SessionRow({
   session,
   units,
   first,
+  onOpen,
 }: {
   session: Session;
   units: Units;
   first: boolean;
+  onOpen: () => void;
 }) {
   const { colors, text } = useTheme();
   const rowStyle = useRowStyle(first);
   const weighted = session.sets.some((set) => set.weightKg > 0);
 
   return (
-    <View style={rowStyle}>
+    <Tappable
+      feedback="fill"
+      accessibilityRole="button"
+      accessibilityLabel={`${formatShortDate(session.date)}, ${session.workoutName}`}
+      onPress={onOpen}
+      style={rowStyle}
+    >
       <View style={styles.when}>
         <Text style={[text.listItemName, { color: colors.text }]}>
           {formatShortDate(session.date)}
@@ -205,7 +224,8 @@ function SessionRow({
           </Text>
         )}
       </View>
-    </View>
+      <ChevronRightIcon color={colors.muted} size={16} />
+    </Tappable>
   );
 }
 
@@ -220,6 +240,7 @@ function SkeletonRow({ first }: { first: boolean }) {
         <Skeleton width={110} height={10} />
       </View>
       <Skeleton width={120} height={14} />
+      <View style={styles.chevronRoom} />
     </View>
   );
 }
@@ -251,6 +272,10 @@ function monthHeading(month: string) {
 }
 
 const styles = StyleSheet.create({
+  // The skeleton keeps the chevron's room, so nothing moves when the rows load.
+  chevronRoom: {
+    width: 16,
+  },
   card: {
     borderWidth: 1,
     overflow: 'hidden',

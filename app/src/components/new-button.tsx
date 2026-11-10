@@ -53,7 +53,7 @@ export function NewButton({
         },
       ]}
     >
-      <PlusIcon color={colors.onPrimary} size={24} />
+      <PlusIcon color={colors.onPrimary} size={20} />
     </Tappable>
   );
 }

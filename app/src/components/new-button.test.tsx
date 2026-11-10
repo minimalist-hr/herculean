@@ -36,7 +36,7 @@ beforeEach(() => {
 test('sits 16 px above the tab bar, square, and takes a press', async () => {
   const button = await renderButton();
 
-  expect(button).toHaveStyle({ bottom: 16, width: 56, height: 56 });
+  expect(button).toHaveStyle({ bottom: 16, width: 48, height: 48 });
   await fireEvent.press(button);
   expect(onPress).toHaveBeenCalled();
 });
