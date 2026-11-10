@@ -9,6 +9,9 @@ import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import { Button } from '@/components/button';
+
+import { useOpenDay } from './open-day';
 import { WorkoutScreen } from './workout-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
@@ -1328,4 +1331,38 @@ describe('other weeks', () => {
     expect(await screen.findByText('Wed, 4th November')).toBeOnTheScreen();
     expect(requestedDays()).toContain('/api/v1/days/2026-11-04');
   });
+});
+
+function OpensAnotherDay() {
+  const openDay = useOpenDay();
+
+  return (
+    <Button
+      label="Open Friday"
+      onPress={() => {
+        openDay('2026-11-06');
+      }}
+    />
+  );
+}
+
+test('a day opened from elsewhere shows selected, with Back to today', async () => {
+  answer(restDay);
+  await renderRouter(
+    {
+      _layout: Layout,
+      index: OpensAnotherDay,
+      'workout/index': () => <WorkoutScreen />,
+    },
+    { initialUrl: '/' },
+  );
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Open Friday' }));
+
+  expect(
+    await screen.findByRole('header', { name: 'Friday' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Back to today' }),
+  ).toBeOnTheScreen();
 });

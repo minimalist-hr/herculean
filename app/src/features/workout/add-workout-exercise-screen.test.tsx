@@ -11,6 +11,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { AddWorkoutExerciseScreen } from './add-workout-exercise-screen';
 import { WorkoutPicksProvider } from './workout-picks';
+import NewGroupRoute from '@/app/group/new';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -57,6 +58,7 @@ const workout = {
 };
 
 let adding: () => Response;
+let savedGroups: (typeof legs)[];
 
 function answerWith(request: Request) {
   const { pathname } = new URL(request.url);
@@ -66,8 +68,14 @@ function answerWith(request: Request) {
   if (pathname === '/api/v1/workouts/w1') {
     return Promise.resolve(Response.json(workout));
   }
+  if (pathname === '/api/v1/groups' && request.method === 'POST') {
+    savedGroups = [...savedGroups, { ...legs, id: 'arms', name: 'Arms' }];
+    return Promise.resolve(
+      Response.json({ id: 'arms', name: 'Arms' }, { status: 201 }),
+    );
+  }
   if (pathname === '/api/v1/groups') {
-    return Promise.resolve(Response.json([legs]));
+    return Promise.resolve(Response.json(savedGroups));
   }
   if (pathname === '/api/v1/users/me') {
     return Promise.resolve(Response.json({ units: 'metric' }));
@@ -122,6 +130,7 @@ async function renderAdd() {
     {
       _layout: Layout,
       index: Start,
+      'group/new': NewGroupRoute,
       add: () => (
         <WorkoutPicksProvider>
           <AddWorkoutExerciseScreen id="w1" />
@@ -135,6 +144,7 @@ async function renderAdd() {
 }
 
 beforeEach(() => {
+  savedGroups = [legs];
   adding = () =>
     Response.json({
       ...workout,
@@ -247,4 +257,20 @@ test('if the groups fail, the chips say so and Try again loads them', async () =
 
   expect(await screen.findByRole('button', { name: 'Legs' })).toBeOnTheScreen();
   expect(screen.queryByText('Couldn’t load your groups.')).toBeNull();
+});
+
+test('New group makes a group and comes back with it selected', async () => {
+  await renderAdd();
+
+  await fireEvent.press(screen.getByRole('link', { name: 'New group' }));
+  expect(
+    await screen.findByRole('link', { name: 'Add exercise' }),
+  ).toBeOnTheScreen();
+  await fireEvent.changeText(await screen.findByLabelText('Name'), 'Arms');
+  const saves = screen.getAllByRole('button', { name: 'Save group' });
+  await fireEvent.press(saves[saves.length - 1]);
+
+  expect(
+    await screen.findByRole('button', { name: 'Arms', selected: true }),
+  ).toBeOnTheScreen();
 });

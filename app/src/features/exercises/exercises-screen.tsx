@@ -11,13 +11,15 @@ import {
 import type { components } from '@/api/schema';
 import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
-import { BottomActionBox } from '@/components/bottom-action-box';
-import { Button } from '@/components/button';
+import { NewButton, useNewButtonRoom } from '@/components/new-button';
 import { Chip, ChipLink } from '@/components/chip';
-import { PlusIcon } from '@/components/icons';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
+import {
+  StickyControls,
+  useStickyControls,
+} from '@/components/sticky-controls';
 import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
 import { useTheme } from '@/theme/theme-provider';
@@ -28,11 +30,13 @@ import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
 import { useExercises } from './use-exercises';
 import { noGroupsMessage, useGroups } from './use-groups';
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 
 type Exercise = components['schemas']['ExerciseListItemResponse'];
 
 type ListItem =
+  | { kind: 'heading' }
+  | { kind: 'controls' }
   | { kind: 'message' }
   | { kind: 'section'; title: string }
   | { kind: 'row'; exercise: Exercise; first: boolean; last: boolean };
@@ -41,9 +45,11 @@ const searchWaitMs = 300;
 
 export function ExercisesScreen() {
   const { colors, size, space } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const pageEnd = usePageEnd();
+  const newButtonRoom = useNewButtonRoom();
   const router = useRouter();
   const listRef = useRef<FlatListInstance>(null);
+  const sticky = useStickyControls();
   const [searchText, setSearchText] = useState('');
   const [groupId, setGroupId] = useState<string>();
   // New exercise returns here with its id. Clearing the filters makes sure it is in the list.
@@ -72,10 +78,14 @@ export function ExercisesScreen() {
     ? noGroupsMessage
     : 'Create an exercise first.';
 
-  // New results start at the top. The list also never has to clamp its own scroll when it gets shorter.
+  // New results start at the top, under the controls if the heading had scrolled away.
+  const { resultsOffset } = sticky;
   useEffect(() => {
-    listRef.current?.scrollToOffset({ offset: 0, animated: false });
-  }, [search, groupId, created]);
+    listRef.current?.scrollToOffset({
+      offset: resultsOffset(),
+      animated: false,
+    });
+  }, [search, groupId, created, resultsOffset]);
 
   function changeSearch(text: string) {
     dismissNotification();
@@ -108,6 +118,7 @@ export function ExercisesScreen() {
   function renderTitle() {
     return (
       <View
+        onLayout={sticky.onHeadingLayout}
         style={{
           paddingTop: size.topPaddingTab,
           paddingHorizontal: size.sidePadding,
@@ -124,7 +135,7 @@ export function ExercisesScreen() {
 
   function renderControls() {
     return (
-      <>
+      <StickyControls lined={sticky.lined}>
         <View style={{ paddingHorizontal: size.sidePadding }}>
           <SearchField
             label="Search exercises"
@@ -181,7 +192,7 @@ export function ExercisesScreen() {
             </>
           )}
         </ScrollView>
-      </>
+      </StickyControls>
     );
   }
 
@@ -230,6 +241,10 @@ export function ExercisesScreen() {
 
   function renderItem(item: ListItem) {
     switch (item.kind) {
+      case 'heading':
+        return renderTitle();
+      case 'controls':
+        return renderControls();
       case 'message':
         return (
           <View
@@ -275,29 +290,33 @@ export function ExercisesScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-      {renderTitle()}
-      <View style={{ gap: space.sm, paddingBottom: space.md }}>
-        {renderControls()}
-      </View>
       <FlatList
         ref={listRef}
-        data={toItems(list)}
-        extraData={[groups.data, loading, failed, units, search, groupId]}
+        data={[{ kind: 'heading' }, { kind: 'controls' }, ...toItems(list)]}
+        stickyHeaderIndices={[1]}
+        onScroll={sticky.onScroll}
+        scrollEventThrottle={16}
+        extraData={[
+          groups.data,
+          loading,
+          failed,
+          units,
+          search,
+          searchText,
+          groupId,
+          sticky.lined,
+        ]}
         keyExtractor={keyOf}
         renderItem={({ item }) => renderItem(item)}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        contentContainerStyle={{ paddingBottom: space.xl + floatingRoom }}
+        contentContainerStyle={{ paddingBottom: pageEnd + newButtonRoom }}
       />
-      <BottomActionBox aboveTabBar>
-        <Button
-          label="New exercise"
-          variant="secondary"
-          icon={PlusIcon}
-          muted={noGroups}
-          onPress={openNewExercise}
-        />
-      </BottomActionBox>
+      <NewButton
+        label="New exercise"
+        muted={noGroups}
+        onPress={openNewExercise}
+      />
     </View>
   );
 }

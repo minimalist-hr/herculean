@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import type { ReactNode } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
@@ -13,9 +14,16 @@ interface ScreenHeadingProps {
   /** Null while it loads. */
   title: string | null;
   subtitle?: string;
+  /** A header icon button beside the title. */
+  action?: ReactNode;
 }
 
-export function ScreenHeading({ label, title, subtitle }: ScreenHeadingProps) {
+export function ScreenHeading({
+  label,
+  title,
+  subtitle,
+  action,
+}: ScreenHeadingProps) {
   const { colors, space, text } = useTheme();
 
   return (
@@ -24,19 +32,36 @@ export function ScreenHeading({ label, title, subtitle }: ScreenHeadingProps) {
         <SkeletonLine width={180} height={10} lineHeight={textLine.eyebrow} />
       )}
       {typeof label === 'string' && <Text style={text.eyebrow}>{label}</Text>}
-      {title === null ? (
-        <SkeletonLine width={220} height={28} lineHeight={textLine.pageTitle} />
-      ) : (
-        <Text
-          accessibilityRole="header"
-          style={[text.pageTitle, { color: colors.text }]}
-        >
-          {title}
-        </Text>
-      )}
+      <View style={[styles.titleRow, { gap: space.sm }]}>
+        {title === null ? (
+          <SkeletonLine
+            width={220}
+            height={28}
+            lineHeight={textLine.pageTitle}
+          />
+        ) : (
+          <Text
+            accessibilityRole="header"
+            style={[text.pageTitle, styles.title, { color: colors.text }]}
+          >
+            {title}
+          </Text>
+        )}
+        {action}
+      </View>
       {subtitle !== undefined && (
         <Text style={[text.body, { color: colors.muted }]}>{subtitle}</Text>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  title: {
+    flex: 1,
+  },
+});

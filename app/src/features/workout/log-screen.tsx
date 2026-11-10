@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { usePageEnd } from '@/components/above-tab-bar';
 import { BackLink } from '@/components/back-link';
-import { useBottomRoom } from '@/components/tab-bar';
 import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -29,7 +29,6 @@ import { useTheme } from '@/theme/theme-provider';
 import { dateFromText } from '@/formats/dates';
 import { ClosedExercise, OpenExercise } from './log-exercise';
 import { useAddSet } from './use-add-set';
-import { SetSheet, type SetEdit } from './set-sheet';
 import { maxExercisesPerWorkout } from './set-values';
 import { RestBar, restBarRoom } from './rest-bar';
 import { afterCheck, afterUncheck } from './rest-timer';
@@ -64,7 +63,6 @@ export function LogScreen({
 }) {
   const { colors, size } = useTheme();
   const goBack = useGoBack(openedFromHome);
-  const bottomRoom = useBottomRoom();
   const workout = useWorkout(id);
   const settings = useWorkoutSettings();
   const { rest, update } = useRestTimer(id);
@@ -131,6 +129,7 @@ export function LogScreen({
       : shownRest.open
         ? restBarRoom.open
         : restBarRoom.hidden;
+  const pageEnd = usePageEnd(barRoom);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
@@ -138,7 +137,7 @@ export function LogScreen({
         contentContainerStyle={{
           paddingTop: size.topPaddingSubPage,
           paddingHorizontal: size.sidePadding,
-          paddingBottom: size.gap.sectionMax + barRoom + bottomRoom,
+          paddingBottom: pageEnd,
         }}
       >
         <BackLink
@@ -161,27 +160,18 @@ export function LogScreen({
 
 function Heading({ workout }: { workout: Workout }) {
   const { colors, space, text } = useTheme();
-  const router = useRouter();
   const elapsed = useElapsed(workout.startedAtUtc);
   const { done, total } = workoutProgress(workout.exercises);
   const date = shortWeekdayDate(dateFromText(workout.date));
 
   return (
     <View style={{ gap: space.sm }}>
-      <View style={[styles.titleRow, { gap: space.md }]}>
-        <Text
-          accessibilityRole="header"
-          style={[text.pageTitle, styles.title, { color: colors.text }]}
-        >
-          {workout.name}
-        </Text>
-        <Button
-          label="Finish"
-          onPress={() => {
-            router.push(`/workout/log/${workout.id}/finish` as Href);
-          }}
-        />
-      </View>
+      <Text
+        accessibilityRole="header"
+        style={[text.pageTitle, { color: colors.text }]}
+      >
+        {workout.name}
+      </Text>
       <Text style={text.meta}>
         {elapsed === null ? date : `${date} · ${formatClock(elapsed)}`}
       </Text>
@@ -220,10 +210,6 @@ function Logging({
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   // Undefined until something is picked: the first unfinished one opens. Null closes them all.
   const [chosenId, setChosenId] = useState<string | null>();
-  const [edit, setEdit] = useState<SetEdit | null>(null);
-  const [editing, setEditing] = useState(false);
-  // Each opening starts the sheet again from the set.
-  const [openings, setOpenings] = useState(0);
   const exercises = workout.exercises;
   // An exercise that wasn't here before opens, so what was just added is ready to log.
   const [knownIds, setKnownIds] = useState(() =>
@@ -291,14 +277,15 @@ function Logging({
                 units={units}
                 adding={addSet.isPending}
                 onEdit={(set, field) => {
-                  setEdit({
-                    exercise,
-                    set,
-                    index: exercise.sets.indexOf(set),
-                    field,
+                  router.push({
+                    pathname: '/workout/log/[id]/set',
+                    params: {
+                      id: workout.id,
+                      exercise: exercise.id,
+                      set: set.id,
+                      field,
+                    },
                   });
-                  setEditing(true);
-                  setOpenings((count) => count + 1);
                 }}
                 onToggle={(set) => {
                   toggle(exercise, set);
@@ -377,6 +364,13 @@ function Logging({
         </View>
       </View>
 
+      <Button
+        label="Finish"
+        onPress={() => {
+          router.push(`/workout/log/${workout.id}/finish` as Href);
+        }}
+      />
+
       {removing !== null && (
         <Sheet
           visible={confirmingRemove}
@@ -407,19 +401,6 @@ function Logging({
             }}
           />
         </Sheet>
-      )}
-
-      {edit !== null && (
-        <SetSheet
-          key={openings}
-          workoutId={workout.id}
-          edit={edit}
-          visible={editing}
-          units={units}
-          onClose={() => {
-            setEditing(false);
-          }}
-        />
       )}
     </View>
   );
@@ -455,16 +436,7 @@ function LoggingSkeleton() {
   return (
     <View style={{ gap: space.lg, marginTop: space.xxxs }}>
       <View style={{ gap: space.sm }}>
-        <View style={[styles.titleRow, { gap: space.md }]}>
-          <View style={styles.title}>
-            <SkeletonLine
-              width={220}
-              height={28}
-              lineHeight={textLine.pageTitle}
-            />
-          </View>
-          <NotLoadedButton label="Finish" />
-        </View>
+        <SkeletonLine width={220} height={28} lineHeight={textLine.pageTitle} />
         <SkeletonLine width={150} height={10} lineHeight={textLine.meta} />
         <SkeletonLine width={90} height={10} lineHeight={textLine.meta} />
         <ProgressBar done={0} total={0} />
@@ -478,20 +450,13 @@ function LoggingSkeleton() {
           ))}
         </Card>
       </SkeletonGroup>
+      <NotLoadedButton label="Finish" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
-    flex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
     flex: 1,
   },
   done: {

@@ -12,6 +12,7 @@ import {
   NewExerciseForEditedWorkoutScreen,
 } from './add-to-edited-workout-screen';
 import { EditWorkoutDraft, EditWorkoutScreen } from './edit-workout-screen';
+import EditSetRoute from '@/app/(tabs)/workout/edit/[id]/set';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -156,6 +157,7 @@ async function renderEdit({ loaded = true } = {}) {
       'workout/edit/[id]/index': EditWorkoutScreen,
       'workout/edit/[id]/add': AddToEditedWorkoutScreen,
       'workout/edit/[id]/new-exercise': NewExerciseForEditedWorkoutScreen,
+      'workout/edit/[id]/set': EditSetRoute,
     },
     { initialUrl: '/' },
   );
@@ -265,6 +267,9 @@ test('a removed set comes back with Undo, where it was', async () => {
   await renderEdit();
 
   await fireEvent.press(screen.getByLabelText('Set 1 reps, 5'));
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Remove set 1' }),
+  );
   await fireEvent.press(
     await screen.findByRole('button', { name: 'Remove set' }),
   );

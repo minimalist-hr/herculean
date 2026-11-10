@@ -1,10 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { BackspaceIcon, TrashIcon } from '@/components/icons';
 import { notifyFailure } from '@/components/notifications';
+import { useLeaveGuard } from '@/components/use-leave-guard';
+import { FormPage } from '@/components/form-page';
 import { Sheet } from '@/components/sheet';
 import { Tappable } from '@/components/tappable';
 import { formatSet, weightIn, weightUnitOf } from '@/formats/formats';
@@ -18,14 +21,12 @@ import {
   toKg,
   type SetField,
 } from './set-values';
-import { useDeleteSet } from './use-delete-set';
-import { useUpdateSet } from './use-update-set';
 
 type WorkoutExercise = components['schemas']['WorkoutExerciseResponse'];
 type WorkoutSet = components['schemas']['SetResponse'];
 type Units = components['schemas']['Units'];
 
-/** The set a sheet edits. It's kept as it was when opened, so the sheet stays filled in while it closes. */
+/** The set a page edits, as it was when the page opened. */
 export interface SetEdit {
   exercise: WorkoutExercise;
   set: WorkoutSet;
@@ -33,11 +34,26 @@ export interface SetEdit {
   field: SetField;
 }
 
+/** The set a page opens, or null while it isn't there. */
+export function findSetEdit(
+  exercises: readonly WorkoutExercise[] | undefined,
+  exerciseId: string,
+  setId: string,
+  field: SetField,
+): SetEdit | null {
+  const exercise = exercises?.find((item) => item.id === exerciseId);
+  const index = exercise?.sets.findIndex((set) => set.id === setId) ?? -1;
+  if (exercise === undefined || index === -1) {
+    return null;
+  }
+
+  return { exercise, set: exercise.sets[index], index, field };
+}
+
 const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'back'];
 
-/** A key's height, which gives way on a small phone so the whole sheet shows without scrolling. */
-const keyHeight = { full: 52, least: 40 };
-const keyRows = 4;
+/** A key's height. */
+const keyHeight = 52;
 
 const keyLabels: Record<string, string> = {
   '.': 'Decimal point',
@@ -143,72 +159,31 @@ function stepLabel(direction: string, field: SetField, units: Units) {
   return `${direction} ${String(stepOf(field, units))} ${unit}`;
 }
 
-/** A set's sheet: the values, a keypad and Save set. It's mounted anew for each opening, so it starts from the set. */
-/** The values a set's sheet saves. A field left out didn't change. */
+/** The values a set's page saves. A field left out didn't change. */
 export interface SetChanges {
   weightKg?: number;
   reps?: number;
 }
 
-/** L01's set sheet: every change saves to the workout right away. */
-export function SetSheet({
-  workoutId,
+/** A set's page: last time, the values, steppers, a keypad, the trash and Save set. Where a change goes is up to the screen. */
+export function SetEditorPage({
+  back,
   edit,
-  visible,
   units,
-  onClose,
-}: {
-  workoutId: string;
-  edit: SetEdit;
-  visible: boolean;
-  units: Units;
-  onClose: () => void;
-}) {
-  const updateSet = useUpdateSet(workoutId);
-  const deleteSet = useDeleteSet(workoutId);
-
-  return (
-    <SetEditorSheet
-      edit={edit}
-      visible={visible}
-      units={units}
-      saving={updateSet.isPending}
-      onSave={(changes) => {
-        updateSet.mutate(
-          { workoutExerciseId: edit.exercise.id, setId: edit.set.id, changes },
-          { onSuccess: onClose },
-        );
-      }}
-      onRemove={() => {
-        onClose();
-        deleteSet.mutate({
-          workoutExerciseId: edit.exercise.id,
-          set: edit.set,
-        });
-      }}
-      onClose={onClose}
-    />
-  );
-}
-
-/** A set's keypad, steppers and trash. Where a change goes is up to the screen. */
-export function SetEditorSheet({
-  edit,
-  visible,
-  units,
-  saving,
+  saving = false,
   onSave,
   onRemove,
-  onClose,
 }: {
+  /** The screen its back link returns to. */
+  back: string;
   edit: SetEdit;
-  visible: boolean;
   units: Units;
-  saving: boolean;
-  onSave: (changes: SetChanges) => void;
+  saving?: boolean;
+  /** Saves the changes. Calling done leaves the page. */
+  onSave: (changes: SetChanges, done: () => void) => void;
   onRemove: () => void;
-  onClose: () => void;
 }) {
+  const router = useRouter();
   const { colors, opacity, radius, size, space, text } = useTheme();
   const { exercise, set, index } = edit;
   const startWeight = String(weightIn(set.weightKg, units));
@@ -217,12 +192,11 @@ export function SetEditorSheet({
   const [weight, setWeight] = useState(startWeight);
   const [reps, setReps] = useState(startReps);
   const [fresh, setFresh] = useState(true);
-  const [height, setHeight] = useState(keyHeight.full);
-  const shrinkKeys = useCallback((points: number) => {
-    setHeight((current) =>
-      Math.max(keyHeight.least, current - Math.ceil(points / keyRows)),
-    );
-  }, []);
+  const changed =
+    Number(weight) !== Number(startWeight) ||
+    Number(reps) !== Number(startReps);
+  const guard = useLeaveGuard(changed);
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
   const value = field === 'weight' ? weight : reps;
   const setValue = field === 'weight' ? setWeight : setReps;
   const problem =
@@ -265,11 +239,14 @@ export function SetEditorSheet({
       reps: Number(reps) === Number(startReps) ? undefined : Number(reps),
     };
     if (changes.weightKg === undefined && changes.reps === undefined) {
-      onClose();
+      router.back();
       return;
     }
 
-    onSave(changes);
+    guard.allow();
+    onSave(changes, () => {
+      router.back();
+    });
   }
 
   function remove() {
@@ -280,97 +257,111 @@ export function SetEditorSheet({
       return;
     }
 
+    setConfirmingRemove(true);
+  }
+
+  function confirmRemove() {
+    setConfirmingRemove(false);
+    guard.allow();
     onRemove();
+    router.back();
   }
 
   return (
-    <Sheet
-      visible={visible}
-      title={`Set ${String(index + 1)} · ${exercise.name}`}
-      onClose={onClose}
-      bodyGap={space.sm}
-      onOverflow={shrinkKeys}
-      body={
-        <View style={{ gap: space.md }}>
-          <View style={[styles.lastTime, { gap: space.md }]}>
-            <View style={[styles.lastTimeText, { gap: space.sm }]}>
-              <Text style={[text.body, { color: colors.muted }]}>
-                Last time
-              </Text>
-              <Text style={[text.listItemName, { color: colors.text }]}>
-                {lastTime
-                  ? formatSet(lastTime.weightKg, lastTime.reps, units)
-                  : '–'}
-              </Text>
-            </View>
-            <Tappable
-              accessibilityRole="button"
-              accessibilityLabel="Remove set"
-              onPress={remove}
-              style={[
-                styles.trash,
-                {
-                  width: size.touchTargetMin,
-                  height: size.touchTargetMin,
-                  borderRadius: radius.control,
-                  borderColor: colors.border,
-                  backgroundColor: colors.raised,
-                  opacity: onlySet ? opacity.dimmed : undefined,
-                },
-              ]}
-            >
-              <TrashIcon color={colors.dangerFill} size={20} />
-            </Tappable>
-          </View>
-
-          <View style={[styles.pair, { gap: space.sm }]}>
-            <ValueTile
-              label="Weight"
-              value={weight === '' ? '0' : weight}
-              unit={weightUnitOf(units)}
-              spoken={`Weight, ${weight === '' ? '0' : weight} ${units === 'metric' ? 'kilograms' : 'pounds'}`}
-              selected={field === 'weight'}
-              onPress={() => {
-                pick('weight');
-              }}
-            />
-            <ValueTile
-              label="Reps"
-              value={reps === '' ? '0' : reps}
-              spoken={`Reps, ${reps === '' ? '0' : reps}`}
-              selected={field === 'reps'}
-              onPress={() => {
-                pick('reps');
-              }}
-            />
-          </View>
-
-          <View style={[styles.pair, { gap: space.sm }]}>
-            {([-1, 1] as const).map((direction) => (
-              <View key={direction} style={styles.stepSlot}>
-                <Button
-                  label={stepLabel(direction < 0 ? '−' : '+', field, units)}
-                  variant="secondary"
-                  onPress={() => {
-                    step(direction);
-                  }}
-                />
-              </View>
-            ))}
-          </View>
-
-          <Keypad field={field} height={height} onPress={press} />
-        </View>
+    <FormPage
+      back={back}
+      title={`Set ${String(index + 1)}`}
+      subtitle={exercise.name}
+      action={
+        <Button
+          label="Save set"
+          waitingLabel="Saving set"
+          waiting={saving}
+          muted={problem !== null}
+          onPress={save}
+        />
       }
     >
-      <Button
-        label="Save set"
-        waitingLabel="Saving set"
-        waiting={saving}
-        muted={problem !== null}
-        onPress={save}
-      />
-    </Sheet>
+      <View style={{ gap: space.md }}>
+        <View style={[styles.lastTime, { gap: space.md }]}>
+          <View style={[styles.lastTimeText, { gap: space.sm }]}>
+            <Text style={[text.body, { color: colors.muted }]}>Last time</Text>
+            <Text style={[text.listItemName, { color: colors.text }]}>
+              {lastTime
+                ? formatSet(lastTime.weightKg, lastTime.reps, units)
+                : '–'}
+            </Text>
+          </View>
+          <Tappable
+            accessibilityRole="button"
+            accessibilityLabel={`Remove set ${String(index + 1)}`}
+            onPress={remove}
+            style={[
+              styles.trash,
+              {
+                width: size.touchTargetMin,
+                height: size.touchTargetMin,
+                borderRadius: radius.control,
+                borderColor: colors.border,
+                backgroundColor: colors.raised,
+                opacity: onlySet ? opacity.dimmed : undefined,
+              },
+            ]}
+          >
+            <TrashIcon color={colors.dangerFill} size={20} />
+          </Tappable>
+        </View>
+
+        <View style={[styles.pair, { gap: space.sm }]}>
+          <ValueTile
+            label="Weight"
+            value={weight === '' ? '0' : weight}
+            unit={weightUnitOf(units)}
+            spoken={`Weight, ${weight === '' ? '0' : weight} ${units === 'metric' ? 'kilograms' : 'pounds'}`}
+            selected={field === 'weight'}
+            onPress={() => {
+              pick('weight');
+            }}
+          />
+          <ValueTile
+            label="Reps"
+            value={reps === '' ? '0' : reps}
+            spoken={`Reps, ${reps === '' ? '0' : reps}`}
+            selected={field === 'reps'}
+            onPress={() => {
+              pick('reps');
+            }}
+          />
+        </View>
+
+        <View style={[styles.pair, { gap: space.sm }]}>
+          {([-1, 1] as const).map((direction) => (
+            <View key={direction} style={styles.stepSlot}>
+              <Button
+                label={stepLabel(direction < 0 ? '−' : '+', field, units)}
+                variant="secondary"
+                onPress={() => {
+                  step(direction);
+                }}
+              />
+            </View>
+          ))}
+        </View>
+
+        <Keypad field={field} height={keyHeight} onPress={press} />
+      </View>
+      <Sheet
+        visible={confirmingRemove}
+        title={`Remove set ${String(index + 1)}?`}
+        message={`It comes off ${exercise.name} in this workout.`}
+        onClose={() => {
+          setConfirmingRemove(false);
+        }}
+      >
+        <Button label="Remove set" variant="danger" onPress={confirmRemove} />
+      </Sheet>
+      {guard.sheet}
+    </FormPage>
   );
 }
 

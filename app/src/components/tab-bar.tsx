@@ -1,7 +1,6 @@
 import { usePathname } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme/theme-provider';
 import { Tappable } from './tappable';
@@ -12,23 +11,11 @@ export const tabScreenOptions = { headerShown: false, popToTopOnBlur: true };
 /** Keeps a tab's first page under a page opened from another tab, so leaving the tab can return to it. */
 export const tabStackSettings = { anchor: 'index' };
 
-/** Logging and editing a workout hide the tabs, like a modal: you go back or save. */
-const pathsWithoutTabs = [
-  '/workout/log/',
-  '/workout/edit/',
-  '/workout/exercise/',
-];
+/** Only a tab's first page shows the tabs. Every page with a back link hides them: you go back. */
+const tabPages = ['/', '/workout', '/routines', '/exercises'];
 
 export function hidesTabBar(pathname: string) {
-  return pathsWithoutTabs.some((path) => pathname.startsWith(path));
-}
-
-/** The room a page without the tab bar keeps at its end, so its last buttons clear the phone's own. */
-export function useBottomRoom() {
-  const pathname = usePathname();
-  const insets = useSafeAreaInsets();
-
-  return hidesTabBar(pathname) ? insets.bottom : 0;
+  return !tabPages.includes(pathname);
 }
 
 export function TabBar({

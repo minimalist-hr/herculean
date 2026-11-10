@@ -4,12 +4,12 @@ import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 
 import { NotificationBar } from '@/components/notification-bar';
-import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import NewGroupRoute from '@/app/group/new';
 
 import { GroupsScreen } from './groups-screen';
+import { ReorderGroupsScreen } from './reorder-groups-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -121,6 +121,7 @@ async function renderGroups() {
     _layout: Layout,
     index: GroupsScreen,
     'group/new': NewGroupRoute,
+    'exercises/groups/reorder': ReorderGroupsScreen,
   });
   await screen.findByRole('button', { name: /^Chest/ });
 }
@@ -134,7 +135,7 @@ function pressLast(name: string) {
 
 function groupNames() {
   return screen
-    .getAllByRole('button', { name: /^Move / })
+    .getAllByRole('button', { name: /exercises?$/ })
     .map((button) => button.props.accessibilityLabel as string);
 }
 
@@ -151,7 +152,11 @@ test('shows the skeleton, then the groups with their counts', async () => {
   expect(await screen.findByText('7 exercises')).toBeOnTheScreen();
   expect(screen.getByText('1 exercise')).toBeOnTheScreen();
   expect(screen.getByText('0 exercises')).toBeOnTheScreen();
-  expect(groupNames()).toEqual(['Move Chest', 'Move Back', 'Move Core']);
+  expect(groupNames()).toEqual([
+    'Chest, 7 exercises',
+    'Back, 1 exercise',
+    'Core, 0 exercises',
+  ]);
 });
 
 test('a failed read says so, and Try again reads it again', async () => {
@@ -214,17 +219,56 @@ test('a name another group has shows under Name and the page stays', async () =>
   expect(screen.getByRole('header', { name: 'New group' })).toBeOnTheScreen();
 });
 
-test('a search narrows the list and hides the handles and the hint', async () => {
+test('a search narrows the list', async () => {
   answer();
   await renderGroups();
-  expect(screen.getByText(/^Sort your exercise list/)).toBeOnTheScreen();
 
   await fireEvent.changeText(screen.getByLabelText('Search groups'), ' che ');
 
   expect(screen.getByRole('button', { name: /^Chest/ })).toBeOnTheScreen();
   expect(screen.queryByRole('button', { name: /^Back/ })).toBeNull();
-  expect(screen.queryByRole('button', { name: 'Move Chest' })).toBeNull();
-  expect(screen.queryByText(/^Sort your exercise list/)).toBeNull();
+});
+
+test('the list has no handles, and Reorder opens the reorder page', async () => {
+  answer();
+  await renderGroups();
+  expect(screen.queryByRole('button', { name: /^Move / })).toBeNull();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Reorder groups' }));
+
+  expect(
+    await screen.findByRole('header', { name: 'Reorder groups' }),
+  ).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('button', { name: 'Move Chest' }),
+  ).toBeOnTheScreen();
+});
+
+test('with one group, Reorder is muted and says why', async () => {
+  answer();
+  stored = stored.slice(0, 1);
+  await renderGroups();
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Reorder groups, not available yet' }),
+  );
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Create another group first.',
+  );
+});
+
+test('while loading, Reorder is muted and says why', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderRouter({ _layout: Layout, index: GroupsScreen });
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Reorder groups, not available yet' }),
+  );
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'This page hasn’t loaded yet.',
+  );
 });
 
 test('no matches says so, and New group starts from the search', async () => {
@@ -285,77 +329,6 @@ test('another failure keeps the page and says so', async () => {
   expect(screen.getByDisplayValue('Glutes')).toBeOnTheScreen();
 });
 
-test('dragging a handle down a place saves the new order', async () => {
-  answer();
-  await renderGroups();
-
-  await dragBy(screen.getByRole('button', { name: 'Move Chest' }), 70);
-
-  await waitFor(() => {
-    expect(groupNames()).toEqual(['Move Back', 'Move Chest', 'Move Core']);
-  });
-  await waitFor(() => {
-    expect(stored.map((group) => group.id)).toEqual(['back', 'chest', 'core']);
-  });
-});
-
-test('dragging a handle up past the top stops at the first place', async () => {
-  answer();
-  await renderGroups();
-
-  await dragBy(screen.getByRole('button', { name: 'Move Core' }), -1000);
-
-  await waitFor(() => {
-    expect(groupNames()).toEqual(['Move Core', 'Move Chest', 'Move Back']);
-  });
-});
-
-test('a drag that ends in the same place saves nothing', async () => {
-  answer();
-  await renderGroups();
-
-  await dragBy(screen.getByRole('button', { name: 'Move Back' }), 10);
-
-  expect(groupNames()).toEqual(['Move Chest', 'Move Back', 'Move Core']);
-  expect(sent('PUT')).toHaveLength(0);
-});
-
-test('moving a group saves the new order', async () => {
-  answer();
-  await renderGroups();
-
-  await fireEvent(
-    screen.getByRole('button', { name: 'Move Chest' }),
-    'accessibilityAction',
-    { nativeEvent: { actionName: 'moveDown' } },
-  );
-
-  await waitFor(() => {
-    expect(groupNames()).toEqual(['Move Back', 'Move Chest', 'Move Core']);
-  });
-  await waitFor(() => {
-    expect(stored.map((group) => group.id)).toEqual(['back', 'chest', 'core']);
-  });
-});
-
-test('a failed move says so and goes back', async () => {
-  answer({ PUT: () => problem(500, 'server_error', 'Something failed.') });
-  await renderGroups();
-
-  await fireEvent(
-    screen.getByRole('button', { name: 'Move Chest' }),
-    'accessibilityAction',
-    { nativeEvent: { actionName: 'moveDown' } },
-  );
-
-  expect(await screen.findByRole('alert')).toHaveTextContent(
-    'Couldn’t save the order. Try again.',
-  );
-  await waitFor(() => {
-    expect(groupNames()).toEqual(['Move Chest', 'Move Back', 'Move Core']);
-  });
-});
-
 test('with no groups, it says so and the search is muted and says why', async () => {
   answer();
   stored = [];
@@ -367,5 +340,11 @@ test('with no groups, it says so and the search is muted and says why', async ()
   await fireEvent.press(search);
   expect(await screen.findByText('Create a group first.')).toBeOnTheScreen();
   expect(screen.queryByText(/^No matches/)).toBeNull();
-  expect(screen.queryByText(/^Sort your exercise list/)).toBeNull();
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Reorder groups, not available yet' }),
+  );
+  expect(await screen.findAllByText('Create a group first.')).not.toHaveLength(
+    0,
+  );
 });

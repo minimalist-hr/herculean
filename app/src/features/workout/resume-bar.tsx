@@ -9,16 +9,16 @@ import { ChevronDownIcon, WorkoutIcon } from '@/components/icons';
 import { ProgressBar } from '@/components/progress-bar';
 import { Tappable } from '@/components/tappable';
 import { formatClock } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
-import { restBarRoom } from './rest-bar';
+import { barHitSlop, restBarRoom } from './rest-bar';
 import { useElapsed } from './use-elapsed';
 import { useResumeBarHidden } from './use-resume-bar-hidden';
 import { useWorkout } from './use-workout';
 import { useWorkoutInProgress } from './use-workout-in-progress';
 import { progressText, workoutProgress } from './workout-progress';
 
-const barHeight = 64;
 const barGap = 4;
 const hideWidth = 28;
 const progressHeight = 4;
@@ -45,7 +45,7 @@ export function ResumeBar() {
 function ResumeBarContent({ id, name }: { id: string; name: string }) {
   const { colors, radius, size, space, text } = useTheme();
   const router = useRouter();
-  const { tabBar, actionBox } = useAboveTabBar();
+  const { tabBar } = useAboveTabBar();
   const workout = useWorkout(id).data;
   const elapsed = useElapsed(workout?.startedAtUtc);
   const { hidden, setHidden } = useResumeBarHidden(id);
@@ -64,7 +64,7 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
   const progress = workoutProgress(workout.exercises);
   const sets = progressText(progress);
   const box = {
-    bottom: tabBar + (actionBox?.height ?? 0) + space.sm,
+    bottom: tabBar + space.sm,
     borderRadius: radius.card,
     borderColor: colors.border,
     backgroundColor: colors.raised,
@@ -86,13 +86,14 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
           {
             right: size.sidePadding,
             gap: space.sm,
-            height: size.touchTargetMin,
+            height: size.floatingBar.control,
             paddingHorizontal: space.md,
           },
         ]}
+        hitSlop={barHitSlop}
       >
-        <WorkoutIcon color={colors.muted} size={18} />
-        <Text style={[text.listItemName, { color: colors.text }]}>{count}</Text>
+        <WorkoutIcon color={colors.muted} size={16} />
+        <Text style={[text.quickPick, { color: colors.text }]}>{count}</Text>
       </Tappable>
     );
   }
@@ -118,13 +119,14 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
         onPress={() => {
           setHidden(true);
         }}
-        style={[styles.hide, { height: size.touchTargetMin }]}
+        hitSlop={barHitSlop}
+        style={[styles.hide, { height: size.floatingBar.control }]}
       >
-        <ChevronDownIcon color={colors.muted} size={20} />
+        <ChevronDownIcon color={colors.muted} size={18} />
       </Tappable>
       <View style={styles.text}>
         <Text
-          style={[text.listItemName, { color: colors.text }]}
+          style={[text.quickPick, { color: colors.text }]}
           numberOfLines={1}
         >
           {name}
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     position: 'absolute',
-    height: barHeight,
+    height: tokens.size.floatingBar.height,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,

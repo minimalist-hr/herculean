@@ -100,29 +100,6 @@ function ListScreen() {
   );
 }
 
-test('pressing the open tab returns to its first page', async () => {
-  await renderRouter({
-    _layout: LayoutWithStack,
-    index: () => <PlaceholderScreen title="Home screen" />,
-    'exercises/_layout': exercisesLayout,
-    'exercises/index': ListScreen,
-    'exercises/[id]': () => <PlaceholderScreen title="Details screen" />,
-  });
-
-  await fireEvent.press(screen.getByRole('tab', { name: 'Exercises' }));
-  await fireEvent.press(
-    await screen.findByRole('button', { name: 'Open details' }),
-  );
-  expect(await screen.findByText('Details screen')).toBeOnTheScreen();
-
-  await fireEvent.press(screen.getByRole('tab', { name: 'Exercises' }));
-
-  expect(
-    await screen.findByRole('button', { name: 'Open details' }),
-  ).toBeOnTheScreen();
-  expect(screen.queryByText('Details screen')).toBeNull();
-});
-
 function HomeScreen() {
   const router = useRouter();
 
@@ -140,20 +117,34 @@ function HomeScreen() {
   );
 }
 
-test('pressing another tab opens its first page, even if a page was left open there', async () => {
+/** Leaves for Home without going back, so the page would stay behind in its tab. */
+function DetailsScreen() {
+  const router = useRouter();
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Home"
+      onPress={() => {
+        router.navigate('/');
+      }}
+    />
+  );
+}
+
+test('a tab opens its first page, even if a page was left open there', async () => {
   await renderRouter({
     _layout: LayoutWithStack,
     index: HomeScreen,
     'exercises/_layout': exercisesLayout,
     'exercises/index': ListScreen,
-    'exercises/[id]': () => <PlaceholderScreen title="Details screen" />,
+    'exercises/[id]': DetailsScreen,
   });
 
   await fireEvent.press(
     screen.getByRole('button', { name: 'Open details from Home' }),
   );
-  expect(await screen.findByText('Details screen')).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole('tab', { name: 'Home' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Home' }));
   await act(() => {
     jest.runOnlyPendingTimers();
   });
@@ -176,7 +167,7 @@ test('pressing a tab opens its screen', async () => {
   ).toBeOnTheScreen();
 });
 
-test('logging and editing a workout hide the tabs', async () => {
+test('a page with a back link hides the tabs', async () => {
   await renderRouter(
     {
       _layout: Layout,
@@ -192,14 +183,18 @@ test('logging and editing a workout hide the tabs', async () => {
   expect(screen.queryByRole('tablist')).toBeNull();
 });
 
-test.each(['/workout/log/w1', '/workout/edit/w1/add', '/workout/exercise/e1'])(
-  '%s hides the tabs',
-  (pathname) => {
-    expect(hidesTabBar(pathname)).toBe(true);
-  },
-);
+test.each([
+  '/workout/log/w1',
+  '/workout/edit/w1/add',
+  '/workout/month',
+  '/exercises/e1',
+  '/exercises/groups',
+  '/routines/r1',
+])('%s hides the tabs', (pathname) => {
+  expect(hidesTabBar(pathname)).toBe(true);
+});
 
-test.each(['/', '/workout', '/workout/day/2026-11-10', '/exercises/e1'])(
+test.each(['/', '/workout', '/routines', '/exercises'])(
   '%s keeps the tabs',
   (pathname) => {
     expect(hidesTabBar(pathname)).toBe(false);

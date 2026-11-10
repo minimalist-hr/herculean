@@ -8,7 +8,6 @@ import { LoadFailure } from '@/components/load-failure';
 import { notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SectionTitle } from '@/components/section-title';
-import { useGoBack } from '@/features/home/use-go-back';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -25,11 +24,12 @@ import { DaySheet } from './day-sheet';
 import { MonthCalendar } from './month-calendar';
 import { MonthCounts, MonthTotals } from './month-totals';
 import { SwipePager } from './swipe-pager';
+import { useOpenDay } from './open-day';
 import { useDayRefresh } from './use-day-refresh';
 import { useDays } from './use-days';
 import { useFirstDay } from './use-first-day';
 import { useMonthSummary } from './use-month-summary';
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 
 function useMonthDays(month: string) {
   const dates = monthDates(month);
@@ -56,15 +56,11 @@ function MonthPage({
   );
 }
 
-export function MonthScreen({
-  openedFromHome = false,
-}: {
-  openedFromHome?: boolean;
-}) {
+export function MonthScreen() {
   const router = useRouter();
-  const goBack = useGoBack(openedFromHome);
+  const openDay = useOpenDay();
   const { colors, size, space } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const pageEnd = usePageEnd();
   const { now } = useDayRefresh();
   const today = dateText(now);
   const [month, setMonth] = useState(() => monthText(now));
@@ -122,13 +118,15 @@ export function MonthScreen({
         gap: space.lg,
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: space.xl + floatingRoom,
+        paddingBottom: pageEnd,
       }}
     >
       <View>
         <BackLink
-          label={openedFromHome ? 'Home' : 'Workout'}
-          onPress={goBack}
+          label="Workout"
+          onPress={() => {
+            router.back();
+          }}
         />
         <View style={[styles.title, { gap: space.md }]}>
           <View style={styles.heading}>
@@ -188,10 +186,7 @@ export function MonthScreen({
         }}
         onOpenDay={() => {
           setSheetOpen(false);
-          router.push({
-            pathname: '/workout/day/[date]',
-            params: { date: selected },
-          });
+          openDay(selected);
         }}
       />
     </ScrollView>

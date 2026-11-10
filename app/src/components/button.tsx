@@ -21,6 +21,7 @@ interface ButtonProps {
   /** Shows before the label, for example a plus. */
   icon?: (props: { color: string; size: number }) => ReactNode;
   /** As tall as the smallest touch target, for a bar with little room. */
+  /** Smaller, for a floating bar. Its tap area stays 44 px. */
   compact?: boolean;
 }
 
@@ -61,7 +62,7 @@ export function Button({
         },
         filled
           ? {
-              height: compact ? size.touchTargetMin : size.primaryButton,
+              height: compact ? size.floatingBar.control : size.primaryButton,
               backgroundColor:
                 variant === 'danger' ? colors.dangerFill : colors.primary,
             }
@@ -79,7 +80,7 @@ export function Button({
       {icon?.({ color: textColor, size: 16 })}
       <Text
         style={[
-          filled ? text.primaryButton : text.secondaryButton,
+          filled && !compact ? text.primaryButton : text.secondaryButton,
           { color: textColor },
         ]}
       >

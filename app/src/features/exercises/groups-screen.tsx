@@ -1,35 +1,38 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { EmptyCard } from '@/components/empty-card';
+import { usePageEnd } from '@/components/above-tab-bar';
 import { BackLink } from '@/components/back-link';
-import { BottomActionBox } from '@/components/bottom-action-box';
-import { Button } from '@/components/button';
-import { PlusIcon } from '@/components/icons';
+import { NewButton, useNewButtonRoom } from '@/components/new-button';
+import { EmptyCard } from '@/components/empty-card';
+import { HeaderIconButton } from '@/components/header-icon-button';
+import { ReorderIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
-import { dismissNotification } from '@/components/notifications';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
 import { Skeleton } from '@/components/skeleton';
+import {
+  StickyControls,
+  useStickyControls,
+} from '@/components/sticky-controls';
 import { useTheme } from '@/theme/theme-provider';
 
 import { GroupsList } from './groups-list';
-import { useGroupOrder } from './use-group-order';
 import { noGroupsMessage, useGroups } from './use-groups';
-import { useFloatingRoom } from '@/components/above-tab-bar';
 
 export function GroupsScreen() {
-  const { colors, radius, size, space, text } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const { colors, opacity, radius, size, space } = useTheme();
+  const pageEnd = usePageEnd();
+  const newButtonRoom = useNewButtonRoom();
   const router = useRouter();
   const groups = useGroups();
-  const saveOrder = useGroupOrder();
-  const [dragging, setDragging] = useState(false);
+  const sticky = useStickyControls();
   const [searchText, setSearchText] = useState('');
   const search = searchText.trim();
-  const searching = search !== '';
   const noGroups = groups.data?.length === 0;
+  const reorderReason = reorderUnavailable(groups.data?.length);
 
   function renderList() {
     if (groups.data !== undefined) {
@@ -42,11 +45,12 @@ export function GroupsScreen() {
         );
       }
 
-      const shown = searching
-        ? groups.data.filter((group) =>
-            group.name.toLowerCase().includes(search.toLowerCase()),
-          )
-        : groups.data;
+      const shown =
+        search === ''
+          ? groups.data
+          : groups.data.filter((group) =>
+              group.name.toLowerCase().includes(search.toLowerCase()),
+            );
 
       if (shown.length === 0) {
         return (
@@ -58,25 +62,15 @@ export function GroupsScreen() {
       }
 
       return (
-        <View style={{ gap: space.md }}>
-          <GroupsList
-            groups={shown}
-            locked={searching}
-            onDragChange={setDragging}
-            onReorder={saveOrder}
-            onOpen={(group) => {
-              router.push({
-                pathname: '/exercises/groups/[id]',
-                params: { id: group.id },
-              });
-            }}
-          />
-          {!searching && (
-            <Text style={[text.body, { color: colors.muted }]}>
-              Sort your exercise list. Drag to change the order of the chips.
-            </Text>
-          )}
-        </View>
+        <GroupsList
+          groups={shown}
+          onOpen={(group) => {
+            router.push({
+              pathname: '/exercises/groups/[id]',
+              params: { id: group.id },
+            });
+          }}
+        />
       );
     }
 
@@ -96,7 +90,14 @@ export function GroupsScreen() {
         accessible
         accessibilityLabel="Loading groups"
         accessibilityLiveRegion="polite"
-        style={{ gap: space.sm }}
+        style={[
+          styles.skeletonCard,
+          {
+            borderRadius: radius.card,
+            borderColor: colors.border,
+            backgroundColor: colors.card,
+          },
+        ]}
       >
         {[80, 70, 100, 70, 80, 60].map((width, index) => (
           <View
@@ -107,9 +108,8 @@ export function GroupsScreen() {
                 gap: space.sm,
                 height: size.optionRowMin,
                 paddingHorizontal: space.lg,
-                borderRadius: radius.card,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
+                borderTopWidth: index === 0 ? 0 : 1,
+                borderTopColor: colors.border,
               },
             ]}
           >
@@ -123,15 +123,23 @@ export function GroupsScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-      <View
-        style={{
-          gap: space.lg,
-          paddingTop: size.topPaddingSubPage,
-          paddingHorizontal: size.sidePadding,
-          paddingBottom: space.md,
-        }}
+      <ScrollView
+        stickyHeaderIndices={[1]}
+        onScroll={sticky.onScroll}
+        scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={{ paddingBottom: pageEnd + newButtonRoom }}
       >
-        <View style={{ gap: space.xxxs }}>
+        <View
+          onLayout={sticky.onHeadingLayout}
+          style={{
+            gap: space.xxxs,
+            paddingTop: size.topPaddingSubPage,
+            paddingHorizontal: size.sidePadding,
+            paddingBottom: space.lg,
+          }}
+        >
           <BackLink
             label="Exercises"
             onPress={() => {
@@ -141,51 +149,86 @@ export function GroupsScreen() {
           <ScreenHeading
             title="Groups"
             subtitle="The muscle groups your exercises belong to."
+            action={
+              <HeaderIconButton
+                label={
+                  reorderReason === null
+                    ? 'Reorder groups'
+                    : 'Reorder groups, not available yet'
+                }
+                onPress={() => {
+                  if (reorderReason === null) {
+                    dismissNotification();
+                    router.push('/exercises/groups/reorder');
+                  } else {
+                    notifyFailure(reorderReason);
+                  }
+                }}
+              >
+                <View
+                  style={{
+                    opacity: reorderReason === null ? 1 : opacity.disabled,
+                  }}
+                >
+                  <ReorderIcon
+                    color={reorderReason === null ? colors.text : colors.muted}
+                    size={20}
+                  />
+                </View>
+              </HeaderIconButton>
+            }
           />
         </View>
-        <SearchField
-          label="Search groups"
-          value={searchText}
-          mutedReason={noGroups ? noGroupsMessage : undefined}
-          onChangeText={(value) => {
-            dismissNotification();
-            setSearchText(value);
-          }}
-        />
-      </View>
-      <ScrollView
-        scrollEnabled={!dragging}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        contentContainerStyle={{
-          paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl + floatingRoom,
-        }}
-      >
-        {renderList()}
+        <StickyControls lined={sticky.lined}>
+          <View style={{ paddingHorizontal: size.sidePadding }}>
+            <SearchField
+              label="Search groups"
+              value={searchText}
+              mutedReason={noGroups ? noGroupsMessage : undefined}
+              onChangeText={(value) => {
+                dismissNotification();
+                setSearchText(value);
+              }}
+            />
+          </View>
+        </StickyControls>
+        <View style={{ paddingHorizontal: size.sidePadding }}>
+          {renderList()}
+        </View>
       </ScrollView>
-      <BottomActionBox aboveTabBar>
-        <Button
-          label="New group"
-          variant="secondary"
-          icon={PlusIcon}
-          onPress={() => {
-            // The list shows whole on the way back, so the new group is in it.
-            setSearchText('');
-            router.push({ pathname: '/group/new', params: { name: search } });
-          }}
-        />
-      </BottomActionBox>
+      <NewButton
+        label="New group"
+        onPress={() => {
+          // The list shows whole on the way back, so the new group is in it.
+          setSearchText('');
+          router.push({ pathname: '/group/new', params: { name: search } });
+        }}
+      />
     </View>
   );
+}
+
+/** Why the groups can't be reordered yet, or null when they can. */
+function reorderUnavailable(count: number | undefined) {
+  if (count === undefined) {
+    return 'This page hasn’t loaded yet.';
+  }
+  if (count === 0) {
+    return noGroupsMessage;
+  }
+
+  return count === 1 ? 'Create another group first.' : null;
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  skeletonCard: {
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
   skeletonRow: {
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

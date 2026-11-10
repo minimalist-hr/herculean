@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
@@ -7,7 +7,6 @@ import { HeaderIconButton } from '@/components/header-icon-button';
 import { CalendarIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
-import { useGoBack } from '@/features/home/use-go-back';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -22,24 +21,17 @@ import { DayCard, DayCardSkeleton } from './day-card';
 import { useDay } from './use-day';
 import { useDayRefresh } from './use-day-refresh';
 import { useFirstDay } from './use-first-day';
+import { takeOpenedDay } from './open-day';
 import { WeekPager } from './week-pager';
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 
-export function WorkoutScreen({
-  openedDate,
-  openedFromHome = false,
-}: {
-  /** The day opened from the month or Home, which this screen then goes back to. */
-  openedDate?: string;
-  openedFromHome?: boolean;
-}) {
+export function WorkoutScreen() {
   const router = useRouter();
-  const goBack = useGoBack(openedFromHome);
   const { colors, size, space } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const pageEnd = usePageEnd();
   const { now, refresh } = useDayRefresh();
   const today = dateText(now);
-  const [picked, setPicked] = useState<string | null>(openedDate ?? null);
+  const [picked, setPicked] = useState<string | null>(null);
   const selected = picked ?? today;
   const selectedDate = dateFromText(selected);
   const week = weekOf(selectedDate);
@@ -51,9 +43,22 @@ export function WorkoutScreen({
   const canGoBack = addDays(week[0], -7) >= firstMonday;
   const canGoForward = addDays(week[0], 7) <= lastMonday;
 
-  function pick(date: string) {
-    setPicked(date === today ? null : date);
-  }
+  const pick = useCallback(
+    (date: string) => {
+      setPicked(date === today ? null : date);
+    },
+    [today],
+  );
+
+  // A day opened from the month or Home shows here.
+  useFocusEffect(
+    useCallback(() => {
+      const opened = takeOpenedDay();
+      if (opened !== null) {
+        pick(opened);
+      }
+    }, [pick]),
+  );
 
   function changeWeek(direction: number) {
     if (direction > 0 ? canGoForward : canGoBack) {
@@ -83,16 +88,6 @@ export function WorkoutScreen({
   const { label, title } = dayHeading(dateFromText(selected), today);
 
   function renderHeaderAction() {
-    if (openedDate !== undefined) {
-      return (
-        <Button
-          label={openedFromHome ? 'Back to Home' : 'Back to month'}
-          variant="secondary"
-          onPress={goBack}
-        />
-      );
-    }
-
     if (selected === today) {
       return (
         <HeaderIconButton
@@ -146,7 +141,7 @@ export function WorkoutScreen({
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl + floatingRoom,
+          paddingBottom: pageEnd,
         }}
       >
         {renderContent()}

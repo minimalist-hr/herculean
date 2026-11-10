@@ -1,22 +1,19 @@
-import { useFocusEffect } from 'expo-router';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useId,
-  useSyncExternalStore,
-} from 'react';
+import { usePathname } from 'expo-router';
+import { createContext, useContext, useSyncExternalStore } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useTheme } from '@/theme/theme-provider';
+
+import { hidesTabBar } from './tab-bar';
 
 interface Layout {
   /** The tab bar's height. */
   tabBar: number;
-  /** The focused page's action box on the tab bar, and which box it is. */
-  actionBox: { owner: string; height: number } | null;
   /** The room a floating bar takes, so pages keep it at their end. */
   floatingRoom: number;
 }
 
-let layout: Layout = { tabBar: 0, actionBox: null, floatingRoom: 0 };
+let layout: Layout = { tabBar: 0, floatingRoom: 0 };
 const listeners = new Set<() => void>();
 
 function subscribe(listener: () => void) {
@@ -31,9 +28,7 @@ function update(change: (current: Layout) => Layout) {
   const next = change(layout);
   if (
     next.tabBar === layout.tabBar &&
-    next.floatingRoom === layout.floatingRoom &&
-    next.actionBox?.owner === layout.actionBox?.owner &&
-    next.actionBox?.height === layout.actionBox?.height
+    next.floatingRoom === layout.floatingRoom
   ) {
     return;
   }
@@ -56,35 +51,28 @@ export function setFloatingRoom(room: number) {
   update((current) => ({ ...current, floatingRoom: room }));
 }
 
-/** Says a page's action box sits on the tab bar while the page is in view, so a floating bar goes above it. */
-export function ReportActionBox({ height }: { height: number }) {
-  const owner = useId();
-
-  useFocusEffect(
-    useCallback(() => {
-      update((current) => ({ ...current, actionBox: { owner, height } }));
-
-      return () => {
-        // Another page may have taken its place already.
-        update((current) =>
-          current.actionBox?.owner === owner
-            ? { ...current, actionBox: null }
-            : current,
-        );
-      };
-    }, [height, owner]),
-  );
-
-  return null;
-}
-
 /** True for pages inside the tabs, where floating bars show. */
 export const InTabsContext = createContext(false);
 
-/** The room a tab page keeps at its end, so a floating bar never covers anything. None outside the tabs. */
-export function useFloatingRoom() {
+/**
+ * The space a page keeps after its content: 12 px above a floating bar when one shows,
+ * 24 px otherwise, and on a page without the tab bar, the phone's own buttons below that.
+ * A page with its own bar, like the rest bar, passes the room that bar takes.
+ */
+export function usePageEnd(ownBar = 0) {
   const inTabs = useContext(InTabsContext);
   const { floatingRoom } = useAboveTabBar();
+  const pathname = usePathname();
+  const insets = useSafeAreaInsets();
+  const { space } = useTheme();
 
-  return inTabs ? floatingRoom : 0;
+  if (!inTabs) {
+    return space.xl;
+  }
+
+  const withoutTabs = hidesTabBar(pathname);
+  const bar = ownBar > 0 ? ownBar : withoutTabs ? 0 : floatingRoom;
+  const below = withoutTabs ? insets.bottom : 0;
+
+  return below + (bar > 0 ? bar + space.md : space.xl);
 }

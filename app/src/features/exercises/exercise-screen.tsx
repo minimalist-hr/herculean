@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { useBottomRoom } from '@/components/tab-bar';
 import { BackLink } from '@/components/back-link';
 import { EmptyCard } from '@/components/empty-card';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -37,7 +36,7 @@ import { ExerciseChart } from './exercise-chart';
 import { ExerciseSessions } from './exercise-sessions';
 import { useExercise } from './use-exercise';
 import { useExerciseSessions } from './use-exercise-sessions';
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 
 type Exercise = components['schemas']['ExerciseDetailsResponse'];
 type Units = components['schemas']['Units'];
@@ -56,8 +55,7 @@ export function ExerciseScreen({
   openedFromHome?: boolean;
 }) {
   const { colors, size } = useTheme();
-  const floatingRoom = useFloatingRoom();
-  const bottomRoom = useBottomRoom();
+  const pageEnd = usePageEnd();
   const goBack = useGoBack(openedFromHome);
   const exercise = useExercise(id);
   const sessions = useExerciseSessions(id);
@@ -106,7 +104,7 @@ export function ExerciseScreen({
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax + floatingRoom + bottomRoom,
+        paddingBottom: pageEnd,
       }}
     >
       <BackLink label={openedFromHome ? 'Home' : backLabel} onPress={goBack} />

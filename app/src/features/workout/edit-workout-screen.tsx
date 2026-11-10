@@ -30,6 +30,7 @@ import { shortWeekdayDate } from '@/formats/formats';
 import {
   EditWorkoutDraftProvider,
   localId,
+  useDraftChanges,
   useEditWorkoutDraft,
 } from './edit-workout-draft';
 import {
@@ -40,7 +41,6 @@ import {
   typedDuration,
 } from './duration-field';
 import { OpenExercise } from './log-exercise';
-import { SetEditorSheet, type SetEdit } from './set-sheet';
 import { maxExercisesPerWorkout, type SetField } from './set-values';
 import { useEditWorkout } from './use-finish-workout';
 import { useWorkout } from './use-workout';
@@ -167,11 +167,9 @@ function EditWorkoutSkeleton() {
 export function EditWorkoutScreen() {
   const router = useRouter();
   const { space } = useTheme();
-  const units = useUnits();
   const { workout, exercises, setExercises, setPicked } = useEditWorkoutDraft();
   const save = useEditWorkout(workout.id);
-  const [edit, setEdit] = useState<SetEdit | null>(null);
-  const [openings, setOpenings] = useState(0);
+  const { change } = useDraftChanges();
   const [removing, setRemoving] = useState<WorkoutExercise | null>(null);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const savedDuration = typedDuration(workout.durationSeconds);
@@ -186,17 +184,6 @@ export function EditWorkoutScreen() {
   // An Undo can do nothing once the page is gone.
   useEffect(() => dismissAction, []);
 
-  function change(
-    exerciseId: string,
-    update: (exercise: WorkoutExercise) => WorkoutExercise,
-  ) {
-    setExercises((current) =>
-      current.map((exercise) =>
-        exercise.id === exerciseId ? update(exercise) : exercise,
-      ),
-    );
-  }
-
   function addSet(exercise: WorkoutExercise) {
     const last = exercise.sets[exercise.sets.length - 1];
     change(exercise.id, (current) => ({
@@ -206,34 +193,6 @@ export function EditWorkoutScreen() {
         { ...last, id: localId(), order: current.sets.length },
       ],
     }));
-  }
-
-  function removeSet(exerciseId: string, setId: string) {
-    const exercise = exercises.find((item) => item.id === exerciseId);
-    const index = exercise?.sets.findIndex((set) => set.id === setId) ?? -1;
-    if (exercise === undefined || index === -1) {
-      return;
-    }
-
-    const removed = exercise.sets[index];
-    change(exerciseId, (current) => ({
-      ...current,
-      sets: current.sets.filter((set) => set.id !== setId),
-    }));
-    notifySuccess(`Set ${String(index + 1)} removed.`, {
-      label: 'Undo',
-      onPress: () => {
-        dismissNotification();
-        change(exerciseId, (current) => ({
-          ...current,
-          sets: [
-            ...current.sets.slice(0, index),
-            removed,
-            ...current.sets.slice(index),
-          ],
-        }));
-      },
-    });
   }
 
   function removeExercise(exercise: WorkoutExercise) {
@@ -318,37 +277,6 @@ export function EditWorkoutScreen() {
               />
             </Sheet>
           )}
-          {edit !== null && (
-            <SetEditorSheet
-              key={openings}
-              edit={edit}
-              visible
-              units={units}
-              saving={false}
-              onSave={(changes) => {
-                change(edit.exercise.id, (exercise) => ({
-                  ...exercise,
-                  sets: exercise.sets.map((set) =>
-                    set.id === edit.set.id
-                      ? {
-                          ...set,
-                          weightKg: changes.weightKg ?? set.weightKg,
-                          reps: changes.reps ?? set.reps,
-                        }
-                      : set,
-                  ),
-                }));
-                setEdit(null);
-              }}
-              onRemove={() => {
-                removeSet(edit.exercise.id, edit.set.id);
-                setEdit(null);
-              }}
-              onClose={() => {
-                setEdit(null);
-              }}
-            />
-          )}
         </>
       }
     >
@@ -377,14 +305,16 @@ export function EditWorkoutScreen() {
           before={workout.date}
           added={!savedIds.has(exercise.id)}
           exercise={exercise}
-          onEdit={(shown, set, field) => {
-            setEdit({
-              exercise: shown,
-              set,
-              index: shown.sets.indexOf(set),
-              field,
+          onEdit={(set, field) => {
+            router.push({
+              pathname: '/workout/edit/[id]/set',
+              params: {
+                id: workout.id,
+                exercise: exercise.id,
+                set: set.id,
+                field,
+              },
             });
-            setOpenings((count) => count + 1);
           }}
           onAddSet={() => {
             addSet(exercise);
@@ -395,23 +325,25 @@ export function EditWorkoutScreen() {
           }}
         />
       ))}
-      <Button
-        label="Add exercise"
-        variant="secondary"
-        icon={PlusIcon}
-        muted={full}
-        onPress={() => {
-          if (full) {
-            notifyFailure(
-              `A workout can have at most ${String(maxExercisesPerWorkout)} exercises.`,
-            );
-            return;
-          }
+      <View style={{ marginTop: space.lg }}>
+        <Button
+          label="Add exercise"
+          variant="secondary"
+          icon={PlusIcon}
+          muted={full}
+          onPress={() => {
+            if (full) {
+              notifyFailure(
+                `A workout can have at most ${String(maxExercisesPerWorkout)} exercises.`,
+              );
+              return;
+            }
 
-          setPicked([]);
-          router.push(`/workout/edit/${workout.id}/add` as Href);
-        }}
-      />
+            setPicked([]);
+            router.push(`/workout/edit/${workout.id}/add` as Href);
+          }}
+        />
+      </View>
     </EditWorkoutPage>
   );
 }
@@ -430,7 +362,7 @@ function EditedExercise({
   before: string;
   added: boolean;
   exercise: WorkoutExercise;
-  onEdit: (shown: WorkoutExercise, set: WorkoutSet, field: SetField) => void;
+  onEdit: (set: WorkoutSet, field: SetField) => void;
   onAddSet: () => void;
   onRemove: () => void;
 }) {
@@ -447,9 +379,7 @@ function EditedExercise({
       units={units}
       adding={false}
       canSwap={false}
-      onEdit={(set, field) => {
-        onEdit(shown, set, field);
-      }}
+      onEdit={onEdit}
       onAddSet={onAddSet}
       onRemove={onRemove}
     />

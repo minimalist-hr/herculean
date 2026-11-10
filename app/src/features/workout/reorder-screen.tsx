@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { useBottomRoom } from '@/components/tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 import { BackLink } from '@/components/back-link';
 import {
   DraggableList,
@@ -32,8 +32,8 @@ const subtitle =
 /** Reorders a workout's exercises. Each drop saves, so there is no Save button. */
 export function ReorderScreen({ id }: { id: string }) {
   const { colors, size } = useTheme();
+  const pageEnd = usePageEnd();
   const router = useRouter();
-  const bottomRoom = useBottomRoom();
   const workout = useWorkout(id);
   const [dragging, setDragging] = useState(false);
 
@@ -63,7 +63,7 @@ export function ReorderScreen({ id }: { id: string }) {
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax + bottomRoom,
+        paddingBottom: pageEnd,
       }}
     >
       <BackLink

@@ -19,7 +19,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 3 | [Routines](#3-routines) | R01–R03, R05, R20–R23, R30, L20, L21, L23, L24 |
 | 4 | [Today and other days](#4-today-and-other-days) | W01, W03–W07, W20–W25 |
 | 5 | [Logging](#5-logging) | W10, W11, W57–W71, L01–L04, L10–L13, L30, L31, W02, W42 |
-| 6 | [Edit workout and month](#6-edit-workout-and-month) | W29, W30–W32, W40, W41, W43–W49 |
+| 6 | [Edit workout and month](#6-edit-workout-and-month) | W30–W32, W40, W41, W43–W49 |
 | 7 | [Settings](#7-settings) | H10–H19 |
 | 8 | [Home](#8-home) | H01–H09, H44 |
 
@@ -188,7 +188,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 - **Exercises:** the trash → L13 → undo bar. Add exercise → the L20 flow from [3. Routines](#3-routines) → L01. The swap icon → the L20 flow, one pick → L01, with an undo bar. Reorder → L04, which saves each drop. Removing every exercise shows L02.
 - **History:** the exercise name → E10.
 - **Finish:** Finish → L34 → L30, or L31 if nothing is checked. The back link → L01. Save workout → the day, completed, which says so in a notification. Discard workout → L33 → the day on its plan, with an undo bar (W65). Undo → the day, in progress.
-- **Saved day:** W03 and W20 show a saved workout with the sets done, then View workout → W67, Edit → W30, and Delete → W32. On the month, W42 → View workout → W67, or Open day → the day. The back link on W67 returns to where it opened from, and says Workout, or Month from W42.
+- **Saved day:** W03 and W20 show a saved workout with the sets done, then View workout → W67, Edit → W30, and Delete → W32. On the month, W42 → View workout → W67, or Open day → the Workout tab on that day. The back link on W67 returns to where it opened from, and says Workout, or Month from W42.
 - **Resume:** Resume on W02, or the Resume bar on any tab → L01.
 - **Leave:** the back link on L01 → W02. Every change saves as you go.
 
@@ -223,7 +223,7 @@ Changes on R20 and R30 stay in the app until Save routine.
 
 **What it does:** you correct a logged workout or delete it. You see a month at a time, with done, missed and skipped counts, a calendar with a status under each past day, and month totals.
 
-**Screens:** W30 Edit workout, W31 Set removed, W32 Delete workout, W29 Day from the month, W40 Month, W41 Loading, W43 to W46 Day summary, W47 First month, W48 Another day selected, W49 Load failure.
+**Screens:** W30 Edit workout, W31 Set removed, W32 Delete workout, W40 Month, W41 Loading, W43 to W46 Day summary, W47 First month, W48 Another day selected, W49 Load failure.
 
 **Flows**
 - **Edit:** Edit on W03 or W20 → W30. Sets use the L10 and L11 sheets. Remove set → W31 undo bar. The trash on an exercise → L13 → undo bar. Add exercise → the L20 flow; an added exercise starts with 3 sets of 0 kg and the low end of the reps, and shows its last time before the workout's date. Save workout → back to the day, which says so in a notification.
@@ -305,9 +305,9 @@ Changes on W30 stay in the app until Save workout.
 **Screens:** H01 Home, H02 In progress, H03 Completed, H04 Rest day, H05 New account, H06 Skipped, H07 Loading, H08 A section failed, H09 Setup complete, H44 Are you ready.
 
 **Flows**
-- **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's done, skipped or a rest day. Open day → W01.
-- **This week:** today → W01, another day → that day, with Back to Home.
-- **This month:** workouts, how much of the plan was done, and volume, each compared with last month. Open month → W40, with Home as its back link.
+- **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's done, skipped or a rest day. Open day → the Workout tab on today.
+- **This week:** a day → the Workout tab on that day.
+- **This month:** workouts, how much of the plan was done, and volume, each compared with last month. Open month → W40, whose back link goes to the Workout tab.
 - **Streak:** read-only, with the best so far.
 - **Recent records:** a record → E10, with Home as its back link.
 

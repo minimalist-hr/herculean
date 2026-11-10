@@ -13,6 +13,7 @@ import { Button } from '@/components/button';
 import { ChevronDownIcon, ClockIcon } from '@/components/icons';
 import { Tappable } from '@/components/tappable';
 import { formatClock } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import {
@@ -26,8 +27,15 @@ import {
   type Rest,
 } from './rest-timer';
 
-/** The room the page keeps at its end, so the bar or the small button never covers anything. */
-export const restBarRoom = { open: 80, hidden: 60 };
+/** The room the bar or the small button takes at the bottom: its height and the 8 px below it. */
+export const restBarRoom = {
+  open: tokens.size.floatingBar.height + 8,
+  hidden: tokens.size.floatingBar.control + 8,
+};
+
+/** Makes a 36 px control as easy to tap as a 44 px one. */
+export const barHitSlop =
+  (tokens.size.touchTargetMin - tokens.size.floatingBar.control) / 2;
 
 const barGap = 4;
 /** The room before the chevron. */
@@ -45,11 +53,11 @@ const barTaken =
   stepWidth * 2 +
   actionWidth +
   barGap * 4;
-const fullTextSize = 22;
+const fullTextSize = tokens.font.roles.statValue.size;
 /** The label is smaller than the time, which is what you read from across the room. */
-const labelRatio = 15 / 22;
+const labelRatio = 12 / 18;
 /** How wide the smaller "REST", the gap and "10:00", the longest it gets with the steppers showing, are at the full size. */
-const longestTextWidth = 112;
+const longestTextWidth = 92;
 
 /** The size of the time, which sets the label's. It's worked out from the screen alone, so it never changes with the time. */
 export function restTextSize(windowWidth: number, fontScale: number) {
@@ -100,10 +108,11 @@ function StepButton({
       accessibilityRole="button"
       accessibilityLabel={spoken}
       onPress={onPress}
+      hitSlop={barHitSlop}
       style={[
         styles.step,
         {
-          height: size.touchTargetMin,
+          height: size.floatingBar.control,
           borderRadius: radius.control,
           borderColor: colors.border,
         },
@@ -155,13 +164,14 @@ export function RestBar({
           {
             right: size.sidePadding,
             gap: space.sm,
-            height: size.touchTargetMin,
+            height: size.floatingBar.control,
             paddingHorizontal: space.md,
           },
         ]}
+        hitSlop={barHitSlop}
       >
-        <ClockIcon color={colors.muted} size={18} />
-        <Text style={[text.listItemName, { color: timeColor }]}>{time}</Text>
+        <ClockIcon color={colors.muted} size={16} />
+        <Text style={[text.quickPick, { color: timeColor }]}>{time}</Text>
       </Tappable>
     );
   }
@@ -188,9 +198,10 @@ export function RestBar({
         onPress={() => {
           onChange(hide(rest));
         }}
-        style={[styles.hide, { height: size.touchTargetMin }]}
+        hitSlop={barHitSlop}
+        style={[styles.hide, { height: size.floatingBar.control }]}
       >
-        <ChevronDownIcon color={colors.muted} size={20} />
+        <ChevronDownIcon color={colors.muted} size={18} />
       </Tappable>
       {/* The label and the time share a baseline, with room between them. */}
       <View style={[styles.reading, { gap: space.sm }]}>
@@ -263,7 +274,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     position: 'absolute',
-    height: 64,
+    height: tokens.size.floatingBar.height,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,

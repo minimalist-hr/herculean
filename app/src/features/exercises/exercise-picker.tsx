@@ -1,5 +1,10 @@
-import { useRouter, type Href } from 'expo-router';
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useFocusEffect, useRouter, type Href } from 'expo-router';
+import {
+  useCallback,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
@@ -7,13 +12,17 @@ import { BackLink } from '@/components/back-link';
 import { joinedCardStyle } from '@/components/joined-cards';
 import { BottomActionBox } from '@/components/bottom-action-box';
 import { Button } from '@/components/button';
-import { Chip } from '@/components/chip';
+import { Chip, ChipLink } from '@/components/chip';
 import { CheckIcon, PlusIcon } from '@/components/icons';
 import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
+import {
+  StickyControls,
+  useStickyControls,
+} from '@/components/sticky-controls';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
@@ -23,6 +32,7 @@ import { useTheme } from '@/theme/theme-provider';
 import { Tappable } from '@/components/tappable';
 
 import { ChipsFailure } from './chips-failure';
+import { takeCreatedGroup } from './created-group';
 import { bestSetText } from './exercise-row';
 import { ChipsSkeleton, ExercisesSkeleton } from './exercises-skeleton';
 import { useDebouncedValue } from './use-debounced-value';
@@ -70,7 +80,12 @@ interface Row {
   last: boolean;
 }
 
-type ListItem = Row | { kind: 'section'; title: string };
+type ListItem =
+  | Row
+  | { kind: 'heading' }
+  | { kind: 'controls' }
+  | { kind: 'empty' }
+  | { kind: 'section'; title: string };
 
 const searchWaitMs = 300;
 
@@ -101,6 +116,17 @@ export function ExercisePicker({
     setSearchText('');
     setGroupId(undefined);
   }
+  // A group made from here comes back selected, ready for a new exercise in it.
+  useFocusEffect(
+    useCallback(() => {
+      const createdGroup = takeCreatedGroup();
+      if (createdGroup !== null) {
+        setSearchText('');
+        setGroupId(createdGroup);
+      }
+    }, []),
+  );
+  const sticky = useStickyControls();
   const typedSearch = searchText.trim();
   const debouncedSearch = useDebouncedValue(typedSearch, searchWaitMs);
   const search = typedSearch === '' ? '' : debouncedSearch;
@@ -210,22 +236,47 @@ export function ExercisePicker({
   }
 
   function renderChips() {
+    const newGroup = (
+      <ChipLink
+        label="New group"
+        onPress={() => {
+          dismissNotification();
+          router.push({
+            pathname: '/group/new',
+            params: {
+              back: swapping ? 'Swap exercise' : 'Add exercise',
+              pick: 'true',
+            },
+          });
+        }}
+      />
+    );
+
     if (groups.isLoadingError) {
       return (
-        <ChipsFailure
-          onRetry={() => {
-            void groups.refetch();
-          }}
-        />
+        <>
+          {newGroup}
+          <ChipsFailure
+            onRetry={() => {
+              void groups.refetch();
+            }}
+          />
+        </>
       );
     }
 
     if (groups.data === undefined) {
-      return <ChipsSkeleton />;
+      return (
+        <>
+          {newGroup}
+          <ChipsSkeleton />
+        </>
+      );
     }
 
     return (
       <>
+        {newGroup}
         <Chip
           label="All"
           selected={groupId === undefined}
@@ -289,57 +340,107 @@ export function ExercisePicker({
     );
   }
 
-  return (
-    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+  function renderHeading() {
+    return (
       <View
+        onLayout={sticky.onHeadingLayout}
         style={{
-          gap: space.lg,
+          gap: space.xxxs,
           paddingTop: size.topPaddingSubPage,
-          paddingBottom: space.md,
+          paddingHorizontal: size.sidePadding,
+          paddingBottom: space.lg,
         }}
       >
-        <View style={{ gap: space.xxxs, paddingHorizontal: size.sidePadding }}>
-          <BackLink
-            label={back}
-            onPress={() => {
-              router.back();
-            }}
-          />
-          <ScreenHeading
-            title={swapping ? 'Swap exercise' : 'Add exercise'}
-            subtitle={subtitle}
+        <BackLink
+          label={back}
+          onPress={() => {
+            router.back();
+          }}
+        />
+        <ScreenHeading
+          title={swapping ? 'Swap exercise' : 'Add exercise'}
+          subtitle={subtitle}
+        />
+      </View>
+    );
+  }
+
+  function renderControls() {
+    return (
+      <StickyControls lined={sticky.lined}>
+        <View style={{ paddingHorizontal: size.sidePadding }}>
+          <SearchField
+            label="Search exercises"
+            value={searchText}
+            onChangeText={setSearchText}
           />
         </View>
-        <View style={{ gap: space.sm }}>
-          <View style={{ paddingHorizontal: size.sidePadding }}>
-            <SearchField
-              label="Search exercises"
-              value={searchText}
-              onChangeText={setSearchText}
-            />
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{
-              gap: size.gap.chips,
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            gap: size.gap.chips,
+            paddingHorizontal: size.sidePadding,
+          }}
+        >
+          {renderChips()}
+        </ScrollView>
+      </StickyControls>
+    );
+  }
+
+  function renderItem(item: ListItem) {
+    switch (item.kind) {
+      case 'heading':
+        return renderHeading();
+      case 'controls':
+        return renderControls();
+      case 'empty':
+        return renderEmpty();
+      case 'row':
+        return renderRow(item);
+      case 'section':
+        return (
+          <SectionTitle
+            style={{
+              paddingTop: space.md,
+              paddingBottom: space.xs,
               paddingHorizontal: size.sidePadding,
             }}
           >
-            {renderChips()}
-          </ScrollView>
-        </View>
-      </View>
+            {item.title}
+          </SectionTitle>
+        );
+    }
+  }
 
+  const items = toItems(list);
+
+  return (
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
       <FlatList
         style={styles.screen}
-        data={toItems(list)}
-        extraData={[picked, createdIds]}
-        keyExtractor={(item) =>
-          item.kind === 'row' ? item.exercise.id : `section:${item.title}`
-        }
-        ListEmptyComponent={renderEmpty()}
+        data={[
+          { kind: 'heading' },
+          { kind: 'controls' },
+          ...(items.length === 0 ? [{ kind: 'empty' } as const] : items),
+        ]}
+        stickyHeaderIndices={[1]}
+        onScroll={sticky.onScroll}
+        scrollEventThrottle={16}
+        extraData={[
+          picked,
+          createdIds,
+          searchText,
+          groupId,
+          groups.data,
+          groups.isLoadingError,
+          found.isPending,
+          found.isLoadingError,
+          sticky.lined,
+        ]}
+        keyExtractor={keyOf}
         ListFooterComponent={
           // A line and a gap, so it doesn't read as adding to the group above it.
           <View
@@ -374,21 +475,7 @@ export function ExercisePicker({
             />
           </View>
         }
-        renderItem={({ item }) =>
-          item.kind === 'row' ? (
-            renderRow(item)
-          ) : (
-            <SectionTitle
-              style={{
-                paddingTop: space.md,
-                paddingBottom: space.xs,
-                paddingHorizontal: size.sidePadding,
-              }}
-            >
-              {item.title}
-            </SectionTitle>
-          )
-        }
+        renderItem={({ item }) => renderItem(item)}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       />
@@ -440,6 +527,17 @@ function toItems(exercises: readonly Exercise[]) {
   });
 
   return items;
+}
+
+function keyOf(item: ListItem) {
+  switch (item.kind) {
+    case 'row':
+      return item.exercise.id;
+    case 'section':
+      return `section:${item.title}`;
+    default:
+      return item.kind;
+  }
 }
 
 const styles = StyleSheet.create({

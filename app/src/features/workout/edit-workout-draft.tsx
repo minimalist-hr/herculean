@@ -1,6 +1,7 @@
 import { createContext, use, useMemo, useState, type ReactNode } from 'react';
 
 import type { components } from '@/api/schema';
+import { dismissNotification, notifySuccess } from '@/components/notifications';
 import type { PickedExercise } from '@/features/exercises/exercise-picker';
 
 type Workout = components['schemas']['WorkoutDetailsResponse'];
@@ -87,4 +88,51 @@ export function useEditWorkoutDraft() {
   }
 
   return draft;
+}
+
+/** Changes to the draft's exercises that the edit pages share. */
+export function useDraftChanges() {
+  const { exercises, setExercises } = useEditWorkoutDraft();
+
+  function change(
+    exerciseId: string,
+    update: (exercise: WorkoutExercise) => WorkoutExercise,
+  ) {
+    setExercises((current) =>
+      current.map((exercise) =>
+        exercise.id === exerciseId ? update(exercise) : exercise,
+      ),
+    );
+  }
+
+  /** Removes a set, with Undo. */
+  function removeSet(exerciseId: string, setId: string) {
+    const exercise = exercises.find((item) => item.id === exerciseId);
+    const index = exercise?.sets.findIndex((set) => set.id === setId) ?? -1;
+    if (exercise === undefined || index === -1) {
+      return;
+    }
+
+    const removed = exercise.sets[index];
+    change(exerciseId, (current) => ({
+      ...current,
+      sets: current.sets.filter((set) => set.id !== setId),
+    }));
+    notifySuccess(`Set ${String(index + 1)} removed.`, {
+      label: 'Undo',
+      onPress: () => {
+        dismissNotification();
+        change(exerciseId, (current) => ({
+          ...current,
+          sets: [
+            ...current.sets.slice(0, index),
+            removed,
+            ...current.sets.slice(index),
+          ],
+        }));
+      },
+    });
+  }
+
+  return { change, removeSet };
 }

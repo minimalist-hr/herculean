@@ -2,7 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { AppState, Text, type RefreshControlProps } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
@@ -11,6 +11,7 @@ import { dayNameOf } from '@/formats/formats';
 import { createTestQueryClient } from '@/test-utils/query-client';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import { takeOpenedDay } from '@/features/workout/open-day';
 import { HomeScreen } from './home-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -158,13 +159,19 @@ function stubOpenedFrom(name: string) {
   };
 }
 
+/** The Workout tab, with the day it was opened on. */
+function WorkoutStub() {
+  const [opened] = useState(takeOpenedDay);
+
+  return <Text>{`Workout page, on ${String(opened)}`}</Text>;
+}
+
 async function renderHome() {
   await renderRouter({
     _layout: Layout,
     index: HomeScreen,
-    workout: stub('Workout page'),
-    'workout/day/[date]': stub('Other day page'),
-    'workout/month': stubOpenedFrom('Month page'),
+    workout: WorkoutStub,
+    'workout/month': stub('Month page'),
     'exercises/[id]': stubOpenedFrom('Exercise page'),
     'workout/log/w1': stub('Logging page'),
   });
@@ -502,10 +509,10 @@ test('the links open the day, the month and an exercise', async () => {
   await fireEvent.press(
     await screen.findByRole('link', { name: 'Open month' }),
   );
-  expect(await screen.findByText('Month page, from home')).toBeOnTheScreen();
+  expect(await screen.findByText('Month page')).toBeOnTheScreen();
 });
 
-test('another day of the week opens that day', async () => {
+test('another day of the week opens the Workout tab on that day', async () => {
   answerWith();
   await renderHome();
   const days = weekOf(now);
@@ -517,7 +524,9 @@ test('another day of the week opens that day', async () => {
     }),
   );
 
-  expect(await screen.findByText('Other day page')).toBeOnTheScreen();
+  expect(
+    await screen.findByText(`Workout page, on ${dateText(other)}`),
+  ).toBeOnTheScreen();
 });
 
 test('a record opens its exercise', async () => {
@@ -531,11 +540,13 @@ test('a record opens its exercise', async () => {
   expect(await screen.findByText('Exercise page, from home')).toBeOnTheScreen();
 });
 
-test('Open day opens the workout tab', async () => {
+test('Open day opens the Workout tab on today', async () => {
   answerWith();
   await renderHome();
 
   await fireEvent.press(await screen.findByRole('link', { name: 'Open day' }));
 
-  expect(await screen.findByText('Workout page')).toBeOnTheScreen();
+  expect(
+    await screen.findByText(`Workout page, on ${today}`),
+  ).toBeOnTheScreen();
 });

@@ -1,8 +1,8 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
-import { AccessibilityInfo, Text } from 'react-native';
+import { AccessibilityInfo } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { dragBy } from '@/test-utils/drag';
@@ -147,21 +147,14 @@ function Layout() {
   );
 }
 
-function DayRoute() {
-  const { date } = useLocalSearchParams<{ date: string }>();
-
-  return <WorkoutScreen openedDate={date} />;
-}
-
 async function renderMonth() {
   await renderRouter(
     {
       _layout: Layout,
-      index: () => <WorkoutScreen />,
+      'workout/index': () => <WorkoutScreen />,
       'workout/month': () => <MonthScreen />,
-      'workout/day/[date]': DayRoute,
     },
-    { initialUrl: '/' },
+    { initialUrl: '/workout' },
   );
   await fireEvent.press(await screen.findByRole('button', { name: 'Month' }));
   await screen.findByText('November');
@@ -603,7 +596,7 @@ describe('day sheet', () => {
     ).toBeOnTheScreen();
   });
 
-  test('Open day goes to that day, and Back to month returns', async () => {
+  test('Open day goes back to the Workout tab, on that day', async () => {
     answer();
     await renderMonth();
     await screen.findByRole('button', { name: '2 November, Legs, missed' });
@@ -613,15 +606,11 @@ describe('day sheet', () => {
       await screen.findByRole('button', { name: 'Open day' }),
     );
 
+    expect(await screen.findByText('Yesterday')).toBeOnTheScreen();
     expect(
-      await screen.findByRole('button', { name: 'Back to month' }),
-    ).toBeTruthy();
-    expect(screen.getByText('Yesterday')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Back to today' })).toBeNull();
-
-    await fireEvent.press(dayButton('Back to month'));
-
-    expect(await screen.findByText('November')).toBeOnTheScreen();
+      screen.getByRole('button', { name: 'Back to today' }),
+    ).toBeOnTheScreen();
+    expect(screen.queryByRole('link', { name: 'Workout' })).toBeNull();
   });
 });
 
@@ -663,23 +652,4 @@ test('the back link goes to the Workout tab', async () => {
   await fireEvent.press(screen.getByRole('link', { name: 'Workout' }));
 
   expect(await screen.findByRole('button', { name: 'Month' })).toBeTruthy();
-});
-
-test('opened from Home, the back link goes to Home', async () => {
-  answer();
-  await renderRouter(
-    {
-      _layout: Layout,
-      index: () => <Text>Home page</Text>,
-      'workout/month': () => <MonthScreen openedFromHome />,
-    },
-    { initialUrl: '/' },
-  );
-  await act(() => {
-    router.push('/workout/month');
-  });
-
-  await fireEvent.press(await screen.findByRole('link', { name: 'Home' }));
-
-  expect(await screen.findByText('Home page')).toBeOnTheScreen();
 });

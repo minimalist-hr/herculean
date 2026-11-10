@@ -14,6 +14,7 @@ import { NotificationBar } from '@/components/notification-bar';
 import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
+import LogSetRoute from '@/app/(tabs)/workout/log/[id]/set';
 import { LogScreen } from './log-screen';
 import { restTextSize } from './rest-bar';
 import { createTestQueryClient } from '@/test-utils/query-client';
@@ -145,6 +146,7 @@ async function renderLog(openedFromHome = false) {
       index: () => <PlaceholderScreen title="Workout screen" />,
       log: () => <LogScreen id="w1" openedFromHome={openedFromHome} />,
       'workout/log/[id]/add': () => <PlaceholderScreen title="Add screen" />,
+      'workout/log/[id]/set': LogSetRoute,
       'workout/log/[id]/finish': () => (
         <PlaceholderScreen title="Finish screen" />
       ),
@@ -447,7 +449,7 @@ describe('editing a set', () => {
     }
   }
 
-  test('tapping the row opens the sheet on weight', async () => {
+  test('tapping the row opens the set’s page on weight', async () => {
     await renderLog();
 
     await fireEvent.press(await screen.findByTestId('set-row-1'));
@@ -458,12 +460,13 @@ describe('editing a set', () => {
         selected: true,
       }),
     ).toBeOnTheScreen();
-    expect(screen.getByText('Set 1 · Barbell squat')).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Set 1' })).toBeOnTheScreen();
+    expect(screen.getByText('Barbell squat')).toBeOnTheScreen();
     expect(screen.getByText('Last time')).toBeOnTheScreen();
     expect(screen.getByText('80 kg × 10')).toBeOnTheScreen();
   });
 
-  test('tapping reps opens the sheet on reps', async () => {
+  test('tapping reps opens the set’s page on reps', async () => {
     await renderLog();
 
     await fireEvent.press(
@@ -508,10 +511,12 @@ describe('editing a set', () => {
     expect(screen.getByRole('button', { name: 'Reps, 7' })).toBeOnTheScreen();
   });
 
-  test('closing without saving forgets the change', async () => {
+  test('leaving with a change asks first, and Discard changes forgets it', async () => {
     await openWeight();
 
-    await pressKeys('9', 'Close');
+    await pressKeys('9');
+    await fireEvent.press(screen.getByRole('link', { name: 'Logging' }));
+    await pressKeys('Discard changes');
     await waitFor(() => {
       expect(screen.queryByRole('button', { name: 'Save set' })).toBeNull();
     });
@@ -522,33 +527,6 @@ describe('editing a set', () => {
     expect(
       await screen.findByRole('button', { name: 'Weight, 80 kilograms' }),
     ).toBeOnTheScreen();
-  });
-
-  test('the keys give way when the sheet does not fit, down to a least height', async () => {
-    await openWeight();
-    expect(screen.getByRole('button', { name: '5' })).toHaveStyle({
-      height: 52,
-    });
-
-    await fireEvent(screen.getByTestId('sheet-drag'), 'layout', {
-      nativeEvent: { layout: { height: 5000 } },
-    });
-    await fireEvent(screen.getByTestId('sheet-actions'), 'layout', {
-      nativeEvent: { layout: { height: 100 } },
-    });
-    // The event finds the sheet's scroll view from a key inside it.
-    await fireEvent(
-      screen.getByRole('button', { name: '5' }),
-      'contentSizeChange',
-      300,
-      400,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: '5' })).toHaveStyle({
-        height: 40,
-      });
-    });
   });
 
   test('Save set with nothing changed sends nothing', async () => {
@@ -583,9 +561,13 @@ describe('editing a set', () => {
     ).toBeOnTheScreen();
   });
 
-  test('the trash removes the set, and Undo puts it back', async () => {
+  test('the trash asks first, then removes the set, and Undo puts it back', async () => {
     await openWeight();
 
+    await pressKeys('Remove set 1');
+    expect(
+      await screen.findByRole('header', { name: 'Remove set 1?' }),
+    ).toBeOnTheScreen();
     await pressKeys('Remove set');
 
     expect(await screen.findByText('Set 1 removed.')).toBeOnTheScreen();
@@ -617,7 +599,7 @@ describe('editing a set', () => {
     };
     await openWeight();
 
-    await pressKeys('Remove set');
+    await pressKeys('Remove set 1');
 
     expect(
       await screen.findByText(
@@ -658,9 +640,9 @@ test('Add set at 20 sets says why, and adds nothing', async () => {
 
 describe('the size of the rest text', () => {
   test.each([
-    [390, 1, 22],
-    [430, 1, 22],
-    [360, 1, 20],
+    [390, 1, 18],
+    [430, 1, 18],
+    [360, 1, 18],
     [360, 1.3, 15],
   ])('on a %i wide screen at font scale %d is %i', (width, scale, size) => {
     expect(restTextSize(width, scale)).toBe(size);

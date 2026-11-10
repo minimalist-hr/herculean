@@ -22,6 +22,7 @@ import { addMonths, dateText, monthText, weekOf } from '@/formats/dates';
 import { Card } from '@/components/card';
 import { StatTile } from '@/components/stat-tile';
 import { consistencyText } from '@/features/workout/month-totals';
+import { useOpenDay } from '@/features/workout/open-day';
 import { useDay } from '@/features/workout/use-day';
 import { useDays } from '@/features/workout/use-days';
 import { useMonthSummary } from '@/features/workout/use-month-summary';
@@ -81,7 +82,7 @@ function SectionLink({
 }
 
 export function TodaySection({ today }: { today: string }) {
-  const router = useRouter();
+  const openDay = useOpenDay();
   const day = useDay(today);
 
   function renderContent() {
@@ -108,7 +109,7 @@ export function TodaySection({ today }: { today: string }) {
         <SectionLink
           label="Open day"
           onPress={() => {
-            router.navigate('/workout');
+            openDay(today);
           }}
         />
       }
@@ -119,8 +120,8 @@ export function TodaySection({ today }: { today: string }) {
 }
 
 export function WeekSection({ now }: { now: Date }) {
+  const openDay = useOpenDay();
   const { text } = useTheme();
-  const router = useRouter();
   const today = dateText(now);
   const week = weekOf(now);
   const days = useDays(dateText(week[0]), dateText(week[6]));
@@ -152,19 +153,7 @@ export function WeekSection({ now }: { now: Date }) {
           today={today}
           selected={today}
           days={days.data}
-          onSelect={(date) => {
-            if (date === today) {
-              router.navigate('/workout');
-            } else {
-              router.push(
-                {
-                  pathname: '/workout/day/[date]',
-                  params: { date, from: 'home' },
-                },
-                { withAnchor: true },
-              );
-            }
-          }}
+          onSelect={openDay}
         />
       )}
     </Section>
@@ -236,10 +225,7 @@ export function MonthSection({ now }: { now: Date }) {
         <SectionLink
           label="Open month"
           onPress={() => {
-            router.push(
-              { pathname: '/workout/month', params: { from: 'home' } },
-              { withAnchor: true },
-            );
+            router.push('/workout/month', { withAnchor: true });
           }}
         />
       }

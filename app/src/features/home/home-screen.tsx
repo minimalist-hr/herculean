@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { ProfileButton } from '@/features/settings/profile-button';
 import { dateText } from '@/formats/dates';
@@ -43,7 +43,7 @@ function greeting(hour: number, name?: string | null) {
 /** Home: what to do today, whether you're on track, and whether you're getting stronger. */
 export function HomeScreen() {
   const { colors, size, space, text } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const pageEnd = usePageEnd();
   const { now, refresh } = useDayRefresh();
   const user = useCurrentUser();
   const queryClient = useQueryClient();
@@ -67,7 +67,7 @@ export function HomeScreen() {
         gap: space.xl,
         paddingTop: size.topPaddingTab,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: space.xl + floatingRoom,
+        paddingBottom: pageEnd,
       }}
       refreshControl={
         <RefreshControl

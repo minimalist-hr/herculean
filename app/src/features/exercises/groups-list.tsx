@@ -1,11 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { DraggableList } from '@/components/draggable-list';
 import { ChevronRightIcon } from '@/components/icons';
+import { Tappable } from '@/components/tappable';
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
-import { Tappable } from '@/components/tappable';
 
 type Group = components['schemas']['GroupListItemResponse'];
 
@@ -16,67 +15,82 @@ export function countOf({ exerciseCount }: { exerciseCount: number }) {
     : `${String(exerciseCount)} exercises`;
 }
 
-interface GroupsListProps {
-  groups: readonly Group[];
-  onDragChange: (dragging: boolean) => void;
-  onReorder: (groups: Group[]) => void;
-  onOpen: (group: Group) => void;
-  /** Shows the groups without handles, while only some of them show. */
-  locked: boolean;
-}
-
-/** The groups, with a handle on each to drag it to another place. */
-export function GroupsList({
-  groups,
-  onDragChange,
-  onReorder,
-  onOpen,
-  locked,
-}: GroupsListProps) {
-  const { colors, space, text } = useTheme();
+/** A group's name, with how many exercises use it under it. */
+export function GroupSummary({ group }: { group: Group }) {
+  const { colors, text } = useTheme();
 
   return (
-    <DraggableList
-      items={groups}
-      keyOf={(group) => group.id}
-      moveLabel={(group) => `Move ${group.name}`}
-      onDragChange={onDragChange}
-      onReorder={onReorder}
-      locked={locked}
-      renderRow={(group) => (
+    <View style={styles.summary}>
+      <Text
+        numberOfLines={1}
+        style={[text.listItemName, { color: colors.text }]}
+      >
+        {group.name}
+      </Text>
+      <Text style={text.meta}>{countOf(group)}</Text>
+    </View>
+  );
+}
+
+/** The groups in one card, each opening its group. */
+export function GroupsList({
+  groups,
+  onOpen,
+}: {
+  groups: readonly Group[];
+  onOpen: (group: Group) => void;
+}) {
+  const { colors, radius, size, space } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          borderRadius: radius.card,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+        },
+      ]}
+    >
+      {groups.map((group, index) => (
         <Tappable
+          key={group.id}
           feedback="fill"
           accessibilityRole="button"
           accessibilityLabel={`${group.name}, ${countOf(group)}`}
           onPress={() => {
             onOpen(group);
           }}
-          style={[styles.name, { gap: space.md, paddingRight: space.md }]}
+          style={[
+            styles.row,
+            {
+              gap: space.md,
+              minHeight: size.optionRowMin,
+              paddingHorizontal: space.lg,
+              borderTopWidth: index === 0 ? 0 : 1,
+              borderTopColor: colors.border,
+            },
+          ]}
         >
-          <View style={styles.nameText}>
-            <Text
-              numberOfLines={1}
-              style={[text.listItemName, { color: colors.text }]}
-            >
-              {group.name}
-            </Text>
-            <Text style={text.meta}>{countOf(group)}</Text>
-          </View>
+          <GroupSummary group={group} />
           <ChevronRightIcon color={colors.muted} size={16} />
         </Tappable>
-      )}
-    />
+      ))}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  name: {
-    flex: 1,
+  card: {
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'stretch',
   },
-  nameText: {
+  summary: {
     flex: 1,
     gap: tokens.space.xxxs,
   },

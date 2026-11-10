@@ -4,13 +4,15 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { EmptyCard } from '@/components/empty-card';
-import { BottomActionBox } from '@/components/bottom-action-box';
-import { Button } from '@/components/button';
-import { PlusIcon } from '@/components/icons';
+import { NewButton, useNewButtonRoom } from '@/components/new-button';
 import { LoadFailure } from '@/components/load-failure';
 import { dismissNotification } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SearchField } from '@/components/search-field';
+import {
+  StickyControls,
+  useStickyControls,
+} from '@/components/sticky-controls';
 import { useTheme } from '@/theme/theme-provider';
 
 import { counted, dayNames } from '@/formats/formats';
@@ -18,13 +20,15 @@ import { RoutineRow, RoutineRowSkeleton } from './routine-row';
 import { useRoutines } from './use-routines';
 import { useWeekPlan } from './use-week-plan';
 import { WeekPlanCard } from './week-plan-card';
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 
 type Routine = components['schemas']['RoutineListItemResponse'];
 
 export function RoutinesScreen() {
   const { colors, dayColors, size, space, text } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const pageEnd = usePageEnd();
+  const newButtonRoom = useNewButtonRoom();
+  const sticky = useStickyControls();
   const router = useRouter();
   const routines = useRoutines();
   const weekPlan = useWeekPlan();
@@ -141,50 +145,52 @@ export function RoutinesScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-      <View
-        style={{
-          gap: space.lg,
-          paddingTop: size.topPaddingTab,
-          paddingHorizontal: size.sidePadding,
-          paddingBottom: space.md,
-        }}
-      >
-        <ScreenHeading
-          title="Routines"
-          subtitle="The workouts you plan across your week."
-        />
-        <SearchField
-          label="Search routines"
-          value={searchText}
-          mutedReason={noRoutines ? 'Create a routine first.' : undefined}
-          onChangeText={(value) => {
-            dismissNotification();
-            setSearchText(value);
-          }}
-        />
-      </View>
       <ScrollView
+        stickyHeaderIndices={[1]}
+        onScroll={sticky.onScroll}
+        scrollEventThrottle={16}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        contentContainerStyle={{
-          paddingHorizontal: size.sidePadding,
-          paddingBottom: space.xl + floatingRoom,
-        }}
+        contentContainerStyle={{ paddingBottom: pageEnd + newButtonRoom }}
       >
-        {renderContent()}
-      </ScrollView>
-      <BottomActionBox aboveTabBar>
-        <Button
-          label="New routine"
-          variant="secondary"
-          icon={PlusIcon}
-          onPress={() => {
-            // The list shows whole on the way back, so the new routine is in it.
-            setSearchText('');
-            router.push({ pathname: '/routine/new', params: { name: search } });
+        <View
+          onLayout={sticky.onHeadingLayout}
+          style={{
+            paddingTop: size.topPaddingTab,
+            paddingHorizontal: size.sidePadding,
+            paddingBottom: space.lg,
           }}
-        />
-      </BottomActionBox>
+        >
+          <ScreenHeading
+            title="Routines"
+            subtitle="The workouts you plan across your week."
+          />
+        </View>
+        <StickyControls lined={sticky.lined}>
+          <View style={{ paddingHorizontal: size.sidePadding }}>
+            <SearchField
+              label="Search routines"
+              value={searchText}
+              mutedReason={noRoutines ? 'Create a routine first.' : undefined}
+              onChangeText={(value) => {
+                dismissNotification();
+                setSearchText(value);
+              }}
+            />
+          </View>
+        </StickyControls>
+        <View style={{ paddingHorizontal: size.sidePadding }}>
+          {renderContent()}
+        </View>
+      </ScrollView>
+      <NewButton
+        label="New routine"
+        onPress={() => {
+          // The list shows whole on the way back, so the new routine is in it.
+          setSearchText('');
+          router.push({ pathname: '/routine/new', params: { name: search } });
+        }}
+      />
     </View>
   );
 }

@@ -26,7 +26,7 @@ import { dateText } from '@/formats/dates';
 import { useDay } from './use-day';
 import { useDayRefresh } from './use-day-refresh';
 import { useStartWorkout } from './use-start-workout';
-import { useFloatingRoom } from '@/components/above-tab-bar';
+import { usePageEnd } from '@/components/above-tab-bar';
 
 type Routine = components['schemas']['RoutineListItemResponse'];
 
@@ -117,7 +117,7 @@ function ConfirmSheet({
 export function ChooseRoutineScreen({ date }: { date: string }) {
   const router = useRouter();
   const { colors, size, space, text } = useTheme();
-  const floatingRoom = useFloatingRoom();
+  const pageEnd = usePageEnd();
   const { now } = useDayRefresh();
   const routines = useRoutines();
   const day = useDay(date);
@@ -201,7 +201,7 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
         gap: space.lg,
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: space.xl + floatingRoom,
+        paddingBottom: pageEnd,
       }}
     >
       <View>
