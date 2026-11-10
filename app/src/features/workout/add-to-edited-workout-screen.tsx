@@ -21,7 +21,6 @@ export function AddToEditedWorkoutScreen() {
         pathname: '/workout/edit/[id]/new-exercise',
         params: { id: workout.id, ...params },
       })}
-      aboveTabBar
       onDone={(leave) => {
         setExercises((current) => [...current, ...picked.map(addedExercise)]);
         leave();
@@ -36,7 +35,6 @@ export function NewExerciseForEditedWorkoutScreen() {
 
   return (
     <NewExerciseToPickScreen
-      aboveTabBar
       setPicked={setPicked}
       setCreatedIds={setCreatedIds}
     />

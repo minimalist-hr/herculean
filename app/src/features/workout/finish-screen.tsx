@@ -157,7 +157,7 @@ export function FinishScreen({ id }: { id: string }) {
         </View>
         {renderContent()}
       </ScrollView>
-      <BottomActionBox aboveTabBar>
+      <BottomActionBox>
         {summary.data === undefined ? (
           <>
             <NotLoadedButton label="Save workout" />

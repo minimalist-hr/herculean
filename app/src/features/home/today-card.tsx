@@ -1,4 +1,4 @@
-import { useRouter, type Href } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { dayNameOf } from '@/formats/formats';
 import { View } from 'react-native';
 
@@ -50,7 +50,13 @@ function InProgress({
       <Button
         label="Resume workout"
         onPress={() => {
-          router.push(`/workout/log/${workoutId}` as Href);
+          router.push(
+            {
+              pathname: '/workout/log/[id]',
+              params: { id: workoutId, from: 'home' },
+            },
+            { withAnchor: true },
+          );
         }}
       />
     </Card>

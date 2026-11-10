@@ -9,13 +9,10 @@ import { useGroups } from './use-groups';
 export function NewExerciseToPickScreen({
   setPicked,
   setCreatedIds,
-  aboveTabBar = false,
   swapping = false,
 }: {
   /** The picker takes one, so this replaces what was picked. */
   swapping?: boolean;
-  /** It opens inside a tab, so its actions sit on the tab bar. */
-  aboveTabBar?: boolean;
   setPicked: Dispatch<SetStateAction<PickedExercise[]>>;
   setCreatedIds: Dispatch<SetStateAction<string[]>>;
 }) {
@@ -29,7 +26,6 @@ export function NewExerciseToPickScreen({
   return (
     <NewExerciseScreen
       back={swapping ? 'Swap exercise' : 'Add exercise'}
-      aboveTabBar={aboveTabBar}
       initialName={name}
       initialGroupId={groupId}
       onCreated={(exercise) => {

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen } from '@testing-library/react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { Text } from 'react-native';
@@ -81,14 +81,15 @@ function Layout() {
   );
 }
 
-async function renderBar() {
+async function renderBar(initialUrl = '/') {
   await renderRouter(
     {
       _layout: Layout,
       index: () => <Text>Home screen</Text>,
       'workout/log/[id]': () => <Text>Logging</Text>,
+      'workout/edit/[id]': () => <Text>Edit workout</Text>,
     },
-    { initialUrl: '/' },
+    { initialUrl },
   );
 }
 
@@ -125,6 +126,17 @@ test('Resume opens logging, where the bar hides', async () => {
   await fireEvent.press(await screen.findByRole('button', { name: 'Resume' }));
 
   expect(await screen.findByText('Logging')).toBeOnTheScreen();
+  expect(screen.queryByText('Chest and arms 2')).not.toBeOnTheScreen();
+});
+
+test('stays hidden while editing a workout', async () => {
+  answerWith();
+  await renderBar('/workout/edit/w2');
+
+  expect(await screen.findByText('Edit workout')).toBeOnTheScreen();
+  await waitFor(() => {
+    expect(mockFetch).toHaveBeenCalled();
+  });
   expect(screen.queryByText('Chest and arms 2')).not.toBeOnTheScreen();
 });
 

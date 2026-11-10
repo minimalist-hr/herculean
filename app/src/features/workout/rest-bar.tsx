@@ -7,6 +7,8 @@ import {
   View,
 } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Button } from '@/components/button';
 import { ChevronDownIcon, ClockIcon } from '@/components/icons';
 import { Tappable } from '@/components/tappable';
@@ -130,8 +132,10 @@ export function RestBar({
   const over = clock.phase === 'over';
   const time = `${over ? '+' : ''}${formatClock(clock.seconds)}`;
   const timeColor = over ? colors.success : colors.text;
+  const insets = useSafeAreaInsets();
   const box = {
-    bottom: space.sm,
+    // Logging has no tab bar, so the bar keeps clear of the home indicator.
+    bottom: insets.bottom + space.sm,
     borderRadius: radius.card,
     borderColor: colors.border,
     backgroundColor: colors.raised,

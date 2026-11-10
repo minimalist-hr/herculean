@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen } from '@testing-library/react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
 import { renderRouter } from 'expo-router/testing-library';
@@ -8,14 +8,19 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { HomeIcon, WorkoutIcon } from './icons';
 import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
-import { TabBar } from './tab-bar';
+import {
+  hidesTabBar,
+  TabBar,
+  tabScreenOptions,
+  tabStackSettings,
+} from './tab-bar';
 
 function Layout() {
   return (
     <ThemeProvider theme="dark">
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
-        screenOptions={{ headerShown: false }}
+        screenOptions={tabScreenOptions}
       >
         <Tabs.Screen
           name="index"
@@ -61,7 +66,7 @@ function LayoutWithStack() {
     <ThemeProvider theme="dark">
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
-        screenOptions={{ headerShown: false }}
+        screenOptions={tabScreenOptions}
       >
         <Tabs.Screen
           name="index"
@@ -75,6 +80,11 @@ function LayoutWithStack() {
     </ThemeProvider>
   );
 }
+
+const exercisesLayout = {
+  default: () => <Stack screenOptions={{ headerShown: false }} />,
+  unstable_settings: tabStackSettings,
+};
 
 function ListScreen() {
   const router = useRouter();
@@ -94,7 +104,7 @@ test('pressing the open tab returns to its first page', async () => {
   await renderRouter({
     _layout: LayoutWithStack,
     index: () => <PlaceholderScreen title="Home screen" />,
-    'exercises/_layout': () => <Stack screenOptions={{ headerShown: false }} />,
+    'exercises/_layout': exercisesLayout,
     'exercises/index': ListScreen,
     'exercises/[id]': () => <PlaceholderScreen title="Details screen" />,
   });
@@ -113,6 +123,48 @@ test('pressing the open tab returns to its first page', async () => {
   expect(screen.queryByText('Details screen')).toBeNull();
 });
 
+function HomeScreen() {
+  const router = useRouter();
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Open details from Home"
+      onPress={() => {
+        router.push(
+          { pathname: '/exercises/[id]', params: { id: '1' } },
+          { withAnchor: true },
+        );
+      }}
+    />
+  );
+}
+
+test('pressing another tab opens its first page, even if a page was left open there', async () => {
+  await renderRouter({
+    _layout: LayoutWithStack,
+    index: HomeScreen,
+    'exercises/_layout': exercisesLayout,
+    'exercises/index': ListScreen,
+    'exercises/[id]': () => <PlaceholderScreen title="Details screen" />,
+  });
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Open details from Home' }),
+  );
+  expect(await screen.findByText('Details screen')).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('tab', { name: 'Home' }));
+  await act(() => {
+    jest.runOnlyPendingTimers();
+  });
+  await fireEvent.press(screen.getByRole('tab', { name: 'Exercises' }));
+
+  expect(
+    await screen.findByRole('button', { name: 'Open details' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Details screen')).toBeNull();
+});
+
 test('pressing a tab opens its screen', async () => {
   await renderTabs();
 
@@ -123,3 +175,33 @@ test('pressing a tab opens its screen', async () => {
     screen.getByRole('tab', { name: 'Workout', selected: true }),
   ).toBeOnTheScreen();
 });
+
+test('logging and editing a workout hide the tabs', async () => {
+  await renderRouter(
+    {
+      _layout: Layout,
+      index: () => <PlaceholderScreen title="Home screen" />,
+      'workout/_layout': () => <Stack screenOptions={{ headerShown: false }} />,
+      'workout/index': () => <PlaceholderScreen title="Workout screen" />,
+      'workout/log/[id]': () => <PlaceholderScreen title="Logging screen" />,
+    },
+    { initialUrl: '/workout/log/w1' },
+  );
+
+  expect(await screen.findByText('Logging screen')).toBeOnTheScreen();
+  expect(screen.queryByRole('tablist')).toBeNull();
+});
+
+test.each(['/workout/log/w1', '/workout/edit/w1/add', '/workout/exercise/e1'])(
+  '%s hides the tabs',
+  (pathname) => {
+    expect(hidesTabBar(pathname)).toBe(true);
+  },
+);
+
+test.each(['/', '/workout', '/workout/day/2026-11-10', '/exercises/e1'])(
+  '%s keeps the tabs',
+  (pathname) => {
+    expect(hidesTabBar(pathname)).toBe(false);
+  },
+);

@@ -38,7 +38,6 @@ export function SwapWorkoutExerciseScreen({
         pathname: '/workout/log/[id]/add/new-exercise',
         params: { id, swap: workoutExerciseId, ...params },
       })}
-      aboveTabBar
       waiting={swap.isPending}
       onDone={(leave) => {
         const [pick] = picked;

@@ -9,7 +9,6 @@ export default function NewExerciseForWorkoutRoute() {
 
   return (
     <NewExerciseToPickScreen
-      aboveTabBar
       swapping={swap !== undefined}
       setPicked={setPicked}
       setCreatedIds={setCreatedIds}

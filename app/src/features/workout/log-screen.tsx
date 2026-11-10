@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
+import { useBottomRoom } from '@/components/tab-bar';
 import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -20,6 +21,7 @@ import {
   textLine,
 } from '@/components/skeleton';
 import { useUnits } from '@/features/account/use-units';
+import { useGoBack } from '@/features/home/use-go-back';
 import { sameGroup } from '@/features/routines/group-blocks';
 import { formatClock, shortWeekdayDate } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
@@ -53,9 +55,16 @@ type WorkoutSet = components['schemas']['SetResponse'];
 const startingRestSeconds = 180;
 
 /** Logging a workout. Every change saves as it happens, so the back link just leaves. */
-export function LogScreen({ id }: { id: string }) {
+export function LogScreen({
+  id,
+  openedFromHome = false,
+}: {
+  id: string;
+  openedFromHome?: boolean;
+}) {
   const { colors, size } = useTheme();
-  const router = useRouter();
+  const goBack = useGoBack(openedFromHome);
+  const bottomRoom = useBottomRoom();
   const workout = useWorkout(id);
   const settings = useWorkoutSettings();
   const { rest, update } = useRestTimer(id);
@@ -129,14 +138,12 @@ export function LogScreen({ id }: { id: string }) {
         contentContainerStyle={{
           paddingTop: size.topPaddingSubPage,
           paddingHorizontal: size.sidePadding,
-          paddingBottom: size.gap.sectionMax + barRoom,
+          paddingBottom: size.gap.sectionMax + barRoom + bottomRoom,
         }}
       >
         <BackLink
-          label="Workout"
-          onPress={() => {
-            router.back();
-          }}
+          label={openedFromHome ? 'Home' : 'Workout'}
+          onPress={goBack}
         />
         {renderContent()}
       </ScrollView>

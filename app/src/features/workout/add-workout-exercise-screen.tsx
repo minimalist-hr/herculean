@@ -25,7 +25,6 @@ export function AddWorkoutExerciseScreen({ id }: { id: string }) {
         pathname: '/workout/log/[id]/add/new-exercise',
         params: { id, ...params },
       })}
-      aboveTabBar
       waiting={add.isPending}
       onDone={(leave) => {
         add.mutate(

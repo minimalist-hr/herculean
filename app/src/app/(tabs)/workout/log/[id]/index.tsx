@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { LogScreen } from '@/features/workout/log-screen';
 
 export default function LogRoute() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
 
-  return <LogScreen id={id} />;
+  return <LogScreen id={id} openedFromHome={from === 'home'} />;
 }

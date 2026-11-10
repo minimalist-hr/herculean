@@ -190,10 +190,10 @@ test('tapping a rest alert opens its workout', async () => {
 
   listener(tapped('w1'));
 
-  expect(mockPush).toHaveBeenCalledWith({
-    pathname: '/workout/log/[id]',
-    params: { id: 'w1' },
-  });
+  expect(mockPush).toHaveBeenCalledWith(
+    { pathname: '/workout/log/[id]', params: { id: 'w1' } },
+    { withAnchor: true },
+  );
   expect(notifications.clearLastNotificationResponse).toHaveBeenCalled();
 });
 
@@ -204,10 +204,10 @@ test('a tap that started the app opens the workout once it is up', async () => {
     useOpenFromRestAlert();
   });
 
-  expect(mockPush).toHaveBeenCalledWith({
-    pathname: '/workout/log/[id]',
-    params: { id: 'w1' },
-  });
+  expect(mockPush).toHaveBeenCalledWith(
+    { pathname: '/workout/log/[id]', params: { id: 'w1' } },
+    { withAnchor: true },
+  );
 });
 
 test('another notification opens nothing', async () => {

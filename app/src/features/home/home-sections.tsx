@@ -156,10 +156,13 @@ export function WeekSection({ now }: { now: Date }) {
             if (date === today) {
               router.navigate('/workout');
             } else {
-              router.push({
-                pathname: '/workout/day/[date]',
-                params: { date, from: 'home' },
-              });
+              router.push(
+                {
+                  pathname: '/workout/day/[date]',
+                  params: { date, from: 'home' },
+                },
+                { withAnchor: true },
+              );
             }
           }}
         />
@@ -233,10 +236,10 @@ export function MonthSection({ now }: { now: Date }) {
         <SectionLink
           label="Open month"
           onPress={() => {
-            router.push({
-              pathname: '/workout/month',
-              params: { from: 'home' },
-            });
+            router.push(
+              { pathname: '/workout/month', params: { from: 'home' } },
+              { withAnchor: true },
+            );
           }}
         />
       }
@@ -362,6 +365,17 @@ export function RecordsSection() {
   const router = useRouter();
   const records = useRecentRecords();
   const units = useUnits();
+  const recordRow = {
+    gap: space.xs,
+    minHeight: size.touchTargetMin,
+    justifyContent: 'center' as const,
+  };
+  // A line halfway between rows: the card's gap above, the same space below.
+  const rowLine = {
+    paddingTop: space.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  };
 
   function renderContent() {
     if (records.isLoadingError) {
@@ -379,15 +393,8 @@ export function RecordsSection() {
       return (
         <SkeletonGroup label="Loading your records">
           <Card>
-            {[180, 150, 170].map((width) => (
-              <View
-                key={width}
-                style={{
-                  gap: space.xs,
-                  minHeight: size.touchTargetMin,
-                  justifyContent: 'center',
-                }}
-              >
+            {[180, 150, 170].map((width, index) => (
+              <View key={width} style={[recordRow, index > 0 && rowLine]}>
                 <SkeletonLine
                   width={width}
                   height={14}
@@ -416,22 +423,21 @@ export function RecordsSection() {
 
     return (
       <Card>
-        {records.data.map((record) => (
+        {records.data.map((record, index) => (
           <Tappable
             key={record.exerciseId}
             accessibilityRole="button"
             accessibilityLabel={`${record.exerciseName}, ${formatSet(record.weightKg, record.reps, units)}`}
             onPress={() => {
-              router.push({
-                pathname: '/exercises/[id]',
-                params: { id: record.exerciseId, from: 'home' },
-              });
+              router.push(
+                {
+                  pathname: '/exercises/[id]',
+                  params: { id: record.exerciseId, from: 'home' },
+                },
+                { withAnchor: true },
+              );
             }}
-            style={{
-              gap: space.xs,
-              minHeight: size.touchTargetMin,
-              justifyContent: 'center',
-            }}
+            style={[recordRow, index > 0 && rowLine]}
           >
             <View style={[styles.recordName, { gap: space.xs }]}>
               <Text

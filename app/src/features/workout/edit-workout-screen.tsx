@@ -59,7 +59,7 @@ export function EditWorkoutDraft({ id }: { id: string }) {
         // A blank line keeps the room for the workout's name after a failure.
         label={workout.isLoadingError ? blankLine : null}
         after={
-          <BottomActionBox aboveTabBar>
+          <BottomActionBox>
             <NotLoadedButton label="Save workout" />
           </BottomActionBox>
         }
@@ -259,7 +259,7 @@ export function EditWorkoutScreen() {
       label={`${workout.name} · ${shortWeekdayDate(dateFromText(workout.date))}`}
       after={
         <>
-          <BottomActionBox aboveTabBar>
+          <BottomActionBox>
             <Button
               label="Save workout"
               waitingLabel="Saving workout"

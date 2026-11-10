@@ -163,9 +163,9 @@ export const tokens = {
   size: {
     screen: { width: 390, height: 844 },
     sidePadding: 16,
-    topPaddingTab: 48,
+    topPaddingTab: 16,
     statTilePadding: 14,
-    topPaddingSubPage: 40,
+    topPaddingSubPage: 8,
     touchTargetMin: 44,
     listRowMin: 56,
     optionRowMin: 60,

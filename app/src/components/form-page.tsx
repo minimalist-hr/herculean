@@ -21,8 +21,6 @@ interface FormPageProps {
   subtitle?: string;
   /** The main action, pinned to the bottom. The back link cancels. */
   action?: ReactNode;
-  /** It opens inside a tab, so its action sits on the tab bar. */
-  aboveTabBar?: boolean;
   /** Turn off while something in the form is being dragged. */
   scrollEnabled?: boolean;
   children: ReactNode;
@@ -34,7 +32,6 @@ export function FormPage({
   title,
   subtitle,
   action,
-  aboveTabBar = false,
   scrollEnabled = true,
   children,
 }: FormPageProps) {
@@ -70,9 +67,7 @@ export function FormPage({
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
-      {action !== undefined && (
-        <BottomActionBox aboveTabBar={aboveTabBar}>{action}</BottomActionBox>
-      )}
+      {action !== undefined && <BottomActionBox>{action}</BottomActionBox>}
     </View>
   );
 }

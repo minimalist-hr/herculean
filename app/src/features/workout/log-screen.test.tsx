@@ -138,12 +138,12 @@ function Layout() {
   );
 }
 
-async function renderLog() {
+async function renderLog(openedFromHome = false) {
   await renderRouter(
     {
       _layout: Layout,
       index: () => <PlaceholderScreen title="Workout screen" />,
-      log: () => <LogScreen id="w1" />,
+      log: () => <LogScreen id="w1" openedFromHome={openedFromHome} />,
       'workout/log/[id]/add': () => <PlaceholderScreen title="Add screen" />,
       'workout/log/[id]/finish': () => (
         <PlaceholderScreen title="Finish screen" />
@@ -1227,4 +1227,13 @@ test('while it loads, Finish stays in place, muted, and says why', async () => {
     await screen.findByText('This page hasn’t loaded yet.'),
   ).toBeOnTheScreen();
   expect(screen.queryByText('Finish screen')).toBeNull();
+});
+
+test('the back link says Workout, or Home when opened from Home', async () => {
+  mockFetch.mockImplementation(() => new Promise(() => undefined));
+  await renderLog();
+  expect(screen.getByRole('link', { name: 'Workout' })).toBeOnTheScreen();
+
+  await renderLog(true);
+  expect(screen.getByRole('link', { name: 'Home' })).toBeOnTheScreen();
 });

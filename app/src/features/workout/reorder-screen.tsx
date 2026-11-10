@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
+import { useBottomRoom } from '@/components/tab-bar';
 import { BackLink } from '@/components/back-link';
 import {
   DraggableList,
@@ -32,6 +33,7 @@ const subtitle =
 export function ReorderScreen({ id }: { id: string }) {
   const { colors, size } = useTheme();
   const router = useRouter();
+  const bottomRoom = useBottomRoom();
   const workout = useWorkout(id);
   const [dragging, setDragging] = useState(false);
 
@@ -61,7 +63,7 @@ export function ReorderScreen({ id }: { id: string }) {
       contentContainerStyle={{
         paddingTop: size.topPaddingSubPage,
         paddingHorizontal: size.sidePadding,
-        paddingBottom: size.gap.sectionMax,
+        paddingBottom: size.gap.sectionMax + bottomRoom,
       }}
     >
       <BackLink

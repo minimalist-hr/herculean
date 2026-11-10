@@ -13,8 +13,6 @@ interface NewExerciseScreenProps {
   initialName?: string;
   /** The group the user had picked, if any. */
   initialGroupId?: string;
-  /** It opens inside a tab, so its actions sit on the tab bar. */
-  aboveTabBar?: boolean;
   /** Where saving leads, when that isn't the exercise list. */
   onCreated?: (exercise: components['schemas']['ExerciseResponse']) => void;
 }
@@ -23,7 +21,6 @@ export function NewExerciseScreen({
   back = 'Exercises',
   initialName = '',
   initialGroupId = '',
-  aboveTabBar = false,
   onCreated,
 }: NewExerciseScreenProps) {
   const router = useRouter();
@@ -32,7 +29,6 @@ export function NewExerciseScreen({
   return (
     <ExerciseFormPage
       back={back}
-      aboveTabBar={aboveTabBar}
       title="New exercise"
       subtitle="It’s added to your exercise list and can be used in any routine or workout."
       initialValues={{

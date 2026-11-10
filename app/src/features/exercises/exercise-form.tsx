@@ -21,8 +21,6 @@ import { ChipsSkeleton } from './exercises-skeleton';
 import { useGroups } from './use-groups';
 
 interface ExerciseFormPageProps {
-  /** It opens inside a tab, so its actions sit on the tab bar. */
-  aboveTabBar?: boolean;
   /** The screen its back link returns to. */
   back: string;
   title: string;
@@ -246,7 +244,6 @@ export function ExerciseFormSkeleton() {
 /** A page with the fields of an exercise and Save exercise. */
 export function ExerciseFormPage({
   back,
-  aboveTabBar = false,
   title,
   subtitle,
   initialValues,
@@ -259,7 +256,6 @@ export function ExerciseFormPage({
     <>
       <FormPage
         back={back}
-        aboveTabBar={aboveTabBar}
         title={title}
         subtitle={subtitle}
         action={

@@ -175,10 +175,10 @@ export function useOpenFromRestAlert() {
       if (typeof workoutId === 'string') {
         // Handled once, so coming back to the tabs doesn't open it again.
         Notifications.clearLastNotificationResponse();
-        router.push({
-          pathname: '/workout/log/[id]',
-          params: { id: workoutId },
-        });
+        router.push(
+          { pathname: '/workout/log/[id]', params: { id: workoutId } },
+          { withAnchor: true },
+        );
       }
     }
 

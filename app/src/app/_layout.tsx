@@ -15,6 +15,8 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { queryClient } from '@/api/query-client';
 import { NotificationBar } from '@/components/notification-bar';
@@ -68,6 +70,7 @@ export default function RootLayout() {
 
 function AppStack() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const status = useSessionStatus();
   const pageOptions = usePageOptions();
   const home = homeOf[status];
@@ -94,42 +97,56 @@ function AppStack() {
 
   return (
     <NavigationThemeProvider value={navigationTheme}>
-      <Stack screenOptions={pageOptions}>
-        <Stack.Protected guard={status === 'restoring'} redirectTo={home}>
-          <Stack.Screen name="launch" />
-        </Stack.Protected>
-        <Stack.Protected guard={status === 'signedOut'} redirectTo={home}>
-          <Stack.Screen name="sign-in" />
-          <Stack.Screen name="create-account" />
-        </Stack.Protected>
-        {/* A reset link can open the app from closed, so these don't wait for the session to be restored. */}
-        <Stack.Protected
-          guard={status === 'signedOut' || status === 'restoring'}
-          redirectTo={home}
-        >
-          <Stack.Screen name="forgot-password" />
-          <Stack.Screen name="reset-link-sent" />
-          <Stack.Screen name="new-password" />
-        </Stack.Protected>
-        <Stack.Protected guard={status === 'needsSetup'} redirectTo={home}>
-          <Stack.Screen name="setup" />
-        </Stack.Protected>
-        <Stack.Protected guard={status === 'ready'} redirectTo={home}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="routine/[id]/edit" />
-          <Stack.Screen name="routine/new" />
-          <Stack.Screen name="exercise/new" />
-          <Stack.Screen name="exercise/[id]/edit" />
-          <Stack.Screen name="group/new" />
-          <Stack.Screen name="group/[id]/edit" />
-          <Stack.Screen name="settings" />
-        </Stack.Protected>
-        {/* An email change link works signed in, signed out and from a closed app. */}
-        <Stack.Screen name="confirm-email" />
-        <Stack.Screen name="terms" />
-        <Stack.Screen name="privacy" />
-      </Stack>
+      {/* Pages start below the status bar, so nothing scrolls behind the clock. */}
+      <View
+        style={[
+          styles.app,
+          { paddingTop: insets.top, backgroundColor: colors.bg },
+        ]}
+      >
+        <Stack screenOptions={pageOptions}>
+          <Stack.Protected guard={status === 'restoring'} redirectTo={home}>
+            <Stack.Screen name="launch" />
+          </Stack.Protected>
+          <Stack.Protected guard={status === 'signedOut'} redirectTo={home}>
+            <Stack.Screen name="sign-in" />
+            <Stack.Screen name="create-account" />
+          </Stack.Protected>
+          {/* A reset link can open the app from closed, so these don't wait for the session to be restored. */}
+          <Stack.Protected
+            guard={status === 'signedOut' || status === 'restoring'}
+            redirectTo={home}
+          >
+            <Stack.Screen name="forgot-password" />
+            <Stack.Screen name="reset-link-sent" />
+            <Stack.Screen name="new-password" />
+          </Stack.Protected>
+          <Stack.Protected guard={status === 'needsSetup'} redirectTo={home}>
+            <Stack.Screen name="setup" />
+          </Stack.Protected>
+          <Stack.Protected guard={status === 'ready'} redirectTo={home}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="routine/[id]/edit" />
+            <Stack.Screen name="routine/new" />
+            <Stack.Screen name="exercise/new" />
+            <Stack.Screen name="exercise/[id]/edit" />
+            <Stack.Screen name="group/new" />
+            <Stack.Screen name="group/[id]/edit" />
+            <Stack.Screen name="settings" />
+          </Stack.Protected>
+          {/* An email change link works signed in, signed out and from a closed app. */}
+          <Stack.Screen name="confirm-email" />
+          <Stack.Screen name="terms" />
+          <Stack.Screen name="privacy" />
+        </Stack>
+      </View>
       <NotificationBar />
     </NavigationThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  app: {
+    flex: 1,
+  },
+});

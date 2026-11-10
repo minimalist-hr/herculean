@@ -55,8 +55,6 @@ interface ExercisePickerProps {
   /** The exercises created while picking, newest last. */
   createdIds: string[];
   newExercisePage: (params: { name: string; groupId: string }) => Href;
-  /** It opens inside a tab, so its actions sit on the tab bar. */
-  aboveTabBar?: boolean;
   /** Whether what was picked is being saved. */
   waiting?: boolean;
   /** Takes what was picked. Calling leave closes the page, without asking about the picks. */
@@ -88,7 +86,6 @@ export function ExercisePicker({
   setPicked,
   createdIds,
   newExercisePage,
-  aboveTabBar = false,
   waiting = false,
   onDone,
 }: ExercisePickerProps) {
@@ -396,7 +393,7 @@ export function ExercisePicker({
         keyboardDismissMode="on-drag"
       />
 
-      <BottomActionBox aboveTabBar={aboveTabBar}>
+      <BottomActionBox>
         <Button
           label={actionLabel}
           waitingLabel={waitingLabel}

@@ -1,8 +1,9 @@
-import { usePathname, useRouter, type Href } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { setFloatingRoom, useAboveTabBar } from '@/components/above-tab-bar';
+import { hidesTabBar } from '@/components/tab-bar';
 import { Button } from '@/components/button';
 import { ChevronDownIcon, WorkoutIcon } from '@/components/icons';
 import { ProgressBar } from '@/components/progress-bar';
@@ -26,7 +27,7 @@ const progressHeight = 4;
 export function ResumeBar() {
   const pathname = usePathname();
   const inProgress = useWorkoutInProgress().data;
-  const shown = Boolean(inProgress) && !pathname.startsWith('/workout/log/');
+  const shown = Boolean(inProgress) && !hidesTabBar(pathname);
 
   useEffect(() => {
     if (!shown) {
@@ -136,7 +137,10 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
         compact
         label="Resume"
         onPress={() => {
-          router.push(`/workout/log/${id}` as Href);
+          router.push(
+            { pathname: '/workout/log/[id]', params: { id } },
+            { withAnchor: true },
+          );
         }}
       />
       <View style={styles.progress}>

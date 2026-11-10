@@ -8,7 +8,7 @@ import {
   RoutinesIcon,
   WorkoutIcon,
 } from '@/components/icons';
-import { TabBar } from '@/components/tab-bar';
+import { TabBar, tabScreenOptions } from '@/components/tab-bar';
 import { useKeepTimeZone } from '@/features/account/use-keep-time-zone';
 import { useOpenFromRestAlert } from '@/features/workout/rest-alert';
 import { ResumeBar } from '@/features/workout/resume-bar';
@@ -30,7 +30,7 @@ export default function TabsLayout() {
               <TabBar {...props} />
             </View>
           )}
-          screenOptions={{ headerShown: false }}
+          screenOptions={tabScreenOptions}
         >
           <Tabs.Screen
             name="index"
