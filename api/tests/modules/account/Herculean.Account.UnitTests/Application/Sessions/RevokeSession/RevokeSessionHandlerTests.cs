@@ -30,6 +30,17 @@ public sealed class RevokeSessionHandlerTests
     }
 
     [Fact]
+    public async Task AReplacedTokenCantSignTheDeviceBackIn()
+    {
+        _user.AddRefreshToken("hash:replaced", DateTimeOffset.MaxValue);
+        _user.ReplaceRefreshToken(_user.RefreshTokens[^1], DateTimeOffset.UtcNow);
+
+        await _handler.HandleAsync(new RevokeSessionRequest("this-phone"), TestContext.Current.CancellationToken);
+
+        _user.RefreshTokens.ShouldHaveSingleItem().TokenHash.ShouldBe("hash:tablet");
+    }
+
+    [Fact]
     public async Task AnUnknownTokenIsStillASuccess()
     {
         Result result = await _handler.HandleAsync(new RevokeSessionRequest("unknown"), TestContext.Current.CancellationToken);

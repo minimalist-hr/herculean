@@ -27,6 +27,7 @@ import {
 import { SectionTitle } from '@/components/section-title';
 import { StatTile } from '@/components/stat-tile';
 import { useUnits } from '@/features/account/use-units';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteExerciseSheet } from './delete-exercise-sheet';
@@ -126,7 +127,7 @@ function Details({
   const inUse = exercise.routines.length > 0;
 
   return (
-    <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
+    <View style={{ gap: size.gap.sectionMax, marginTop: space.xxxs }}>
       <View style={styles.heading}>
         <View style={[styles.titleRow, { gap: space.sm }]}>
           <Text
@@ -285,7 +286,7 @@ function subtitleOf({ group, alsoWorksGroups }: Exercise) {
 
 const styles = StyleSheet.create({
   heading: {
-    gap: 4,
+    gap: tokens.space.xxs,
   },
   titleRow: {
     flexDirection: 'row',

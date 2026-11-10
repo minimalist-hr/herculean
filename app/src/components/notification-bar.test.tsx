@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { NotificationBar } from './notification-bar';
 import { notifyFailure, notifySuccess } from './notifications';
-import { PlaceholderScreen } from './placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 
 function Layout() {
   return (

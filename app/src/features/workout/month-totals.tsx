@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { components } from '@/api/schema';
-import { SkeletonLine, textLine } from '@/components/skeleton';
+import { StatTile } from '@/components/stat-tile';
 import {
   counted,
   formatVolume,
@@ -10,45 +10,9 @@ import {
 } from '@/formats/formats';
 import { SectionTitle } from '@/components/section-title';
 import { useUnits } from '@/features/account/use-units';
-import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
 type MonthSummary = components['schemas']['MonthSummaryResponse'];
-
-function CountTile({
-  label,
-  color,
-  value,
-}: {
-  label: string;
-  color: string;
-  value?: number | string;
-}) {
-  const { colors, radius, size, space, text } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.tile,
-        {
-          gap: space.sm,
-          paddingVertical: space.md,
-          paddingHorizontal: size.statTilePadding,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-      ]}
-    >
-      <StatusLabel label={label} color={color} />
-      {value === undefined ? (
-        <SkeletonLine width={32} height={24} lineHeight={textLine.bigStat} />
-      ) : (
-        <Text style={[text.bigStat, { color: colors.text }]}>{value}</Text>
-      )}
-    </View>
-  );
-}
 
 /** The done, missed and skipped tiles. Nothing while it loads, and a dash if it failed: the labels still show. */
 export function MonthCounts({
@@ -63,67 +27,24 @@ export function MonthCounts({
 
   return (
     <View style={[styles.row, { gap: space.sm }]}>
-      <CountTile
+      <StatTile
+        skeletonWidth={32}
         label="Done"
-        color={colors.success}
+        labelColor={colors.success}
         value={shown(summary?.done)}
       />
-      <CountTile
+      <StatTile
+        skeletonWidth={32}
         label="Missed"
-        color={colors.danger}
+        labelColor={colors.danger}
         value={shown(summary?.missed)}
       />
-      <CountTile
+      <StatTile
+        skeletonWidth={32}
         label="Skipped"
-        color={colors.skipped}
+        labelColor={colors.skipped}
         value={shown(summary?.skipped)}
       />
-    </View>
-  );
-}
-
-export function TotalTile({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value?: string;
-  hint?: string;
-}) {
-  const { colors, radius, size, space, text } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.tile,
-        {
-          gap: space.sm,
-          padding: size.statTilePadding,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-      ]}
-    >
-      <Text style={text.eyebrow}>{label}</Text>
-      {value === undefined ? (
-        <>
-          <SkeletonLine width={90} height={24} lineHeight={textLine.bigStat} />
-          <SkeletonLine width={110} height={12} lineHeight={textLine.meta} />
-        </>
-      ) : (
-        <>
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={[text.bigStat, { color: colors.text }]}
-          >
-            {value}
-          </Text>
-          <Text style={text.meta}>{hint}</Text>
-        </>
-      )}
     </View>
   );
 }
@@ -153,19 +74,21 @@ export function MonthTotals({
     <View style={{ gap: space.sm }}>
       <SectionTitle>{title}</SectionTitle>
       <View style={[styles.row, { gap: space.sm }]}>
-        <TotalTile
+        <StatTile
+          total
           label="Time trained"
           value={summary && hoursAndMinutesText(summary.minutesTrained)}
-          hint={
+          detail={
             averageMinutes === null
               ? 'No workouts yet'
               : `About ${String(averageMinutes)} min a workout`
           }
         />
-        <TotalTile
+        <StatTile
+          total
           label="Sets"
           value={summary && String(summary.setsDone)}
-          hint={
+          detail={
             summary &&
             (summary.setsPlanned === 0
               ? 'No planned sets yet'
@@ -174,15 +97,17 @@ export function MonthTotals({
         />
       </View>
       <View style={[styles.row, { gap: space.sm }]}>
-        <TotalTile
+        <StatTile
+          total
           label="Volume"
           value={summary && formatVolume(summary.volumeKg, units)}
-          hint="Weight × reps, all sets"
+          detail="Weight × reps, all sets"
         />
-        <TotalTile
+        <StatTile
+          total
           label="On plan"
           value={summary && consistencyText(summary)}
-          hint={
+          detail={
             summary &&
             (summary.plannedDays === 0
               ? 'No planned workouts yet'
@@ -197,9 +122,5 @@ export function MonthTotals({
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-  },
-  tile: {
-    flex: 1,
-    borderWidth: 1,
   },
 });

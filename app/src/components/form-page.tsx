@@ -58,7 +58,7 @@ export function FormPage({
             paddingBottom: space.lg,
           }}
         >
-          <View style={{ gap: 2 }}>
+          <View style={{ gap: space.xxxs }}>
             <BackLink
               label={back}
               onPress={() => {

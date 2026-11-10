@@ -64,11 +64,12 @@ public sealed class GetWorkoutSummaryHandlerTests
     }
 
     [Fact]
-    public async Task ASavedWorkoutRunsUntilItFinished()
+    public async Task ASavedWorkoutShowsItsStoredDuration()
     {
-        Guid id = Answer(Now.AddHours(-3), Now.AddHours(-2));
+        Guid id = Guid.CreateVersion7();
+        _workoutReadRepository.Workout = new WorkoutDetailsResponse(id, Date, WorkoutStatus.Completed, "Legs", Now.AddHours(-3), [], Now.AddHours(-2), 2400);
 
-        (await GetAsync(id)).DurationSeconds.ShouldBe(3600);
+        (await GetAsync(id)).DurationSeconds.ShouldBe(2400);
     }
 
     [Fact]

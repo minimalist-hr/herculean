@@ -8,6 +8,7 @@ import {
   notifySuccess,
 } from '@/components/notifications';
 import { exerciseKeys } from '@/features/exercises/query-keys';
+import { dayDataKeys } from '@/features/workout/query-keys';
 
 import { routineKeys } from './query-keys';
 
@@ -32,9 +33,12 @@ export function useDeleteRoutine() {
   // Not its details: they stay until their screen closes, so it never reads them again.
   const refresh = () =>
     Promise.all(
-      [routineKeys.all, routineKeys.weekPlan, exerciseKeys.details].map(
-        (queryKey) => queryClient.invalidateQueries({ queryKey }),
-      ),
+      [
+        routineKeys.all,
+        routineKeys.weekPlan,
+        exerciseKeys.details,
+        ...dayDataKeys,
+      ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
     );
 
   const restore = useMutation({

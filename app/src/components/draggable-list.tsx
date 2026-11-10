@@ -249,10 +249,10 @@ function DraggableRow({
       style={[
         styles.row,
         {
-          gap: 2,
+          gap: space.xxxs,
           height: size.optionRowMin,
           paddingLeft: locked ? space.lg : 4,
-          paddingRight: 4,
+          paddingRight: space.xxs,
           ...joinedCardStyle({
             withPrevious,
             withNext,

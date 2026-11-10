@@ -12,7 +12,7 @@ Content-Type: application/json
   "timeZone": "Europe/Zagreb"
 }
 
-### Refresh → 200 with new tokens. Send it twice: the second time is 401, because a refresh token works once.
+### Refresh → 200 with new tokens. It still works for 5 minutes after it is replaced, in case the answer was lost. After that it is 401.
 POST {{host}}/api/v1/sessions/refresh
 Content-Type: application/json
 

@@ -13,6 +13,7 @@ import {
   minutesText,
   noValue,
 } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { recordReason } from './finish-text';
@@ -25,10 +26,13 @@ export function SummaryTiles({
   summary,
   units,
   saved = false,
+  pastDay = false,
 }: {
   summary?: Summary;
   units: Units;
   saved?: boolean;
+  /** Finishing a past day: its duration is typed above and its records list below, so only Sets and Volume show. */
+  pastDay?: boolean;
 }) {
   const { space } = useTheme();
 
@@ -46,25 +50,41 @@ export function SummaryTiles({
       : formatClock(summary.durationSeconds);
   }
 
+  const sets = (
+    <StatTile
+      label="Sets"
+      value={
+        summary &&
+        (saved
+          ? String(summary.setsChecked)
+          : `${String(summary.setsChecked)} of ${String(summary.setsTotal)}`)
+      }
+    />
+  );
+  const volume = (
+    <StatTile
+      label="Volume"
+      value={summary && formatVolume(summary.volumeKg, units)}
+    />
+  );
+
+  if (pastDay) {
+    return (
+      <View style={[styles.row, { gap: space.sm }]}>
+        {sets}
+        {volume}
+      </View>
+    );
+  }
+
   return (
     <View style={{ gap: space.sm }}>
       <View style={[styles.row, { gap: space.sm }]}>
         <StatTile label="Duration" value={duration()} />
-        <StatTile
-          label="Sets"
-          value={
-            summary &&
-            (saved
-              ? String(summary.setsChecked)
-              : `${String(summary.setsChecked)} of ${String(summary.setsTotal)}`)
-          }
-        />
+        {sets}
       </View>
       <View style={[styles.row, { gap: space.sm }]}>
-        <StatTile
-          label="Volume"
-          value={summary && formatVolume(summary.volumeKg, units)}
-        />
+        {volume}
         <StatTile
           label="Records"
           value={summary && String(summary.records.length)}
@@ -101,7 +121,12 @@ export function NewRecords({
           ]}
         >
           {records === undefined && (
-            <View style={[styles.recordText, { gap: 2, padding: space.lg }]}>
+            <View
+              style={[
+                styles.recordText,
+                { gap: space.xxxs, padding: space.lg },
+              ]}
+            >
               <Skeleton width={160} height={21} />
               <Skeleton width={120} height={17} />
             </View>
@@ -151,6 +176,6 @@ const styles = StyleSheet.create({
   },
   recordText: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
 });

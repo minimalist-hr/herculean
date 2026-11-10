@@ -19,8 +19,9 @@ import {
   noValue,
 } from '@/formats/formats';
 import { addMonths, dateText, monthText, weekOf } from '@/formats/dates';
-import { Card } from '@/features/workout/day-card';
-import { consistencyText, TotalTile } from '@/features/workout/month-totals';
+import { Card } from '@/components/card';
+import { StatTile } from '@/components/stat-tile';
+import { consistencyText } from '@/features/workout/month-totals';
 import { useDay } from '@/features/workout/use-day';
 import { useDays } from '@/features/workout/use-days';
 import { useMonthSummary } from '@/features/workout/use-month-summary';
@@ -256,20 +257,23 @@ export function MonthSection({ now }: { now: Date }) {
           style={{ gap: space.xs }}
         >
           <View style={[styles.row, { gap: space.sm }]}>
-            <TotalTile
+            <StatTile
+              total
               label="Workouts"
               value={summary && String(summary.done)}
-              hint={summary && workoutsChange(summary, previous)}
+              detail={summary && workoutsChange(summary, previous)}
             />
-            <TotalTile
+            <StatTile
+              total
               label="On plan"
               value={summary && consistencyText(summary)}
-              hint={summary && onPlanChange(summary, previous)}
+              detail={summary && onPlanChange(summary, previous)}
             />
-            <TotalTile
+            <StatTile
+              total
               label="Volume"
               value={summary && formatCompactVolume(summary.volumeKg, units)}
-              hint={summary && volumeChange(summary, previous)}
+              detail={summary && volumeChange(summary, previous)}
             />
           </View>
           <Text style={text.meta}>Compared with last month</Text>

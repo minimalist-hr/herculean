@@ -5,7 +5,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import { AccessibilityInfo, AppState } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { dragBy } from '@/test-utils/drag';
 import { ThemeProvider } from '@/theme/theme-provider';
 

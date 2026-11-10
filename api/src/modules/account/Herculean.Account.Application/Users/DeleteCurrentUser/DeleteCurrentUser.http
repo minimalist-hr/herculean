@@ -1,0 +1,21 @@
+# Schedule the account for deletion. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### The right password → 204. Signing in within 14 days can keep the account.
+DELETE {{host}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "password"
+}
+
+### The wrong password → 400, the errors name the field.
+DELETE {{host}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "wrong"
+}

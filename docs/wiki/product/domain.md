@@ -41,7 +41,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 ### Account
 
 - An email is unique and not case-sensitive.
-- A password has at least 8 characters.
+- A password has 8 to 128 characters.
 - A name has 1 to 50 characters, trimmed.
 - Password reset and email change links expire. Their lifetimes are in [Configuration](/development/configuration#api-settings).
 - A password reset link works once, and a new one cancels older ones.
@@ -76,7 +76,8 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A workout can start from a routine. Its name and exercises are copied when it starts, so later routine changes do not affect it.
 - Each set of a new workout starts with the weight and reps of the same set last time. If last time had fewer sets, it takes the last of them. If there was no last time, it starts at 0 kg and the low end of the target reps.
 - Last time is the exercise's latest completed workout before this workout's date.
-- Logging a past day (W21) gives the workout that date. It has no elapsed time, so it has no duration.
+- Logging a past day (W21) gives the workout that date. It has no timer, so its duration is entered on L32, in minutes, or left out.
+- A saved workout's duration can be corrected on W30. It is 1 to 600 minutes, or left out.
 - Changing a set's weight or reps also changes it on later unchecked sets of that exercise, unless they were changed by hand. A new set copies the last set. A set put back by Undo counts as changed by hand.
 - An exercise in a workout has 1 to 20 sets. Its last set can't be removed: the exercise is removed instead.
 - Sets can only change while the workout is in progress.
@@ -170,12 +171,12 @@ Every action in the table is built.
 
 ### Streak and records
 
-- A streak counts finished weeks in a row with no planned day missed. A skipped day doesn't break it, a week with nothing planned is passed over, and this week doesn't count until it's over.
+- A streak counts finished weeks in a row with no planned day missed. A skipped day doesn't break it, a workout left in progress counts as missed, a week with nothing planned is passed over, and this week doesn't count until it's over.
 - Home's Recent records are only heaviest-weight [records](#terms), never a bodyweight set: the newest three from the last 30 days, one per exercise.
 
 ### Month totals (W40)
 
-- **Time trained:** the sum of workout durations. A past day logged later has no duration, so it adds nothing.
+- **Time trained:** the sum of workout durations. A workout with no duration adds nothing.
 - **Sets:** checked sets, out of the sets planned so far: the routine's target sets on each planned day, and on any day with a workout. Saving keeps the planned sets, even when it removes an exercise left with no sets.
 - **Volume:** volume of checked sets.
 - **On plan:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.

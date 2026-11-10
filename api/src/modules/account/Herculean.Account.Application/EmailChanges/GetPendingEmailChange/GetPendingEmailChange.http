@@ -1,0 +1,10 @@
+# The new email waiting for confirmation. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### The address waiting, or null → 200.
+GET {{host}}/api/v1/email-changes/pending
+Authorization: Bearer {{accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/email-changes/pending

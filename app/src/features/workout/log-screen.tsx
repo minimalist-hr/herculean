@@ -6,6 +6,7 @@ import type { components } from '@/api/schema';
 import { BackLink } from '@/components/back-link';
 import { EmptyCard } from '@/components/empty-card';
 import { Button } from '@/components/button';
+import { Card } from '@/components/card';
 import { PlusIcon, ReorderIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { NotLoadedButton } from '@/components/not-loaded-button';
@@ -265,7 +266,7 @@ function Logging({
   }
 
   return (
-    <View style={{ gap: space.lg, marginTop: 2 }}>
+    <View style={{ gap: space.lg, marginTop: space.xxxs }}>
       <Heading workout={workout} />
 
       {exercises.length === 0 && <NoExercises />}
@@ -440,10 +441,10 @@ function NoExercises() {
 }
 
 function LoggingSkeleton() {
-  const { colors, radius, space } = useTheme();
+  const { space } = useTheme();
 
   return (
-    <View style={{ gap: space.lg, marginTop: 2 }}>
+    <View style={{ gap: space.lg, marginTop: space.xxxs }}>
       <View style={{ gap: space.sm }}>
         <View style={[styles.titleRow, { gap: space.md }]}>
           <View style={styles.title}>
@@ -460,24 +461,13 @@ function LoggingSkeleton() {
         <ProgressBar done={0} total={0} />
       </View>
       <SkeletonGroup label="Loading this workout">
-        <View
-          style={[
-            styles.skeletonCard,
-            {
-              gap: space.md,
-              padding: space.lg,
-              borderRadius: radius.card,
-              borderColor: colors.border,
-              backgroundColor: colors.card,
-            },
-          ]}
-        >
+        <Card>
           <Skeleton width={200} height={16} />
           <Skeleton width={120} height={10} />
           {[0, 1, 2].map((row) => (
             <Skeleton key={row} width="100%" height={32} />
           ))}
-        </View>
+        </Card>
       </SkeletonGroup>
     </View>
   );
@@ -503,8 +493,5 @@ const styles = StyleSheet.create({
   },
   action: {
     flex: 1,
-  },
-  skeletonCard: {
-    borderWidth: 1,
   },
 });

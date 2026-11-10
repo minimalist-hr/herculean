@@ -1,0 +1,7 @@
+# Send the confirmation link again. Start the API with Aspire first, and ask for a change with RequestEmailChange.http.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### A change is waiting → 202. None is → 404.
+POST {{host}}/api/v1/email-changes/resend
+Authorization: Bearer {{accessToken}}

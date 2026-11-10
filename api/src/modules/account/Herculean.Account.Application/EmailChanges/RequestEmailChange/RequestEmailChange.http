@@ -1,0 +1,23 @@
+# Ask to change the email. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### A new address and the right password → 202. Another account uses it → 409 user.email_taken.
+POST {{host}}/api/v1/email-changes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "newEmail": "new-{{$guid}}@example.com",
+  "currentPassword": "password"
+}
+
+### The wrong password → 400, the errors name the field.
+POST {{host}}/api/v1/email-changes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "newEmail": "new-{{$guid}}@example.com",
+  "currentPassword": "wrong"
+}

@@ -145,7 +145,7 @@ export const tokens = {
       },
     },
   },
-  space: { xs: 6, sm: 8, md: 12, lg: 16, xl: 24 },
+  space: { xxxs: 2, xxs: 4, xs: 6, sm: 8, md: 12, lg: 16, xl: 24 },
   opacity: {
     dimmed: 0.5,
     pressed: 0.7,

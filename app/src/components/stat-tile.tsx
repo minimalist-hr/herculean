@@ -1,20 +1,31 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Skeleton } from '@/components/skeleton';
+import { SkeletonLine, textLine } from '@/components/skeleton';
+import { StatusLabel } from '@/components/status-label';
 import { useTheme } from '@/theme/theme-provider';
 
-/** A labelled number in a card. Without a value, it shows a skeleton. */
+/** A labelled number in a card. Without a value, it shows a skeleton the size of that value. */
 export function StatTile({
   label,
+  labelColor,
   value,
   detail,
+  skeletonWidth = 90,
+  total = false,
 }: {
   label: string;
-  value?: string;
+  /** A status color: the label then has a dot before it, and the tile is shorter. */
+  labelColor?: string;
+  value?: number | string;
   /** A small line under the value. */
   detail?: string;
+  skeletonWidth?: number;
+  /** A period's total: its value shrinks to fit one line, and its detail line keeps its place while it loads. */
+  total?: boolean;
 }) {
   const { colors, radius, size, space, text } = useTheme();
+  const hasStatus = labelColor !== undefined;
+  const loading = value === undefined;
 
   return (
     <View
@@ -22,20 +33,40 @@ export function StatTile({
         styles.tile,
         {
           gap: space.sm,
-          padding: size.statTilePadding,
+          paddingVertical: hasStatus ? space.md : size.statTilePadding,
+          paddingHorizontal: size.statTilePadding,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
         },
       ]}
     >
-      <Text style={text.eyebrow}>{label}</Text>
-      {value === undefined ? (
-        <Skeleton width={90} height={24} />
+      {hasStatus ? (
+        <StatusLabel label={label} color={labelColor} />
       ) : (
-        <Text style={[text.bigStat, { color: colors.text }]}>{value}</Text>
+        <Text style={text.eyebrow}>{label}</Text>
       )}
-      {detail !== undefined && <Text style={text.meta}>{detail}</Text>}
+      {loading ? (
+        <SkeletonLine
+          width={skeletonWidth}
+          height={24}
+          lineHeight={textLine.bigStat}
+        />
+      ) : (
+        <Text
+          numberOfLines={total ? 1 : undefined}
+          adjustsFontSizeToFit={total}
+          style={[text.bigStat, { color: colors.text }]}
+        >
+          {value}
+        </Text>
+      )}
+      {total && loading && (
+        <SkeletonLine width={110} height={12} lineHeight={textLine.meta} />
+      )}
+      {(total ? !loading : detail !== undefined) && (
+        <Text style={text.meta}>{detail}</Text>
+      )}
     </View>
   );
 }

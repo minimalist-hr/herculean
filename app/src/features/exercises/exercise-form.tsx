@@ -13,6 +13,7 @@ import { TextField } from '@/components/text-field';
 import { TextLink } from '@/components/text-link';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
+import { OptionalNote } from '@/components/optional-note';
 import { useTheme } from '@/theme/theme-provider';
 
 import { exerciseSchema, type ExerciseValues } from './exercise-schema';
@@ -80,7 +81,7 @@ function AlsoWorksLabel() {
   return (
     <Text style={text.eyebrow}>
       Also works
-      <Text style={[text.meta, styles.optional]}> · optional</Text>
+      <OptionalNote />
     </Text>
   );
 }
@@ -281,11 +282,6 @@ const styles = StyleSheet.create({
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-  },
-  // Quieter than the label around it, so it reads as a note and not as part of the name.
-  optional: {
-    textTransform: 'none',
-    letterSpacing: 0,
   },
   groupsFailed: {
     alignItems: 'flex-start',

@@ -20,6 +20,7 @@ import {
   ExerciseTargetText,
 } from '@/features/routines/exercise-targets';
 import { formatLastTime, weightIn, weightUnitOf } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { maxSetsPerExercise, type SetField } from './set-values';
@@ -172,7 +173,7 @@ function SetRow({
         {
           gap: space.xs,
           marginHorizontal: -space.sm,
-          paddingVertical: 2,
+          paddingVertical: space.xxxs,
           paddingHorizontal: space.sm,
           borderRadius: radius.control,
           backgroundColor:
@@ -349,7 +350,7 @@ export function OpenExercise({
         {onToggle && <View style={styles.check} />}
       </View>
 
-      <View style={{ gap: 2 }}>
+      <View style={{ gap: space.xxxs }}>
         {exercise.sets.map((set, index) => (
           <SetRow
             key={set.id}
@@ -403,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   name: {
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
   action: {
     alignItems: 'center',
@@ -418,7 +419,7 @@ const styles = StyleSheet.create({
   },
   number: {
     width: 30,
-    paddingLeft: 6,
+    paddingLeft: tokens.space.xs,
   },
   lastTime: {
     flex: 1,

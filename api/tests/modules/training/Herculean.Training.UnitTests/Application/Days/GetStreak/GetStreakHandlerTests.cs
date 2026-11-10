@@ -57,6 +57,16 @@ public sealed class GetStreakHandlerTests
     }
 
     [Fact]
+    public async Task AWorkoutLeftInProgressIsAMissedDay()
+    {
+        PlanMondays(MondayWeeksAgo(2));
+        AddWorkout(MondayWeeksAgo(2));
+        AddWorkout(MondayWeeksAgo(1), WorkoutStatus.InProgress);
+
+        (await WeeksAsync()).ShouldBe(0);
+    }
+
+    [Fact]
     public async Task AMissedDayEndsTheCount()
     {
         PlanMondays(MondayWeeksAgo(3));

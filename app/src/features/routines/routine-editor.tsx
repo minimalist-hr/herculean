@@ -32,6 +32,8 @@ import {
 import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { SectionTitle } from '@/components/section-title';
+import { tokens } from '@/theme/tokens';
+import { OptionalNote } from '@/components/optional-note';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DayChips, DayChipsSkeleton } from './day-chips';
@@ -76,7 +78,7 @@ function DaysHeading() {
     <View style={styles.daysTitle}>
       <SectionTitle>
         Days
-        <Text style={[text.meta, styles.optional]}> · optional</Text>
+        <OptionalNote />
       </SectionTitle>
       <Text style={text.meta}>Picking a day replaces its routine</Text>
     </View>
@@ -407,11 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'space-between',
-    gap: 8,
-  },
-  optional: {
-    textTransform: 'none',
-    letterSpacing: 0,
+    gap: tokens.space.sm,
   },
   sectionTitle: {
     flexDirection: 'row',
@@ -419,12 +417,12 @@ const styles = StyleSheet.create({
   },
   sectionText: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
   exercise: {
     flex: 1,
     justifyContent: 'center',
-    gap: 2,
+    gap: tokens.space.xxxs,
     alignSelf: 'stretch',
   },
   icon: {

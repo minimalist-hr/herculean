@@ -1,6 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Skeleton } from '@/components/skeleton';
+import { StatTile } from '@/components/stat-tile';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 const chipWidths = [40, 66, 56, 88, 62, 70, 52];
@@ -86,7 +88,7 @@ export function DetailsSkeleton({
       accessible
       accessibilityLabel={label}
       accessibilityLiveRegion="polite"
-      style={{ gap: size.gap.sectionMax, marginTop: 2 }}
+      style={{ gap: size.gap.sectionMax, marginTop: space.xxxs }}
     >
       <View style={styles.heading}>
         <View style={[styles.titleRow, { height: size.headerIconButton }]}>
@@ -97,25 +99,8 @@ export function DetailsSkeleton({
       {tiles ? (
         <>
           <View style={[styles.tiles, { gap: space.sm }]}>
-            {[90, 70].map((width) => (
-              <View
-                key={width}
-                style={[
-                  styles.tile,
-                  {
-                    gap: space.sm,
-                    padding: size.statTilePadding,
-                    borderRadius: radius.card,
-                    borderColor: colors.border,
-                    backgroundColor: colors.card,
-                  },
-                ]}
-              >
-                <Skeleton width={60} height={10} />
-                <Skeleton width={width} height={24} />
-                <Skeleton width={80} height={10} />
-              </View>
-            ))}
+            <StatTile total label="Best set" />
+            <StatTile total label="Done" skeletonWidth={70} />
           </View>
           <View style={{ gap: space.sm }}>
             <Skeleton width={90} height={10} />
@@ -176,7 +161,7 @@ export function DetailsSkeleton({
 
 const styles = StyleSheet.create({
   heading: {
-    gap: 4,
+    gap: tokens.space.xxs,
   },
   titleRow: {
     justifyContent: 'center',
@@ -192,10 +177,6 @@ const styles = StyleSheet.create({
   },
   tiles: {
     flexDirection: 'row',
-  },
-  tile: {
-    flex: 1,
-    borderWidth: 1,
   },
   row: {
     justifyContent: 'center',

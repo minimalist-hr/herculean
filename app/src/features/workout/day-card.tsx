@@ -1,12 +1,10 @@
 import { useRouter, type Href } from 'expo-router';
-import { useState, type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
+import { Card, CardHeading } from '@/components/card';
 import { LoadFailure } from '@/components/load-failure';
-import { notifyFailure } from '@/components/notifications';
-import { Sheet } from '@/components/sheet';
 import { ProgressBar } from '@/components/progress-bar';
 import {
   Skeleton,
@@ -19,330 +17,27 @@ import {
   ExerciseBlocksSkeleton,
   ExerciseTargets,
 } from '@/features/routines/exercise-targets';
-import {
-  counted,
-  dayNameOf,
-  formatClock,
-  formatShortDate,
-} from '@/formats/formats';
-import { SectionTitle } from '@/components/section-title';
-import { StatusLabel } from '@/components/status-label';
+import { dateFromText, daysFrom } from '@/formats/dates';
+import { counted, dayNameOf, formatClock } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
-import { dateFromText, daysFrom } from '@/formats/dates';
-import { useElapsed } from './use-elapsed';
-import { useFirstDay } from './use-first-day';
-import { useSkipWorkout } from './use-skip-workout';
-import { useDeleteWorkout } from './use-finish-workout';
-import { useStartWorkout } from './use-start-workout';
-import { useUndoSkip } from './use-undo-skip';
-import { useWorkout } from './use-workout';
-import { resumeFirst, useWorkoutInProgress } from './use-workout-in-progress';
-import { useWorkoutSummary } from './use-workout-summary';
+import {
+  Actions,
+  DeleteButton,
+  OtherRoutineButton,
+  SkipButton,
+  StartButton,
+  UndoSkipButton,
+} from './day-actions';
 import { savedExercises, savedMeta } from './saved-workout';
+import { UpNext } from './up-next';
+import { useElapsed } from './use-elapsed';
+import { useWorkout } from './use-workout';
+import { useWorkoutSummary } from './use-workout-summary';
 import { checkedSets, progressText, workoutProgress } from './workout-progress';
 
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
-
-export function Card({ children }: { children: ReactNode }) {
-  const { colors, radius, space } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.card,
-        {
-          gap: space.md,
-          padding: space.lg,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-      ]}
-    >
-      {children}
-    </View>
-  );
-}
-
-export function CardHeading({
-  label,
-  labelColor,
-  title,
-  meta,
-}: {
-  label: string;
-  /** A status color: the label then has a dot before it. */
-  labelColor?: string;
-  title: string;
-  meta: string;
-}) {
-  const { colors, space, text } = useTheme();
-
-  return (
-    <View style={{ gap: space.xs }}>
-      <StatusLabel label={label} color={labelColor} />
-      <Text style={[text.cardTitle, { color: colors.text }]}>{title}</Text>
-      <Text style={text.meta}>{meta}</Text>
-    </View>
-  );
-}
-
-function Actions({ children }: { children: ReactNode[] }) {
-  const { space } = useTheme();
-
-  return (
-    <View style={[styles.buttons, { gap: space.sm }]}>
-      {children.map((button, index) => (
-        <View key={index} style={styles.button}>
-          {button}
-        </View>
-      ))}
-    </View>
-  );
-}
-
-/** True while a workout is in progress, which keeps another from starting. */
-function useAnotherInProgress() {
-  return Boolean(useWorkoutInProgress().data);
-}
-
-const startNotYet = 'A workout can’t be started before its day.';
-
-/** The first reason an action can't be used now, or null when it can. */
-function firstReason(reasons: [boolean, string][]) {
-  return reasons.find(([applies]) => applies)?.[1] ?? null;
-}
-
-export function StartButton({
-  date,
-  label,
-  notYet = false,
-  confirmMessage,
-}: {
-  date: string;
-  label: string;
-  /** The day hasn't come yet. */
-  notYet?: boolean;
-  /** Asks "Are you ready?" first, with this line under it. */
-  confirmMessage?: string;
-}) {
-  const start = useStartWorkout();
-  const [confirming, setConfirming] = useState(false);
-  const reason = firstReason([
-    [notYet, startNotYet],
-    [useAnotherInProgress(), resumeFirst],
-  ]);
-
-  return (
-    <>
-      <Button
-        label={label}
-        waitingLabel="Starting workout"
-        waiting={start.isPending}
-        muted={reason !== null}
-        onPress={() => {
-          if (reason !== null) {
-            notifyFailure(reason);
-          } else if (confirmMessage === undefined) {
-            start.mutate({ date });
-          } else {
-            setConfirming(true);
-          }
-        }}
-      />
-      {confirmMessage !== undefined && (
-        <Sheet
-          visible={confirming}
-          title="Are you ready?"
-          message={confirmMessage}
-          onClose={() => {
-            setConfirming(false);
-          }}
-        >
-          <Button
-            label={label}
-            waitingLabel="Starting workout"
-            waiting={start.isPending}
-            onPress={() => {
-              start.mutate(
-                { date },
-                {
-                  onSuccess: () => {
-                    setConfirming(false);
-                  },
-                },
-              );
-            }}
-          />
-        </Sheet>
-      )}
-    </>
-  );
-}
-
-function OtherRoutineButton({
-  date,
-  notYet = false,
-}: {
-  date: string;
-  /** The day hasn't come yet. */
-  notYet?: boolean;
-}) {
-  const router = useRouter();
-  const firstDay = useFirstDay();
-  const reason = firstReason([
-    [notYet, startNotYet],
-    [
-      firstDay.data !== undefined && date < firstDay.data,
-      'A workout can’t be added before your first day.',
-    ],
-    [useAnotherInProgress(), resumeFirst],
-  ]);
-
-  return (
-    <Button
-      label="Other routine"
-      variant="secondary"
-      muted={reason !== null}
-      onPress={() => {
-        if (reason !== null) {
-          notifyFailure(reason);
-        } else {
-          router.push({
-            pathname: '/workout/choose/[date]',
-            params: { date },
-          });
-        }
-      }}
-    />
-  );
-}
-
-function SkipButton({
-  date,
-  routineName,
-  notYet = false,
-}: {
-  date: string;
-  routineName: string;
-  /** The day hasn't come yet. */
-  notYet?: boolean;
-}) {
-  const skip = useSkipWorkout();
-  const [confirming, setConfirming] = useState(false);
-
-  return (
-    <>
-      <Button
-        label="Skip workout"
-        variant="secondary"
-        muted={notYet}
-        onPress={() => {
-          if (notYet) {
-            notifyFailure('A workout can’t be skipped before its day.');
-          } else {
-            setConfirming(true);
-          }
-        }}
-      />
-      <Sheet
-        visible={confirming}
-        title={`Skip ${routineName}?`}
-        message="It shows as skipped, and you can undo it."
-        onClose={() => {
-          setConfirming(false);
-        }}
-      >
-        <Button
-          label="Skip workout"
-          waitingLabel="Skipping workout"
-          waiting={skip.isPending}
-          onPress={() => {
-            skip.mutate(date);
-          }}
-        />
-      </Sheet>
-    </>
-  );
-}
-
-function DeleteButton({
-  workoutId,
-  name,
-}: {
-  workoutId: string;
-  name: string;
-}) {
-  const remove = useDeleteWorkout(workoutId, name);
-  const [confirming, setConfirming] = useState(false);
-
-  return (
-    <>
-      <Button
-        label="Delete"
-        variant="dangerOutline"
-        onPress={() => {
-          setConfirming(true);
-        }}
-      />
-      <Sheet
-        visible={confirming}
-        title={`Delete ${name}?`}
-        message="Its sets come out of your history, best sets and month totals. You can undo this right after."
-        onClose={() => {
-          setConfirming(false);
-        }}
-      >
-        <Button
-          label="Delete workout"
-          variant="danger"
-          waitingLabel="Deleting workout"
-          waiting={remove.isPending}
-          onPress={() => {
-            // On success the day shows its plan, so this card and its sheet go.
-            remove.mutate();
-          }}
-        />
-      </Sheet>
-    </>
-  );
-}
-
-function UndoSkipButton({ workoutId }: { workoutId: string }) {
-  const undo = useUndoSkip();
-  const [confirming, setConfirming] = useState(false);
-
-  return (
-    <>
-      <Button
-        label="Undo skip"
-        variant="secondary"
-        onPress={() => {
-          setConfirming(true);
-        }}
-      />
-      <Sheet
-        visible={confirming}
-        title="Undo this skip?"
-        message="This day goes back to its plan."
-        onClose={() => {
-          setConfirming(false);
-        }}
-      >
-        <Button
-          label="Undo skip"
-          waitingLabel="Undoing skip"
-          waiting={undo.isPending}
-          onPress={() => {
-            undo.mutate(workoutId);
-          }}
-        />
-      </Sheet>
-    </>
-  );
-}
 
 /** A routine's size in words, for example "4 exercises · 12 sets". */
 export function routineMeta(routine: DayRoutine) {
@@ -495,7 +190,7 @@ function InProgressCard({
   );
 }
 
-/** A finished day's card, until its full design comes with finishing a workout. */
+/** A finished day's card: what was done, and the way to view, edit or delete it. */
 function CompletedCard({
   day,
   routine,
@@ -583,46 +278,6 @@ function CompletedCard({
       </Actions>
       {day.date === today && <UpNext upNext={day.upNext} today={today} />}
     </Card>
-  );
-}
-
-function upNextWhen(date: string, today: string) {
-  const days = daysFrom(today, date);
-  if (days === 0) {
-    return 'Today';
-  }
-
-  return days === 1 ? 'Tomorrow' : formatShortDate(date);
-}
-
-export function UpNext({
-  upNext,
-  today,
-}: {
-  upNext: Day['upNext'];
-  today: string;
-}) {
-  const { colors, space, text } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.upNext,
-        {
-          gap: space.md,
-          paddingTop: space.md,
-          borderTopColor: colors.border,
-        },
-      ]}
-    >
-      <View style={{ gap: 2 }}>
-        <SectionTitle>Up next</SectionTitle>
-        <Text style={[text.listItemName, { color: colors.text }]}>
-          {upNext.routineName ?? 'Rest'}
-        </Text>
-      </View>
-      <Text style={text.meta}>{upNextWhen(upNext.date, today)}</Text>
-    </View>
   );
 }
 
@@ -768,21 +423,3 @@ export function DayCardSkeleton() {
     </SkeletonGroup>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-  },
-  buttons: {
-    flexDirection: 'row',
-  },
-  button: {
-    flex: 1,
-  },
-  upNext: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-  },
-});

@@ -17,6 +17,7 @@ import { SearchField } from '@/components/search-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { Tappable } from '@/components/tappable';
@@ -300,7 +301,7 @@ export function ExercisePicker({
           paddingBottom: space.md,
         }}
       >
-        <View style={{ gap: 2, paddingHorizontal: size.sidePadding }}>
+        <View style={{ gap: space.xxxs, paddingHorizontal: size.sidePadding }}>
           <BackLink
             label={back}
             onPress={() => {
@@ -455,7 +456,7 @@ const styles = StyleSheet.create({
   },
   rowText: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
   check: {
     width: 24,

@@ -1,5 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 
+import { dayKeys } from '@/features/workout/query-keys';
+
 import { exerciseKeys } from './query-keys';
 
 /** Refreshes everything that shows a group: the groups, the exercise lists and an exercise's details. */
@@ -8,8 +10,11 @@ export function useRefreshGroups() {
 
   return () =>
     Promise.all(
-      [exerciseKeys.groups, exerciseKeys.all, exerciseKeys.details].map(
-        (queryKey) => queryClient.invalidateQueries({ queryKey }),
-      ),
+      [
+        exerciseKeys.groups,
+        exerciseKeys.all,
+        exerciseKeys.details,
+        dayKeys.allDay,
+      ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
     );
 }

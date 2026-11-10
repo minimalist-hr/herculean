@@ -51,6 +51,7 @@ app/
 - Each endpoint has a TanStack Query hook in its feature.
 - A request with no answer fails after 15 seconds and shows a notification or the screen's error, so no screen waits forever.
 - A read that fails quickly is tried once more, for a blip in the connection. One that waited out its 15 seconds, or that the API refused, is not.
+- A change made in the app refreshes what it changes. Coming back to a screen reads the days again only on another date, and waking the app always does. Pulling down on Home reads everything on it again.
 - A refresh that fails keeps what is showing. A failure shows only when there is nothing to show.
 - Query keys are defined once per feature.
 - The screen updates before the server answers only in logging (checking, editing and removing sets) and for undo. Everything else waits for the server and shows the design's waiting state.

@@ -5,7 +5,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import { FlatList } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ExercisesScreen } from './exercises-screen';

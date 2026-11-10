@@ -1,0 +1,19 @@
+# Sign out one device. Start the API with Aspire first.
+@host = http://localhost:5279
+@refreshToken = paste-a-refresh-token
+
+### Any token → 204. An unknown one too: either way, it no longer works.
+POST {{host}}/api/v1/sessions/revoke
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### No token → 400, the errors name the field.
+POST {{host}}/api/v1/sessions/revoke
+Content-Type: application/json
+
+{
+  "refreshToken": ""
+}

@@ -65,7 +65,7 @@ export function SettingsScreen() {
           paddingBottom: insets.bottom + space.xl,
         }}
       >
-        <View style={{ gap: 2 }}>
+        <View style={{ gap: space.xxxs }}>
           <BackLink
             label="Home"
             onPress={() => {

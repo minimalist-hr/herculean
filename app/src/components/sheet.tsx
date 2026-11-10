@@ -34,6 +34,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { CloseIcon } from './icons';
@@ -528,7 +529,7 @@ const styles = StyleSheet.create({
   },
   headingText: {
     flex: 1,
-    gap: 4,
+    gap: tokens.space.xxs,
   },
   // The icon lines up with the edge. The rest of its touch target hangs over the padding.
   close: {

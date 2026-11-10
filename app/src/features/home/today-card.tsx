@@ -12,14 +12,13 @@ import {
   textLine,
 } from '@/components/skeleton';
 import {
-  Card,
-  CardHeading,
   NoRoutinesCard,
   routineMeta,
-  StartButton,
-  UpNext,
   useInProgress,
 } from '@/features/workout/day-card';
+import { Card, CardHeading } from '@/components/card';
+import { StartButton } from '@/features/workout/day-actions';
+import { UpNext } from '@/features/workout/up-next';
 import { savedMeta } from '@/features/workout/saved-workout';
 import { useWorkoutSummary } from '@/features/workout/use-workout-summary';
 import { dateFromText } from '@/formats/dates';

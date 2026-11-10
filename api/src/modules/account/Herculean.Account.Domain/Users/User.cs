@@ -97,10 +97,24 @@ internal sealed class User : Entity<UserId>
         _refreshTokens.Add(RefreshToken.Create(Id, tokenHash, expiresAtUtc));
     }
 
-    /// <summary>A refresh token works once: refreshing removes it, and so does signing out.</summary>
+    /// <summary>Removes a token that can no longer be used.</summary>
     public void RemoveRefreshToken(RefreshToken refreshToken)
     {
         _refreshTokens.Remove(refreshToken);
+    }
+
+    /// <summary>A replaced token works for a short while, in case the answer with the new one was lost. Tokens past that go now.</summary>
+    public void ReplaceRefreshToken(RefreshToken refreshToken, DateTimeOffset nowUtc)
+    {
+        refreshToken.MarkReplaced(nowUtc);
+        _refreshTokens.RemoveAll(token => token.IsPastGracePeriod(nowUtc));
+    }
+
+    /// <summary>Signs out one device. Replaced tokens go too, so none can sign it back in.</summary>
+    public void RevokeRefreshToken(RefreshToken refreshToken)
+    {
+        _refreshTokens.Remove(refreshToken);
+        _refreshTokens.RemoveAll(token => token.ReplacedAtUtc is not null);
     }
 
     /// <summary>Only the newest reset link works: a new token cancels the older ones.</summary>

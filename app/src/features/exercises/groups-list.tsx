@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { DraggableList } from '@/components/draggable-list';
 import { ChevronRightIcon } from '@/components/icons';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 import { Tappable } from '@/components/tappable';
 
@@ -77,6 +78,6 @@ const styles = StyleSheet.create({
   },
   nameText: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
 });

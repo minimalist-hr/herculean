@@ -95,6 +95,11 @@ public static class TrainingModule
         builder.Services.AddCurrentUserAccessor();
         builder.Services.AddScoped<CurrentUser>();
         builder.Services.AddScoped<UserClock>();
+        builder.Services.AddUniqueIndexError(ExerciseConfiguration.NameIndex, ExerciseErrors.NameTaken);
+        builder.Services.AddUniqueIndexError(GroupConfiguration.NameIndex, GroupErrors.NameTaken);
+        builder.Services.AddUniqueIndexError(RoutineConfiguration.NameIndex, RoutineErrors.NameTaken);
+        builder.Services.AddUniqueIndexError(WorkoutConfiguration.DateIndex, WorkoutErrors.DateTaken);
+        builder.Services.AddUniqueIndexError(WorkoutConfiguration.InProgressIndex, WorkoutErrors.AnotherInProgress);
 
         builder.Services.AddScoped<IWorkoutSettingsRepository, WorkoutSettingsRepository>();
         builder.Services.AddScoped<IGroupRepository, GroupRepository>();

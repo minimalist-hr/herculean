@@ -154,6 +154,8 @@ public static class AccountModule
         builder.Services.AddIntegrationEventHandler<EmailChangeRequestedIntegrationEvent, EmailChangeRequestedIntegrationEventHandler>();
         builder.Services.AddIntegrationEventHandler<EmailChangedIntegrationEvent, EmailChangedIntegrationEventHandler>();
 
+        builder.Services.AddUniqueIndexError(UserConfiguration.EmailIndex, UserErrors.EmailTaken);
+
         // Each allows a few tries a minute per IP address, against guessing passwords and tokens and sending too many emails.
         builder.Services.AddRateLimiter(options =>
         {
@@ -167,6 +169,7 @@ public static class AccountModule
 
                 return ValueTask.CompletedTask;
             };
+            options.AddPolicy(UserRoutes.CreateRateLimit, AttemptsPerIp);
             options.AddPolicy(SessionRoutes.SignInRateLimit, AttemptsPerIp);
             options.AddPolicy(SessionRoutes.RefreshRateLimit, AttemptsPerIp);
             options.AddPolicy(PasswordResetRoutes.CreateRateLimit, AttemptsPerIp);

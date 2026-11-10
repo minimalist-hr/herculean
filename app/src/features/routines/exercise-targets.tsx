@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Skeleton, SkeletonLine, textLine } from '@/components/skeleton';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { groupBlocks } from './group-blocks';
@@ -211,6 +212,6 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
 });

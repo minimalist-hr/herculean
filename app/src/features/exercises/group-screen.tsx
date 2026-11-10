@@ -13,6 +13,7 @@ import { notifyFailure } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 import { useUnits } from '@/features/account/use-units';
 import { SectionTitle } from '@/components/section-title';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseRow } from './exercise-row';
@@ -98,7 +99,7 @@ function Details({ group }: { group: Group }) {
   }
 
   return (
-    <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
+    <View style={{ gap: size.gap.sectionMax, marginTop: space.xxxs }}>
       <View style={styles.heading}>
         <View style={[styles.titleRow, { gap: space.sm }]}>
           <Text
@@ -199,7 +200,7 @@ function Details({ group }: { group: Group }) {
 
 const styles = StyleSheet.create({
   heading: {
-    gap: 4,
+    gap: tokens.space.xxs,
   },
   titleRow: {
     flexDirection: 'row',

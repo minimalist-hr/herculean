@@ -2,7 +2,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
-import { AppState, Text } from 'react-native';
+import type { ReactElement } from 'react';
+import { AppState, Text, type RefreshControlProps } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { addMonths, dateText, monthText, weekOf } from '@/formats/dates';
@@ -430,6 +431,30 @@ test('a day that was done says so to screen readers', async () => {
   expect(
     (await screen.findAllByRole('button', { name: /, Legs, done/ })).length,
   ).toBeGreaterThan(0);
+});
+
+test('pulling down reads everything again and keeps what is showing', async () => {
+  answerWith();
+  await renderHome();
+  expect(await screen.findByText('6 weeks on plan')).toBeOnTheScreen();
+  mockFetch.mockClear();
+
+  const { refreshControl } = screen.getByTestId('home-scroll').props as {
+    refreshControl: ReactElement<RefreshControlProps>;
+  };
+  await act(() => {
+    void refreshControl.props.onRefresh?.();
+  });
+
+  await waitFor(() => {
+    const read = mockFetch.mock.calls.map(
+      ([request]) => new URL(request.url).pathname,
+    );
+    expect(read).toEqual(
+      expect.arrayContaining(['/api/v1/streak', '/api/v1/records/recent']),
+    );
+  });
+  expect(screen.getByText('6 weeks on plan')).toBeOnTheScreen();
 });
 
 test('a refresh that fails keeps what is showing', async () => {

@@ -18,7 +18,8 @@ internal static class CreateUserEndpoint
         endpoints.MapPost(UserRoutes.Users, HandleAsync)
             .WithName(Name)
             .WithTags(UserRoutes.Tag)
-            .AllowAnonymous();
+            .AllowAnonymous()
+            .RequireRateLimiting(UserRoutes.CreateRateLimit);
     }
 
     [EndpointSummary("Create an account")]
@@ -26,6 +27,7 @@ internal static class CreateUserEndpoint
     [ProducesResponseType<TokenResponse>(StatusCodes.Status201Created, Description = "The account was created and is signed in.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each field.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json", Description = "An account with this email already exists.")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests, "application/problem+json", Description = "Too many tries from this address. Wait a minute; Retry-After says how long.")]
     private static async Task<Results<Created<TokenResponse>, ProblemHttpResult>> HandleAsync(
         [FromBody] CreateUserRequest request,
         [FromServices] CreateUserHandler handler,

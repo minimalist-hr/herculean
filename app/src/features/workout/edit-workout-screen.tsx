@@ -18,7 +18,7 @@ import {
 } from '@/components/notifications';
 import { blankLine, ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
-import { Skeleton } from '@/components/skeleton';
+import { FieldSkeleton, Skeleton } from '@/components/skeleton';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { usePageOptions } from '@/components/use-page-options';
 import { useUnits } from '@/features/account/use-units';
@@ -32,6 +32,13 @@ import {
   localId,
   useEditWorkoutDraft,
 } from './edit-workout-draft';
+import {
+  DurationField,
+  durationError,
+  durationLabel,
+  durationMinutes,
+  typedDuration,
+} from './duration-field';
 import { OpenExercise } from './log-exercise';
 import { SetEditorSheet, type SetEdit } from './set-sheet';
 import { maxExercisesPerWorkout, type SetField } from './set-values';
@@ -127,6 +134,9 @@ function EditWorkoutSkeleton() {
       accessibilityLabel="Loading this workout"
       accessibilityLiveRegion="polite"
     >
+      <View style={{ marginVertical: space.sm }}>
+        <FieldSkeleton label={durationLabel} optional />
+      </View>
       {[0, 1].map((card) => (
         <View
           key={card}
@@ -164,9 +174,13 @@ export function EditWorkoutScreen() {
   const [openings, setOpenings] = useState(0);
   const [removing, setRemoving] = useState<WorkoutExercise | null>(null);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
+  const savedDuration = typedDuration(workout.durationSeconds);
+  const [typed, setTyped] = useState(savedDuration);
+  const [typedError, setTypedError] = useState<string>();
   const savedIds = new Set(workout.exercises.map((exercise) => exercise.id));
   const guard = useLeaveGuard(
-    JSON.stringify(exercises) !== JSON.stringify(workout.exercises),
+    typed !== savedDuration ||
+      JSON.stringify(exercises) !== JSON.stringify(workout.exercises),
   );
 
   // An Undo can do nothing once the page is gone.
@@ -259,17 +273,26 @@ export function EditWorkoutScreen() {
                   return;
                 }
 
+                const error = durationError(typed);
+                if (error !== undefined) {
+                  setTypedError(error);
+                  return;
+                }
+
                 dismissNotification();
                 guard.allow();
                 save.mutate(
-                  exercises.map((exercise) => ({
-                    id: savedIds.has(exercise.id) ? exercise.id : null,
-                    exerciseId: exercise.exerciseId,
-                    sets: exercise.sets.map((set) => ({
-                      weightKg: set.weightKg,
-                      reps: set.reps,
+                  {
+                    durationMinutes: durationMinutes(typed),
+                    exercises: exercises.map((exercise) => ({
+                      id: savedIds.has(exercise.id) ? exercise.id : null,
+                      exerciseId: exercise.exerciseId,
+                      sets: exercise.sets.map((set) => ({
+                        weightKg: set.weightKg,
+                        reps: set.reps,
+                      })),
                     })),
-                  })),
+                  },
                   { onError: guard.block },
                 );
               }}
@@ -329,6 +352,16 @@ export function EditWorkoutScreen() {
         </>
       }
     >
+      <View style={{ marginVertical: space.sm }}>
+        <DurationField
+          value={typed}
+          error={typedError}
+          onChange={(next) => {
+            setTyped(next);
+            setTypedError(undefined);
+          }}
+        />
+      </View>
       {exercises.length === 0 && (
         <View style={{ marginVertical: space.sm }}>
           <EmptyCard

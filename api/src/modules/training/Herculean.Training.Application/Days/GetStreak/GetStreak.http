@@ -1,0 +1,10 @@
+# The streak. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### The weeks in a row and the best → 200.
+GET {{host}}/api/v1/streak
+Authorization: Bearer {{accessToken}}
+
+### Not signed in → 401 unauthorized.
+GET {{host}}/api/v1/streak

@@ -79,7 +79,7 @@ export function ResetPasswordScreen() {
             paddingBottom: space.lg,
           }}
         >
-          <View style={{ gap: 2 }}>
+          <View style={{ gap: space.xxxs }}>
             <BackLink
               label="Sign in"
               onPress={() => {

@@ -9,11 +9,13 @@ namespace Herculean.Account.Infrastructure.Users;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
+    internal const string EmailIndex = "ix_users_email";
+
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.Property(user => user.Id).HasConversion<TypedIdConverter<UserId>>().ValueGeneratedNever();
         builder.Property(user => user.Email).HasMaxLength(CreateUserValidator.EmailMaxLength);
-        builder.HasIndex(user => user.Email).IsUnique();
+        builder.HasIndex(user => user.Email).IsUnique().HasDatabaseName(EmailIndex);
         builder.Property(user => user.Name).HasMaxLength(User.NameMaxLength);
         builder.HasIndex(user => user.DeletionScheduledForUtc);
 

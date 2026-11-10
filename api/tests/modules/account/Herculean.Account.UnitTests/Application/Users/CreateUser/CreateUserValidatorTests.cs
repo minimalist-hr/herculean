@@ -38,6 +38,18 @@ public sealed class CreateUserValidatorTests
         ShouldFailOn(Valid with { Password = "passwor" }, nameof(CreateUserRequest.Password));
     }
 
+    [Fact]
+    public void PasswordMustNotBeTooLong()
+    {
+        ShouldFailOn(Valid with { Password = new string('a', CreateUserValidator.PasswordMaxLength + 1) }, nameof(CreateUserRequest.Password));
+    }
+
+    [Fact]
+    public void PasswordCanBeTheLongestAllowed()
+    {
+        _validator.Validate(Valid with { Password = new string('a', CreateUserValidator.PasswordMaxLength) }).IsValid.ShouldBeTrue();
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("Mars/Olympus")]

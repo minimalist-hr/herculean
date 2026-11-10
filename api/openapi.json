@@ -54,6 +54,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many tries from this address. Wait a minute; Retry-After says how long.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -4270,7 +4280,7 @@
           },
           "newPassword": {
             "type": "string",
-            "description": "The new password, at least 8 characters."
+            "description": "The new password, 8 to 128 characters."
           },
           "refreshToken": {
             "type": "string",
@@ -4299,7 +4309,7 @@
           },
           "password": {
             "type": "string",
-            "description": "The new password, at least 8 characters."
+            "description": "The new password, 8 to 128 characters."
           }
         },
         "description": "The token from the reset link, and the new password."
@@ -4435,7 +4445,7 @@
           },
           "password": {
             "type": "string",
-            "description": "At least 8 characters."
+            "description": "8 to 128 characters."
           },
           "timeZone": {
             "type": "string",
@@ -4710,6 +4720,14 @@
               "$ref": "#/components/schemas/EditedWorkoutExercise"
             },
             "description": "Its exercises in order, 1 to 30, each exercise once. Exercises left out are removed."
+          },
+          "durationMinutes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "How long it took in minutes, 1 to 600. Null means no duration.",
+            "format": "int32"
           }
         },
         "description": "A saved workout as edited: all its exercises in order, each with all its sets."
@@ -6104,6 +6122,14 @@
           "status": {
             "description": "Where it stands now. Only completed can be set, which saves it.",
             "$ref": "#/components/schemas/WorkoutStatus"
+          },
+          "durationMinutes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "How long it took in minutes, 1 to 600. Only a past day uses it: a timed workout counts its own.",
+            "format": "int32"
           }
         },
         "description": "What changes on a workout."
@@ -6308,6 +6334,14 @@
             ],
             "description": "When logging finished. Null until it's saved.",
             "format": "date-time"
+          },
+          "durationSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "How long it took. Null until it's saved, and when it has no duration.",
+            "format": "int32"
           }
         },
         "description": "A workout with its exercises and sets."

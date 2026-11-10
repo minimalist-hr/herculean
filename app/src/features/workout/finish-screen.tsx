@@ -16,7 +16,18 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText } from '@/formats/dates';
 import { shortWeekdayDate } from '@/formats/formats';
-import { discardMessage, finishCounts, finishWarning } from './finish-text';
+import {
+  DurationField,
+  durationError,
+  durationMinutes,
+} from './duration-field';
+import {
+  discardMessage,
+  finishCounts,
+  finishWarning,
+  isLongWorkout,
+} from './finish-text';
+import { useElapsed } from './use-elapsed';
 import { useDiscardWorkout, useSaveWorkout } from './use-finish-workout';
 import { useWorkout } from './use-workout';
 import { useWorkoutSummary } from './use-workout-summary';
@@ -56,12 +67,28 @@ export function FinishScreen({ id }: { id: string }) {
   const save = useSaveWorkout(id);
   const discard = useDiscardWorkout(id, summary.data?.name ?? 'Workout');
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const [typed, setTyped] = useState('');
+  const [typedError, setTypedError] = useState<string>();
 
   // Logging already holds the workout, so the warning shows at once, before the summary.
   const workout = useWorkout(id).data;
   const counts = summary.data ?? (workout && finishCounts(workout.exercises));
   const warning = counts && finishWarning(counts);
   const named = summary.data ?? workout;
+  const elapsed = useElapsed(workout?.startedAtUtc);
+
+  // A past day has no timer, so its duration is typed.
+  const pastDay = workout?.startedAtUtc === null;
+
+  function saveWorkout() {
+    const error = durationError(typed);
+    if (error !== undefined) {
+      setTypedError(error);
+      return;
+    }
+
+    save.mutate(pastDay ? durationMinutes(typed) : null);
+  }
 
   function headingLabel() {
     if (named !== undefined) {
@@ -87,7 +114,23 @@ export function FinishScreen({ id }: { id: string }) {
     return (
       <>
         {warning && <Warning title={warning.title} message={warning.message} />}
-        <SummaryTiles summary={summary.data} units={units} />
+        {isLongWorkout(elapsed) && (
+          <Warning
+            title="Long workout?"
+            message="You can correct the time after saving."
+          />
+        )}
+        {pastDay && (
+          <DurationField
+            value={typed}
+            error={typedError}
+            onChange={(next) => {
+              setTyped(next);
+              setTypedError(undefined);
+            }}
+          />
+        )}
+        <SummaryTiles summary={summary.data} units={units} pastDay={pastDay} />
         <NewRecords records={summary.data?.records} units={units} />
       </>
     );
@@ -133,7 +176,7 @@ export function FinishScreen({ id }: { id: string }) {
                     'Check off a set to save, or discard the workout.',
                   );
                 } else {
-                  save.mutate();
+                  saveWorkout();
                 }
               }}
             />

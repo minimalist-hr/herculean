@@ -4,7 +4,7 @@ import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import { notifyFailure } from '@/components/notifications';
 
-import { dayKeys } from './query-keys';
+import { dayDataKeys } from './query-keys';
 
 /** Skips a day's workout. The day's card then shows it, with Undo skip. */
 export function useSkipWorkout() {
@@ -21,7 +21,7 @@ export function useSkipWorkout() {
     },
     onSuccess: () =>
       Promise.all(
-        [dayKeys.allDay, dayKeys.allDays, dayKeys.allMonths].map((queryKey) =>
+        dayDataKeys.map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),
         ),
       ),

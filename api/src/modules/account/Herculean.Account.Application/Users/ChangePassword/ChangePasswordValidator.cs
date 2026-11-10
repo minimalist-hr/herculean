@@ -9,7 +9,7 @@ internal sealed class ChangePasswordValidator : AbstractValidator<ChangePassword
     public ChangePasswordValidator()
     {
         RuleFor(request => request.CurrentPassword).NotEmpty();
-        RuleFor(request => request.NewPassword).NotEmpty().MinimumLength(CreateUserValidator.PasswordMinLength);
+        RuleFor(request => request.NewPassword).NotEmpty().MinimumLength(CreateUserValidator.PasswordMinLength).MaximumLength(CreateUserValidator.PasswordMaxLength);
         RuleFor(request => request.RefreshToken).NotEmpty();
     }
 }

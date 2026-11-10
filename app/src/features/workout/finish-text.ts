@@ -98,3 +98,10 @@ export function recordReason(
 
   return weightKg === 0 ? 'Most reps' : `Most reps at ${weight}`;
 }
+
+const longWorkoutSeconds = 4 * 60 * 60;
+
+/** A timer this long probably means Finish was forgotten. */
+export function isLongWorkout(elapsedSeconds: number | null) {
+  return elapsedSeconds !== null && elapsedSeconds >= longWorkoutSeconds;
+}

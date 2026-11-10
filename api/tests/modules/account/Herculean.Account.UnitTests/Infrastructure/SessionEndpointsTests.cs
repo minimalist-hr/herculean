@@ -131,6 +131,20 @@ public sealed class SessionEndpointsTests : IAsyncLifetime
     private Task<HttpResponseMessage> RefreshAsync(string refreshToken) =>
         _client.PostAsJsonAsync("/api/v1/sessions/refresh", new { refreshToken }, TestContext.Current.CancellationToken);
 
+    [Fact]
+    public async Task TooManySignUpsWait()
+    {
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            (await CreateUserAsync()).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        }
+
+        (await CreateUserAsync()).StatusCode.ShouldBe(HttpStatusCode.TooManyRequests);
+    }
+
+    private Task<HttpResponseMessage> CreateUserAsync() =>
+        _client.PostAsJsonAsync("/api/v1/users", new { email = "not-an-email", password = "password", timeZone = "Europe/Zagreb" }, TestContext.Current.CancellationToken);
+
     private static async Task<JsonElement> ReadAsync(HttpResponseMessage response) =>
         await response.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
 }

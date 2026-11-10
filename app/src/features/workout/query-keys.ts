@@ -17,3 +17,13 @@ export const dayKeys = {
   days: (from: string, to: string) => ['days', from, to] as const,
   month: (month: string) => ['month-summary', month] as const,
 };
+
+/** Everything that shows days: what a change to a workout or the plan refreshes. */
+export const dayDataKeys = [
+  dayKeys.allDay,
+  dayKeys.allDays,
+  dayKeys.allMonths,
+  dayKeys.first,
+  dayKeys.streak,
+  dayKeys.recentRecords,
+];

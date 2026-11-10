@@ -105,7 +105,7 @@ Herculean.Training.Application/
 - Each aggregate's errors are in Domain, next to it, for example `UserErrors.EmailTaken`.
 - The endpoint turns a failed `Result` into a Problem Details response (RFC 9457).
 - Every error has the same fields: `type`, `title` (the HTTP status name), `status`, `detail`, `code` and `traceId`. A validation error is 400 with code `validation`, and also has `errors`, with messages per field. Errors that ASP.NET Core creates get the same fields, with a code from the status name, for example `not_found`. A value it can't read, for example a group that isn't an ID, is 400 with code `bad_request`, in every environment and without an exception.
-- Exceptions are only for bugs.
+- Exceptions are only for bugs, with one exception: when two requests at once pass a uniqueness check, the unique index stops the second. Each module registers its indexes with `AddUniqueIndexError`, and that request gets the same 409 as the check.
 
 ## Events between modules
 
@@ -133,7 +133,7 @@ Herculean.Training.Application/
 - Passwords are hashed with the ASP.NET Core password hasher. Sign in hashes a password again when the hasher's settings get stronger.
 - The access token is a JWT. It is checked by signature and never stored.
 - Refresh tokens, password reset tokens and email change tokens are stored hashed.
-- Each refresh replaces the refresh token with a new one. An expired refresh token is removed when it is used, and the user signs in again.
+- Each refresh replaces the refresh token with a new one. A replaced token keeps working for 5 minutes, because a phone on a weak signal can lose the answer that held the new one. Signing out ends that early. An expired refresh token is removed when it is used, and the user signs in again.
 - A wrong email and a wrong password get the same 401 and take as long, so sign in never tells which emails have an account.
 - Sign in, refresh, signing out, keeping an account, sending a reset link, completing a reset, changing the password, deleting the account, asking to change the email, sending its link again and confirming it each allow 10 tries a minute per IP address, counted apart, so failed sign ins never block refreshing. More get a 429 with `Retry-After`.
 - Sending a reset link answers 202 for every valid email, and the work happens after the answer, so the request never tells which emails have an account. The queue holds only the email: the token is created when the email goes out, so the plain token is never stored.

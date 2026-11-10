@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ChevronRightIcon } from '@/components/icons';
 import { Skeleton } from '@/components/skeleton';
 import { Tappable } from '@/components/tappable';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 /** A routine in a list: its name, a line below it, and what goes before the chevron. */
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
   skeleton: {
     justifyContent: 'center',

@@ -62,9 +62,7 @@ internal sealed class GetMonthSummaryHandler(
 
     /// <summary>A workout logged for a past day has no elapsed time, so it adds none.</summary>
     private static int MinutesTrained(List<DoneWorkoutTotals> done) =>
-        (int)Math.Round(done
-            .Where(workout => workout.StartedAtUtc is not null && workout.FinishedAtUtc is not null)
-            .Sum(workout => (workout.FinishedAtUtc!.Value - workout.StartedAtUtc!.Value).TotalMinutes), MidpointRounding.AwayFromZero);
+        (int)Math.Round(done.Sum(workout => workout.DurationSeconds ?? 0) / 60.0, MidpointRounding.AwayFromZero);
 
     private async Task<int> CountSkippedSetsAsync(List<DayWorkout> skipped, CancellationToken cancellationToken)
     {

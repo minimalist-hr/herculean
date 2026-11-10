@@ -210,6 +210,7 @@ export const savedWorkout = {
   ...sampleWorkout,
   status: 'completed',
   finishedAtUtc: new Date(Date.parse(sampleWorkout.startedAtUtc) + 3_850_000).toISOString(),
+  durationSeconds: 3850,
   exercises: sampleWorkout.exercises
     .map((exercise) => ({ ...exercise, sets: exercise.sets.filter((set) => set.checked) }))
     .filter((exercise) => exercise.sets.length > 0),

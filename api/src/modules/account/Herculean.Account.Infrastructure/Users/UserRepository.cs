@@ -49,7 +49,7 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
 
     public Task<User?> GetByRefreshTokenHashAsync(string tokenHash, CancellationToken cancellationToken) =>
         dbContext.Users
-            .Include(user => user.RefreshTokens.Where(token => token.TokenHash == tokenHash))
+            .Include(user => user.RefreshTokens.Where(token => token.TokenHash == tokenHash || token.ReplacedAtUtc != null))
             .SingleOrDefaultAsync(user => user.RefreshTokens.Any(token => token.TokenHash == tokenHash), cancellationToken);
 
     public Task<User?> GetByEmailWithPasswordResetTokensAsync(string email, CancellationToken cancellationToken)

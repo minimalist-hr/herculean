@@ -8,6 +8,12 @@ namespace Herculean.Training.Domain.Workouts;
 /// <summary>What the user did on one date.</summary>
 internal sealed class Workout : Entity<WorkoutId>
 {
+    internal const int MinDurationMinutes = 1;
+
+    internal const int MaxDurationMinutes = 600;
+
+    private const int SecondsPerMinute = 60;
+
     private readonly List<WorkoutExercise> _exercises = [];
 
     private Workout(WorkoutId id, UserId userId, DateOnly date, WorkoutStatus status, RoutineId? routineId, string name) : base(id)
@@ -35,6 +41,9 @@ internal sealed class Workout : Entity<WorkoutId>
 
     /// <summary>When logging finished. Empty while in progress and when skipped.</summary>
     public DateTimeOffset? FinishedAtUtc { get; private set; }
+
+    /// <summary>How long it took. Set when saved, and can be corrected. Empty on a day logged later without one.</summary>
+    public int? DurationSeconds { get; private set; }
 
     public DateTimeOffset? DeletedAtUtc { get; private set; }
 
@@ -207,7 +216,7 @@ internal sealed class Workout : Entity<WorkoutId>
     }
 
     /// <summary>Completes it with only what was done: unchecked sets go, and so does any exercise left with no sets.</summary>
-    public Result Finish(DateTimeOffset finishedAtUtc)
+    public Result Finish(DateTimeOffset finishedAtUtc, int? durationMinutes = null)
     {
         if (Status != WorkoutStatus.InProgress)
         {
@@ -228,12 +237,13 @@ internal sealed class Workout : Entity<WorkoutId>
 
         Status = WorkoutStatus.Completed;
         FinishedAtUtc = finishedAtUtc;
+        DurationSeconds = StartedAtUtc is DateTimeOffset startedAtUtc ? (int)(finishedAtUtc - startedAtUtc).TotalSeconds : durationMinutes * SecondsPerMinute;
 
         return Result.Success();
     }
 
     /// <summary>Corrects a saved workout: its exercises become these, in this order, each with these sets. A new exercise gets the starting targets.</summary>
-    public Result Edit(IReadOnlyList<EditedExercise> exercises)
+    public Result Edit(IReadOnlyList<EditedExercise> exercises, int? durationMinutes = null)
     {
         if (Status != WorkoutStatus.Completed)
         {
@@ -286,7 +296,19 @@ internal sealed class Workout : Entity<WorkoutId>
             }
         }
 
+        CorrectDuration(durationMinutes);
+
         return Result.Success();
+    }
+
+    // The form shows whole minutes, so saving the same minutes keeps the exact time.
+    private void CorrectDuration(int? durationMinutes)
+    {
+        int? shownMinutes = DurationSeconds is int seconds ? Math.Max(1, (int)Math.Round(seconds / (double)SecondsPerMinute, MidpointRounding.AwayFromZero)) : null;
+        if (durationMinutes != shownMinutes)
+        {
+            DurationSeconds = durationMinutes * SecondsPerMinute;
+        }
     }
 
     public void Delete(DateTimeOffset deletedAtUtc)

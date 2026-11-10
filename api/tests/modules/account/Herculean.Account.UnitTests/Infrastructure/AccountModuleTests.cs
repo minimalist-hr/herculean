@@ -91,6 +91,7 @@ public sealed class AccountModuleTests
 
         rateLimits.ShouldBe(new Dictionary<string, string?>
         {
+            ["/api/v1/users"] = "create-user",
             ["/api/v1/users/me/password"] = "change-password",
             ["/api/v1/users/me"] = "delete-account",
             ["/api/v1/sessions"] = "sign-in",

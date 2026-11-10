@@ -1,0 +1,11 @@
+# Confirm a new email with the token from the link. Start the API with Aspire first.
+@host = http://localhost:5279
+@token = paste-the-token-from-the-email
+
+### A valid token → 204. Used again or expired → 404. Taken since the link was sent → 409 user.email_taken.
+POST {{host}}/api/v1/email-changes/confirm
+Content-Type: application/json
+
+{
+  "token": "{{token}}"
+}

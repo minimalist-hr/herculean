@@ -1,0 +1,6 @@
+# The page the emailed link opens. Start the API with Aspire first.
+@host = http://localhost:5279
+@token = paste-the-token-from-the-email
+
+### A page that opens the app → 200.
+GET {{host}}/links/confirm-email?token={{token}}

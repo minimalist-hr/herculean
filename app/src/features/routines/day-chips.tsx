@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dayNames, weekdays, type Weekday } from '@/formats/formats';
@@ -75,7 +76,7 @@ export function DayChipsSkeleton() {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    gap: 4,
+    gap: tokens.space.xxs,
   },
   skeleton: {
     flex: 1,

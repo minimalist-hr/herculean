@@ -10,7 +10,7 @@ import NewExerciseForRoutineRoute from '@/app/routine/new/new-exercise';
 import TargetsRoute from '@/app/routine/new/targets';
 
 import { NotificationBar } from '@/components/notification-bar';
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { RoutinesScreen } from './routines-screen';

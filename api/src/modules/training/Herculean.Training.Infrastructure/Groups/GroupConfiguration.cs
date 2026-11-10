@@ -9,6 +9,8 @@ namespace Herculean.Training.Infrastructure.Groups;
 
 internal sealed class GroupConfiguration : IEntityTypeConfiguration<Group>
 {
+    internal const string NameIndex = "ix_groups_user_id_normalized_name";
+
     public void Configure(EntityTypeBuilder<Group> builder)
     {
         builder.Property(group => group.Id).HasConversion<TypedIdConverter<GroupId>>().ValueGeneratedNever();
@@ -17,6 +19,6 @@ internal sealed class GroupConfiguration : IEntityTypeConfiguration<Group>
         builder.Property(group => group.NormalizedName).HasMaxLength(Group.NameMaxLength);
 
         // A deleted group's name can be used again.
-        builder.HasIndex(group => new { group.UserId, group.NormalizedName }).IsUnique().HasFilter("deleted_at_utc IS NULL");
+        builder.HasIndex(group => new { group.UserId, group.NormalizedName }).IsUnique().HasFilter("deleted_at_utc IS NULL").HasDatabaseName(NameIndex);
     }
 }

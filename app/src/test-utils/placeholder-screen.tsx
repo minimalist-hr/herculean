@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/theme-provider';
 
-import { BackLink } from './back-link';
+import { BackLink } from '@/components/back-link';
 
 interface PlaceholderScreenProps {
   title: string;
@@ -14,7 +14,7 @@ interface PlaceholderScreenProps {
   action?: ReactNode;
 }
 
-/** Stands in for a screen until its feature builds it. */
+/** Stands in for a screen a test doesn't render. */
 export function PlaceholderScreen({
   title,
   back,

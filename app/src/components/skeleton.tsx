@@ -5,6 +5,8 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { useReduceMotion } from './use-reduce-motion';
 
+import { OptionalNote } from './optional-note';
+
 /** What a line of each text style takes, so nothing moves when the real text arrives. */
 export const textLine = {
   eyebrow: 16,
@@ -91,15 +93,20 @@ export function SkeletonLine({
 export function FieldSkeleton({
   label,
   helper,
+  optional = false,
 }: {
   label: string;
   helper?: string;
+  optional?: boolean;
 }) {
   const { size, space, text } = useTheme();
 
   return (
     <View style={{ gap: space.sm }}>
-      <Text style={text.eyebrow}>{label}</Text>
+      <Text style={text.eyebrow}>
+        {label}
+        {optional && <OptionalNote />}
+      </Text>
       <Skeleton width="100%" height={size.input} />
       {helper !== undefined && <Text style={text.meta}>{helper}</Text>}
     </View>

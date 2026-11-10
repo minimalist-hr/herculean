@@ -131,7 +131,7 @@ export function GroupsScreen() {
           paddingBottom: space.md,
         }}
       >
-        <View style={{ gap: 2 }}>
+        <View style={{ gap: space.xxxs }}>
           <BackLink
             label="Exercises"
             onPress={() => {

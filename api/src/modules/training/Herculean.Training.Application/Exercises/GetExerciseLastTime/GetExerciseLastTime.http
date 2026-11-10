@@ -1,0 +1,8 @@
+# An exercise's last time before a date. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@exerciseId = 00000000-0000-0000-0000-000000000000
+
+### Its last time, or null → 200. An unknown exercise → 404.
+GET {{host}}/api/v1/exercises/{{exerciseId}}/last-time?before=2026-11-10
+Authorization: Bearer {{accessToken}}

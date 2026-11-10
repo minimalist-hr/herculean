@@ -123,6 +123,10 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at_utc");
 
+                    b.Property<DateTimeOffset?>("ReplacedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("replaced_at_utc");
+
                     b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasColumnType("text")

@@ -58,6 +58,56 @@ public sealed class EditWorkoutHandlerTests
         squat.Sets.Select(set => (set.WeightKg, set.Reps, set.Checked)).ShouldBe([(105m, 5, true), (100m, 6, true)]);
     }
 
+    private Task<Result<WorkoutResponse>> EditDurationAsync(int? minutes) =>
+        _handler.HandleAsync(_workout.Id.Value, new EditWorkoutRequest([KeptSquat(new EditedWorkoutSet(100, 5))], minutes), TestContext.Current.CancellationToken);
+
+    private void HasDuration(int minutes)
+    {
+        _workout.Edit([new EditedExercise(_workout.Exercises[0].Id, _squat.Id, [new SetValues(100, 5)])], minutes);
+    }
+
+    [Fact]
+    public async Task TheDurationCanBeCorrected()
+    {
+        await EditDurationAsync(45);
+
+        _workout.DurationSeconds.ShouldBe(2700);
+    }
+
+    [Fact]
+    public async Task TheDurationCanBeCleared()
+    {
+        HasDuration(45);
+
+        await EditDurationAsync(null);
+
+        _workout.DurationSeconds.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task TheSameMinutesKeepTheExactTime()
+    {
+        Workout timed = Workout.Start(User, new DateOnly(2026, 11, 4), RoutineId.New(), "Legs", [new RoutineExerciseValues(_squat.Id, 1, 8, 10)], new Dictionary<ExerciseId, List<SetValues>>(), Now.AddSeconds(-3850));
+        WorkoutExercise squat = timed.Exercises[0];
+        timed.UpdateSet(squat.Id, squat.Sets[0].Id, 100, 5, true);
+        timed.Finish(Now);
+        _workoutRepository.Add(timed);
+
+        await _handler.HandleAsync(timed.Id.Value, new EditWorkoutRequest([new EditedWorkoutExercise(squat.Id.Value, _squat.Id.Value, [new EditedWorkoutSet(100, 5)])], 64), TestContext.Current.CancellationToken);
+
+        timed.DurationSeconds.ShouldBe(3850);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(601)]
+    public async Task MinutesOutsideTheLimitsFailWithAFieldError(int minutes)
+    {
+        Result<WorkoutResponse> result = await EditDurationAsync(minutes);
+
+        result.Error.ShouldNotBeNull().Fields.ShouldContainKey("durationMinutes");
+    }
+
     [Fact]
     public async Task AnExerciseLeftOutIsRemoved()
     {

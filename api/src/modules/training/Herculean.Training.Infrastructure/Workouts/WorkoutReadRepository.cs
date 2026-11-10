@@ -23,7 +23,7 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
         var workout = await dbContext.Workouts
             .AsNoTracking()
             .Where(workout => workout.Id == id)
-            .Select(workout => new { workout.Date, workout.Status, workout.Name, workout.StartedAtUtc, workout.FinishedAtUtc })
+            .Select(workout => new { workout.Date, workout.Status, workout.Name, workout.DurationSeconds, workout.StartedAtUtc, workout.FinishedAtUtc })
             .SingleOrDefaultAsync(cancellationToken);
         if (workout is null)
         {
@@ -72,7 +72,8 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                     exercise.Sets,
                     lastTime.GetValueOrDefault(exercise.ExerciseId))),
             ],
-            workout.FinishedAtUtc);
+            workout.FinishedAtUtc,
+            workout.DurationSeconds);
     }
 
     public Task<List<RoutineExerciseValues>> ListRoutineExercisesAsync(RoutineId routineId, CancellationToken cancellationToken) =>

@@ -4,7 +4,7 @@ import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import { notifyFailure } from '@/components/notifications';
 
-import { dayKeys } from './query-keys';
+import { dayDataKeys } from './query-keys';
 
 /** Undoes a skip. The day reads from the week plan again: planned today, missed if it has passed. */
 export function useUndoSkip() {
@@ -21,7 +21,7 @@ export function useUndoSkip() {
     },
     onSuccess: () =>
       Promise.all(
-        [dayKeys.allDay, dayKeys.allDays, dayKeys.allMonths].map((queryKey) =>
+        dayDataKeys.map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),
         ),
       ),

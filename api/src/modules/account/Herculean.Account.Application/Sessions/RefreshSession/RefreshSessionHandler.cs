@@ -32,14 +32,15 @@ internal sealed class RefreshSessionHandler(
             return UserErrors.InvalidRefreshToken;
         }
 
-        // The token works once. An expired one is removed too, and the user signs in again.
-        user.RemoveRefreshToken(refreshToken);
-        if (refreshToken.IsExpired(timeProvider.GetUtcNow()))
+        DateTimeOffset nowUtc = timeProvider.GetUtcNow();
+        if (refreshToken.IsExpired(nowUtc) || refreshToken.IsPastGracePeriod(nowUtc))
         {
+            user.RemoveRefreshToken(refreshToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return UserErrors.InvalidRefreshToken;
         }
 
+        user.ReplaceRefreshToken(refreshToken, nowUtc);
         TokenResponse tokenResponse = tokenIssuer.Issue(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

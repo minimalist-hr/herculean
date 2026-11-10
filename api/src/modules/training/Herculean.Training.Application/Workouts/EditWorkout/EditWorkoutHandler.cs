@@ -41,7 +41,7 @@ internal sealed class EditWorkoutHandler(
                 exercise.Id is Guid kept ? WorkoutExerciseId.From(kept) : null,
                 ExerciseId.From(exercise.ExerciseId),
                 [.. exercise.Sets.Select(set => new SetValues(set.WeightKg, set.Reps))])),
-        ]);
+        ], request.DurationMinutes);
         if (!edited.IsSuccess)
         {
             return edited.Error;

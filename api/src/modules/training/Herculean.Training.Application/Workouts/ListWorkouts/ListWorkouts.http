@@ -1,0 +1,11 @@
+# Workouts in progress. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### The workouts, or an empty list → 200.
+GET {{host}}/api/v1/workouts?status=inProgress
+Authorization: Bearer {{accessToken}}
+
+### No status → 400.
+GET {{host}}/api/v1/workouts
+Authorization: Bearer {{accessToken}}

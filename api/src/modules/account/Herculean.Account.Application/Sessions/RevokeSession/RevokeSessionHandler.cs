@@ -29,7 +29,7 @@ internal sealed class RevokeSessionHandler(
         RefreshToken? refreshToken = user?.RefreshTokens.SingleOrDefault(token => token.TokenHash == tokenHash);
         if (user is not null && refreshToken is not null)
         {
-            user.RemoveRefreshToken(refreshToken);
+            user.RevokeRefreshToken(refreshToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 

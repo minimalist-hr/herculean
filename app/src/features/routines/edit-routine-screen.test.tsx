@@ -9,7 +9,7 @@ import EditRoutineRoute from '@/app/routine/[id]/edit/index';
 import NewExerciseForRoutineRoute from '@/app/routine/[id]/edit/new-exercise';
 import TargetsRoute from '@/app/routine/[id]/edit/targets';
 import { NotificationBar } from '@/components/notification-bar';
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 import { createTestQueryClient } from '@/test-utils/query-client';
 

@@ -34,6 +34,7 @@ const workout = {
   name: 'Legs',
   startedAtUtc: null,
   finishedAtUtc: null,
+  durationSeconds: 3850,
   exercises: [
     {
       id: 'we1',
@@ -193,6 +194,7 @@ test('a changed value and an added set are saved together', async () => {
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
   expect(await screen.findByText('Legs saved.')).toBeOnTheScreen();
   expect(await sentBody()).toEqual({
+    durationMinutes: 64,
     exercises: [
       {
         id: 'we1',
@@ -205,6 +207,45 @@ test('a changed value and an added set are saved together', async () => {
       },
     ],
   });
+});
+
+const durationLabel = 'Duration in minutes';
+
+test('the duration starts filled, and a correction is saved', async () => {
+  answerWith();
+  await renderEdit();
+  const field = screen.getByLabelText(durationLabel);
+  expect(field.props.value).toBe('64');
+
+  await fireEvent.changeText(field, '45');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+
+  await screen.findByText('Day screen');
+  expect(await sentBody()).toMatchObject({ durationMinutes: 45 });
+});
+
+test('clearing the duration saves none', async () => {
+  answerWith();
+  await renderEdit();
+
+  await fireEvent.changeText(screen.getByLabelText(durationLabel), '');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+
+  await screen.findByText('Day screen');
+  expect(await sentBody()).toMatchObject({ durationMinutes: null });
+});
+
+test('a duration over the limit says so and saves nothing', async () => {
+  answerWith();
+  await renderEdit();
+
+  await fireEvent.changeText(screen.getByLabelText(durationLabel), '601');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+
+  expect(await screen.findByText('At most 600 minutes.')).toBeOnTheScreen();
+  expect(
+    mockFetch.mock.calls.filter(([request]) => request.method === 'PUT'),
+  ).toHaveLength(0);
 });
 
 test('a failed save says so and stays on the page', async () => {
@@ -277,6 +318,7 @@ test('an added exercise shows its last time before the workout, and is saved as 
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
   expect(await sentBody()).toEqual({
+    durationMinutes: 64,
     exercises: [
       {
         id: 'we1',

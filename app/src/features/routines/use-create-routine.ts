@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 import { exerciseKeys } from '@/features/exercises/query-keys';
+import { dayDataKeys } from '@/features/workout/query-keys';
 
 import type { Weekday } from '@/formats/formats';
 import { routineKeys } from './query-keys';
@@ -45,6 +46,7 @@ export function useCreateRoutine() {
           routineKeys.weekPlan,
           routineKeys.details,
           exerciseKeys.details,
+          ...dayDataKeys,
         ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       ),
   });

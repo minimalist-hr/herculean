@@ -12,16 +12,14 @@ import {
 import { exerciseKeys } from '@/features/exercises/query-keys';
 import { routineKeys } from '@/features/routines/query-keys';
 
-import { dayKeys, workoutKeys } from './query-keys';
+import { dayDataKeys, workoutKeys } from './query-keys';
 
 /** How many pages back the day is, from the finish page: past logging. */
 const pagesBackToDay = 2;
 
 const changedByAWorkout = [
   workoutKeys.inProgress,
-  dayKeys.allDay,
-  dayKeys.allDays,
-  dayKeys.allMonths,
+  ...dayDataKeys,
   routineKeys.all,
   exerciseKeys.all,
   exerciseKeys.details,
@@ -40,10 +38,10 @@ export function useSaveWorkout(id: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (durationMinutes: number | null) => {
       const { data, error } = await api.PATCH('/api/v1/workouts/{id}', {
         params: { path: { id } },
-        body: { status: 'completed' },
+        body: { status: 'completed', durationMinutes },
       });
       if (data === undefined) {
         throw toApiError(error);
@@ -163,10 +161,13 @@ export function useEditWorkout(id: string) {
   const refresh = useRefreshAfterWorkout();
 
   return useMutation({
-    mutationFn: async (exercises: EditedExercise[]) => {
+    mutationFn: async (body: {
+      exercises: EditedExercise[];
+      durationMinutes: number | null;
+    }) => {
       const { data, error } = await api.PUT('/api/v1/workouts/{id}', {
         params: { path: { id } },
-        body: { exercises },
+        body,
       });
       if (data === undefined) {
         throw toApiError(error);

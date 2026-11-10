@@ -100,6 +100,7 @@ const pastSavedAnswers = {
 };
 const finishPath = `${logPath}/finish`;
 const summaryPath = `GET /api/v1/workouts/${sampleWorkout.id}/summary`;
+const pastDayAnswers = { [workoutPath]: { status: 200, body: { ...sampleWorkout, date: '2026-10-21', startedAtUtc: null } }, [summaryPath]: { status: 200, body: { ...sampleSummary, name: 'Legs', date: '2026-10-21', durationSeconds: null, setsChecked: 6, setsTotal: 6, volumeKg: 8880, uncheckedExercises: [], records: [] } } };
 const openFinish = async (on) => {
   await on.go(finishPath);
   await on.waitFor('Discard workout');
@@ -1171,6 +1172,12 @@ export const screens = [
     await on.tap('Undo');
     await on.waitFor("Couldn’t undo. Try again.");
   } },
+  { id: 'W98', file: 'W98-Workout-Edit-Duration-Error', title: 'Workout › Edit workout · duration too long', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: savedAnswers, steps: async (on) => {
+    await editFromToday(on);
+    await on.type('Duration in minutes', '601');
+    await on.tap('Save workout');
+    await on.waitFor('At most 600 minutes.');
+  } },
   { id: 'W86', file: 'W86-Workout-Edit-Loading', title: 'Workout › Edit workout · loading', row: 'W4 Edit or delete a workout', today: friday, full: false, answers: { ...savedAnswers, [workoutPath]: 'hold' }, steps: async (on) => {
     await on.go(editWorkoutPath);
     await on.waitFor('Loading this workout');
@@ -1737,7 +1744,17 @@ export const screens = [
   } },
   { id: 'L30', file: 'L30-Logging-Finish', title: 'Logging › Finish workout', row: 'L3 Finish', today: friday, steps: openFinish },
   { id: 'L31', file: 'L31-Logging-Finish-Nothing-Logged', title: 'Logging › Finish workout · nothing logged', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, durationSeconds: 400, setsChecked: 0, setsTotal: 19, volumeKg: 0, uncheckedExercises: [], records: [] } } }, steps: openFinish },
-  { id: 'L32', file: 'L32-Logging-Finish-Past-Day', title: 'Logging › Finish workout · past day, every set checked', row: 'L3 Finish', today: friday, answers: { [summaryPath]: { status: 200, body: { ...sampleSummary, name: 'Legs', date: '2026-10-21', durationSeconds: null, setsChecked: 6, setsTotal: 6, volumeKg: 8880, uncheckedExercises: [], records: [] } } }, steps: openFinish },
+  { id: 'L32', file: 'L32-Logging-Finish-Past-Day', title: 'Logging › Finish workout · past day, every set checked', row: 'L3 Finish', today: friday, answers: pastDayAnswers, steps: openFinish },
+  { id: 'L70', file: 'L70-Logging-Finish-Past-Day-Duration-Error', title: 'Logging › Finish workout · past day, duration too long', row: 'L3 Finish', today: friday, full: false, answers: pastDayAnswers, steps: async (on) => {
+    await openFinish(on);
+    await on.type('Duration in minutes', '601');
+    await on.tap('Save workout');
+    await on.waitFor('At most 600 minutes.');
+  } },
+  { id: 'L71', file: 'L71-Logging-Finish-Long-Workout', title: 'Logging › Finish workout · long workout', row: 'L3 Finish', today: friday, answers: { [workoutPath]: { status: 200, body: { ...sampleWorkout, startedAtUtc: new Date('2026-10-23T12:00:00').toISOString() } }, [summaryPath]: { status: 200, body: { ...sampleSummary, durationSeconds: 18000 } } }, steps: async (on) => {
+    await openFinish(on);
+    await on.waitFor('Long workout?');
+  } },
   { id: 'L33', file: 'L33-Logging-Discard-Confirm', title: 'Logging › Discard workout · confirm', row: 'L3 Finish', today: friday, full: false, steps: openDiscard },
   { id: 'L34', file: 'L34-Logging-Finish-Loading', title: 'Logging › Finish workout · loading', row: 'L3 Finish', today: friday, answers: { [summaryPath]: 'hold' }, steps: async (on) => {
     await on.go(finishPath);

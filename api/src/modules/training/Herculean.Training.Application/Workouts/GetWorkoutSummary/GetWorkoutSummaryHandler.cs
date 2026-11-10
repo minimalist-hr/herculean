@@ -36,9 +36,9 @@ internal sealed class GetWorkoutSummaryHandler(
     }
 
     private int? DurationSeconds(WorkoutDetailsResponse workout) =>
-        workout.StartedAtUtc is DateTimeOffset startedAtUtc
-            ? (int)((workout.FinishedAtUtc ?? timeProvider.GetUtcNow()) - startedAtUtc).TotalSeconds
-            : null;
+        workout.Status != WorkoutStatus.InProgress
+            ? workout.DurationSeconds
+            : (int?)(timeProvider.GetUtcNow() - workout.StartedAtUtc)?.TotalSeconds;
 
     private async Task<List<WorkoutRecordResponse>> RecordsAsync(WorkoutDetailsResponse workout, CancellationToken cancellationToken)
     {

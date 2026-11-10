@@ -12,6 +12,7 @@ import {
   monthName,
   weightUnitOf,
 } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { NoSessionsCard } from './no-sessions-card';
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   when: {
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
   sets: {
     flexShrink: 1,

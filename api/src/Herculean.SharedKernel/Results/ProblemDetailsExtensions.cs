@@ -1,3 +1,5 @@
+using Herculean.SharedKernel.Persistence;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +20,7 @@ public static class ProblemDetailsExtensions
     {
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context => Standardize(context.ProblemDetails));
         services.Configure<ExceptionHandlerOptions>(options => options.StatusCodeSelector = StatusCodeFor);
+        services.AddExceptionHandler<UniqueViolationHandler>();
 
         // In Development ASP.NET Core throws for a value it can't read, and the exception handler logs that as a failure.
         // It is the caller's mistake, so every environment answers 400 without an exception.

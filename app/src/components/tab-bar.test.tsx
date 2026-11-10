@@ -7,7 +7,7 @@ import { Pressable } from 'react-native';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { HomeIcon, WorkoutIcon } from './icons';
-import { PlaceholderScreen } from './placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { TabBar } from './tab-bar';
 
 function Layout() {

@@ -1,0 +1,21 @@
+# Save the profile photo. Start the API with Aspire first.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+
+### A Base64 JPEG → 204. This one is the smallest valid start of a JPEG; use a real one to see it in the app.
+PUT {{host}}/api/v1/users/me/photo
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "image": "/9j/4AAQSkZJRgABAQ=="
+}
+
+### Not a Base64 JPEG → 400, the errors name the field.
+PUT {{host}}/api/v1/users/me/photo
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "image": "not-a-photo"
+}

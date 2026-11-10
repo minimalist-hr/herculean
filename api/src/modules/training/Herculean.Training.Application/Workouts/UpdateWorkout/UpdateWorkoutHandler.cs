@@ -28,7 +28,7 @@ internal sealed class UpdateWorkoutHandler(
             return WorkoutErrors.NotFound;
         }
 
-        Result finished = workout.Finish(timeProvider.GetUtcNow());
+        Result finished = workout.Finish(timeProvider.GetUtcNow(), request.DurationMinutes);
         if (!finished.IsSuccess)
         {
             return finished.Error;

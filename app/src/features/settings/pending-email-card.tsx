@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { Card } from '@/components/card';
 import {
   dismissNotification,
   notifyFailure,
@@ -22,11 +23,11 @@ export function PendingEmailCard() {
   const pending = usePendingEmailChange();
   const newEmail = pending.data?.newEmail;
 
-  return newEmail ? <Card newEmail={newEmail} /> : null;
+  return newEmail ? <WaitingCard newEmail={newEmail} /> : null;
 }
 
-function Card({ newEmail }: { newEmail: string }) {
-  const { colors, radius, space, text } = useTheme();
+function WaitingCard({ newEmail }: { newEmail: string }) {
+  const { colors, space, text } = useTheme();
   const resend = useResendEmailChange();
   const { secondsLeft, restart } = useCountdown(sendAgainWaitSeconds, 0);
   const waiting = secondsLeft > 0;
@@ -50,18 +51,7 @@ function Card({ newEmail }: { newEmail: string }) {
   }
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          gap: space.md,
-          padding: space.lg,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-      ]}
-    >
+    <Card>
       <View style={{ gap: space.sm }}>
         <Text style={[text.listItemName, { color: colors.text }]}>
           Waiting for confirmation
@@ -83,12 +73,6 @@ function Card({ newEmail }: { newEmail: string }) {
         muted={waiting}
         onPress={sendAgain}
       />
-    </View>
+    </Card>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-  },
-});

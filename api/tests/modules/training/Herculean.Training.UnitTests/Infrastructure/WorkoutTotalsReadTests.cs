@@ -97,8 +97,7 @@ public sealed class WorkoutTotalsReadTests : IDisposable
         DoneWorkoutTotals totals = (await ListDoneAsync()).ShouldHaveSingleItem();
 
         totals.Date.ShouldBe(Date);
-        totals.StartedAtUtc.ShouldBe(Now.AddHours(-1));
-        totals.FinishedAtUtc.ShouldBe(Now);
+        totals.DurationSeconds.ShouldBe(3600);
         totals.PlannedSets.ShouldBe(3);
         totals.SetsDone.ShouldBe(2);
         totals.VolumeKg.ShouldBe(1400);

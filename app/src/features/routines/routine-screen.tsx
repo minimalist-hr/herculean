@@ -11,6 +11,7 @@ import { LoadFailure } from '@/components/load-failure';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { SectionTitle } from '@/components/section-title';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ExerciseTargets } from './exercise-targets';
@@ -73,7 +74,7 @@ function Details({ routine }: { routine: Routine }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   return (
-    <View style={{ gap: size.gap.sectionMax, marginTop: 2 }}>
+    <View style={{ gap: size.gap.sectionMax, marginTop: space.xxxs }}>
       <View style={styles.heading}>
         <View style={[styles.titleRow, { gap: space.sm }]}>
           <Text
@@ -169,7 +170,7 @@ function RoutineSkeleton() {
       accessible
       accessibilityLabel="Loading the routine"
       accessibilityLiveRegion="polite"
-      style={{ gap: size.gap.sectionMax, marginTop: 2 }}
+      style={{ gap: size.gap.sectionMax, marginTop: space.xxxs }}
     >
       <View style={styles.heading}>
         <View style={[styles.skeletonTitle, { height: size.headerIconButton }]}>
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   heading: {
-    gap: 4,
+    gap: tokens.space.xxs,
   },
   titleRow: {
     flexDirection: 'row',
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   },
   exercise: {
     justifyContent: 'center',
-    gap: 2,
+    gap: tokens.space.xxxs,
     borderWidth: 1,
   },
 });

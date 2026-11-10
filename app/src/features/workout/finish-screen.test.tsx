@@ -40,6 +40,7 @@ const summary = {
 
 interface Answers {
   answer?: unknown;
+  workoutAnswer?: unknown;
   summaryStatus?: number;
   patch?: () => Response;
   remove?: () => Response;
@@ -48,6 +49,7 @@ interface Answers {
 
 function answerWith({
   answer = summary,
+  workoutAnswer,
   summaryStatus = 200,
   patch = () =>
     Response.json({ id: 'w1', status: 'completed', name: 'Legs day' }),
@@ -67,7 +69,9 @@ function answerWith({
     }
     // Logging would hold the workout; here the summary alone says what it comes to.
     if (pathname === '/api/v1/workouts/w1') {
-      return new Promise<Response>(() => undefined);
+      return workoutAnswer === undefined
+        ? new Promise<Response>(() => undefined)
+        : Promise.resolve(Response.json(workoutAnswer));
     }
     if (pathname.endsWith('/summary')) {
       return Promise.resolve(
@@ -276,7 +280,106 @@ test('saving completes the workout and returns to the day', async () => {
   expect(await screen.findByText('Legs day saved.')).toBeOnTheScreen();
   await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
     status: 'completed',
+    durationMinutes: null,
   });
+});
+
+const pastDay = {
+  answer: { ...summary, durationSeconds: null },
+  workoutAnswer: {
+    id: 'w1',
+    name: 'Legs',
+    date: '2026-11-03',
+    startedAtUtc: null,
+    exercises: [],
+  },
+};
+const durationLabel = 'Duration in minutes';
+
+test('a past day takes its duration in minutes', async () => {
+  answerWith(pastDay);
+  await renderFinish();
+
+  await fireEvent.changeText(await screen.findByLabelText(durationLabel), '75');
+
+  await fireEvent.press(await loadedButton('Save workout'));
+  await screen.findByText('Day screen');
+  await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
+    status: 'completed',
+    durationMinutes: 75,
+  });
+});
+
+test('a past day shows only Sets and Volume, with its duration typed and records below', async () => {
+  answerWith(pastDay);
+  await renderFinish();
+
+  expect(await screen.findByLabelText(durationLabel)).toBeOnTheScreen();
+  expect(await screen.findByText('17 of 19')).toBeOnTheScreen();
+  expect(screen.getByText('9,840 kg')).toBeOnTheScreen();
+  expect(screen.queryByText('Duration')).toBeNull();
+  expect(screen.queryByText('Records')).toBeNull();
+  expect(screen.getByText('New records')).toBeOnTheScreen();
+});
+
+test('a past day can be saved with no duration', async () => {
+  answerWith(pastDay);
+  await renderFinish();
+  await screen.findByLabelText(durationLabel);
+
+  await fireEvent.press(await loadedButton('Save workout'));
+  await screen.findByText('Day screen');
+
+  await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
+    status: 'completed',
+    durationMinutes: null,
+  });
+});
+
+test.each([
+  ['601', 'At most 600 minutes.'],
+  ['0', 'At least 1 minute.'],
+])('a duration of %s says so and saves nothing', async (typed, message) => {
+  answerWith(pastDay);
+  await renderFinish();
+
+  await fireEvent.changeText(
+    await screen.findByLabelText(durationLabel),
+    typed,
+  );
+  await fireEvent.press(await loadedButton('Save workout'));
+
+  expect(await screen.findByText(message)).toBeOnTheScreen();
+  expect(requests('PATCH')).toHaveLength(0);
+});
+
+test('a timed workout has no duration field', async () => {
+  answerWith({
+    workoutAnswer: {
+      ...pastDay.workoutAnswer,
+      startedAtUtc: new Date(Date.now() - 600_000).toISOString(),
+    },
+  });
+  await renderFinish();
+  await loadedButton('Save workout');
+
+  expect(screen.queryByLabelText(durationLabel)).toBeNull();
+  expect(screen.queryByText('Long workout?')).toBeNull();
+});
+
+test('a timer over four hours asks about a forgotten Finish', async () => {
+  answerWith({
+    workoutAnswer: {
+      ...pastDay.workoutAnswer,
+      startedAtUtc: new Date(Date.now() - 5 * 3_600_000).toISOString(),
+    },
+  });
+  await renderFinish();
+
+  expect(await screen.findByText('Long workout?')).toBeOnTheScreen();
+  expect(
+    screen.getByText('You can correct the time after saving.'),
+  ).toBeOnTheScreen();
 });
 
 test('a save that fails says so and stays', async () => {

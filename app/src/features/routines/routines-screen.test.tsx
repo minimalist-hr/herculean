@@ -7,7 +7,7 @@ import NewRoutineLayout from '@/app/routine/new/_layout';
 import NewRoutineRoute from '@/app/routine/new/index';
 
 import { NotificationBar } from '@/components/notification-bar';
-import { PlaceholderScreen } from '@/components/placeholder-screen';
+import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { RoutinesScreen } from './routines-screen';

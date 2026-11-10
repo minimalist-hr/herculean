@@ -105,7 +105,7 @@ function NewPasswordForm({ token, email }: { token: string; email?: string }) {
             paddingBottom: space.lg,
           }}
         >
-          <View style={{ gap: 2 }}>
+          <View style={{ gap: space.xxxs }}>
             <BackLink label="Sign in" onPress={goToSignIn} />
             <ScreenHeading
               title="New password"

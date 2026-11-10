@@ -1040,7 +1040,7 @@ export interface components {
         ChangePasswordRequest: {
             /** @description The password the user has now. */
             currentPassword: string;
-            /** @description The new password, at least 8 characters. */
+            /** @description The new password, 8 to 128 characters. */
             newPassword: string;
             /** @description The refresh token this device holds now. Every other one is deleted. */
             refreshToken: string;
@@ -1054,7 +1054,7 @@ export interface components {
         CompletePasswordResetRequest: {
             /** @description The token from the reset link. It works once. */
             token: string;
-            /** @description The new password, at least 8 characters. */
+            /** @description The new password, 8 to 128 characters. */
             password: string;
         };
         /** @description The token from the link in the email. */
@@ -1104,7 +1104,7 @@ export interface components {
         CreateUserRequest: {
             /** @description Unique regardless of case. At most 254 characters. */
             email: string;
-            /** @description At least 8 characters. */
+            /** @description 8 to 128 characters. */
             password: string;
             /** @description The phone's IANA time zone, for example Europe/Zagreb. */
             timeZone: string;
@@ -1242,6 +1242,11 @@ export interface components {
         EditWorkoutRequest: {
             /** @description Its exercises in order, 1 to 30, each exercise once. Exercises left out are removed. */
             exercises: components["schemas"]["EditedWorkoutExercise"][];
+            /**
+             * Format: int32
+             * @description How long it took in minutes, 1 to 600. Null means no duration.
+             */
+            durationMinutes?: null | number;
         };
         /** @description An exercise, its groups and its progress. */
         ExerciseDetailsResponse: {
@@ -1940,6 +1945,11 @@ export interface components {
         UpdateWorkoutRequest: {
             /** @description Where it stands now. Only completed can be set, which saves it. */
             status: components["schemas"]["WorkoutStatus"];
+            /**
+             * Format: int32
+             * @description How long it took in minutes, 1 to 600. Only a past day uses it: a timed workout counts its own.
+             */
+            durationMinutes?: null | number;
         };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateWorkoutSettingsRequest: {
@@ -2028,6 +2038,11 @@ export interface components {
              * @description When logging finished. Null until it's saved.
              */
             finishedAtUtc?: null | string;
+            /**
+             * Format: int32
+             * @description How long it took. Null until it's saved, and when it has no duration.
+             */
+            durationSeconds?: null | number;
         };
         /** @description An exercise in a workout. */
         WorkoutExerciseResponse: {
@@ -2196,6 +2211,15 @@ export interface operations {
             };
             /** @description An account with this email already exists. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too many tries from this address. Wait a minute; Retry-After says how long. */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

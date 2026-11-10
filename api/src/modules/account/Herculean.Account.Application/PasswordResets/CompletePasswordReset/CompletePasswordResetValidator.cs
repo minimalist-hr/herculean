@@ -9,6 +9,6 @@ internal sealed class CompletePasswordResetValidator : AbstractValidator<Complet
     public CompletePasswordResetValidator()
     {
         RuleFor(request => request.Token).NotEmpty();
-        RuleFor(request => request.Password).NotEmpty().MinimumLength(CreateUserValidator.PasswordMinLength);
+        RuleFor(request => request.Password).NotEmpty().MinimumLength(CreateUserValidator.PasswordMinLength).MaximumLength(CreateUserValidator.PasswordMaxLength);
     }
 }

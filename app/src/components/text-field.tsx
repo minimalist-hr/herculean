@@ -11,6 +11,7 @@ import {
 import { useTheme } from '@/theme/theme-provider';
 
 import { EyeIcon, EyeOffIcon } from './icons';
+import { OptionalNote } from './optional-note';
 import { Tappable } from './tappable';
 
 interface TextFieldProps extends Omit<
@@ -23,6 +24,8 @@ interface TextFieldProps extends Omit<
   error?: string;
   /** Hides what is typed, with an eye button to show it. */
   password?: boolean;
+  /** Adds "· optional" after the label. */
+  optional?: boolean;
   /** Lets the form focus the input, for example the next field or the first error. */
   ref?: Ref<TextInputInstance>;
 }
@@ -33,6 +36,7 @@ export function TextField({
   helper,
   error,
   password = false,
+  optional = false,
   ref,
   ...inputProps
 }: TextFieldProps) {
@@ -42,7 +46,10 @@ export function TextField({
 
   return (
     <View style={{ gap: space.sm }}>
-      <Text style={text.eyebrow}>{label}</Text>
+      <Text style={text.eyebrow}>
+        {label}
+        {optional && <OptionalNote />}
+      </Text>
       <View>
         <TextInput
           {...inputProps}

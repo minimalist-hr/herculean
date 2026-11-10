@@ -1,9 +1,18 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { useFloatingRoom } from '@/components/above-tab-bar';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { ProfileButton } from '@/features/settings/profile-button';
 import { dateText } from '@/formats/dates';
+import { workoutKeys } from '@/features/workout/query-keys';
 import { useDayRefresh } from '@/features/workout/use-day-refresh';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -35,11 +44,24 @@ function greeting(hour: number, name?: string | null) {
 export function HomeScreen() {
   const { colors, size, space, text } = useTheme();
   const floatingRoom = useFloatingRoom();
-  const { now } = useDayRefresh();
+  const { now, refresh } = useDayRefresh();
   const user = useCurrentUser();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function pullToRefresh() {
+    setRefreshing(true);
+    await Promise.all([
+      refresh(),
+      queryClient.invalidateQueries({ queryKey: workoutKeys.inProgress }),
+      queryClient.invalidateQueries({ queryKey: workoutKeys.all }),
+    ]);
+    setRefreshing(false);
+  }
 
   return (
     <ScrollView
+      testID="home-scroll"
       style={[styles.screen, { backgroundColor: colors.bg }]}
       contentContainerStyle={{
         gap: space.xl,
@@ -47,6 +69,17 @@ export function HomeScreen() {
         paddingHorizontal: size.sidePadding,
         paddingBottom: space.xl + floatingRoom,
       }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            void pullToRefresh();
+          }}
+          tintColor={colors.primaryText}
+          colors={[colors.primary]}
+          progressBackgroundColor={colors.raised}
+        />
+      }
     >
       <View style={[styles.header, { gap: space.md }]}>
         <Text

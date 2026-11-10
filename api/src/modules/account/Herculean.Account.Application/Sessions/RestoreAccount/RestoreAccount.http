@@ -1,0 +1,11 @@
+# Keep an account waiting to be deleted, and sign in. Start the API with Aspire first.
+@host = http://localhost:5279
+
+### The right details → 200 with tokens. Wrong ones → 401 user.invalid_credentials.
+POST {{host}}/api/v1/sessions/restore
+Content-Type: application/json
+
+{
+  "email": "filip@example.com",
+  "password": "password"
+}

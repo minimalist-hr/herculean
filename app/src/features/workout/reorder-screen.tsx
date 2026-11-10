@@ -14,6 +14,7 @@ import { SkeletonGroup } from '@/components/skeleton';
 import { ExerciseTargetLine } from '@/features/routines/exercise-targets';
 import { sameGroup } from '@/features/routines/group-blocks';
 import { formatClock } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { useElapsed } from './use-elapsed';
@@ -86,7 +87,7 @@ function Exercises({
   const elapsed = useElapsed(workout.startedAtUtc);
 
   return (
-    <View style={{ gap: space.lg, marginTop: 2 }}>
+    <View style={{ gap: space.lg, marginTop: space.xxxs }}>
       <ScreenHeading
         label={
           elapsed === null
@@ -130,7 +131,7 @@ function ReorderSkeleton() {
   const { space } = useTheme();
 
   return (
-    <View style={{ gap: space.lg, marginTop: 2 }}>
+    <View style={{ gap: space.lg, marginTop: space.xxxs }}>
       <ScreenHeading label={null} title={title} subtitle={subtitle} />
       <SkeletonGroup label="Loading this workout">
         <DraggableListSkeleton rows={4} />
@@ -143,6 +144,6 @@ const styles = StyleSheet.create({
   exercise: {
     flex: 1,
     minWidth: 0,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
 });

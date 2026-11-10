@@ -47,7 +47,10 @@ export function WeekStrip({
   const { colors, radius, space, text } = useTheme();
 
   return (
-    <View accessibilityLabel="This week" style={[styles.strip, { gap: 6 }]}>
+    <View
+      accessibilityLabel="This week"
+      style={[styles.strip, { gap: space.xs }]}
+    >
       {week.map((date) => {
         const dateKey = dateText(date);
         const day = days?.find((item) => item.date === dateKey);

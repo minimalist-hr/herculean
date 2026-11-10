@@ -17,6 +17,7 @@ import {
   weightIn,
   weightUnitOf,
 } from '@/formats/formats';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateFromText } from '@/formats/dates';
@@ -306,7 +307,7 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
-    gap: 2,
+    gap: tokens.space.xxxs,
   },
   dashedLine: {
     height: 1,

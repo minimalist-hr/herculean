@@ -38,8 +38,7 @@ public sealed class GetMonthSummaryHandlerTests
     private static DoneWorkoutTotals Done(DateOnly date, int plannedSets = 5, int setsDone = 4, decimal volumeKg = 1000, int minutes = 60) =>
         new(
             date,
-            new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero),
-            new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero).AddMinutes(minutes),
+            minutes * 60,
             plannedSets,
             setsDone,
             volumeKg);
@@ -70,11 +69,11 @@ public sealed class GetMonthSummaryHandlerTests
     }
 
     [Fact]
-    public async Task APastDayLoggedLaterAddsNoTime()
+    public async Task AWorkoutWithNoDurationAddsNoTime()
     {
         DateOnly monday = new(2026, 11, 2);
         _dayReadRepository.Workouts.Add(new DayWorkout(Guid.CreateVersion7(), monday, WorkoutStatus.Completed, "Legs", RoutineId.New()));
-        _dayReadRepository.DoneWorkouts.Add(Done(monday) with { StartedAtUtc = null });
+        _dayReadRepository.DoneWorkouts.Add(Done(monday) with { DurationSeconds = null });
 
         Result<MonthSummaryResponse> result = await GetAsync("2026-11");
 

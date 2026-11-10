@@ -84,8 +84,7 @@ internal sealed class DayReadRepository(TrainingDbContext dbContext) : IDayReadR
             .Where(workout => workout.Status == WorkoutStatus.Completed && workout.Date >= from && workout.Date <= to)
             .Select(workout => new DoneWorkoutTotals(
                 workout.Date,
-                workout.StartedAtUtc,
-                workout.FinishedAtUtc,
+                workout.DurationSeconds,
                 workout.PlannedSets,
                 workout.Exercises.SelectMany(exercise => exercise.Sets).Count(set => set.Checked),
                 workout.Exercises.SelectMany(exercise => exercise.Sets).Where(set => set.Checked).Sum(set => set.WeightKg * set.Reps)))

@@ -1,6 +1,6 @@
 # Screen index
 
-384 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+387 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -164,7 +164,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W25 | Workout › Rest day | W3 Other days | 390×844 | [png](screens/workout/W25-Workout-Rest-Day.png) · [html](html/workout/W25-Workout-Rest-Day.html) · [source](source/workout/W25-Workout-Rest-Day.dc.html) |
 | W28 | Workout › Another week | W3 Other days | 390×844 | [png](screens/workout/W28-Workout-Another-Week.png) · [html](html/workout/W28-Workout-Another-Week.html) · [source](source/workout/W28-Workout-Another-Week.dc.html) |
 | W29 | Workout › Day from the month | W3 Other days | 390×844 | [png](screens/workout/W29-Workout-Day-From-Month.png) · [html](html/workout/W29-Workout-Day-From-Month.html) · [source](source/workout/W29-Workout-Day-From-Month.dc.html) |
-| W30 | Workout › Edit workout · full scroll · full scroll | W4 Edit or delete a workout | 390×1256 | [png](screens/workout/W30-Workout-Edit.png) · [html](html/workout/W30-Workout-Edit.html) · [source](source/workout/W30-Workout-Edit.dc.html) |
+| W30 | Workout › Edit workout · full scroll · full scroll | W4 Edit or delete a workout | 390×1340 | [png](screens/workout/W30-Workout-Edit.png) · [html](html/workout/W30-Workout-Edit.html) · [source](source/workout/W30-Workout-Edit.dc.html) |
 | W31 | Workout › Edit workout · set removed, undo bar | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W31-Workout-Edit-Set-Removed.png) · [html](html/workout/W31-Workout-Edit-Set-Removed.html) · [source](source/workout/W31-Workout-Edit-Set-Removed.dc.html) |
 | W32 | Workout › Delete workout · confirm | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W32-Workout-Delete-Confirm.png) · [html](html/workout/W32-Workout-Delete-Confirm.html) · [source](source/workout/W32-Workout-Delete-Confirm.dc.html) |
 | W93 | Workout › Delete workout · deleting | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W93-Workout-Delete-Deleting.png) · [html](html/workout/W93-Workout-Delete-Deleting.html) · [source](source/workout/W93-Workout-Delete-Deleting.dc.html) |
@@ -172,6 +172,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | W83 | Workout › Workout deleted, with Undo | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W83-Workout-Deleted-Undo.png) · [html](html/workout/W83-Workout-Deleted-Undo.html) · [source](source/workout/W83-Workout-Deleted-Undo.dc.html) |
 | W84 | Workout › Delete workout · couldn't delete | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W84-Workout-Delete-Failed.png) · [html](html/workout/W84-Workout-Delete-Failed.html) · [source](source/workout/W84-Workout-Delete-Failed.dc.html) |
 | W85 | Workout › Undo delete · couldn't undo | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W85-Workout-Undo-Delete-Failed.png) · [html](html/workout/W85-Workout-Undo-Delete-Failed.html) · [source](source/workout/W85-Workout-Undo-Delete-Failed.dc.html) |
+| W98 | Workout › Edit workout · duration too long | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W98-Workout-Edit-Duration-Error.png) · [html](html/workout/W98-Workout-Edit-Duration-Error.html) · [source](source/workout/W98-Workout-Edit-Duration-Error.dc.html) |
 | W86 | Workout › Edit workout · loading | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W86-Workout-Edit-Loading.png) · [html](html/workout/W86-Workout-Edit-Loading.html) · [source](source/workout/W86-Workout-Edit-Loading.dc.html) |
 | W87 | Workout › Edit workout · couldn't load | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W87-Workout-Edit-Load-Failed.png) · [html](html/workout/W87-Workout-Edit-Load-Failed.html) · [source](source/workout/W87-Workout-Edit-Load-Failed.dc.html) |
 | W88 | Workout › Edit workout · saving | W4 Edit or delete a workout | 390×844 | [png](screens/workout/W88-Workout-Edit-Saving.png) · [html](html/workout/W88-Workout-Edit-Saving.html) · [source](source/workout/W88-Workout-Edit-Saving.dc.html) |
@@ -281,6 +282,8 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | L68 | Logging › Swap exercise · nothing to swap to | L2 Exercises | 390×844 | [png](screens/logging/L68-Logging-Swap-Nothing.png) · [html](html/logging/L68-Logging-Swap-Nothing.html) · [source](source/logging/L68-Logging-Swap-Nothing.dc.html) |
 | L31 | Logging › Finish workout · nothing logged | L3 Finish | 390×844 | [png](screens/logging/L31-Logging-Finish-Nothing-Logged.png) · [html](html/logging/L31-Logging-Finish-Nothing-Logged.html) · [source](source/logging/L31-Logging-Finish-Nothing-Logged.dc.html) |
 | L32 | Logging › Finish workout · past day, every set checked | L3 Finish | 390×844 | [png](screens/logging/L32-Logging-Finish-Past-Day.png) · [html](html/logging/L32-Logging-Finish-Past-Day.html) · [source](source/logging/L32-Logging-Finish-Past-Day.dc.html) |
+| L70 | Logging › Finish workout · past day, duration too long | L3 Finish | 390×844 | [png](screens/logging/L70-Logging-Finish-Past-Day-Duration-Error.png) · [html](html/logging/L70-Logging-Finish-Past-Day-Duration-Error.html) · [source](source/logging/L70-Logging-Finish-Past-Day-Duration-Error.dc.html) |
+| L71 | Logging › Finish workout · long workout · full scroll | L3 Finish | 390×939 | [png](screens/logging/L71-Logging-Finish-Long-Workout.png) · [html](html/logging/L71-Logging-Finish-Long-Workout.html) · [source](source/logging/L71-Logging-Finish-Long-Workout.dc.html) |
 | L33 | Logging › Discard workout · confirm | L3 Finish | 390×844 | [png](screens/logging/L33-Logging-Discard-Confirm.png) · [html](html/logging/L33-Logging-Discard-Confirm.html) · [source](source/logging/L33-Logging-Discard-Confirm.dc.html) |
 | L34 | Logging › Finish workout · loading | L3 Finish | 390×844 | [png](screens/logging/L34-Logging-Finish-Loading.png) · [html](html/logging/L34-Logging-Finish-Loading.html) · [source](source/logging/L34-Logging-Finish-Loading.dc.html) |
 | L35 | Logging › Finish workout · load failure | L3 Finish | 390×844 | [png](screens/logging/L35-Logging-Finish-Load-Failure.png) · [html](html/logging/L35-Logging-Finish-Load-Failure.html) · [source](source/logging/L35-Logging-Finish-Load-Failure.dc.html) |

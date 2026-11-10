@@ -1,0 +1,32 @@
+# Edit a saved workout. Start the API with Aspire first. Fill in the IDs from a saved workout.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+@exerciseId = 00000000-0000-0000-0000-000000000000
+
+### The workout as edited → 200. Still in progress → 409.
+PUT {{host}}/api/v1/workouts/{{workoutId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "exercises": [
+    {
+      "id": "{{workoutExerciseId}}",
+      "exerciseId": "{{exerciseId}}",
+      "sets": [
+        { "weightKg": 60, "reps": 10 }
+      ]
+    }
+  ]
+}
+
+### No exercises → 400, the errors name the field.
+PUT {{host}}/api/v1/workouts/{{workoutId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "exercises": []
+}

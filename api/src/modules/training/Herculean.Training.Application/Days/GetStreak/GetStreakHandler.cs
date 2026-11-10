@@ -1,4 +1,5 @@
 using Herculean.Training.Application.Auth;
+using Herculean.Training.Domain.Workouts;
 
 namespace Herculean.Training.Application.Days.GetStreak;
 
@@ -17,7 +18,10 @@ internal sealed class GetStreakHandler(IDayReadRepository dayReadRepository, Use
         UserCalendar calendar = await userClock.GetCalendarAsync(cancellationToken);
         DateOnly earliest = changes.Min(change => change.EffectiveFrom);
         DateOnly thisMonday = MondayOf(calendar.Today);
-        HashSet<DateOnly> workoutDates = [.. (await dayReadRepository.ListWorkoutsAsync(earliest, thisMonday, cancellationToken)).Select(workout => workout.Date)];
+        List<DayWorkout> workouts = await dayReadRepository.ListWorkoutsAsync(earliest, thisMonday, cancellationToken);
+
+        // A workout left in progress was never finished, so its day counts as missed.
+        HashSet<DateOnly> workoutDates = [.. workouts.Where(workout => workout.Status != WorkoutStatus.InProgress).Select(workout => workout.Date)];
         DayPlan plan = new(changes, calendar);
 
         int weeks = 0;
