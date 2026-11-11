@@ -164,11 +164,11 @@ internal sealed class Workout : Entity<WorkoutId>
     }
 
     /// <summary>Undoes a swap.</summary>
-    public Result SwapExerciseBack(WorkoutExerciseId id, ExerciseId exerciseId, IReadOnlyList<SetValues> values)
+    public Result SwapExerciseBack(WorkoutExerciseId id, ExerciseId exerciseId, IReadOnlyList<SetValues> values, bool lengthenedPartials = false)
     {
         Result<WorkoutExercise> exercise = FindExerciseToSwap(id, exerciseId);
 
-        return exercise.IsSuccess ? exercise.Value.SwapBack(exerciseId, values) : exercise;
+        return exercise.IsSuccess ? exercise.Value.SwapBack(exerciseId, values, lengthenedPartials) : exercise;
     }
 
     /// <summary>Pairs an exercise with the one after it, or ends its superset. A superset is two exercises next to each other.</summary>

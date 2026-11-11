@@ -5,7 +5,8 @@ namespace Herculean.Training.Application.Workouts.SwapWorkoutExercise;
 [Description("The exercise to swap to.")]
 internal sealed record SwapWorkoutExerciseRequest(
     [property: Description("The exercise's ID.")] Guid ExerciseId,
-    [property: Description("The values the sets had, which is how a swap is undone. Left out, they start from the new exercise's last time.")] List<SwappedSet>? Sets = null);
+    [property: Description("The values the sets had, which is how a swap is undone. Left out, they start from the new exercise's last time.")] List<SwappedSet>? Sets = null,
+    [property: Description("Whether lengthened partials were on, put back with the sets when a swap is undone. A swap itself turns them off.")] bool LengthenedPartials = false);
 
 [Description("The values a set had before a swap.")]
 internal sealed record SwappedSet(

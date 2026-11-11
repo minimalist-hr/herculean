@@ -41,7 +41,7 @@ internal sealed class SwapWorkoutExerciseHandler(
         Result swapped;
         if (request.Sets is List<SwappedSet> sets)
         {
-            swapped = workout.SwapExerciseBack(target, exerciseId, [.. sets.Select(set => new SetValues(set.WeightKg, set.Reps))]);
+            swapped = workout.SwapExerciseBack(target, exerciseId, [.. sets.Select(set => new SetValues(set.WeightKg, set.Reps))], request.LengthenedPartials);
         }
         else
         {

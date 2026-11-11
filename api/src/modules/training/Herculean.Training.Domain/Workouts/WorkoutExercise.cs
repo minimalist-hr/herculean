@@ -102,7 +102,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         LengthenedPartials = on;
     }
 
-    /// <summary>Becomes another exercise, keeping its set count and targets. Its sets start from that exercise's last time.</summary>
+    /// <summary>Becomes another exercise, keeping its set count and targets. Its sets start from that exercise's last time, and lengthened partials turn off, because they belonged to the exercise it was.</summary>
     internal Result Swap(ExerciseId exerciseId, IReadOnlyList<SetValues> lastTime)
     {
         if (_sets.Exists(set => set.Checked))
@@ -111,6 +111,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         }
 
         ExerciseId = exerciseId;
+        LengthenedPartials = false;
         foreach ((Set set, int index) in Sets.Select((set, index) => (set, index)))
         {
             set.Replace(StartingValues(index, TargetRepsFrom, lastTime), changedByHand: false);
@@ -119,8 +120,8 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         return Result.Success();
     }
 
-    /// <summary>Undoes a swap: it becomes the exercise it was, with the values it had.</summary>
-    internal Result SwapBack(ExerciseId exerciseId, IReadOnlyList<SetValues> values)
+    /// <summary>Undoes a swap: it becomes the exercise it was, with the values and lengthened partials it had.</summary>
+    internal Result SwapBack(ExerciseId exerciseId, IReadOnlyList<SetValues> values, bool lengthenedPartials)
     {
         if (_sets.Exists(set => set.Checked))
         {
@@ -128,6 +129,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         }
 
         ExerciseId = exerciseId;
+        LengthenedPartials = lengthenedPartials;
         foreach ((Set set, int index) in Sets.Select((set, index) => (set, index)))
         {
             set.Replace(values[Math.Min(index, values.Count - 1)], changedByHand: true);

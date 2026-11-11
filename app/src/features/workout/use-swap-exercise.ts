@@ -49,6 +49,7 @@ export function useSwapExercise(workoutId: string) {
           weightKg: set.weightKg,
           reps: set.reps,
         })),
+        lengthenedPartials: exercise.lengthenedPartials,
       }),
     onSuccess: show,
     onError: (error) => {
@@ -68,7 +69,11 @@ export function useSwapExercise(workoutId: string) {
       exercise: WorkoutExercise;
       newExerciseId: string;
       newName: string;
-    }) => send(exercise.id, { exerciseId: newExerciseId }),
+    }) =>
+      send(exercise.id, {
+        exerciseId: newExerciseId,
+        lengthenedPartials: false,
+      }),
     onSuccess: async (workout, { exercise, newName }) => {
       await show(workout);
       notifySuccess(`${exercise.name} swapped for ${newName}.`, {

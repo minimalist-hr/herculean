@@ -64,6 +64,21 @@ public sealed class WorkoutLengthenedPartialsTests
     }
 
     [Fact]
+    public void ASwapTurnsThemOffAndUndoingItBringsThemBack()
+    {
+        _workout.UpdateSet(Curl.Id, Curl.Sets[0].Id, null, null, null, partialsDone: true);
+        ExerciseId hammer = ExerciseId.New();
+
+        _workout.SwapExercise(Curl.Id, hammer, []).IsSuccess.ShouldBeTrue();
+        WorkoutExercise swapped = _workout.Exercises[0];
+        swapped.LengthenedPartials.ShouldBeFalse();
+        swapped.Sets[0].PartialsDone.ShouldBeFalse();
+
+        _workout.SwapExerciseBack(swapped.Id, _curl, [new SetValues(20, 10)], lengthenedPartials: true).IsSuccess.ShouldBeTrue();
+        _workout.Exercises[0].LengthenedPartials.ShouldBeTrue();
+    }
+
+    [Fact]
     public void EditingKeepsWhatItIsGiven()
     {
         _workout.UpdateSet(Curl.Id, Curl.Sets[0].Id, null, null, true);

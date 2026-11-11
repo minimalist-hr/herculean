@@ -2095,6 +2095,11 @@ export interface components {
             exerciseId: string;
             /** @description The values the sets had, which is how a swap is undone. Left out, they start from the new exercise's last time. */
             sets?: null | components["schemas"]["SwappedSet"][];
+            /**
+             * @description Whether lengthened partials were on, put back with the sets when a swap is undone. A swap itself turns them off.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /**
          * @description Light or dark: matchPhone follows the phone's setting.

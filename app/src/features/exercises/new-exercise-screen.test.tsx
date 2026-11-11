@@ -54,6 +54,7 @@ function problem(status: number, code: string, detail: string) {
 }
 
 let groupList = [chest, back, biceps];
+let groupsFail = false;
 
 /** Answers reads, and answers saving with this. The list holds what was saved. */
 function answer(save: (body: { name: string; groupId: string }) => Response) {
@@ -69,7 +70,9 @@ function answer(save: (body: { name: string; groupId: string }) => Response) {
       return response;
     }
     if (url.pathname === '/api/v1/groups') {
-      return Response.json(groupList);
+      return groupsFail
+        ? Response.json({ code: 'oops', status: 500 }, { status: 500 })
+        : Response.json(groupList);
     }
     if (url.pathname === '/api/v1/users/me') {
       return Response.json({
@@ -163,6 +166,7 @@ function savedBody() {
 beforeEach(() => {
   mockFetch.mockReset();
   groupList = [chest, back, biceps];
+  groupsFail = false;
 });
 
 test('saving creates the exercise, returns to the list and says so', async () => {
@@ -371,6 +375,26 @@ test('the back link returns to the list without saving or a message', async () =
     expect(screen.queryByRole('alert')).toBeNull();
   });
   expect(savedBody()).toBeUndefined();
+});
+
+test('groups that fail to load say so in their place, and Try again loads them', async () => {
+  groupsFail = true;
+  answer(created);
+  await renderList();
+  await fireEvent.press(screen.getByRole('button', { name: 'New exercise' }));
+  await screen.findByRole('header', { name: 'New exercise' });
+
+  expect(
+    await screen.findByText('Couldn’t load your groups.'),
+  ).toBeOnTheScreen();
+
+  groupsFail = false;
+  await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
+
+  expect(
+    (await screen.findAllByRole('button', { name: 'Chest' })).length,
+  ).toBeGreaterThan(0);
+  expect(screen.queryByText('Couldn’t load your groups.')).toBeNull();
 });
 
 test('with one group, Also works says to create another', async () => {

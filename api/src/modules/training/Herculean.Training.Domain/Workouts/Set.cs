@@ -63,6 +63,7 @@ internal sealed class Set : Entity<SetId>
     {
         WeightKg = values.WeightKg;
         Reps = values.Reps;
+        PartialsDone = values.PartialsDone;
         WeightChanged = changedByHand;
         RepsChanged = changedByHand;
     }

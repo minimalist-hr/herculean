@@ -205,7 +205,10 @@ test('swaps, goes back, and Undo sends back the exercise and its values', async 
   expect(new URL(first?.url ?? '').pathname).toBe(
     '/api/v1/workouts/w1/exercises/one',
   );
-  expect(await first?.clone().json()).toEqual({ exerciseId: 'lunge' });
+  expect(await first?.clone().json()).toEqual({
+    exerciseId: 'lunge',
+    lengthenedPartials: false,
+  });
   expect(await screen.findByText('Lunge', hidden)).toBeOnTheScreen();
 
   swapping = () => Response.json(workout);

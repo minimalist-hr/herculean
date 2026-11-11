@@ -706,6 +706,25 @@ describe('lengthened partials', () => {
     expect(bodies).toContainEqual({ partialsDone: true });
   });
 
+  test('unchecking the set takes the question away', async () => {
+    patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+    );
+    await screen.findByText('LENGTHENED PARTIALS');
+
+    patched = () => [set('s1', 0, 80), set('s2', 1, 80)];
+    await fireEvent.press(
+      screen.getByRole('checkbox', { name: 'Set 1 done', checked: true }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('LENGTHENED PARTIALS')).toBeNull();
+    });
+  });
+
   test('Skip goes on to the rest without them', async () => {
     patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
     await renderLog();

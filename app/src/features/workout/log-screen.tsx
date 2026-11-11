@@ -120,6 +120,12 @@ export function LogScreen({
           onPartialsDue={(workoutExerciseId, setId) => {
             setPartialsDue({ workoutExerciseId, setId });
           }}
+          onUnchecked={(setId) => {
+            // An unchecked set has nothing to follow, so its question goes.
+            setPartialsDue((current) =>
+              current?.setId === setId ? null : current,
+            );
+          }}
           onEmptied={() => {
             update(() => null);
           }}
@@ -227,11 +233,14 @@ function Logging({
   workout,
   onToggled,
   onPartialsDue,
+  onUnchecked,
   onEmptied,
 }: {
   workout: Workout;
   /** A set was checked on an exercise with lengthened partials. */
   onPartialsDue: (workoutExerciseId: string, setId: string) => void;
+  /** A set was unchecked. */
+  onUnchecked: (setId: string) => void;
   /** The last exercise was removed. */
   onEmptied: () => void;
   onToggled: (
@@ -297,6 +306,9 @@ function Logging({
             !set.partialsDone
           ) {
             onPartialsDue(exercise.id, set.id);
+          }
+          if (set.checked) {
+            onUnchecked(set.id);
           }
           const index = exercises.indexOf(exercise);
           // In a superset, rest comes after a set of each.
