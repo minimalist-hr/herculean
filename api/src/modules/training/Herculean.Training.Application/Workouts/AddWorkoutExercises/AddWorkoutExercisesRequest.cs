@@ -17,10 +17,12 @@ internal sealed record RemovedExercise(
     [property: Description("The high end of the rep range, 1 to 100.")] int TargetRepsTo,
     [property: Description("Its sets in order, 1 to 20.")] List<RemovedExerciseSet> Sets,
     [property: Description("Whether it was a superset with the exercise after it.")] bool SupersetWithNext = false,
-    [property: Description("Whether it was a superset with the exercise before it.")] bool SupersetWithPrevious = false);
+    [property: Description("Whether it was a superset with the exercise before it.")] bool SupersetWithPrevious = false,
+    [property: Description("Whether lengthened partials follow each set: half reps at the stretched end, right after the set.")] bool LengthenedPartials = false);
 
 [Description("A set of a removed exercise.")]
 internal sealed record RemovedExerciseSet(
     [property: Description("The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.")] decimal WeightKg,
     [property: Description("The reps, 1 to 100.")] int Reps,
-    [property: Description("Whether it was marked done.")] bool Checked);
+    [property: Description("Whether it was marked done.")] bool Checked,
+    [property: Description("Whether lengthened partials were done after it.")] bool PartialsDone = false);

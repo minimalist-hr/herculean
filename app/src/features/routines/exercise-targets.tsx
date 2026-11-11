@@ -21,6 +21,8 @@ interface ExerciseTarget {
   targetRepsTo: number;
   /** Done as a superset with the exercise after it. */
   supersetWithNext: boolean;
+  /** Lengthened partials follow each set. */
+  lengthenedPartials?: boolean;
   /** What was actually done, shown instead of the target once a workout is saved. */
   done?: string;
   /** False once the exercise is deleted, so its row opens nothing. */
@@ -35,6 +37,7 @@ export function ExerciseTargetText({
     name: string;
     groupName: string;
     done?: string;
+    lengthenedPartials?: boolean;
   };
 }) {
   const { colors, text } = useTheme();
@@ -49,13 +52,14 @@ export function ExerciseTargetText({
   );
 }
 
-/** An exercise's targets and group, for example "3 × 8–10 · Chest". */
+/** An exercise's targets and group, for example "3 × 8–10 · Chest", and "· LP" with lengthened partials. */
 export function ExerciseTargetLine({
   exercise,
 }: {
   exercise: Parameters<typeof targetText>[0] & {
     groupName: string;
     done?: string;
+    lengthenedPartials?: boolean;
   };
 }) {
   const { colors, text } = useTheme();
@@ -66,6 +70,7 @@ export function ExerciseTargetLine({
         {exercise.done ?? targetText(exercise)}
       </Text>
       {` · ${exercise.groupName}`}
+      {exercise.lengthenedPartials === true && ' · LP'}
     </Text>
   );
 }

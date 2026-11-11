@@ -72,6 +72,8 @@ function SavedExercisesSkeleton() {
   );
 }
 
+const repsWithPartialsWidth = 80;
+
 function SetTable({
   exercise,
   record,
@@ -85,6 +87,12 @@ function SetTable({
   const recordSet = exercise.sets.find(
     (set) => set.weightKg === record?.weightKg && set.reps === record.reps,
   );
+  // Reps take "+ LP" after them when lengthened partials were done, so the column widens.
+  const repsWidth = {
+    width: exercise.sets.some((set) => set.partialsDone)
+      ? repsWithPartialsWidth
+      : styles.reps.width,
+  };
 
   return (
     <View>
@@ -92,7 +100,7 @@ function SetTable({
         <View style={styles.number} />
         <Text style={[text.dayName, styles.lastTime]}>Last time</Text>
         <Text style={[text.dayName, styles.weight]}>{weightUnitOf(units)}</Text>
-        <Text style={[text.dayName, styles.reps]}>Reps</Text>
+        <Text style={[text.dayName, styles.reps, repsWidth]}>Reps</Text>
       </View>
       {exercise.sets.map((set, index) => {
         const last = exercise.lastTime?.sets[index];
@@ -119,13 +127,18 @@ function SetTable({
             <Text style={[text.meta, styles.lastTime]}>
               {last === undefined
                 ? noValue
-                : formatLastTime(last.weightKg, last.reps, units)}
+                : formatLastTime(
+                    last.weightKg,
+                    last.reps,
+                    units,
+                    last.partialsDone,
+                  )}
             </Text>
             <Text style={[text.quickPick, styles.weight, { color }]}>
               {set.weightKg === 0 ? noValue : weightIn(set.weightKg, units)}
             </Text>
-            <Text style={[text.quickPick, styles.reps, { color }]}>
-              {set.reps}
+            <Text style={[text.quickPick, styles.reps, repsWidth, { color }]}>
+              {set.partialsDone ? `${String(set.reps)} + LP` : set.reps}
             </Text>
           </View>
         );

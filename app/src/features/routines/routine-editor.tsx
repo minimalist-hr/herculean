@@ -344,7 +344,9 @@ export function RoutineEditor({
                           numberOfLines={1}
                           style={[text.meta, styles.group]}
                         >
-                          {`· ${exercise.groupName}`}
+                          {exercise.lengthenedPartials
+                            ? `· ${exercise.groupName} · LP`
+                            : `· ${exercise.groupName}`}
                         </Text>
                       </View>
                     </Tappable>

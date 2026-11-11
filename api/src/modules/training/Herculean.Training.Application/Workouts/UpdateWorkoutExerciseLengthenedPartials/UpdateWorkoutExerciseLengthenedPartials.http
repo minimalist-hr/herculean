@@ -1,0 +1,14 @@
+# Turn lengthened partials on or off in a workout. Start the API with Aspire first, and fill in the IDs from a workout in progress.
+@host = http://localhost:5279
+@accessToken = paste-an-access-token
+@workoutId = 00000000-0000-0000-0000-000000000000
+@workoutExerciseId = 00000000-0000-0000-0000-000000000000
+
+### Turn them on → 200 with the workout, or 409 workout.not_in_progress.
+PUT {{host}}/api/v1/workouts/{{workoutId}}/exercises/{{workoutExerciseId}}/lengthened-partials
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "lengthenedPartials": true
+}

@@ -14,7 +14,8 @@ internal sealed record RoutineExerciseItem(
     [property: Description("The sets to do, 1 to 20.")] int TargetSets,
     [property: Description("The low end of the rep range, 1 to 100.")] int TargetRepsFrom,
     [property: Description("The high end of the rep range, 1 to 100. It can't be below the low end.")] int TargetRepsTo,
-    [property: Description("Whether it is done as a superset with the exercise after it: a set of each, then rest. A superset is two exercises, so the last exercise and the second of a superset can't start one.")] bool SupersetWithNext = false);
+    [property: Description("Whether it is done as a superset with the exercise after it: a set of each, then rest. A superset is two exercises, so the last exercise and the second of a superset can't start one.")] bool SupersetWithNext = false,
+    [property: Description("Whether lengthened partials follow each set: half reps at the stretched end, right after the set.")] bool LengthenedPartials = false);
 
 /// <summary>The fields a request sends to create or change a routine.</summary>
 internal interface IRoutineFields
@@ -35,7 +36,8 @@ internal static class RoutineFieldRules
             exercise.TargetSets,
             exercise.TargetRepsFrom,
             exercise.TargetRepsTo,
-            exercise.SupersetWithNext)),
+            exercise.SupersetWithNext,
+            exercise.LengthenedPartials)),
     ];
 
     public static void AddRoutineFieldRules<T>(this AbstractValidator<T> validator)

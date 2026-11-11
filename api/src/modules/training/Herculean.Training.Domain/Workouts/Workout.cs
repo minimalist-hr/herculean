@@ -197,6 +197,20 @@ internal sealed class Workout : Entity<WorkoutId>
         return Result.Success();
     }
 
+    /// <summary>Turns lengthened partials on or off for an exercise in this workout only.</summary>
+    public Result ChangeLengthenedPartials(WorkoutExerciseId id, bool on)
+    {
+        Result<WorkoutExercise> exercise = FindExerciseToLog(id);
+        if (!exercise.IsSuccess)
+        {
+            return exercise;
+        }
+
+        exercise.Value.ChangeLengthenedPartials(on);
+
+        return Result.Success();
+    }
+
     /// <summary>Puts the exercises in this order, which has to name each of them once.</summary>
     public Result ReorderExercises(List<WorkoutExerciseId> order)
     {
@@ -236,7 +250,7 @@ internal sealed class Workout : Entity<WorkoutId>
     }
 
     /// <summary>Changes a set and returns its exercise, because later sets can change with it.</summary>
-    public Result<WorkoutExercise> UpdateSet(WorkoutExerciseId exerciseId, SetId setId, decimal? weightKg, int? reps, bool? isChecked)
+    public Result<WorkoutExercise> UpdateSet(WorkoutExerciseId exerciseId, SetId setId, decimal? weightKg, int? reps, bool? isChecked, bool? partialsDone = null)
     {
         Result<WorkoutExercise> exercise = FindExerciseToLog(exerciseId);
         if (!exercise.IsSuccess)
@@ -244,7 +258,7 @@ internal sealed class Workout : Entity<WorkoutId>
             return exercise;
         }
 
-        Result updated = exercise.Value.UpdateSet(setId, weightKg, reps, isChecked);
+        Result updated = exercise.Value.UpdateSet(setId, weightKg, reps, isChecked, partialsDone);
 
         return updated.IsSuccess ? exercise : updated.Error;
     }
@@ -336,7 +350,7 @@ internal sealed class Workout : Entity<WorkoutId>
             if (placed is null)
             {
                 RoutineExerciseValues values = new(edited.ExerciseId, WorkoutExercise.StartingTargetSets, WorkoutExercise.StartingTargetRepsFrom, WorkoutExercise.StartingTargetRepsTo);
-                placed = WorkoutExercise.Restore(UserId, Id, order, values, [.. edited.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, true))]);
+                placed = WorkoutExercise.Restore(UserId, Id, order, values, [.. edited.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, true, set.PartialsDone))]);
                 _exercises.Add(placed);
             }
             else
@@ -345,6 +359,7 @@ internal sealed class Workout : Entity<WorkoutId>
                 placed.ReplaceSets(edited.Sets);
             }
 
+            placed.ChangeLengthenedPartials(edited.LengthenedPartials);
             if (edited.SupersetWithNext)
             {
                 placed.JoinNext();

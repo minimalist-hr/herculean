@@ -80,7 +80,7 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
             .AsNoTracking()
             .Where(set => ids.Contains(set.WorkoutExerciseId) && set.Checked)
             .OrderBy(set => set.Order)
-            .Select(set => new { set.WorkoutExerciseId, set.WeightKg, set.Reps })
+            .Select(set => new { set.WorkoutExerciseId, set.WeightKg, set.Reps, set.PartialsDone })
             .ToListAsync(cancellationToken);
 
         return
@@ -89,7 +89,7 @@ internal sealed class ExerciseReadRepository(TrainingDbContext dbContext) : IExe
                 session.WorkoutId.Value,
                 session.Date,
                 session.Name,
-                [.. sets.Where(set => set.WorkoutExerciseId == session.Id).Select(set => new SessionSetResponse(set.WeightKg, set.Reps))])),
+                [.. sets.Where(set => set.WorkoutExerciseId == session.Id).Select(set => new SessionSetResponse(set.WeightKg, set.Reps, set.PartialsDone))])),
         ];
     }
 

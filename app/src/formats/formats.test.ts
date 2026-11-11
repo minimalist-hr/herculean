@@ -2,6 +2,7 @@ import {
   counted,
   dayHeading,
   formatClock,
+  formatLastTime,
   formatNumber,
   formatSpokenDuration,
   formatSet,
@@ -153,4 +154,10 @@ describe('in 2026', () => {
   ])('a run starting %s reads %s', (date, text) => {
     expect(formatSince(date)).toBe(text);
   });
+});
+
+test('a set from last time says when lengthened partials followed it', () => {
+  expect(formatLastTime(80, 10, 'metric', true)).toBe('80 × 10 + LP');
+  expect(formatLastTime(0, 12, 'metric', true)).toBe('12 reps + LP');
+  expect(formatLastTime(80, 10, 'metric')).toBe('80 × 10');
 });

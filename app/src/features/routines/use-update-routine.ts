@@ -32,6 +32,7 @@ export function useUpdateRoutine(id: string) {
             targetRepsFrom: exercise.targetRepsFrom,
             targetRepsTo: exercise.targetRepsTo,
             supersetWithNext: exercise.supersetWithNext,
+            lengthenedPartials: exercise.lengthenedPartials,
           })),
         },
       });

@@ -18,6 +18,8 @@ internal static class WorkoutRoutes
 
     public const string ExerciseSuperset = $"{Exercise}/superset";
 
+    public const string ExerciseLengthenedPartials = $"{Exercise}/lengthened-partials";
+
     public const string ExerciseOrder = $"{Workout}/exercise-order";
 
     public const string Sets = $"{Exercise}/sets";

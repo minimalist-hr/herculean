@@ -71,11 +71,19 @@ export function formatSet(weightKg: number, reps: number, units: Units) {
     : `${formatWeight(weightKg, units)} × ${String(reps)}`;
 }
 
-/** A set from last time, for example "82.5 × 10", or "10 reps" for a bodyweight set. The column already names the unit. */
-export function formatLastTime(weightKg: number, reps: number, units: Units) {
-  return weightKg === 0
-    ? counted(reps, 'rep', 'reps')
-    : `${String(weightIn(weightKg, units))} × ${String(reps)}`;
+/** A set from last time, for example "82.5 × 10", "82.5 × 10 + LP" with lengthened partials, or "10 reps" for a bodyweight set. The column already names the unit. */
+export function formatLastTime(
+  weightKg: number,
+  reps: number,
+  units: Units,
+  partialsDone = false,
+) {
+  const set =
+    weightKg === 0
+      ? counted(reps, 'rep', 'reps')
+      : `${String(weightIn(weightKg, units))} × ${String(reps)}`;
+
+  return partialsDone ? `${set} + LP` : set;
 }
 
 /** A weight as a number in the user's units. Pounds round to 0.1. */

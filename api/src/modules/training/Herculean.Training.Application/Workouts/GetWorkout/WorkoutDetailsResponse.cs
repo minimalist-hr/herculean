@@ -28,7 +28,8 @@ internal sealed record WorkoutExerciseResponse(
     [property: Description("Its sets in order.")] List<SetResponse> Sets,
     [property: Description("Its latest completed workout before this one. Null if never done.")] LastTimeResponse? LastTime,
     [property: Description("Whether the exercise still exists, so it can be opened. False once it is deleted.")] bool Exists,
-    [property: Description("Whether it is done as a superset with the exercise after it: a set of each, then rest.")] bool SupersetWithNext = false);
+    [property: Description("Whether it is done as a superset with the exercise after it: a set of each, then rest.")] bool SupersetWithNext = false,
+    [property: Description("Whether lengthened partials follow each set: half reps at the stretched end, right after the set.")] bool LengthenedPartials = false);
 
 [Description("An exercise's sets the last time it was done.")]
 internal sealed record LastTimeResponse(
@@ -38,4 +39,5 @@ internal sealed record LastTimeResponse(
 [Description("A set from last time.")]
 internal sealed record LastTimeSetResponse(
     [property: Description("The weight in kg. 0 means bodyweight.")] decimal WeightKg,
-    [property: Description("The reps.")] int Reps);
+    [property: Description("The reps.")] int Reps,
+    [property: Description("Whether lengthened partials were done after it.")] bool PartialsDone = false);

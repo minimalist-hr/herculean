@@ -23,6 +23,8 @@ export interface RoutineExerciseDraft extends Targets {
   groupName: string;
   /** Done as a superset with the exercise after it. */
   supersetWithNext: boolean;
+  /** Lengthened partials follow each set. */
+  lengthenedPartials: boolean;
 }
 
 interface RoutineDraftPages {

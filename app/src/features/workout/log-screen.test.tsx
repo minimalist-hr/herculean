@@ -48,7 +48,7 @@ jest.mock('@/api/client', () => {
 });
 
 function set(id: string, order: number, weightKg: number, checked = false) {
-  return { id, order, weightKg, reps: 8, checked };
+  return { id, order, weightKg, reps: 8, checked, partialsDone: false };
 }
 
 function exercise(
@@ -71,8 +71,9 @@ function exercise(
     sets,
     lastTime: {
       date: '2026-10-27',
-      sets: [{ weightKg: 80, reps: 10 }],
+      sets: [{ weightKg: 80, reps: 10, partialsDone: false }],
     },
+    lengthenedPartials: false,
   };
 }
 
@@ -593,7 +594,13 @@ describe('editing a set', () => {
       ([sent]) => sent.method === 'POST',
     )?.[0];
     expect(await undo?.clone().json()).toEqual({
-      removed: { order: 0, weightKg: 80, reps: 8, checked: false },
+      removed: {
+        order: 0,
+        weightKg: 80,
+        reps: 8,
+        checked: false,
+        partialsDone: false,
+      },
     });
   });
 
@@ -643,6 +650,103 @@ test('Add set at 20 sets says why, and adds nothing', async () => {
   expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'POST')).toBe(
     false,
   );
+});
+
+describe('lengthened partials', () => {
+  beforeEach(() => {
+    current = {
+      ...workout,
+      exercises: [
+        {
+          ...exercise('squat', 'Barbell squat', 'legs', [
+            set('s1', 0, 80),
+            set('s2', 1, 80),
+          ]),
+          lengthenedPartials: true,
+          lastTime: {
+            date: '2026-10-27',
+            sets: [{ weightKg: 80, reps: 10, partialsDone: true }],
+          },
+        },
+        exercise('press', 'Leg press', 'legs', [set('p1', 0, 120)]),
+      ],
+    };
+  });
+
+  test('show LP on the line and a box on each set, and last time stays short', async () => {
+    await renderLog();
+
+    expect(await screen.findByText(/· LP/)).toBeOnTheScreen();
+    expect(
+      screen.getAllByRole('checkbox', { name: /lengthened partials/ }),
+    ).toHaveLength(2);
+    expect(screen.getByText('80 × 10')).toBeOnTheScreen();
+  });
+
+  test('a checked set asks for them before the rest, and Done ticks them', async () => {
+    patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+    );
+    expect(await screen.findByText('LENGTHENED PARTIALS')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Start' })).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
+
+    expect(
+      await screen.findByRole('button', { name: 'Start' }),
+    ).toBeOnTheScreen();
+    const bodies = await Promise.all(
+      mockFetch.mock.calls
+        .filter(([sent]) => sent.method === 'PATCH')
+        .map(([sent]) => sent.clone().json() as Promise<unknown>),
+    );
+    expect(bodies).toContainEqual({ partialsDone: true });
+  });
+
+  test('Skip goes on to the rest without them', async () => {
+    patched = () => [set('s1', 0, 80, true), set('s2', 1, 80)];
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('checkbox', { name: 'Set 1 done' }),
+    );
+    await fireEvent.press(await screen.findByRole('button', { name: 'Skip' }));
+
+    expect(
+      await screen.findByRole('button', { name: 'Start' }),
+    ).toBeOnTheScreen();
+    expect(
+      mockFetch.mock.calls.filter(([sent]) => sent.method === 'PATCH'),
+    ).toHaveLength(1);
+  });
+
+  test('the LP button turns them off for this workout', async () => {
+    await renderLog();
+
+    await fireEvent.press(
+      await screen.findByRole('button', {
+        name: 'Lengthened partials off for Barbell squat',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockFetch.mock.calls.some(([sent]) => sent.method === 'PUT')).toBe(
+        true,
+      );
+    });
+    const request = mockFetch.mock.calls.find(
+      ([sent]) => sent.method === 'PUT',
+    )?.[0];
+    expect(new URL(request?.url ?? '').pathname).toBe(
+      '/api/v1/workouts/w1/exercises/squat/lengthened-partials',
+    );
+    expect(await request?.clone().json()).toEqual({
+      lengthenedPartials: false,
+    });
+  });
 });
 
 describe('a superset', () => {
@@ -1084,11 +1188,12 @@ describe('removing an exercise', () => {
         targetRepsFrom: 8,
         targetRepsTo: 10,
         sets: [
-          { weightKg: 80, reps: 8, checked: false },
-          { weightKg: 80, reps: 8, checked: false },
+          { weightKg: 80, reps: 8, checked: false, partialsDone: false },
+          { weightKg: 80, reps: 8, checked: false, partialsDone: false },
         ],
         supersetWithNext: false,
         supersetWithPrevious: false,
+        lengthenedPartials: false,
       },
       asSuperset: false,
     });

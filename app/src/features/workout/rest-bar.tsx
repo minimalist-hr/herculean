@@ -265,6 +265,51 @@ export function RestBar({
   );
 }
 
+/** Asks for lengthened partials right after a set, in the rest bar's place, before the rest. */
+export function PartialsBar({
+  onSkip,
+  onDone,
+}: {
+  onSkip: () => void;
+  onDone: () => void;
+}) {
+  const { colors, radius, size, space, text } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View
+      accessibilityLabel="Lengthened partials"
+      style={[
+        styles.bar,
+        {
+          bottom: insets.bottom + space.sm,
+          left: size.sidePadding,
+          right: size.sidePadding,
+          gap: space.sm,
+          paddingLeft: space.lg,
+          paddingRight: space.sm,
+          borderRadius: radius.card,
+          borderColor: colors.border,
+          backgroundColor: colors.raised,
+        },
+      ]}
+    >
+      <Text
+        numberOfLines={2}
+        style={[text.dayName, styles.reading, { color: colors.muted }]}
+      >
+        LENGTHENED PARTIALS
+      </Text>
+      <View style={styles.action}>
+        <Button compact variant="secondary" label="Skip" onPress={onSkip} />
+      </View>
+      <View style={styles.action}>
+        <Button compact label="Done" onPress={onDone} />
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   small: {
     position: 'absolute',

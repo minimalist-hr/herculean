@@ -22,12 +22,14 @@ function exercise(id: string, ...checked: boolean[]): WorkoutExercise {
     targetRepsTo: 10,
     exists: true,
     supersetWithNext: false,
+    lengthenedPartials: false,
     sets: checked.map((value, order) => ({
       id: `${id}-${String(order)}`,
       order,
       weightKg: 0,
       reps: 8,
       checked: value,
+      partialsDone: false,
     })),
     lastTime: null,
   };

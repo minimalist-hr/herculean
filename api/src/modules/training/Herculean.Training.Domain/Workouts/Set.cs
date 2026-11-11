@@ -34,6 +34,9 @@ internal sealed class Set : Entity<SetId>
 
     public bool Checked { get; private set; }
 
+    /// <summary>Lengthened partials were done after it. They don't count toward volume or records.</summary>
+    public bool PartialsDone { get; private set; }
+
     /// <summary>The weight was changed by hand, so a change on an earlier set leaves it alone.</summary>
     public bool WeightChanged { get; private set; }
 
@@ -48,6 +51,7 @@ internal sealed class Set : Entity<SetId>
     {
         Set set = Create(userId, workoutExerciseId, order, values);
         set.Checked = isChecked;
+        set.PartialsDone = values.PartialsDone;
         set.WeightChanged = true;
         set.RepsChanged = true;
 
@@ -101,5 +105,10 @@ internal sealed class Set : Entity<SetId>
     internal void Check(bool isChecked)
     {
         Checked = isChecked;
+    }
+
+    internal void MarkPartials(bool done)
+    {
+        PartialsDone = done;
     }
 }

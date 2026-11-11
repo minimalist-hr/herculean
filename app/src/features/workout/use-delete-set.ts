@@ -71,6 +71,7 @@ export function useDeleteSet(workoutId: string) {
               weightKg: set.weightKg,
               reps: set.reps,
               checked: set.checked,
+              partialsDone: set.partialsDone,
             },
           });
         },

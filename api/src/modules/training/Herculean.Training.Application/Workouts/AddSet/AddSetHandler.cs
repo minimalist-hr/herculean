@@ -29,7 +29,7 @@ internal sealed class AddSetHandler(
 
         WorkoutExerciseId exerciseId = WorkoutExerciseId.From(workoutExerciseId);
         Result<Set> set = request.Removed is RemovedSet removed
-            ? workout.RestoreSet(exerciseId, removed.Order, new SetValues(removed.WeightKg, removed.Reps), removed.Checked)
+            ? workout.RestoreSet(exerciseId, removed.Order, new SetValues(removed.WeightKg, removed.Reps, removed.PartialsDone), removed.Checked)
             : workout.AddSet(exerciseId);
         if (!set.IsSuccess)
         {

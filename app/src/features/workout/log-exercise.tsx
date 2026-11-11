@@ -152,6 +152,7 @@ function SetRow({
   next,
   onEdit,
   onToggle,
+  onTogglePartials,
 }: {
   exercise: WorkoutExercise;
   set: WorkoutSet;
@@ -162,6 +163,8 @@ function SetRow({
   onEdit: (set: WorkoutSet, field: SetField) => void;
   /** Checks or unchecks a set. Without it, as in a saved workout, every set counts and there is no check box. */
   onToggle?: (set: WorkoutSet) => void;
+  /** Ticks lengthened partials, on an exercise that has them. */
+  onTogglePartials?: (set: WorkoutSet) => void;
 }) {
   const { colors, radius, size, space, text } = useTheme();
   const number = String(index + 1);
@@ -222,6 +225,44 @@ function SetRow({
           }}
         />
       </Tappable>
+      {onTogglePartials && (
+        <Tappable
+          accessibilityRole="checkbox"
+          accessibilityLabel={`Set ${number} lengthened partials`}
+          accessibilityState={{ checked: set.partialsDone }}
+          onPress={() => {
+            onTogglePartials(set);
+          }}
+          style={[
+            styles.check,
+            {
+              height: size.touchTargetMin,
+              // Sits right beside the check box, so last time keeps the room.
+              marginRight: onToggle ? -space.xs : 0,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.box,
+              {
+                borderRadius: radius.control,
+                borderColor: set.partialsDone ? colors.primary : colors.muted,
+                backgroundColor: set.partialsDone ? colors.primary : undefined,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                text.dayName,
+                { color: set.partialsDone ? colors.onPrimary : colors.muted },
+              ]}
+            >
+              LP
+            </Text>
+          </View>
+        </Tappable>
+      )}
       {onToggle && (
         <Tappable
           accessibilityRole="checkbox"
@@ -264,6 +305,7 @@ export function OpenExercise({
   place,
   nextSetId,
   superset,
+  partials,
 }: {
   workoutId: string;
   exercise: WorkoutExercise;
@@ -285,6 +327,11 @@ export function OpenExercise({
     on: boolean;
     unavailable?: string;
     onChange: (on: boolean) => void;
+  };
+  /** Lengthened partials in this workout: switching them, and ticking them on a set. */
+  partials?: {
+    onChange: (on: boolean) => void;
+    onToggleSet: (set: WorkoutSet) => void;
   };
 }) {
   const { colors, radius, space, text } = useTheme();
@@ -331,6 +378,31 @@ export function OpenExercise({
             <ExerciseTargetLine exercise={exercise} />
           </Tappable>
         </View>
+        {partials !== undefined && (
+          <ExerciseAction
+            label={
+              exercise.lengthenedPartials
+                ? `Lengthened partials off for ${exercise.name}`
+                : `Lengthened partials on for ${exercise.name}`
+            }
+            onPress={() => {
+              partials.onChange(!exercise.lengthenedPartials);
+            }}
+          >
+            <Text
+              style={[
+                text.dayName,
+                {
+                  color: exercise.lengthenedPartials
+                    ? colors.primary
+                    : colors.muted,
+                },
+              ]}
+            >
+              LP
+            </Text>
+          </ExerciseAction>
+        )}
         {superset !== undefined && (
           <ExerciseAction
             label={
@@ -394,6 +466,11 @@ export function OpenExercise({
         <View style={[styles.valueWidth, styles.centered]}>
           <SectionTitle>Reps</SectionTitle>
         </View>
+        {partials !== undefined && exercise.lengthenedPartials && (
+          <View
+            style={[styles.check, { marginRight: onToggle ? -space.xs : 0 }]}
+          />
+        )}
         {onToggle && <View style={styles.check} />}
       </View>
 
@@ -408,6 +485,11 @@ export function OpenExercise({
             next={set.id === nextSetId}
             onEdit={onEdit}
             onToggle={onToggle}
+            onTogglePartials={
+              partials !== undefined && exercise.lengthenedPartials
+                ? partials.onToggleSet
+                : undefined
+            }
           />
         ))}
       </View>
@@ -466,7 +548,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   number: {
-    width: 30,
+    width: 24,
+    // Less room after the number, so last time fits on one row.
+    marginRight: -tokens.space.xxs,
     paddingLeft: tokens.space.xs,
   },
   lastTime: {
@@ -476,7 +560,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   valueWidth: {
-    width: 64,
+    width: 48,
   },
   centered: {
     alignItems: 'center',
@@ -487,13 +571,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   check: {
-    width: 44,
+    width: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   box: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

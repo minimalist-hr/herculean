@@ -38,9 +38,10 @@ import { dateFromText } from '@/formats/dates';
 import { ClosedExercise, OpenExercise } from './log-exercise';
 import { useAddSet } from './use-add-set';
 import { maxExercisesPerWorkout } from './set-values';
-import { RestBar, restBarRoom } from './rest-bar';
+import { PartialsBar, RestBar, restBarRoom } from './rest-bar';
 import { afterCheck, afterUncheck } from './rest-timer';
 import { useElapsed } from './use-elapsed';
+import { useChangeLengthenedPartials } from './use-change-lengthened-partials';
 import { useChangeSuperset } from './use-change-superset';
 import { useRemoveExercise } from './use-remove-exercise';
 import { useRestAlert } from './rest-alert';
@@ -76,6 +77,12 @@ export function LogScreen({
   const settings = useWorkoutSettings();
   const { rest, update } = useRestTimer(id);
   useRestAlert(rest?.endsAt ?? null, id);
+  const updateSet = useUpdateSet(id);
+  // A checked set of an exercise with lengthened partials asks for them before the rest.
+  const [partialsDue, setPartialsDue] = useState<{
+    workoutExerciseId: string;
+    setId: string;
+  } | null>(null);
   // A past day is logged after the fact, so nothing is timed.
   const timed = Boolean(workout.data?.startedAtUtc);
 
@@ -110,6 +117,9 @@ export function LogScreen({
         <Logging
           workout={workout.data}
           onToggled={onToggled}
+          onPartialsDue={(workoutExerciseId, setId) => {
+            setPartialsDue({ workoutExerciseId, setId });
+          }}
           onEmptied={() => {
             update(() => null);
           }}
@@ -133,11 +143,13 @@ export function LogScreen({
 
   const shownRest = timed ? rest : null;
   const barRoom =
-    shownRest === null
-      ? 0
-      : shownRest.open
-        ? restBarRoom.open
-        : restBarRoom.hidden;
+    partialsDue !== null
+      ? restBarRoom.open
+      : shownRest === null
+        ? 0
+        : shownRest.open
+          ? restBarRoom.open
+          : restBarRoom.hidden;
   const pageEnd = usePageEnd(barRoom);
 
   return (
@@ -155,13 +167,29 @@ export function LogScreen({
         />
         {renderContent()}
       </ScrollView>
-      {shownRest !== null && (
-        <RestBar
-          rest={shownRest}
-          onChange={(next) => {
-            update(() => next);
+      {partialsDue !== null ? (
+        <PartialsBar
+          onSkip={() => {
+            setPartialsDue(null);
+          }}
+          onDone={() => {
+            updateSet.mutate({
+              workoutExerciseId: partialsDue.workoutExerciseId,
+              setId: partialsDue.setId,
+              changes: { partialsDone: true },
+            });
+            setPartialsDue(null);
           }}
         />
+      ) : (
+        shownRest !== null && (
+          <RestBar
+            rest={shownRest}
+            onChange={(next) => {
+              update(() => next);
+            }}
+          />
+        )
       )}
     </View>
   );
@@ -198,9 +226,12 @@ function Heading({ workout }: { workout: Workout }) {
 function Logging({
   workout,
   onToggled,
+  onPartialsDue,
   onEmptied,
 }: {
   workout: Workout;
+  /** A set was checked on an exercise with lengthened partials. */
+  onPartialsDue: (workoutExerciseId: string, setId: string) => void;
   /** The last exercise was removed. */
   onEmptied: () => void;
   onToggled: (
@@ -216,6 +247,7 @@ function Logging({
   const addSet = useAddSet(workout.id);
   const removeExercise = useRemoveExercise(workout.id);
   const changeSuperset = useChangeSuperset(workout.id);
+  const changePartials = useChangeLengthenedPartials(workout.id);
   const [removing, setRemoving] = useState<WorkoutExercise | null>(null);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   // Undefined until something is picked: the first unfinished one opens. Null closes them all.
@@ -259,6 +291,13 @@ function Logging({
       },
       {
         onSuccess: (sets) => {
+          if (
+            !set.checked &&
+            exercise.lengthenedPartials &&
+            !set.partialsDone
+          ) {
+            onPartialsDue(exercise.id, set.id);
+          }
           const index = exercises.indexOf(exercise);
           // In a superset, rest comes after a set of each.
           if (
@@ -334,6 +373,21 @@ function Logging({
                     changeSuperset.mutate({
                       workoutExerciseId: exercise.id,
                       supersetWithNext: on,
+                    });
+                  },
+                }}
+                partials={{
+                  onChange: (on) => {
+                    changePartials.mutate({
+                      workoutExerciseId: exercise.id,
+                      lengthenedPartials: on,
+                    });
+                  },
+                  onToggleSet: (set) => {
+                    updateSet.mutate({
+                      workoutExerciseId: exercise.id,
+                      setId: set.id,
+                      changes: { partialsDone: !set.partialsDone },
                     });
                   },
                 }}

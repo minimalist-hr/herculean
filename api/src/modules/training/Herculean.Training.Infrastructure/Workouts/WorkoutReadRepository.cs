@@ -47,9 +47,10 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                 exercise.TargetRepsTo,
                 Exists = exercise.Exercise.DeletedAtUtc == null,
                 exercise.SupersetWithNext,
+                exercise.LengthenedPartials,
                 Sets = exercise.Sets
                     .OrderBy(set => set.Order)
-                    .Select(set => new SetResponse(set.Id.Value, set.Order, set.WeightKg, set.Reps, set.Checked))
+                    .Select(set => new SetResponse(set.Id.Value, set.Order, set.WeightKg, set.Reps, set.Checked, set.PartialsDone))
                     .ToList(),
             })
             .ToListAsync(cancellationToken);
@@ -74,7 +75,8 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
                     exercise.Sets,
                     lastTime.GetValueOrDefault(exercise.ExerciseId),
                     exercise.Exists,
-                    exercise.SupersetWithNext)),
+                    exercise.SupersetWithNext,
+                    exercise.LengthenedPartials)),
             ],
             workout.FinishedAtUtc,
             workout.DurationSeconds);
@@ -86,7 +88,7 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
             .AsNoTracking()
             .Where(exercise => exercise.RoutineId == routineId && exercise.Exercise.DeletedAtUtc == null)
             .OrderBy(exercise => exercise.Order)
-            .Select(exercise => new RoutineExerciseValues(exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext))
+            .Select(exercise => new RoutineExerciseValues(exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext, exercise.LengthenedPartials))
             .ToListAsync(cancellationToken);
 
     public Task<List<EarlierMostReps>> ListEarlierMostRepsAsync(List<ExerciseId> exerciseIds, DateOnly before, CancellationToken cancellationToken) =>
@@ -122,13 +124,13 @@ internal sealed class WorkoutReadRepository(TrainingDbContext dbContext) : IWork
             .AsNoTracking()
             .Where(set => ids.Contains(set.WorkoutExerciseId))
             .OrderBy(set => set.Order)
-            .Select(set => new { set.WorkoutExerciseId, set.WeightKg, set.Reps })
+            .Select(set => new { set.WorkoutExerciseId, set.WeightKg, set.Reps, set.PartialsDone })
             .ToListAsync(cancellationToken);
 
         return latest.ToDictionary(
             done => done.ExerciseId,
             done => new LastTimeResponse(
                 done.Date,
-                [.. sets.Where(set => set.WorkoutExerciseId == done.Id).Select(set => new LastTimeSetResponse(set.WeightKg, set.Reps))]));
+                [.. sets.Where(set => set.WorkoutExerciseId == done.Id).Select(set => new LastTimeSetResponse(set.WeightKg, set.Reps, set.PartialsDone))]));
     }
 }

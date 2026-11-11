@@ -27,7 +27,7 @@ internal sealed class UpdateSetHandler(
             return WorkoutErrors.NotFound;
         }
 
-        Result<WorkoutExercise> exercise = workout.UpdateSet(WorkoutExerciseId.From(workoutExerciseId), SetId.From(setId), request.WeightKg, request.Reps, request.Checked);
+        Result<WorkoutExercise> exercise = workout.UpdateSet(WorkoutExerciseId.From(workoutExerciseId), SetId.From(setId), request.WeightKg, request.Reps, request.Checked, request.PartialsDone);
         if (!exercise.IsSuccess)
         {
             return exercise.Error;

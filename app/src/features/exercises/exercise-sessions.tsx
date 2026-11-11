@@ -215,7 +215,9 @@ function SessionRow({
       <View style={styles.sets}>
         <Text style={[text.body, styles.setsText, { color: colors.text }]}>
           {session.sets
-            .map((set) => formatLastTime(set.weightKg, set.reps, units))
+            .map((set) =>
+              formatLastTime(set.weightKg, set.reps, units, set.partialsDone),
+            )
             .join(' · ')}
         </Text>
         {weighted && (

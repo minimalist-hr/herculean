@@ -5,7 +5,7 @@ namespace Herculean.Training.Domain.Routines;
 
 internal sealed class RoutineExercise : Entity<RoutineExerciseId>
 {
-    private RoutineExercise(RoutineExerciseId id, UserId userId, RoutineId routineId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo, bool supersetWithNext) : base(id)
+    private RoutineExercise(RoutineExerciseId id, UserId userId, RoutineId routineId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo, bool supersetWithNext, bool lengthenedPartials) : base(id)
     {
         UserId = userId;
         RoutineId = routineId;
@@ -15,6 +15,7 @@ internal sealed class RoutineExercise : Entity<RoutineExerciseId>
         TargetRepsFrom = targetRepsFrom;
         TargetRepsTo = targetRepsTo;
         SupersetWithNext = supersetWithNext;
+        LengthenedPartials = lengthenedPartials;
     }
 
     public UserId UserId { get; private set; }
@@ -36,6 +37,9 @@ internal sealed class RoutineExercise : Entity<RoutineExerciseId>
     /// <summary>Done as a superset with the exercise after it: a set of each, then rest.</summary>
     public bool SupersetWithNext { get; private set; }
 
+    /// <summary>Lengthened partials follow each set: half reps at the stretched end.</summary>
+    public bool LengthenedPartials { get; private set; }
+
     internal void Update(int order, RoutineExerciseValues values)
     {
         Order = order;
@@ -43,8 +47,9 @@ internal sealed class RoutineExercise : Entity<RoutineExerciseId>
         TargetRepsFrom = values.TargetRepsFrom;
         TargetRepsTo = values.TargetRepsTo;
         SupersetWithNext = values.SupersetWithNext;
+        LengthenedPartials = values.LengthenedPartials;
     }
 
     internal static RoutineExercise Create(UserId userId, RoutineId routineId, int order, RoutineExerciseValues values) =>
-        new(RoutineExerciseId.New(), userId, routineId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo, values.SupersetWithNext);
+        new(RoutineExerciseId.New(), userId, routineId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo, values.SupersetWithNext, values.LengthenedPartials);
 }

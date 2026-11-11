@@ -48,6 +48,7 @@ const routine = {
       targetRepsFrom: 8,
       targetRepsTo: 10,
       supersetWithNext: false,
+      lengthenedPartials: false,
     },
     {
       exerciseId: 'lunge',
@@ -58,6 +59,7 @@ const routine = {
       targetRepsFrom: 6,
       targetRepsTo: 6,
       supersetWithNext: false,
+      lengthenedPartials: false,
     },
   ],
 };
@@ -401,6 +403,29 @@ test('a superset is set on its first exercise, names the next, and saves', async
   expect(saved?.exercises.map((exercise) => exercise.supersetWithNext)).toEqual(
     [true, false],
   );
+});
+
+test('lengthened partials are set on the targets, show on the row, and save', async () => {
+  answer();
+  await loaded();
+
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Squat, 3 × 8–10' }),
+  );
+  await fireEvent.press(
+    await screen.findByRole('switch', { name: 'Lengthened partials' }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save targets' }));
+  await screen.findByDisplayValue('Legs');
+  expect(screen.getByText('· Legs · LP')).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Save routine' }));
+
+  expect(await screen.findByText('Legs saved.')).toBeOnTheScreen();
+  expect(
+    (
+      saved as unknown as { exercises: { lengthenedPartials: boolean }[] }
+    ).exercises.map((exercise) => exercise.lengthenedPartials),
+  ).toEqual([true, false]);
 });
 
 test('the last exercise can’t start a superset, and says why', async () => {

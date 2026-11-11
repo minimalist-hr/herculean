@@ -180,6 +180,15 @@ public sealed class CreateRoutineHandlerTests
     }
 
     [Fact]
+    public async Task LengthenedPartialsAreSavedOnTheExercise()
+    {
+        Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat with { LengthenedPartials = true }, Lunge);
+
+        result.IsSuccess.ShouldBeTrue();
+        _routineRepository.Routines.ShouldHaveSingleItem().Exercises.Select(exercise => exercise.LengthenedPartials).ShouldBe([true, false]);
+    }
+
+    [Fact]
     public async Task TheLastExerciseCanNotStartASuperset()
     {
         Result<RoutineSavedResponse> result = await HandleAsync("Legs", Squat, Lunge with { SupersetWithNext = true });

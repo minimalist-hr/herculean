@@ -18,7 +18,8 @@ internal sealed record ExerciseSessionResponse(
 [Description("A checked set in a session.")]
 internal sealed record SessionSetResponse(
     [property: Description("The weight in kg. A bodyweight set has 0.")] decimal WeightKg,
-    [property: Description("The reps.")] int Reps);
+    [property: Description("The reps.")] int Reps,
+    [property: Description("Whether lengthened partials were done after it.")] bool PartialsDone = false);
 
 [Description("A month of sessions.")]
 internal sealed record SessionMonthResponse(

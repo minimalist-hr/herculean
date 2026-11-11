@@ -36,10 +36,12 @@ export function addedExercise(picked: PickedExercise): WorkoutExercise {
       weightKg: 0,
       reps: startingTargets.repsFrom,
       checked: true,
+      partialsDone: false,
     })),
     lastTime: null,
     exists: true,
     supersetWithNext: false,
+    lengthenedPartials: false,
   };
 }
 

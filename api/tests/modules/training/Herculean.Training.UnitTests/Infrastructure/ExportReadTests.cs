@@ -57,13 +57,13 @@ public sealed class ExportReadTests : IDisposable
         export.Exercises.ShouldHaveSingleItem().ShouldBe(new ExportedExercise("Squat", "Legs", []), new ExportedExerciseComparer());
         ExportedRoutine routine = export.Routines.ShouldHaveSingleItem();
         routine.Days.ShouldBe([Weekday.Monday]);
-        routine.Exercises.ShouldBe([new ExportedRoutineExercise("Squat", 3, 8, 10, SupersetWithNext: false)]);
+        routine.Exercises.ShouldBe([new ExportedRoutineExercise("Squat", 3, 8, 10, SupersetWithNext: false, LengthenedPartials: false)]);
         ExportedWorkout saved = export.Workouts.ShouldHaveSingleItem();
         saved.DurationSeconds.ShouldBe(3600);
         ExportedWorkoutExercise exercise = saved.Exercises.ShouldHaveSingleItem();
         exercise.Name.ShouldBe("Lunge");
         exercise.Group.ShouldBe("Legs");
-        exercise.Sets.ShouldBe([new ExportedSet(40, 10)]);
+        exercise.Sets.ShouldBe([new ExportedSet(40, 10, PartialsDone: false)]);
     }
 
     private sealed class ExportedExerciseComparer : IEqualityComparer<ExportedExercise>

@@ -124,7 +124,7 @@ internal sealed class CreateWorkoutHandler(
             date,
             routineId,
             name,
-            exercises.Select(exercise => new RoutineExerciseValues(ExerciseId.From(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext)));
+            exercises.Select(exercise => new RoutineExerciseValues(ExerciseId.From(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext, exercise.LengthenedPartials)));
     }
 
     private sealed record WorkoutRoutine(RoutineId Id, string Name);

@@ -54,6 +54,7 @@ function workoutRows(data: Export, units: Units): Field[][] {
     'Set',
     `Weight (${weightUnitOf(units)})`,
     'Reps',
+    'Lengthened partials',
   ];
   const rows = data.workouts.flatMap((workout) => {
     const start = [
@@ -72,10 +73,13 @@ function workoutRows(data: Export, units: Units): Field[][] {
         index + 1,
         weightIn(set.weightKg, units),
         set.reps,
+        set.partialsDone ? 'Yes' : 'No',
       ]),
     );
 
-    return sets.length > 0 ? sets : [[...start, null, null, null, null, null]];
+    return sets.length > 0
+      ? sets
+      : [[...start, null, null, null, null, null, null]];
   });
 
   return [header, ...rows];
@@ -103,6 +107,7 @@ function routineRows(data: Export): Field[][] {
       'Reps from',
       'Reps to',
       'Superset with next',
+      'Lengthened partials',
     ],
     ...data.routines.flatMap((routine) =>
       routine.exercises.map((exercise, index) => [
@@ -114,6 +119,7 @@ function routineRows(data: Export): Field[][] {
         exercise.repsFrom,
         exercise.repsTo,
         exercise.supersetWithNext ? 'Yes' : 'No',
+        exercise.lengthenedPartials ? 'Yes' : 'No',
       ]),
     ),
   ];

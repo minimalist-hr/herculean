@@ -28,6 +28,7 @@ export function AddExerciseScreen({ back }: { back: string }) {
             groupName: exercise.groupName,
             ...startingTargets,
             supersetWithNext: asSuperset && index === 0,
+            lengthenedPartials: false,
           })),
         ]);
         leave();

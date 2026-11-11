@@ -936,6 +936,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workouts/{id}/exercises/{workoutExerciseId}/lengthened-partials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Turn lengthened partials on or off in a workout
+         * @description Turns lengthened partials on or off for an exercise of a workout in progress. The routine doesn't change.
+         */
+        put: operations["UpdateWorkoutExerciseLengthenedPartials"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workouts/{id}/exercise-order": {
         parameters: {
             query?: never;
@@ -1207,6 +1227,11 @@ export interface components {
              * @default false
              */
             supersetWithNext: boolean;
+            /**
+             * @description Whether lengthened partials follow each set: half reps at the stretched end, right after the set.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /** @description One day: its status, its routine and the day after it. */
         DayResponse: {
@@ -1283,6 +1308,11 @@ export interface components {
              * @default false
              */
             supersetWithNext: boolean;
+            /**
+             * @description Whether lengthened partials follow each set: half reps at the stretched end, right after the set.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /** @description A set of the edited workout. */
         EditedWorkoutSet: {
@@ -1296,6 +1326,11 @@ export interface components {
              * @description The reps, 1 to 100.
              */
             reps: number;
+            /**
+             * @description Whether lengthened partials were done after it.
+             * @default false
+             */
+            partialsDone: boolean;
         };
         /** @description A saved workout as edited: all its exercises in order, each with all its sets. */
         EditWorkoutRequest: {
@@ -1445,6 +1480,8 @@ export interface components {
             repsTo: number;
             /** @description Whether it is done as a superset with the exercise after it. */
             supersetWithNext: boolean;
+            /** @description Whether lengthened partials follow each set. */
+            lengthenedPartials: boolean;
         };
         /** @description A checked set. */
         ExportedSet: {
@@ -1458,6 +1495,8 @@ export interface components {
              * @description The reps.
              */
             reps: number;
+            /** @description Whether lengthened partials were done after it. */
+            partialsDone: boolean;
         };
         /** @description A workout. */
         ExportedWorkout: {
@@ -1565,6 +1604,11 @@ export interface components {
              * @description The reps.
              */
             reps: number;
+            /**
+             * @description Whether lengthened partials were done after it.
+             * @default false
+             */
+            partialsDone: boolean;
         };
         /** @description A month's counts and totals. */
         MonthSummaryResponse: {
@@ -1740,6 +1784,11 @@ export interface components {
              * @default false
              */
             supersetWithPrevious: boolean;
+            /**
+             * @description Whether lengthened partials follow each set: half reps at the stretched end, right after the set.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /** @description A set of a removed exercise. */
         RemovedExerciseSet: {
@@ -1755,6 +1804,11 @@ export interface components {
             reps: number;
             /** @description Whether it was marked done. */
             checked: boolean;
+            /**
+             * @description Whether lengthened partials were done after it.
+             * @default false
+             */
+            partialsDone: boolean;
         };
         /** @description A removed set to put back. */
         RemovedSet: {
@@ -1775,6 +1829,11 @@ export interface components {
             reps: number;
             /** @description Whether it was marked done. */
             checked: boolean;
+            /**
+             * @description Whether lengthened partials were done after it.
+             * @default false
+             */
+            partialsDone: boolean;
         };
         /** @description A group's new name. */
         RenameGroupRequest: {
@@ -1841,6 +1900,11 @@ export interface components {
              * @default false
              */
             supersetWithNext: boolean;
+            /**
+             * @description Whether lengthened partials follow each set: half reps at the stretched end, right after the set.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /** @description An exercise in a routine and its targets. */
         RoutineExerciseResponse: {
@@ -1878,6 +1942,11 @@ export interface components {
              * @default false
              */
             supersetWithNext: boolean;
+            /**
+             * @description Whether lengthened partials follow each set: half reps at the stretched end, right after the set.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /** @description A routine in the list. */
         RoutineListItemResponse: {
@@ -1955,6 +2024,11 @@ export interface components {
              * @description The reps.
              */
             reps: number;
+            /**
+             * @description Whether lengthened partials were done after it.
+             * @default false
+             */
+            partialsDone: boolean;
         };
         /** @description A set in a workout. */
         SetResponse: {
@@ -1980,6 +2054,11 @@ export interface components {
             reps: number;
             /** @description Whether it is marked done. */
             checked: boolean;
+            /**
+             * @description Whether lengthened partials were done after it.
+             * @default false
+             */
+            partialsDone: boolean;
         };
         /** @description How long the user has kept to their plan. */
         StreakResponse: {
@@ -2104,6 +2183,13 @@ export interface components {
             reps?: null | number;
             /** @description Whether it is marked done. */
             checked?: null | boolean;
+            /** @description Whether lengthened partials were done after it. */
+            partialsDone?: null | boolean;
+        };
+        /** @description Whether lengthened partials follow an exercise's sets in this workout. */
+        UpdateWorkoutExerciseLengthenedPartialsRequest: {
+            /** @description True turns them on for this workout, false turns them off. The routine doesn't change. */
+            lengthenedPartials: boolean;
         };
         /** @description The order of a workout's exercises. */
         UpdateWorkoutExerciseOrderRequest: {
@@ -2269,6 +2355,11 @@ export interface components {
              * @default false
              */
             supersetWithNext: boolean;
+            /**
+             * @description Whether lengthened partials follow each set: half reps at the stretched end, right after the set.
+             * @default false
+             */
+            lengthenedPartials: boolean;
         };
         /** @description A set that beat every earlier set of its exercise. */
         WorkoutRecordResponse: {
@@ -5219,6 +5310,71 @@ export interface operations {
                 };
             };
             /** @description The workout is not in progress, or the superset wouldn't be two exercises next to each other. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateWorkoutExerciseLengthenedPartials: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The workout's ID. */
+                id: string;
+                /** @description The exercise's ID in the workout. */
+                workoutExerciseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkoutExerciseLengthenedPartialsRequest"];
+            };
+        };
+        responses: {
+            /** @description The workout. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutDetailsResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout or the exercise does not exist, or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The workout is not in progress. */
             409: {
                 headers: {
                     [name: string]: unknown;

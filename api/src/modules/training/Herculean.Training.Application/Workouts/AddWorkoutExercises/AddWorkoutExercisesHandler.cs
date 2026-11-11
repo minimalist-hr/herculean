@@ -43,8 +43,8 @@ internal sealed class AddWorkoutExercisesHandler(
         Result added = request.Removed is RemovedExercise removed
             ? workout.RestoreExercise(
                 removed.Order,
-                new RoutineExerciseValues(ExerciseId.From(removed.ExerciseId), removed.TargetSets, removed.TargetRepsFrom, removed.TargetRepsTo, removed.SupersetWithNext),
-                [.. removed.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, set.Checked))],
+                new RoutineExerciseValues(ExerciseId.From(removed.ExerciseId), removed.TargetSets, removed.TargetRepsFrom, removed.TargetRepsTo, removed.SupersetWithNext, removed.LengthenedPartials),
+                [.. removed.Sets.Select(set => new LoggedSetValues(set.WeightKg, set.Reps, set.Checked, set.PartialsDone))],
                 removed.SupersetWithPrevious)
             : workout.AddExercises(exerciseIds, (await workoutReadRepository.ListLastTimeAsync(exerciseIds, workout.Date, cancellationToken)).ToSetValues(), request.AsSuperset);
         if (!added.IsSuccess)

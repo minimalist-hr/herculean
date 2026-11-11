@@ -237,6 +237,7 @@ test('picked exercises come back at 3 × 8–10, and saving sends them', async (
         targetRepsFrom: 8,
         targetRepsTo: 10,
         supersetWithNext: false,
+        lengthenedPartials: false,
       },
     ],
   });

@@ -264,7 +264,9 @@ export function EditWorkoutScreen() {
                       sets: exercise.sets.map((set) => ({
                         weightKg: set.weightKg,
                         reps: set.reps,
+                        partialsDone: set.partialsDone,
                       })),
+                      lengthenedPartials: exercise.lengthenedPartials,
                       supersetWithNext: inSuperset(
                         exercise,
                         exercises.at(exercises.indexOf(exercise) + 1),
@@ -342,6 +344,36 @@ export function EditWorkoutScreen() {
                   );
                 },
               }}
+              partials={{
+                onChange: (on) => {
+                  setExercises((current) =>
+                    current.map((item) =>
+                      item.id === exercise.id
+                        ? { ...item, lengthenedPartials: on }
+                        : item,
+                    ),
+                  );
+                },
+                onToggleSet: (set) => {
+                  setExercises((current) =>
+                    current.map((item) =>
+                      item.id === exercise.id
+                        ? {
+                            ...item,
+                            sets: item.sets.map((other) =>
+                              other.id === set.id
+                                ? {
+                                    ...other,
+                                    partialsDone: !other.partialsDone,
+                                  }
+                                : other,
+                            ),
+                          }
+                        : item,
+                    ),
+                  );
+                },
+              }}
               workoutId={workout.id}
               before={workout.date}
               added={!savedIds.has(exercise.id)}
@@ -403,6 +435,7 @@ export function EditWorkoutScreen() {
 function EditedExercise({
   place,
   superset,
+  partials,
   workoutId,
   before,
   added,
@@ -412,6 +445,7 @@ function EditedExercise({
   onRemove,
 }: {
   place: BlockPlace | undefined;
+  partials: Parameters<typeof OpenExercise>[0]['partials'];
   superset: Parameters<typeof OpenExercise>[0]['superset'];
   workoutId: string;
   before: string;
@@ -436,6 +470,7 @@ function EditedExercise({
       canSwap={false}
       place={place}
       superset={superset}
+      partials={partials}
       onEdit={onEdit}
       onAddSet={onAddSet}
       onRemove={onRemove}

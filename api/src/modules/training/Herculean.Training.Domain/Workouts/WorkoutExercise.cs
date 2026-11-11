@@ -18,7 +18,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
 
     private readonly List<Set> _sets = [];
 
-    private WorkoutExercise(WorkoutExerciseId id, UserId userId, WorkoutId workoutId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo, bool supersetWithNext) : base(id)
+    private WorkoutExercise(WorkoutExerciseId id, UserId userId, WorkoutId workoutId, ExerciseId exerciseId, int order, int targetSets, int targetRepsFrom, int targetRepsTo, bool supersetWithNext, bool lengthenedPartials) : base(id)
     {
         UserId = userId;
         WorkoutId = workoutId;
@@ -28,6 +28,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         TargetRepsFrom = targetRepsFrom;
         TargetRepsTo = targetRepsTo;
         SupersetWithNext = supersetWithNext;
+        LengthenedPartials = lengthenedPartials;
     }
 
     public UserId UserId { get; private set; }
@@ -49,11 +50,14 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
     /// <summary>Done as a superset with the exercise after it: a set of each, then rest.</summary>
     public bool SupersetWithNext { get; private set; }
 
+    /// <summary>Lengthened partials follow each set: half reps at the stretched end.</summary>
+    public bool LengthenedPartials { get; private set; }
+
     /// <summary>Its sets, in order.</summary>
     public IReadOnlyList<Set> Sets => [.. _sets.OrderBy(set => set.Order)];
 
     internal static WorkoutExercise Create(UserId userId, WorkoutId workoutId, int order, RoutineExerciseValues values) =>
-        new(WorkoutExerciseId.New(), userId, workoutId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo, values.SupersetWithNext);
+        new(WorkoutExerciseId.New(), userId, workoutId, values.ExerciseId, order, values.TargetSets, values.TargetRepsFrom, values.TargetRepsTo, values.SupersetWithNext, values.LengthenedPartials);
 
     /// <summary>An exercise of a workout being started. Each set starts with the same set last time, or the last one if last time had fewer. With no last time, it starts at 0 kg and the low end of the target reps.</summary>
     internal static WorkoutExercise Start(UserId userId, WorkoutId workoutId, int order, RoutineExerciseValues values, IReadOnlyList<SetValues> lastTime)
@@ -70,7 +74,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
     {
         WorkoutExercise exercise = Create(userId, workoutId, order, values);
         exercise._sets.AddRange(sets.Select((set, index) =>
-            Set.Restore(userId, exercise.Id, index, new SetValues(set.WeightKg, set.Reps), set.Checked)));
+            Set.Restore(userId, exercise.Id, index, new SetValues(set.WeightKg, set.Reps, set.PartialsDone), set.Checked)));
 
         return exercise;
     }
@@ -91,6 +95,11 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
     internal void EndSuperset()
     {
         SupersetWithNext = false;
+    }
+
+    internal void ChangeLengthenedPartials(bool on)
+    {
+        LengthenedPartials = on;
     }
 
     /// <summary>Becomes another exercise, keeping its set count and targets. Its sets start from that exercise's last time.</summary>
@@ -180,7 +189,7 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
     }
 
     /// <summary>Changes a set. A changed value carries down to the later sets that follow it.</summary>
-    internal Result UpdateSet(SetId id, decimal? weightKg, int? reps, bool? isChecked)
+    internal Result UpdateSet(SetId id, decimal? weightKg, int? reps, bool? isChecked, bool? partialsDone = null)
     {
         Set? set = _sets.Find(candidate => candidate.Id == id);
         if (set is null)
@@ -204,6 +213,11 @@ internal sealed class WorkoutExercise : Entity<WorkoutExerciseId>
         if (isChecked is bool check)
         {
             set.Check(check);
+        }
+
+        if (partialsDone is bool done)
+        {
+            set.MarkPartials(done);
         }
 
         return Result.Success();

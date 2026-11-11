@@ -222,6 +222,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("exercise_id");
 
+                    b.Property<bool>("LengthenedPartials")
+                        .HasColumnType("boolean")
+                        .HasColumnName("lengthened_partials");
+
                     b.Property<int>("Order")
                         .HasColumnType("integer")
                         .HasColumnName("order");
@@ -370,6 +374,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("order");
 
+                    b.Property<bool>("PartialsDone")
+                        .HasColumnType("boolean")
+                        .HasColumnName("partials_done");
+
                     b.Property<int>("Reps")
                         .HasColumnType("integer")
                         .HasColumnName("reps");
@@ -498,6 +506,10 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.Property<Guid>("ExerciseId")
                         .HasColumnType("uuid")
                         .HasColumnName("exercise_id");
+
+                    b.Property<bool>("LengthenedPartials")
+                        .HasColumnType("boolean")
+                        .HasColumnName("lengthened_partials");
 
                     b.Property<int>("Order")
                         .HasColumnType("integer")

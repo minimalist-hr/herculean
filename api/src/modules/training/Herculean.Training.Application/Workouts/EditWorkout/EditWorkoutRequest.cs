@@ -12,9 +12,11 @@ internal sealed record EditedWorkoutExercise(
     [property: Description("The workout exercise's ID, or null for an exercise added while editing.")] Guid? Id,
     [property: Description("The exercise's ID.")] Guid ExerciseId,
     [property: Description("Its sets in order, 1 to 20. Every set of a saved workout counts as done.")] List<EditedWorkoutSet> Sets,
-    [property: Description("Whether it is a superset with the exercise after it. A superset is two exercises, so the last exercise and the second of a superset can't start one.")] bool SupersetWithNext = false);
+    [property: Description("Whether it is a superset with the exercise after it. A superset is two exercises, so the last exercise and the second of a superset can't start one.")] bool SupersetWithNext = false,
+    [property: Description("Whether lengthened partials follow each set: half reps at the stretched end, right after the set.")] bool LengthenedPartials = false);
 
 [Description("A set of the edited workout.")]
 internal sealed record EditedWorkoutSet(
     [property: Description("The weight in kg, 0 to 1,000 with up to two decimals. 0 means bodyweight.")] decimal WeightKg,
-    [property: Description("The reps, 1 to 100.")] int Reps);
+    [property: Description("The reps, 1 to 100.")] int Reps,
+    [property: Description("Whether lengthened partials were done after it.")] bool PartialsDone = false);

@@ -56,12 +56,14 @@ function Form({
     targetRepsFrom: exercise.targetRepsFrom,
     targetRepsTo: exercise.targetRepsTo,
     supersetWithNext: exercise.supersetWithNext,
+    lengthenedPartials: exercise.lengthenedPartials,
   });
   const guard = useLeaveGuard(
     targets.targetSets !== exercise.targetSets ||
       targets.targetRepsFrom !== exercise.targetRepsFrom ||
       targets.targetRepsTo !== exercise.targetRepsTo ||
-      targets.supersetWithNext !== exercise.supersetWithNext,
+      targets.supersetWithNext !== exercise.supersetWithNext ||
+      targets.lengthenedPartials !== exercise.lengthenedPartials,
   );
 
   return (
@@ -160,6 +162,14 @@ function Form({
             {`Logging shows this as ${targetText(targets)}. Use the same number twice for a fixed rep count.`}
           </Text>
           <View style={{ height: 1, backgroundColor: colors.border }} />
+          <SwitchField
+            label="Lengthened partials"
+            hint="After each set, at the stretched end."
+            value={targets.lengthenedPartials}
+            onChange={(lengthenedPartials) => {
+              setTargets({ ...targets, lengthenedPartials });
+            }}
+          />
           <SwitchField
             label="Superset with next"
             hint={next?.name}

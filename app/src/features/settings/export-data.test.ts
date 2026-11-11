@@ -24,6 +24,7 @@ const sources: ExportSources = {
             repsFrom: 8,
             repsTo: 10,
             supersetWithNext: false,
+            lengthenedPartials: false,
           },
         ],
       },
@@ -39,8 +40,8 @@ const sources: ExportSources = {
             name: 'Barbell squat',
             group: 'Legs',
             sets: [
-              { weightKg: 100, reps: 5 },
-              { weightKg: 0, reps: 12 },
+              { weightKg: 100, reps: 5, partialsDone: true },
+              { weightKg: 0, reps: 12, partialsDone: false },
             ],
           },
         ],
@@ -101,10 +102,10 @@ test('the zip holds one csv per kind of data and the photo', () => {
 
 test('workouts have a row per set, and a skipped one a row of its own', () => {
   expect(unzip(sources).text('workouts.csv')).toBe(
-    'Date,Workout,Status,Duration (min),Exercise,Group,Set,Weight (kg),Reps\r\n' +
-      '2026-11-02,"Legs, heavy",Completed,64,Barbell squat,Legs,1,100,5\r\n' +
-      '2026-11-02,"Legs, heavy",Completed,64,Barbell squat,Legs,2,0,12\r\n' +
-      '2026-11-03,Pull day,Skipped,,,,,,\r\n',
+    'Date,Workout,Status,Duration (min),Exercise,Group,Set,Weight (kg),Reps,Lengthened partials\r\n' +
+      '2026-11-02,"Legs, heavy",Completed,64,Barbell squat,Legs,1,100,5,Yes\r\n' +
+      '2026-11-02,"Legs, heavy",Completed,64,Barbell squat,Legs,2,0,12,No\r\n' +
+      '2026-11-03,Pull day,Skipped,,,,,,,\r\n',
   );
 });
 
@@ -125,7 +126,7 @@ test('exercises, routines and the account read like the app', () => {
     'Pull-up,Back,Biceps; Shoulders\r\n',
   );
   expect(zip.text('routines.csv')).toContain(
-    '"Legs, heavy",Monday; Thursday,1,Barbell squat,3,8,10,No\r\n',
+    '"Legs, heavy",Monday; Thursday,1,Barbell squat,3,8,10,No,No\r\n',
   );
   expect(zip.text('account.csv')).toContain(
     'Filip Mučnjak,filip@example.com,Metric,Match my phone,Nitro,Europe/Zagreb,3:00,On,Off\r\n',

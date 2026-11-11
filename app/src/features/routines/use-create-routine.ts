@@ -31,6 +31,7 @@ export function useCreateRoutine() {
             targetRepsFrom: exercise.targetRepsFrom,
             targetRepsTo: exercise.targetRepsTo,
             supersetWithNext: exercise.supersetWithNext,
+            lengthenedPartials: exercise.lengthenedPartials,
           })),
         },
       });

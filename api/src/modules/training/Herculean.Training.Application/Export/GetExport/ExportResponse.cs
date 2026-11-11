@@ -29,7 +29,8 @@ internal sealed record ExportedRoutineExercise(
     [property: Description("The target sets.")] int Sets,
     [property: Description("The low end of the target reps.")] int RepsFrom,
     [property: Description("The high end of the target reps.")] int RepsTo,
-    [property: Description("Whether it is done as a superset with the exercise after it.")] bool SupersetWithNext);
+    [property: Description("Whether it is done as a superset with the exercise after it.")] bool SupersetWithNext,
+    [property: Description("Whether lengthened partials follow each set.")] bool LengthenedPartials);
 
 [Description("A workout.")]
 internal sealed record ExportedWorkout(
@@ -48,4 +49,5 @@ internal sealed record ExportedWorkoutExercise(
 [Description("A checked set.")]
 internal sealed record ExportedSet(
     [property: Description("The weight in kg. A bodyweight set has 0.")] decimal WeightKg,
-    [property: Description("The reps.")] int Reps);
+    [property: Description("The reps.")] int Reps,
+    [property: Description("Whether lengthened partials were done after it.")] bool PartialsDone);

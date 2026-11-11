@@ -40,8 +40,9 @@ internal sealed class EditWorkoutHandler(
             .. request.Exercises.Select(exercise => new EditedExercise(
                 exercise.Id is Guid kept ? WorkoutExerciseId.From(kept) : null,
                 ExerciseId.From(exercise.ExerciseId),
-                [.. exercise.Sets.Select(set => new SetValues(set.WeightKg, set.Reps))],
-                exercise.SupersetWithNext)),
+                [.. exercise.Sets.Select(set => new SetValues(set.WeightKg, set.Reps, set.PartialsDone))],
+                exercise.SupersetWithNext,
+                exercise.LengthenedPartials)),
         ], request.DurationMinutes);
         if (!edited.IsSuccess)
         {

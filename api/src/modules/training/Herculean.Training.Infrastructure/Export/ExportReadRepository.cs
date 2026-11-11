@@ -38,7 +38,7 @@ internal sealed class ExportReadRepository(TrainingDbContext dbContext) : IExpor
                 routine.Name,
                 Exercises = routine.Exercises
                     .OrderBy(exercise => exercise.Order)
-                    .Select(exercise => new { exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext })
+                    .Select(exercise => new { exercise.ExerciseId, exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext, exercise.LengthenedPartials })
                     .ToList(),
             })
             .ToListAsync(cancellationToken);
@@ -60,7 +60,7 @@ internal sealed class ExportReadRepository(TrainingDbContext dbContext) : IExpor
                         Sets = exercise.Sets
                             .Where(set => set.Checked)
                             .OrderBy(set => set.Order)
-                            .Select(set => new ExportedSet(set.WeightKg, set.Reps))
+                            .Select(set => new ExportedSet(set.WeightKg, set.Reps, set.PartialsDone))
                             .ToList(),
                     })
                     .ToList(),
@@ -83,7 +83,7 @@ internal sealed class ExportReadRepository(TrainingDbContext dbContext) : IExpor
                 .. routines.Select(routine => new ExportedRoutine(
                     routine.Name,
                     [.. plan.Where(day => day.Value?.Id == routine.Id.Value).Select(day => day.Key).Order()],
-                    [.. routine.Exercises.Select(exercise => new ExportedRoutineExercise(ExerciseName(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext))])),
+                    [.. routine.Exercises.Select(exercise => new ExportedRoutineExercise(ExerciseName(exercise.ExerciseId), exercise.TargetSets, exercise.TargetRepsFrom, exercise.TargetRepsTo, exercise.SupersetWithNext, exercise.LengthenedPartials))])),
             ],
             [
                 .. workouts.Select(workout => new ExportedWorkout(

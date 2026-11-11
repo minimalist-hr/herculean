@@ -47,11 +47,26 @@ const workout = {
       targetRepsFrom: 8,
       targetRepsTo: 10,
       sets: [
-        { id: 's1', order: 0, weightKg: 100, reps: 5, checked: true },
-        { id: 's2', order: 1, weightKg: 100, reps: 5, checked: true },
+        {
+          id: 's1',
+          order: 0,
+          weightKg: 100,
+          reps: 5,
+          checked: true,
+          partialsDone: false,
+        },
+        {
+          id: 's2',
+          order: 1,
+          weightKg: 100,
+          reps: 5,
+          checked: true,
+          partialsDone: false,
+        },
       ],
       lastTime: null,
       supersetWithNext: false,
+      lengthenedPartials: false,
     },
   ],
 };
@@ -87,7 +102,7 @@ function answerWith({ putStatus = 200, failedLoads = 0 } = {}) {
         Response.json({
           lastTime: {
             date: '2026-10-27',
-            sets: [{ weightKg: 40, reps: 10 }],
+            sets: [{ weightKg: 40, reps: 10, partialsDone: false }],
           },
         }),
       );
@@ -203,11 +218,12 @@ test('a changed value and an added set are saved together', async () => {
         id: 'we1',
         exerciseId: 'squat',
         sets: [
-          { weightKg: 100, reps: 8 },
-          { weightKg: 100, reps: 5 },
-          { weightKg: 100, reps: 5 },
+          { weightKg: 100, reps: 8, partialsDone: false },
+          { weightKg: 100, reps: 5, partialsDone: false },
+          { weightKg: 100, reps: 5, partialsDone: false },
         ],
         supersetWithNext: false,
+        lengthenedPartials: false,
       },
     ],
   });
@@ -331,23 +347,53 @@ test('an added exercise shows its last time before the workout, and is saved as 
         id: 'we1',
         exerciseId: 'squat',
         sets: [
-          { weightKg: 100, reps: 5 },
-          { weightKg: 100, reps: 5 },
+          { weightKg: 100, reps: 5, partialsDone: false },
+          { weightKg: 100, reps: 5, partialsDone: false },
         ],
         supersetWithNext: false,
+        lengthenedPartials: false,
       },
       {
         id: null,
         exerciseId: 'lunge',
         sets: [
-          { weightKg: 0, reps: 8 },
-          { weightKg: 0, reps: 8 },
-          { weightKg: 0, reps: 8 },
+          { weightKg: 0, reps: 8, partialsDone: false },
+          { weightKg: 0, reps: 8, partialsDone: false },
+          { weightKg: 0, reps: 8, partialsDone: false },
         ],
         supersetWithNext: false,
+        lengthenedPartials: false,
       },
     ],
   });
+});
+
+test('lengthened partials can be turned on and ticked on a set, and are saved so', async () => {
+  answerWith();
+  await renderEdit();
+
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'Lengthened partials on for Barbell squat',
+    }),
+  );
+  await fireEvent.press(
+    await screen.findByRole('checkbox', { name: 'Set 1 lengthened partials' }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+
+  expect(await screen.findByText('Day screen')).toBeOnTheScreen();
+  const body = (await sentBody()) as {
+    exercises: {
+      lengthenedPartials: boolean;
+      sets: { partialsDone: boolean }[];
+    }[];
+  };
+  expect(body.exercises[0].lengthenedPartials).toBe(true);
+  expect(body.exercises[0].sets.map((set) => set.partialsDone)).toEqual([
+    true,
+    false,
+  ]);
 });
 
 test('an exercise can be linked to the next as a superset, and is saved so', async () => {
