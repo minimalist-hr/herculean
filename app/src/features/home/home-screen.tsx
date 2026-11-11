@@ -10,6 +10,7 @@ import {
 
 import { usePageEnd } from '@/components/above-tab-bar';
 import { useCurrentUser } from '@/features/account/use-current-user';
+import { FeedbackCard } from '@/features/feedback/feedback-card';
 import { ProfileButton } from '@/features/settings/profile-button';
 import { dateText } from '@/formats/dates';
 import { workoutKeys } from '@/features/workout/query-keys';
@@ -99,6 +100,7 @@ export function HomeScreen() {
       <MonthSection now={now} />
       <StreakSection />
       <RecordsSection />
+      <FeedbackCard />
     </ScrollView>
   );
 }

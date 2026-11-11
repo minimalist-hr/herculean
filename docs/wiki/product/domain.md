@@ -37,6 +37,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 | Training | Routine | Routine exercise |
 | Training | Week plan day | |
 | Training | Workout | Workout exercise, Set |
+| Feedback | Ticket | Ticket message, Screenshot |
 
 ## Rules
 
@@ -197,3 +198,13 @@ Every action in the table is built.
 - **On plan:** done days out of planned days so far, at most 100%. It shows "–" with no planned days yet.
 - A skip counts as not done. A workout on a rest day counts as done, and its sets as planned, but its day isn't planned. A workout in progress counts towards nothing until it's finished.
 - Planned days so far are past days, plus today once its workout is done or skipped.
+
+### Feedback
+
+- A ticket is a bug, a suggestion or other, with a thread of messages from the user and Minimalist.
+- A message has 1 to 2,000 characters, trimmed, and at most 4 screenshots. A screenshot is a JPEG of at most 1 MB, made smaller on the phone.
+- A ticket keeps the app version, phone and system it was sent from.
+- A ticket is open while it waits for Minimalist, answered while it waits for the user, and closed when it is done. A user’s reply opens it again, and a closed ticket takes no replies.
+- A user can send 10 tickets in any 24 hours.
+- A reply from Minimalist is unread until the user opens the ticket.
+- Deleting an account deletes its tickets, messages and screenshots.

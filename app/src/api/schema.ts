@@ -1064,6 +1064,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the signed-in user's feedback
+         * @description Every ticket the user sent, the one with the latest message first.
+         */
+        get: operations["ListTickets"];
+        put?: never;
+        /**
+         * Send feedback
+         * @description Creates a ticket with its first message, screenshots and the device it was sent from. A user can send 10 tickets a day.
+         */
+        post: operations["CreateTicket"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/unread": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count the signed-in user's unread feedback
+         * @description How many of the user's tickets have a reply they haven't opened.
+         */
+        get: operations["GetUnreadFeedback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the signed-in user's feedback
+         * @description Every ticket the user sent, with its messages and screenshots, for the data export in Profile.
+         */
+        get: operations["ExportFeedback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a ticket
+         * @description One of the signed-in user's tickets, with every message. Opening it doesn't mark it read.
+         */
+        get: operations["GetTicket"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/{id}/screenshots/{screenshotId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a screenshot
+         * @description One screenshot on a message in one of the signed-in user's tickets.
+         */
+        get: operations["GetScreenshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reply to a ticket
+         * @description Adds the signed-in user's message to one of their tickets, which then waits for Minimalist again. A closed ticket takes no replies.
+         */
+        post: operations["AddTicketMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mark a ticket read
+         * @description Marks every reply on one of the signed-in user's tickets as read. Marking it again changes nothing.
+         */
+        put: operations["MarkTicketRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1071,6 +1215,13 @@ export interface components {
         /** @description A set to add to an exercise. */
         AddSetRequest: {
             removed?: null | components["schemas"]["RemovedSet"];
+        };
+        /** @description A reply to a ticket. */
+        AddTicketMessageRequest: {
+            /** @description The message, 1 to 2,000 characters. Spaces around it are removed. */
+            message: string;
+            /** @description Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none. */
+            screenshots: null | string[];
         };
         /** @description Exercises to add to a workout: new ones, or a removed one to put back. */
         AddWorkoutExercisesRequest: {
@@ -1164,6 +1315,21 @@ export interface components {
             email: string;
             /** @description The account's password. */
             password: string;
+        };
+        /** @description New feedback. */
+        CreateTicketRequest: {
+            /** @description What it is about. */
+            type: components["schemas"]["TicketType"];
+            /** @description The message, 1 to 2,000 characters. Spaces around it are removed. */
+            message: string;
+            /** @description Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none. */
+            screenshots: null | string[];
+            /** @description The app's version, for example 1.0.0, at most 50 characters. */
+            appVersion: string;
+            /** @description The phone's maker and model, at most 100 characters, or null when it isn't known, as on the web. */
+            phone: null | string;
+            /** @description The operating system and its version, for example Android 15, at most 50 characters. */
+            os: string;
         };
         /** @description A new account. */
         CreateUserRequest: {
@@ -1535,6 +1701,11 @@ export interface components {
             /** @description The workouts, oldest first. */
             workouts: components["schemas"]["ExportedWorkout"][];
         };
+        /** @description Every ticket the user sent, for the data export. */
+        FeedbackExportResponse: {
+            /** @description The tickets, oldest first. */
+            tickets: components["schemas"]["TicketExportResponse"][];
+        };
         /** @description The first day the user can reach. */
         FirstDayResponse: {
             /**
@@ -1609,6 +1780,25 @@ export interface components {
              * @default false
              */
             partialsDone: boolean;
+        };
+        /**
+         * @description Who wrote a message: the user, or Minimalist.
+         * @enum {unknown}
+         */
+        MessageAuthor: "user" | "admin";
+        /** @description A message in the export, with its screenshots. */
+        MessageExportResponse: {
+            /** @description Who wrote it. */
+            author: components["schemas"]["MessageAuthor"];
+            /** @description Its text. */
+            text: string;
+            /**
+             * Format: date-time
+             * @description When it was sent.
+             */
+            sentAtUtc: string;
+            /** @description Its screenshots in order, each a Base64 JPEG, which can be none. */
+            screenshots: string[];
         };
         /** @description A month's counts and totals. */
         MonthSummaryResponse: {
@@ -2002,6 +2192,11 @@ export interface components {
             /** @description The photo as a Base64 JPEG, at most 1 MB. */
             image: string;
         };
+        /** @description A screenshot on a message. */
+        ScreenshotResponse: {
+            /** @description The screenshot as a Base64 JPEG. */
+            image: string;
+        };
         /** @description A month of sessions. */
         SessionMonthResponse: {
             /** @description The month, as yyyy-MM. */
@@ -2106,6 +2301,95 @@ export interface components {
          * @enum {unknown}
          */
         Theme: "matchPhone" | "dark" | "light";
+        /** @description The new ticket. */
+        TicketCreatedResponse: {
+            /**
+             * Format: uuid
+             * @description The ticket's ID.
+             */
+            id: string;
+        };
+        /** @description A ticket in the export. */
+        TicketExportResponse: {
+            /** @description What it is about. */
+            type: components["schemas"]["TicketType"];
+            /** @description Where it stands. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description The app's version it was sent from. */
+            appVersion: string;
+            /** @description The phone it was sent from, or null when it isn't known. */
+            phone: null | string;
+            /** @description The operating system it was sent from. */
+            os: string;
+            /** @description Its messages, oldest first. */
+            messages: components["schemas"]["MessageExportResponse"][];
+        };
+        /** @description A ticket in the list. */
+        TicketListItemResponse: {
+            /**
+             * Format: uuid
+             * @description The ticket's ID.
+             */
+            id: string;
+            /** @description What it is about. */
+            type: components["schemas"]["TicketType"];
+            /** @description Where it stands. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description The start of its first message, at most 200 characters. */
+            preview: string;
+            /**
+             * Format: date-time
+             * @description When its latest message was sent.
+             */
+            lastMessageAtUtc: string;
+            /** @description Whether it has a reply the user hasn't opened. */
+            hasUnreadReply: boolean;
+        };
+        /** @description A message in a ticket's thread. */
+        TicketMessageResponse: {
+            /**
+             * Format: uuid
+             * @description The message's ID.
+             */
+            id: string;
+            /** @description Who wrote it. */
+            author: components["schemas"]["MessageAuthor"];
+            /** @description Its text. */
+            text: string;
+            /**
+             * Format: date-time
+             * @description When it was sent.
+             */
+            sentAtUtc: string;
+            /** @description Its screenshots' IDs in order, which can be none. Each one loads on its own. */
+            screenshotIds: string[];
+        };
+        /** @description A ticket with its thread. */
+        TicketResponse: {
+            /**
+             * Format: uuid
+             * @description The ticket's ID.
+             */
+            id: string;
+            /** @description What it is about. */
+            type: components["schemas"]["TicketType"];
+            /** @description Where it stands. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description Whether it has a reply the user hasn't opened. Mark it read once it shows. */
+            hasUnreadReply: boolean;
+            /** @description Its messages, oldest first. */
+            messages: components["schemas"]["TicketMessageResponse"][];
+        };
+        /**
+         * @description Where a ticket stands: open waits for Minimalist, answered waits for the user, and closed is done.
+         * @enum {unknown}
+         */
+        TicketStatus: "open" | "answered" | "closed";
+        /**
+         * @description What a ticket is about.
+         * @enum {unknown}
+         */
+        TicketType: "bug" | "suggestion" | "other";
         /** @description The OAuth 2.0 token response (RFC 6749), in camelCase. */
         TokenResponse: {
             /** @description A JWT. Send it as `Authorization: Bearer <accessToken>`. */
@@ -2138,6 +2422,14 @@ export interface components {
          * @enum {unknown}
          */
         Units: "metric" | "imperial";
+        /** @description How much of the user's feedback has a reply they haven't opened. */
+        UnreadFeedbackResponse: {
+            /**
+             * Format: int32
+             * @description How many tickets have a reply the user hasn't opened.
+             */
+            count: number;
+        };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateCurrentUserRequest: {
             /** @description 1 to 50 characters, trimmed. */
@@ -5743,6 +6035,323 @@ export interface operations {
             };
             /** @description The list doesn't match the user's groups, which have changed. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListTickets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The tickets, which can be none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketListItemResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTicketRequest"];
+            };
+        };
+        responses: {
+            /** @description The new ticket. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketCreatedResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user has sent 10 tickets in the last day. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetUnreadFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The count, which can be 0. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadFeedbackResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ExportFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The feedback, which can be none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackExportResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The ticket. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user has no ticket with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetScreenshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                screenshotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The screenshot. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScreenshotResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user has no such screenshot on this ticket. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AddTicketMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddTicketMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description The reply is sent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user has no ticket with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The ticket is closed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    MarkTicketRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The ticket is read. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The user has no ticket with this ID. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

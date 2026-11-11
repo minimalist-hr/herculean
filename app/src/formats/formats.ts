@@ -120,6 +120,41 @@ export function formatShortDate(date: string) {
   return `${dayNames[weekdays[(utc.getUTCDay() + 6) % 7]].short}, ${dayAndMonth(utc)}`;
 }
 
+/** A moment from the API, in the phone's time, for example "Fri, 16th Oct, 14:05". */
+export function formatDateTime(moment: string) {
+  const local = new Date(moment);
+  const hours = String(local.getHours()).padStart(2, '0');
+  const minutes = String(local.getMinutes()).padStart(2, '0');
+
+  return `${formatShortDate(dateText(local))}, ${hours}:${minutes}`;
+}
+
+/**
+ * How long ago a moment was, for example "Just now", "5 minutes ago", "2 hours ago" or "Yesterday, 14:05".
+ * Before yesterday it is the date and time.
+ */
+export function formatRelativeTime(moment: string, now: Date) {
+  const then = new Date(moment);
+  const minutes = Math.floor((now.getTime() - then.getTime()) / 60_000);
+  const today = dateText(now);
+  const time = formatDateTime(moment).split(', ').at(-1) ?? '';
+
+  if (minutes < 1) {
+    return 'Just now';
+  }
+  if (minutes < 60) {
+    return `${counted(minutes, 'minute', 'minutes')} ago`;
+  }
+  if (dateText(then) === today) {
+    return `${counted(Math.floor(minutes / 60), 'hour', 'hours')} ago`;
+  }
+  if (daysFrom(dateText(then), today) === 1) {
+    return `Yesterday, ${time}`;
+  }
+
+  return formatDateTime(moment);
+}
+
 /** Where a run of dates starts, for example "Since 7th Aug". Another year says which. */
 export function formatSince(date: string) {
   return `Since ${dayAndMonth(utcDateOf(date))}`;

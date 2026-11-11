@@ -4426,6 +4426,442 @@
           }
         ]
       }
+    },
+    "/api/v1/feedback": {
+      "post": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Send feedback",
+        "description": "Creates a ticket with its first message, screenshots and the device it was sent from. A user can send 10 tickets a day.",
+        "operationId": "CreateTicket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new ticket.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketCreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user has sent 10 tickets in the last day.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "List the signed-in user's feedback",
+        "description": "Every ticket the user sent, the one with the latest message first.",
+        "operationId": "ListTickets",
+        "responses": {
+          "200": {
+            "description": "The tickets, which can be none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TicketListItemResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/unread": {
+      "get": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Count the signed-in user's unread feedback",
+        "description": "How many of the user's tickets have a reply they haven't opened.",
+        "operationId": "GetUnreadFeedback",
+        "responses": {
+          "200": {
+            "description": "The count, which can be 0.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadFeedbackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/export": {
+      "get": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Export the signed-in user's feedback",
+        "description": "Every ticket the user sent, with its messages and screenshots, for the data export in Profile.",
+        "operationId": "ExportFeedback",
+        "responses": {
+          "200": {
+            "description": "The feedback, which can be none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackExportResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/{id}": {
+      "get": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Get a ticket",
+        "description": "One of the signed-in user's tickets, with every message. Opening it doesn't mark it read.",
+        "operationId": "GetTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The ticket.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user has no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/{id}/screenshots/{screenshotId}": {
+      "get": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Get a screenshot",
+        "description": "One screenshot on a message in one of the signed-in user's tickets.",
+        "operationId": "GetScreenshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "screenshotId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The screenshot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenshotResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user has no such screenshot on this ticket.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/{id}/messages": {
+      "post": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Reply to a ticket",
+        "description": "Adds the signed-in user's message to one of their tickets, which then waits for Minimalist again. A closed ticket takes no replies.",
+        "operationId": "AddTicketMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddTicketMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The reply is sent."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user has no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The ticket is closed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/{id}/read": {
+      "put": {
+        "tags": [
+          "Feedback"
+        ],
+        "summary": "Mark a ticket read",
+        "description": "Marks every reply on one of the signed-in user's tickets as read. Marking it again changes nothing.",
+        "operationId": "MarkTicketRead",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ticket is read."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user has no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -4446,6 +4882,30 @@
           }
         },
         "description": "A set to add to an exercise."
+      },
+      "AddTicketMessageRequest": {
+        "required": [
+          "message",
+          "screenshots"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The message, 1 to 2,000 characters. Spaces around it are removed."
+          },
+          "screenshots": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none."
+          }
+        },
+        "description": "A reply to a ticket."
       },
       "AddWorkoutExercisesRequest": {
         "type": "object",
@@ -4673,6 +5133,53 @@
           }
         },
         "description": "Email and password to sign in with."
+      },
+      "CreateTicketRequest": {
+        "required": [
+          "type",
+          "message",
+          "screenshots",
+          "appVersion",
+          "phone",
+          "os"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "What it is about.",
+            "$ref": "#/components/schemas/TicketType"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message, 1 to 2,000 characters. Spaces around it are removed."
+          },
+          "screenshots": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none."
+          },
+          "appVersion": {
+            "type": "string",
+            "description": "The app's version, for example 1.0.0, at most 50 characters."
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The phone's maker and model, at most 100 characters, or null when it isn't known, as on the web."
+          },
+          "os": {
+            "type": "string",
+            "description": "The operating system and its version, for example Android 15, at most 50 characters."
+          }
+        },
+        "description": "New feedback."
       },
       "CreateUserRequest": {
         "required": [
@@ -5479,6 +5986,22 @@
         },
         "description": "Everything the user planned and logged, for a copy of their data."
       },
+      "FeedbackExportResponse": {
+        "required": [
+          "tickets"
+        ],
+        "type": "object",
+        "properties": {
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketExportResponse"
+            },
+            "description": "The tickets, oldest first."
+          }
+        },
+        "description": "Every ticket the user sent, for the data export."
+      },
       "FirstDayResponse": {
         "required": [
           "date"
@@ -5618,6 +6141,45 @@
           }
         },
         "description": "A set from last time."
+      },
+      "MessageAuthor": {
+        "enum": [
+          "user",
+          "admin"
+        ],
+        "description": "Who wrote a message: the user, or Minimalist."
+      },
+      "MessageExportResponse": {
+        "required": [
+          "author",
+          "text",
+          "sentAtUtc",
+          "screenshots"
+        ],
+        "type": "object",
+        "properties": {
+          "author": {
+            "description": "Who wrote it.",
+            "$ref": "#/components/schemas/MessageAuthor"
+          },
+          "text": {
+            "type": "string",
+            "description": "Its text."
+          },
+          "sentAtUtc": {
+            "type": "string",
+            "description": "When it was sent.",
+            "format": "date-time"
+          },
+          "screenshots": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Its screenshots in order, each a Base64 JPEG, which can be none."
+          }
+        },
+        "description": "A message in the export, with its screenshots."
       },
       "MonthSummaryResponse": {
         "required": [
@@ -6281,6 +6843,19 @@
         },
         "description": "The new profile photo."
       },
+      "ScreenshotResponse": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The screenshot as a Base64 JPEG."
+          }
+        },
+        "description": "A screenshot on a message."
+      },
       "SessionMonthResponse": {
         "required": [
           "month",
@@ -6444,6 +7019,196 @@
         ],
         "description": "Light or dark: matchPhone follows the phone's setting."
       },
+      "TicketCreatedResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ticket's ID.",
+            "format": "uuid"
+          }
+        },
+        "description": "The new ticket."
+      },
+      "TicketExportResponse": {
+        "required": [
+          "type",
+          "status",
+          "appVersion",
+          "phone",
+          "os",
+          "messages"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "What it is about.",
+            "$ref": "#/components/schemas/TicketType"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/TicketStatus"
+          },
+          "appVersion": {
+            "type": "string",
+            "description": "The app's version it was sent from."
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The phone it was sent from, or null when it isn't known."
+          },
+          "os": {
+            "type": "string",
+            "description": "The operating system it was sent from."
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageExportResponse"
+            },
+            "description": "Its messages, oldest first."
+          }
+        },
+        "description": "A ticket in the export."
+      },
+      "TicketListItemResponse": {
+        "required": [
+          "id",
+          "type",
+          "status",
+          "preview",
+          "lastMessageAtUtc",
+          "hasUnreadReply"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ticket's ID.",
+            "format": "uuid"
+          },
+          "type": {
+            "description": "What it is about.",
+            "$ref": "#/components/schemas/TicketType"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/TicketStatus"
+          },
+          "preview": {
+            "type": "string",
+            "description": "The start of its first message, at most 200 characters."
+          },
+          "lastMessageAtUtc": {
+            "type": "string",
+            "description": "When its latest message was sent.",
+            "format": "date-time"
+          },
+          "hasUnreadReply": {
+            "type": "boolean",
+            "description": "Whether it has a reply the user hasn't opened."
+          }
+        },
+        "description": "A ticket in the list."
+      },
+      "TicketMessageResponse": {
+        "required": [
+          "id",
+          "author",
+          "text",
+          "sentAtUtc",
+          "screenshotIds"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The message's ID.",
+            "format": "uuid"
+          },
+          "author": {
+            "description": "Who wrote it.",
+            "$ref": "#/components/schemas/MessageAuthor"
+          },
+          "text": {
+            "type": "string",
+            "description": "Its text."
+          },
+          "sentAtUtc": {
+            "type": "string",
+            "description": "When it was sent.",
+            "format": "date-time"
+          },
+          "screenshotIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Its screenshots' IDs in order, which can be none. Each one loads on its own."
+          }
+        },
+        "description": "A message in a ticket's thread."
+      },
+      "TicketResponse": {
+        "required": [
+          "id",
+          "type",
+          "status",
+          "hasUnreadReply",
+          "messages"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ticket's ID.",
+            "format": "uuid"
+          },
+          "type": {
+            "description": "What it is about.",
+            "$ref": "#/components/schemas/TicketType"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/TicketStatus"
+          },
+          "hasUnreadReply": {
+            "type": "boolean",
+            "description": "Whether it has a reply the user hasn't opened. Mark it read once it shows."
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketMessageResponse"
+            },
+            "description": "Its messages, oldest first."
+          }
+        },
+        "description": "A ticket with its thread."
+      },
+      "TicketStatus": {
+        "enum": [
+          "open",
+          "answered",
+          "closed"
+        ],
+        "description": "Where a ticket stands: open waits for Minimalist, answered waits for the user, and closed is done."
+      },
+      "TicketType": {
+        "enum": [
+          "bug",
+          "suggestion",
+          "other"
+        ],
+        "description": "What a ticket is about."
+      },
       "TokenResponse": {
         "required": [
           "accessToken",
@@ -6499,6 +7264,20 @@
           "imperial"
         ],
         "description": "The units the app shows and takes: metric in kg and cm, imperial in lb and in. The app converts; the API keeps weights in kg."
+      },
+      "UnreadFeedbackResponse": {
+        "required": [
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "How many tickets have a reply the user hasn't opened.",
+            "format": "int32"
+          }
+        },
+        "description": "How much of the user's feedback has a reply they haven't opened."
       },
       "UpdateCurrentUserRequest": {
         "type": "object",
@@ -7243,6 +8022,9 @@
     },
     {
       "name": "Workouts"
+    },
+    {
+      "name": "Feedback"
     }
   ]
 }

@@ -17,6 +17,12 @@
     <Project Path="src/modules/training/Herculean.Training.Infrastructure/Herculean.Training.Infrastructure.csproj" />
     <Project Path="src/modules/training/Herculean.Training.Contracts/Herculean.Training.Contracts.csproj" />
   </Folder>
+  <Folder Name="/src/modules/feedback/">
+    <Project Path="src/modules/feedback/Herculean.Feedback.Domain/Herculean.Feedback.Domain.csproj" />
+    <Project Path="src/modules/feedback/Herculean.Feedback.Application/Herculean.Feedback.Application.csproj" />
+    <Project Path="src/modules/feedback/Herculean.Feedback.Infrastructure/Herculean.Feedback.Infrastructure.csproj" />
+    <Project Path="src/modules/feedback/Herculean.Feedback.Contracts/Herculean.Feedback.Contracts.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Herculean.ArchitectureTests/Herculean.ArchitectureTests.csproj" />
     <Project Path="tests/Herculean.SharedKernel.UnitTests/Herculean.SharedKernel.UnitTests.csproj" />
@@ -27,5 +33,8 @@
   </Folder>
   <Folder Name="/tests/modules/training/">
     <Project Path="tests/modules/training/Herculean.Training.UnitTests/Herculean.Training.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/modules/feedback/">
+    <Project Path="tests/modules/feedback/Herculean.Feedback.UnitTests/Herculean.Feedback.UnitTests.csproj" />
   </Folder>
 </Solution>

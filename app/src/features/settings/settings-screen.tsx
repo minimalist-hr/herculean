@@ -8,8 +8,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackLink } from '@/components/back-link';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Skeleton } from '@/components/skeleton';
-import { TextLink } from '@/components/text-link';
+import { linkTextHeight, TextLink } from '@/components/text-link';
 import { useCurrentUser } from '@/features/account/use-current-user';
+import { useUnreadFeedback } from '@/features/feedback/use-feedback';
 import { useRestAlertsBlocked } from '@/features/workout/rest-alert';
 import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
 import { formatClock, noValue } from '@/formats/formats';
@@ -44,6 +45,7 @@ export function SettingsScreen() {
   const exportData = useExportData();
   const updateRestAlerts = useUpdateRestAlerts();
   const restAlertsBlocked = useRestAlertsBlocked();
+  const unreadFeedback = useUnreadFeedback();
   const [openSheet, setOpenSheet] = useState<
     'signOut' | 'deleteAccount' | null
   >(null);
@@ -189,6 +191,14 @@ export function SettingsScreen() {
         <SettingsSection title="About">
           <SettingsRow
             first
+            label="Feedback"
+            hasValue={false}
+            unread={unreadFeedback.data ? 'new reply' : undefined}
+            onPress={() => {
+              router.push('/settings/feedback');
+            }}
+          />
+          <SettingsRow
             label="Terms of service"
             hasValue={false}
             onPress={() => {
@@ -326,9 +336,6 @@ function Profile({ name, email }: { name?: string | null; email?: string }) {
 }
 
 const avatarSize = 56;
-
-/** About the height of a text link's 13 px uppercase label. */
-const linkTextHeight = 18;
 
 const styles = StyleSheet.create({
   screen: {

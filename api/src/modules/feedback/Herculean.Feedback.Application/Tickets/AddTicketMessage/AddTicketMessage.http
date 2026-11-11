@@ -1,0 +1,56 @@
+# Reply to a ticket. Start the API with Aspire first, then send the first requests once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Feedback → 201. The requests below use it. The screenshot is the smallest JPEG start.
+# @name createTicket
+POST {{host}}/api/v1/feedback
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "type": "bug",
+  "message": "The rest timer stops when the phone locks.",
+  "screenshots": ["/9j/4A=="],
+  "appVersion": "1.0.0",
+  "phone": "Google Pixel 8",
+  "os": "Android 15"
+}
+
+### A reply → 204. The ticket is open again.
+POST {{host}}/api/v1/feedback/{{createTicket.response.body.$.id}}/messages
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "message": "It happens on every workout.",
+  "screenshots": []
+}
+
+### No message → 400 validation, with an error for message.
+POST {{host}}/api/v1/feedback/{{createTicket.response.body.$.id}}/messages
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "message": ""
+}
+
+### A ticket that does not exist → 404 ticket.not_found. A closed ticket is 409 ticket.closed.
+POST {{host}}/api/v1/feedback/0198a000-0000-7000-8000-000000000000/messages
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "message": "Hello?"
+}

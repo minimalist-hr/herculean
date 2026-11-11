@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Herculean.Account.Infrastructure;
+using Herculean.Feedback.Infrastructure;
 using Herculean.ServiceDefaults;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Results;
@@ -47,6 +48,7 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.AddAccountModule();
 builder.AddTrainingModule();
+builder.AddFeedbackModule();
 
 // The build starts the API to write openapi.json. It has no secrets, so the settings checks are skipped.
 if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
@@ -77,6 +79,7 @@ app.UseAuthorization();
 app.MapDefaultEndpoints();
 app.MapAccountModuleEndpoints();
 app.MapTrainingModuleEndpoints();
+app.MapFeedbackModuleEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
@@ -86,6 +89,7 @@ if (app.Environment.IsDevelopment())
     // Production applies migrations when it deploys.
     await app.Services.MigrateAccountModuleDatabaseAsync();
     await app.Services.MigrateTrainingModuleDatabaseAsync();
+    await app.Services.MigrateFeedbackModuleDatabaseAsync();
 }
 
 await app.RunAsync();

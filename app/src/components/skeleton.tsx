@@ -24,7 +24,8 @@ export function Skeleton({
 }: {
   /** A number, or the full width it sits in. */
   width: number | '100%';
-  height: number;
+  /** A number, or the full height it sits in, such as a square tile. */
+  height: number | '100%';
 }) {
   const { colors, motion, opacity, radius } = useTheme();
   const reduceMotion = useReduceMotion();

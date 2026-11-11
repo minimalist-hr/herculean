@@ -6,6 +6,8 @@ import {
   formatNumber,
   formatSpokenDuration,
   formatSet,
+  formatDateTime,
+  formatRelativeTime,
   formatShortDate,
   formatSince,
   hoursAndMinutesText,
@@ -146,6 +148,26 @@ describe('in 2026', () => {
     ['2023-10-16', 'Mon, 16th Oct 2023'],
   ])('the date %s reads %s', (date, text) => {
     expect(formatShortDate(date)).toBe(text);
+  });
+
+  test.each([
+    [new Date(2026, 10, 11, 14, 0, 30), 'Just now'],
+    [new Date(2026, 10, 11, 13, 59), '1 minute ago'],
+    [new Date(2026, 10, 11, 13, 5), '55 minutes ago'],
+    [new Date(2026, 10, 11, 13, 0), '1 hour ago'],
+    [new Date(2026, 10, 11, 0, 5), '13 hours ago'],
+    [new Date(2026, 10, 10, 23, 30), 'Yesterday, 23:30'],
+    [new Date(2026, 10, 9, 9, 5), 'Mon, 9th Nov, 09:05'],
+  ])('a message sent %s reads %s at 14:00', (sent, text) => {
+    expect(
+      formatRelativeTime(sent.toISOString(), new Date(2026, 10, 11, 14, 0, 45)),
+    ).toBe(text);
+  });
+
+  test('a moment reads as its date and 24-hour time on the phone', () => {
+    const moment = new Date(2026, 9, 16, 9, 5);
+
+    expect(formatDateTime(moment.toISOString())).toBe('Fri, 16th Oct, 09:05');
   });
 
   test.each([

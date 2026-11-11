@@ -1,0 +1,55 @@
+# Send feedback. Start the API with Aspire first, then send the first requests once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### Feedback → 201. The requests below use it. The screenshot is the smallest JPEG start.
+# @name createTicket
+POST {{host}}/api/v1/feedback
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "type": "bug",
+  "message": "The rest timer stops when the phone locks.",
+  "screenshots": ["/9j/4A=="],
+  "appVersion": "1.0.0",
+  "phone": "Google Pixel 8",
+  "os": "Android 15"
+}
+
+### No message → 400 validation, with an error for message.
+POST {{host}}/api/v1/feedback
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "type": "suggestion",
+  "message": " ",
+  "appVersion": "1.0.0",
+  "os": "Android 15"
+}
+
+### Five screenshots → 400 validation, with an error for screenshots.
+POST {{host}}/api/v1/feedback
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "type": "other",
+  "message": "Five screenshots.",
+  "screenshots": ["/9j/4A==", "/9j/4A==", "/9j/4A==", "/9j/4A==", "/9j/4A=="],
+  "appVersion": "1.0.0",
+  "os": "Android 15"
+}
+
+### Send the first feedback request 10 times: the 11th in a day is 409 ticket.limit_reached.

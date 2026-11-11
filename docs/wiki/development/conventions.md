@@ -23,7 +23,7 @@ The terms in [Domain and entities](/product/domain#terms) are used unchanged in 
 
 ### Folders
 
-- Repo-level folders are lowercase: `api`, `app`, `aspire`, `docs`, `src`, `tests`, `modules`, `account`, `training`.
+- Repo-level folders are lowercase: `api`, `app`, `aspire`, `docs`, `src`, `tests`, `modules`, `account`, `training`, `feedback`.
 - A .NET project folder has the project's name, for example `Herculean.Account.Domain`.
 - Folders inside a .NET project are PascalCase, because they are namespaces, for example `Exercises/CreateExercise`.
 - Folders and files in the app are kebab-case, for example `features/workout/set-sheet.tsx`.
@@ -50,7 +50,7 @@ Type suffixes say what a type is for: `Request` comes into the API, `Response` g
 - snake_case, set once per DbContext with `UseSnakeCaseNamingConvention()`.
 - Tables are plural: `week_plan_days`.
 - Enums are stored by name, for example `Metric`, so reordering an enum never changes saved data.
-- Schemas are module names: `account`, `training`.
+- Schemas are module names: `account`, `training`, `feedback`.
 
 ### API
 

@@ -43,19 +43,29 @@ async function readPhoto() {
   return data.image ?? null;
 }
 
+async function readFeedback() {
+  const { data, error } = await api.GET('/api/v1/feedback/export');
+  if (data === undefined) {
+    throw toApiError(error);
+  }
+
+  return data;
+}
+
 /** Reads all of the user's data, zips it as CSV files and shares the ZIP. */
 export function useExportData() {
   return useMutation({
     mutationFn: async () => {
-      const [data, user, settings, photo] = await Promise.all([
+      const [data, user, settings, photo, feedback] = await Promise.all([
         readExport(),
         readUser(),
         readSettings(),
         readPhoto(),
+        readFeedback(),
       ]);
       await shareFile(
         exportFileName(new Date()),
-        exportZip({ data, user, settings, photo }),
+        exportZip({ data, user, settings, photo, feedback }),
       );
     },
     onSuccess: () => {

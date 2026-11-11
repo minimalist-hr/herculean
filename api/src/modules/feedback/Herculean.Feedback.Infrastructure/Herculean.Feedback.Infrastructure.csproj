@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Herculean.Feedback.Application\Herculean.Feedback.Application.csproj" />
+  </ItemGroup>
+
+  <!-- Internals stay inside the module. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Herculean.Feedback.UnitTests" />
+  </ItemGroup>
+
+</Project>

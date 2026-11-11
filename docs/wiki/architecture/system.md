@@ -7,8 +7,8 @@ title: System architecture
 ```mermaid
 flowchart LR
     app["App<br/>React Native, Expo"]
-    api["API<br/>ASP.NET Core<br/>modules: Account, Training"]
-    db[("PostgreSQL<br/>schemas: account, training")]
+    api["API<br/>ASP.NET Core<br/>modules: Account, Training, Feedback"]
+    db[("PostgreSQL<br/>schemas: account, training, feedback")]
     email["Resend"]
     inbox["User's inbox"]
 
@@ -21,7 +21,7 @@ flowchart LR
 ```
 
 - **App:** the phone app. It talks only to the API. See [Frontend architecture](/architecture/frontend).
-- **API:** one process with two modules, `Account` and `Training`. It also runs background jobs. See [Backend architecture](/architecture/backend).
+- **API:** one process with three modules, `Account`, `Training` and `Feedback`. It also runs background jobs. See [Backend architecture](/architecture/backend).
 - **PostgreSQL:** one database, one schema per module.
 - **Resend:** sends email. Locally, Mailpit takes its place. See [Configuration](/development/configuration).
 

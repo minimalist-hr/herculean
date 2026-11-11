@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\account\Herculean.Account.Contracts\Herculean.Account.Contracts.csproj" />
+    <ProjectReference Include="..\Herculean.Feedback.Domain\Herculean.Feedback.Domain.csproj" />
+  </ItemGroup>
+
+  <!-- Internals stay inside the module. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Herculean.Feedback.Infrastructure" />
+    <InternalsVisibleTo Include="Herculean.Feedback.UnitTests" />
+  </ItemGroup>
+
+</Project>

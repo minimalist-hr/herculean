@@ -1,0 +1,17 @@
+# Count your unread feedback. Start the API with Aspire first, then send the first requests once.
+@host = http://localhost:5279
+
+### Create an account → 201. The requests below use its access token.
+# @name createAccount
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+  "email": "user-{{$guid}}@example.com",
+  "password": "password",
+  "timeZone": "Europe/Zagreb"
+}
+
+### The count → 200. Until Minimalist replies, it is 0.
+GET {{host}}/api/v1/feedback/unread
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}

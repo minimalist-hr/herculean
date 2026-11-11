@@ -211,3 +211,43 @@ erDiagram
 | Checked | bool | |
 | WeightChanged | bool | Changed by hand, so a change on an earlier set leaves it alone |
 | RepsChanged | bool | Changed by hand, so a change on an earlier set leaves them alone |
+
+## Feedback
+
+Every Feedback entity has a `UserId` (type `UserId`): the user who sent the ticket, on Minimalist's replies too. It has no foreign key to the Account module.
+
+```mermaid
+erDiagram
+    Ticket ||--|{ TicketMessage : has
+    TicketMessage ||--o{ Screenshot : has
+```
+
+### Ticket
+
+| Property | Type | Notes |
+|---|---|---|
+| UserId | UserId | |
+| Type | enum | `Bug`, `Suggestion`, `Other` |
+| Status | enum | `Open`, `Answered`, `Closed` |
+| AppVersion | string(50) | |
+| Phone | string(100)? | Empty on the web |
+| Os | string(50) | |
+| HasUnreadReply | bool | |
+| Messages | list of TicketMessage | |
+
+### TicketMessage
+
+| Property | Type | Notes |
+|---|---|---|
+| TicketId | TicketId | → Ticket |
+| Author | enum | `User`, `Admin` |
+| Text | string(2000) | Sent when created |
+| Screenshots | list of Screenshot | |
+
+### Screenshot
+
+| Property | Type | Notes |
+|---|---|---|
+| MessageId | TicketMessageId | → TicketMessage |
+| Order | int | |
+| Image | bytes | A JPEG of at most 1 MB |

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Herculean.SharedKernel\Herculean.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <!-- Internals stay inside the module. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Herculean.Feedback.Application" />
+    <InternalsVisibleTo Include="Herculean.Feedback.Infrastructure" />
+    <InternalsVisibleTo Include="Herculean.Feedback.UnitTests" />
+  </ItemGroup>
+
+</Project>

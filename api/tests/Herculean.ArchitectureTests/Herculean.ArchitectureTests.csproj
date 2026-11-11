@@ -5,6 +5,7 @@
     <!-- Not every Contracts project is referenced yet, so not all are copied with the API. -->
     <ProjectReference Include="..\..\src\modules\account\Herculean.Account.Contracts\Herculean.Account.Contracts.csproj" />
     <ProjectReference Include="..\..\src\modules\training\Herculean.Training.Contracts\Herculean.Training.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\modules\feedback\Herculean.Feedback.Contracts\Herculean.Feedback.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

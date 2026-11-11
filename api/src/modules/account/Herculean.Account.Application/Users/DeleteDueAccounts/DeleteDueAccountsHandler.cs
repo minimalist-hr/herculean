@@ -10,7 +10,7 @@ internal sealed class DeleteDueAccountsHandler(
     IOutbox outbox,
     TimeProvider timeProvider)
 {
-    /// <summary>Deletes every account whose wait is over, and tells Training and the user.</summary>
+    /// <summary>Deletes every account whose wait is over, and tells Training, Feedback and the user.</summary>
     public async Task HandleAsync(CancellationToken cancellationToken)
     {
         DateTimeOffset nowUtc = timeProvider.GetUtcNow();

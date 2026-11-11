@@ -43,6 +43,7 @@ export function TextField({
   const { colors, radius, size, space, text } = useTheme();
   const [hidden, setHidden] = useState(true);
   const message = error ?? helper;
+  const multiline = inputProps.multiline === true;
 
   return (
     <View style={{ gap: space.sm }}>
@@ -59,8 +60,11 @@ export function TextField({
           style={[
             styles.input,
             text.input,
+            multiline && styles.multiline,
             {
-              height: size.input,
+              height: multiline ? undefined : size.input,
+              minHeight: multiline ? size.input * multilineRows : undefined,
+              paddingVertical: multiline ? space.md : 0,
               paddingLeft: space.md,
               paddingRight: password ? size.touchTargetMin : space.md,
               borderRadius: radius.control,
@@ -102,12 +106,19 @@ export function TextField({
   );
 }
 
+/** A multiline field starts this many single lines tall. */
+const multilineRows = 3;
+
 const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     // Android adds its own padding and top-aligns the text, so the text sits off center.
     paddingVertical: 0,
     textAlignVertical: 'center',
+  },
+  // A long text starts at the top, and the field grows with it.
+  multiline: {
+    textAlignVertical: 'top',
   },
   eye: {
     position: 'absolute',

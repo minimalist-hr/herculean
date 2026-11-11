@@ -22,6 +22,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 6 | [Edit workout and month](#6-edit-workout-and-month) | W30–W32, W40, W41, W43–W49 |
 | 7 | [Settings](#7-settings) | H10–H19 |
 | 8 | [Home](#8-home) | H01–H09, H44 |
+| 9 | [Feedback](#9-feedback) | F01–F27, H91, H92 |
 
 Each feature lists its main screens. Every state is in `docs/design/screen-index.md`.
 
@@ -265,8 +266,8 @@ Changes on W30 stay in the app until Save workout.
 - **Photo:** H11 → Take photo or Choose from library, dragged and zoomed to a square, made 512 × 512 px on the phone → H39. It also shows on the Home avatar. Remove photo → H41, with an undo bar. With no photo, Remove photo looks muted (H40).
 - **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send link again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
 - **Sign out:** → H36 → A01. Without a connection it still signs out on the phone. Signing out, however it happens, clears what the phone holds for the user.
-- **Export data:** the row on H10 → the phone's share sheet with a ZIP: one row per set in `workouts.csv`, and `exercises.csv`, `routines.csv`, `account.csv`, with the profile photo if there is one. Weights follow the Units setting. On the web it downloads. Then it says "Data exported." (H88), and a failure says so (H87).
-- **Delete account:** → H19, with the current password → A01, which says so (A07), and H38 says when. A wrong password shows on H34, and a failure on H35. Signing in within 14 days opens A08, to keep the account. After 14 days a daily job deletes it: an account deleted event tells Training to delete the user's training data, workouts included, and H37 is the last email.
+- **Export data:** the row on H10 → the phone's share sheet with a ZIP: one row per set in `workouts.csv`, and `exercises.csv`, `routines.csv`, `account.csv`, one row per feedback message in `feedback.csv` with its screenshots as files in `feedback/`, and the profile photo if there is one. Weights follow the Units setting. On the web it downloads. Then it says "Data exported." (H88), and a failure says so (H87).
+- **Delete account:** → H19, with the current password → A01, which says so (A07), and H38 says when. A wrong password shows on H34, and a failure on H35. Signing in within 14 days opens A08, to keep the account. After 14 days a daily job deletes it: an account deleted event tells Training to delete the user's training data, workouts included, and Feedback their tickets, and H37 is the last email.
 
 **Entities:** User, Email change token, Refresh token, Workout settings.
 
@@ -324,3 +325,35 @@ Changes on W30 stay in the app until Save workout.
 **Done when**
 - Each section loads and fails on its own.
 - A new account shows every section, with empty copy.
+
+## 9. Feedback
+
+**What it does:** you send a bug, a suggestion or anything else from the app, with up to 4 screenshots, and read Minimalist's replies in a thread.
+
+**Screens:** F01 Your feedback, F02 No feedback, F03 Loading, F04 Load failure, F10 New feedback, F16 From Home, F20 Ticket, F25 Closed, H91 and H92 Unread reply.
+
+**Flows**
+- **Send:** Feedback on H10 → F01 → New feedback → F10, or Send feedback at the end of Home → F10 with Home as its back link. Send feedback → the new ticket's F20, which says "Feedback sent."
+- **Read:** a ticket on F01 → F20. Opening it marks Minimalist's replies read, which clears the dots on its row, H10's Feedback row and the Home avatar. Pulling down reads the thread again.
+- **Reply:** the reply box on F20, until the ticket is closed.
+
+**Entities:** Ticket, Ticket message, Screenshot.
+
+**Endpoints**
+
+| Method | Route | Used by |
+|---|---|---|
+| POST | `/api/v1/feedback` | F10 |
+| GET | `/api/v1/feedback` | F01 |
+| GET | `/api/v1/feedback/unread` | The dots on Home and H10 |
+| GET | `/api/v1/feedback/{id}` | F20 |
+| GET | `/api/v1/feedback/{id}/screenshots/{screenshotId}` | F20 |
+| POST | `/api/v1/feedback/{id}/messages` | F20 |
+| PUT | `/api/v1/feedback/{id}/read` | F20 |
+| GET | `/api/v1/feedback/export` | Export data on H10 |
+
+**Left to other features:** Minimalist's replies and statuses come with the admin inbox (#84), and push notifications for replies with #85.
+
+**Done when**
+- The list, a thread and each screenshot load and fail on their own.
+- Deleting an account deletes its feedback.

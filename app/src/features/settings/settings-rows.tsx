@@ -6,6 +6,7 @@ import { SectionTitle } from '@/components/section-title';
 import { Skeleton } from '@/components/skeleton';
 import { SwitchKnob } from '@/components/switch-field';
 import { Tappable } from '@/components/tappable';
+import { UnreadDot } from '@/features/feedback/unread-dot';
 import { noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -47,6 +48,8 @@ interface SettingsRowProps {
   value?: string;
   /** Shows an alert icon by the label. This says why, to screen readers. */
   attention?: string;
+  /** Shows the unread dot by the label. This says why, to screen readers. */
+  unread?: string;
   first?: boolean;
   /** Not available yet: it looks muted but still says why when tapped. */
   muted?: boolean;
@@ -61,6 +64,7 @@ export function SettingsRow({
   label,
   value,
   attention,
+  unread,
   first = false,
   muted = false,
   danger = false,
@@ -91,7 +95,7 @@ export function SettingsRow({
     <Tappable
       feedback="fill"
       accessibilityRole={onPress === undefined ? undefined : 'button'}
-      accessibilityLabel={[label, value, attention]
+      accessibilityLabel={[label, value, attention, unread]
         .filter((part) => part !== undefined)
         .join(', ')}
       disabled={onPress === undefined}
@@ -118,6 +122,7 @@ export function SettingsRow({
           {label}
         </Text>
         {attention !== undefined && <AlertIcon color={colors.warn} size={16} />}
+        {unread !== undefined && <UnreadDot />}
       </View>
       {renderValue()}
       {onPress !== undefined && (

@@ -9,7 +9,7 @@ namespace Herculean.ArchitectureTests;
 /// <summary>The API's projects, loaded once for every architecture test.</summary>
 internal static class HerculeanArchitecture
 {
-    public static readonly string[] Modules = ["Account", "Training"];
+    public static readonly string[] Modules = ["Account", "Training", "Feedback"];
     public static readonly string[] Layers = ["Domain", "Application", "Infrastructure", "Contracts"];
 
     public static readonly Assembly SharedKernelAssembly = Assembly.Load("Herculean.SharedKernel");

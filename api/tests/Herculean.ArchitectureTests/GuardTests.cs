@@ -6,6 +6,7 @@ using System.Text.Json;
 using FluentValidation;
 
 using Herculean.Account.Infrastructure;
+using Herculean.Feedback.Infrastructure;
 using Herculean.SharedKernel.Entities;
 using Herculean.Training.Infrastructure;
 
@@ -27,6 +28,9 @@ public sealed class GuardTests
     private static readonly string[] ModuleLayers = ["Domain", "Application", "Infrastructure"];
 
     public static TheoryData<string> ModuleNames => new(Modules);
+
+    // The modules that hold a user's own data, each row filtered to the signed-in user.
+    public static TheoryData<string> UserDataModuleNames => new("Training", "Feedback");
 
     [Theory]
     [MemberData(nameof(ModuleNames))]
@@ -65,6 +69,7 @@ public sealed class GuardTests
         using WebApplication app = CreateApiBuilder().Build();
         app.MapAccountModuleEndpoints();
         app.MapTrainingModuleEndpoints();
+        app.MapFeedbackModuleEndpoints();
 
         HashSet<Type?> mapped = [.. ((IEndpointRouteBuilder)app).DataSources
             .SelectMany(source => source.Endpoints)
@@ -92,26 +97,28 @@ public sealed class GuardTests
             .ShouldBeEmpty();
     }
 
-    [Fact]
-    public void EveryTrainingEntityHasAUserId()
+    [Theory]
+    [MemberData(nameof(UserDataModuleNames))]
+    public void EveryUserDataEntityHasAUserId(string module)
     {
-        Entities("Training")
+        Entities(module)
             .Where(type => type.GetProperty("UserId") is null)
             .Select(type => type.Name)
             .ShouldBeEmpty();
     }
 
-    [Fact]
-    public void EveryTrainingEntityHasItsQueryFilters()
+    [Theory]
+    [MemberData(nameof(UserDataModuleNames))]
+    public void EveryUserDataEntityHasItsQueryFilters(string module)
     {
         WebApplicationBuilder builder = CreateApiBuilder();
         builder.Services.AddSingleton(TimeProvider.System);
         using WebApplication app = builder.Build();
         using IServiceScope scope = app.Services.CreateScope();
-        Type dbContextType = Layer("Training", "Infrastructure").GetTypes().Single(type => type.IsSubclassOf(typeof(DbContext)));
+        Type dbContextType = Layer(module, "Infrastructure").GetTypes().Single(type => type.IsSubclassOf(typeof(DbContext)));
         IModel model = ((DbContext)scope.ServiceProvider.GetRequiredService(dbContextType)).Model;
 
-        Entities("Training")
+        Entities(module)
             .SelectMany(type => MissingQueryFilters(type, model))
             .ShouldBeEmpty();
     }
@@ -202,6 +209,7 @@ public sealed class GuardTests
         builder.Configuration["ConnectionStrings:database"] = "Host=localhost";
         builder.AddAccountModule();
         builder.AddTrainingModule();
+        builder.AddFeedbackModule();
 
         return builder;
     }

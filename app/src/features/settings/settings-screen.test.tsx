@@ -77,10 +77,12 @@ function answerWith({
   restStatus = 200,
   patchStatus = 200,
   patchProblem,
+  unreadFeedback = 0,
 }: {
   restStatus?: number;
   patchStatus?: number;
   patchProblem?: object;
+  unreadFeedback?: number;
 } = {}) {
   mockFetch.mockImplementation(async (request) => {
     const { pathname } = new URL(request.url);
@@ -105,6 +107,9 @@ function answerWith({
     }
     if (pathname === '/api/v1/users/me') {
       return Promise.resolve(Response.json(user));
+    }
+    if (pathname === '/api/v1/feedback/unread') {
+      return Promise.resolve(Response.json({ count: unreadFeedback }));
     }
 
     return Promise.resolve(
@@ -132,6 +137,10 @@ function Layout() {
   );
 }
 
+function FeedbackPage() {
+  return <Text>Your feedback page</Text>;
+}
+
 function Legal() {
   const { back } = useLocalSearchParams<{ back: string }>();
 
@@ -152,6 +161,7 @@ async function renderAt(initialUrl: string) {
       'settings/password': ChangePasswordScreen,
       'settings/email': ChangeEmailScreen,
       terms: Legal,
+      'settings/feedback/index': FeedbackPage,
     },
     { initialUrl },
   );
@@ -209,6 +219,32 @@ test.each([
     ).toBeOnTheScreen();
   },
 );
+
+test('without an unread reply, nothing shows a dot', async () => {
+  answerWith();
+  await renderSettings();
+
+  expect(
+    await screen.findByRole('button', { name: 'Feedback' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByTestId('unread-dot')).not.toBeOnTheScreen();
+});
+
+test('an unread feedback reply shows a dot on the avatar and on Feedback, which opens Your feedback', async () => {
+  answerWith({ unreadFeedback: 1 });
+  await renderAt('/');
+
+  await fireEvent.press(
+    await screen.findByRole('button', {
+      name: 'Profile and settings, new feedback reply',
+    }),
+  );
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Feedback, new reply' }),
+  );
+
+  expect(await screen.findByText('Your feedback page')).toBeOnTheScreen();
+});
 
 test('each color shows a square of its buttons’ color', async () => {
   answerWith();
@@ -1127,6 +1163,9 @@ function answerExport(status = 200) {
     }
     if (pathname === '/api/v1/users/me/photo') {
       return Promise.resolve(Response.json({ image: null }));
+    }
+    if (pathname === '/api/v1/feedback/export') {
+      return Promise.resolve(Response.json({ tickets: [] }));
     }
 
     return answerRest === undefined

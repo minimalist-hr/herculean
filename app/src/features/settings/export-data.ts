@@ -1,6 +1,10 @@
 import { strToU8, zipSync, type Zippable } from 'fflate';
 
 import type { components } from '@/api/schema';
+import {
+  statusLabels as ticketStatusLabels,
+  typeLabels as ticketTypeLabels,
+} from '@/features/feedback/feedback-labels';
 import { dateText } from '@/formats/dates';
 import {
   dayNames,
@@ -22,6 +26,7 @@ export interface ExportSources {
   settings: Schemas['WorkoutSettingsResponse'];
   /** The profile photo as a Base64 JPEG, or null without one. */
   photo: string | null;
+  feedback: Schemas['FeedbackExportResponse'];
 }
 
 const statusLabels: Record<Schemas['WorkoutStatus'], string> = {
@@ -154,20 +159,81 @@ function accountRows({ user, settings }: ExportSources): Field[][] {
   ];
 }
 
-/** A ZIP of one CSV per kind of data, and the profile photo if there is one. */
+/** A moment in the phone's time, for example "2026-11-10 14:05". */
+function momentText(moment: string) {
+  const local = new Date(moment);
+  const hours = String(local.getHours()).padStart(2, '0');
+  const minutes = String(local.getMinutes()).padStart(2, '0');
+
+  return `${dateText(local)} ${hours}:${minutes}`;
+}
+
+/** Where a screenshot sits in the ZIP, for example "feedback/ticket-1-message-2-1.jpg". */
+function screenshotFile(ticket: number, message: number, screenshot: number) {
+  return `feedback/ticket-${String(ticket)}-message-${String(message)}-${String(screenshot)}.jpg`;
+}
+
+/** One row per message. Its screenshots are files in the ZIP, named in the row. */
+function feedbackRows({ feedback }: ExportSources): Field[][] {
+  return [
+    [
+      'Ticket',
+      'Type',
+      'Status',
+      'Sent',
+      'From',
+      'Message',
+      'Screenshots',
+      'App version',
+      'Phone',
+      'OS',
+    ],
+    ...feedback.tickets.flatMap((ticket, ticketIndex) =>
+      ticket.messages.map((message, messageIndex) => [
+        ticketIndex + 1,
+        ticketTypeLabels[ticket.type],
+        ticketStatusLabels[ticket.status],
+        momentText(message.sentAtUtc),
+        message.author === 'admin' ? 'Minimalist' : 'You',
+        message.text,
+        message.screenshots
+          .map((_, index) =>
+            screenshotFile(ticketIndex + 1, messageIndex + 1, index + 1),
+          )
+          .join('; '),
+        ticket.appVersion,
+        ticket.phone ?? null,
+        ticket.os,
+      ]),
+    ),
+  ];
+}
+
+function jpeg(base64: string) {
+  return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+}
+
+/** A ZIP of one CSV per kind of data, the profile photo if there is one, and the feedback's screenshots. */
 export function exportZip(sources: ExportSources) {
-  const { data, user, photo } = sources;
+  const { data, user, photo, feedback } = sources;
   const files: Zippable = {
     'workouts.csv': strToU8(csv(workoutRows(data, user.units))),
     'exercises.csv': strToU8(csv(exerciseRows(data))),
     'routines.csv': strToU8(csv(routineRows(data))),
     'account.csv': strToU8(csv(accountRows(sources))),
+    'feedback.csv': strToU8(csv(feedbackRows(sources))),
   };
   if (photo !== null) {
-    files['photo.jpg'] = Uint8Array.from(atob(photo), (character) =>
-      character.charCodeAt(0),
-    );
+    files['photo.jpg'] = jpeg(photo);
   }
+  feedback.tickets.forEach((ticket, ticketIndex) => {
+    ticket.messages.forEach((message, messageIndex) => {
+      message.screenshots.forEach((screenshot, index) => {
+        files[screenshotFile(ticketIndex + 1, messageIndex + 1, index + 1)] =
+          jpeg(screenshot);
+      });
+    });
+  });
 
   return zipSync(files);
 }

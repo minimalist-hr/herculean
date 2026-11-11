@@ -65,6 +65,31 @@ const sources: ExportSources = {
   },
   settings: { defaultRestSeconds: 180, restSound: true, restVibrate: false },
   photo: '/9j/',
+  feedback: {
+    tickets: [
+      {
+        type: 'bug',
+        status: 'answered',
+        appVersion: '1.0.0',
+        phone: 'Google Pixel 8',
+        os: 'Android 15',
+        messages: [
+          {
+            author: 'user',
+            text: 'The timer stops, again.',
+            sentAtUtc: new Date(2026, 10, 10, 9, 5).toISOString(),
+            screenshots: ['/9j/4A==', '/9j/4B=='],
+          },
+          {
+            author: 'admin',
+            text: 'Fixed in 1.0.1.',
+            sentAtUtc: new Date(2026, 10, 11, 14, 30).toISOString(),
+            screenshots: [],
+          },
+        ],
+      },
+    ],
+  },
 };
 
 function unzip(from: ExportSources) {
@@ -89,6 +114,9 @@ test('the zip holds one csv per kind of data and the photo', () => {
   expect(zip.names).toEqual([
     'account.csv',
     'exercises.csv',
+    'feedback.csv',
+    'feedback/ticket-1-message-1-1.jpg',
+    'feedback/ticket-1-message-1-2.jpg',
     'photo.jpg',
     'routines.csv',
     'workouts.csv',
@@ -131,6 +159,57 @@ test('exercises, routines and the account read like the app', () => {
   expect(zip.text('account.csv')).toContain(
     'Filip Mučnjak,filip@example.com,Metric,Match my phone,Nitro,Europe/Zagreb,3:00,On,Off\r\n',
   );
+});
+
+test('feedback has a row per message, naming its screenshots', () => {
+  expect(unzip(sources).text('feedback.csv')).toBe(
+    csv([
+      [
+        'Ticket',
+        'Type',
+        'Status',
+        'Sent',
+        'From',
+        'Message',
+        'Screenshots',
+        'App version',
+        'Phone',
+        'OS',
+      ],
+      [
+        1,
+        'Bug',
+        'Answered',
+        '2026-11-10 09:05',
+        'You',
+        'The timer stops, again.',
+        'feedback/ticket-1-message-1-1.jpg; feedback/ticket-1-message-1-2.jpg',
+        '1.0.0',
+        'Google Pixel 8',
+        'Android 15',
+      ],
+      [
+        1,
+        'Bug',
+        'Answered',
+        '2026-11-11 14:30',
+        'Minimalist',
+        'Fixed in 1.0.1.',
+        '',
+        '1.0.0',
+        'Google Pixel 8',
+        'Android 15',
+      ],
+      // Reading the file drops the byte order mark.
+    ]).slice(1),
+  );
+});
+
+test('without feedback, feedback.csv has only its header', () => {
+  const zip = unzip({ ...sources, feedback: { tickets: [] } });
+
+  expect(zip.text('feedback.csv').split('\r\n')).toHaveLength(2);
+  expect(zip.names.some((name) => name.startsWith('feedback/'))).toBe(false);
 });
 
 test('without a photo there is no photo file', () => {

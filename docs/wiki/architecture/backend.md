@@ -27,6 +27,11 @@ api/
         Herculean.Training.Application/
         Herculean.Training.Infrastructure/
         Herculean.Training.Contracts/
+      feedback/
+        Herculean.Feedback.Domain/
+        Herculean.Feedback.Application/
+        Herculean.Feedback.Infrastructure/
+        Herculean.Feedback.Contracts/
   tests/
     Herculean.ArchitectureTests/
     Herculean.SharedKernel.UnitTests/
@@ -35,6 +40,8 @@ api/
         Herculean.Account.UnitTests/
       training/
         Herculean.Training.UnitTests/
+      feedback/
+        Herculean.Feedback.UnitTests/
 ```
 
 ### Dependencies
@@ -94,9 +101,9 @@ Herculean.Training.Application/
 - **One database:** one schema and one DbContext per module.
 - **Migrations:** each module keeps its own in `Infrastructure/Migrations/`. In Development the API applies them at startup.
 - **Foreign keys** never cascade in the database: they are `ON DELETE RESTRICT`, or `NO ACTION` where EF deletes the children itself. Code deletes child rows on purpose. A child removed from its aggregate, for example a used refresh token, is deleted on save (EF client cascade).
-- **Query filters:** Training has named EF Core filters for `UserId` and for soft delete, so a query never needs its own. A filtered query without a signed-in user throws, so it can never read everyone's rows. The signature shows which is which: a repository method that takes a `UserId` turns the user filter off, for a background job that has no signed-in user. One that takes none reads the current user's rows.
+- **Query filters:** Training and Feedback have named EF Core filters for `UserId`, and Training for soft delete too, so a query never needs its own. A filtered query without a signed-in user throws, so it can never read everyone's rows. The signature shows which is which: a repository method that takes a `UserId` turns the user filter off, for a background job that has no signed-in user. One that takes none reads the current user's rows.
 - **Current user:** SharedKernel's `ICurrentUserAccessor` reads the `sub` claim of the access token, for the whole API. Each module wraps it in its own `CurrentUser`, with the module's own `UserId`.
-- **Typed IDs:** each ID is a record struct of our own, with an EF Core converter. Each module has its own `UserId`: Account owns users, and Training only refers to them. Between modules, IDs travel as plain `Guid`s.
+- **Typed IDs:** each ID is a record struct of our own, with an EF Core converter. Each module has its own `UserId`: Account owns users, and Training and Feedback only refer to them. Between modules, IDs travel as plain `Guid`s.
 - **Undo:** workouts, routines, exercises and groups have a restore endpoint.
 
 ## Errors
@@ -122,6 +129,7 @@ Herculean.Training.Application/
 |---|---|---|---|
 | Account created | Account | Training | Creates workout settings with their starting values, the 6 groups and the starter exercises |
 | Account deleted | Account | Training | Deletes the user's training data, soft-deleted rows included |
+| Account deleted | Account | Feedback | Deletes the user's tickets, messages and screenshots |
 | Account deletion scheduled | Account | Account | Sends H38 |
 | Account deletion notice requested | Account | Account | Sends H37 |
 | Password changed | Account | Account | Sends H25 |
@@ -180,7 +188,7 @@ Herculean.Training.Application/
   3. Every endpoint is mapped.
   4. Every entity has a configuration class.
   5. Every handler has a unit test class.
-  6. Every Training entity has a `UserId`, and the query filters for its `UserId` and `DeletedAtUtc`.
+  6. Every Training and Feedback entity has a `UserId`, and the query filters for its `UserId` and `DeletedAtUtc`.
   7. Every endpoint, response, schema and field in `openapi.json` has a description.
 - **Endpoint tests:** HTTP behaviour, like status codes, auth and rate limits, through an in-memory server (TestHost) with the module's own wiring and fake stores.
 - **Postgres translation tests:** a read the in-memory database runs but Postgres might not, such as grouping, runs against the Npgsql provider with no server. Failing to connect means the query translated. Each new read like that gets one.
