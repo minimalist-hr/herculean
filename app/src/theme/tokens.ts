@@ -136,6 +136,12 @@ export const tokens = {
         lineHeight: 1.05,
         letterSpacing: '-0.01em',
       },
+      heroStat: {
+        size: 56,
+        weight: 700,
+        lineHeight: 1,
+        letterSpacing: '-0.02em',
+      },
       cardTitle: { size: 22, weight: 700 },
       bigStat: { size: 24, weight: 700 },
       statValue: { size: 18, weight: 700 },

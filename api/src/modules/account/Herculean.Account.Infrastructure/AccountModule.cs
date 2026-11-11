@@ -36,6 +36,7 @@ using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetCurrentUser;
 using Herculean.Account.Application.Users.GetUserCreatedAt;
 using Herculean.Account.Application.Users.GetUserTimeZone;
+using Herculean.Account.Application.Users.GetUserStats;
 using Herculean.Account.Application.Users.SeedAdmins;
 using Herculean.Account.Application.Users.GetUserContacts;
 using Herculean.Account.Application.Users.PasswordChanged;
@@ -49,6 +50,7 @@ using Herculean.Account.Infrastructure.PasswordResets;
 using Herculean.Account.Infrastructure.Users;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Events;
+using Herculean.SharedKernel.Health;
 using Herculean.SharedKernel.Persistence;
 using Herculean.SharedKernel.Queries;
 
@@ -118,6 +120,13 @@ public static class AccountModule
         builder.Services.AddScoped<IQueryHandler<GetUserCreatedAtQuery, DateTimeOffset>, GetUserCreatedAtQueryHandler>();
         builder.Services.AddScoped<IQueryHandler<GetUserContactsQuery, IReadOnlyList<UserContact>>, GetUserContactsQueryHandler>();
         builder.Services.AddScoped<SeedAdminsHandler>();
+        builder.Services.AddScoped<GetUserStatsHandler>();
+        builder.Services.AddSingleton<DeletionJobRuns>();
+        builder.Services.AddHealthChecks()
+            .AddDatabaseCheck<AccountDbContext>()
+            .AddCheck<EmailHealthCheck>("Email", tags: [SystemHealth.Tag])
+            .AddOutboxCheck<AccountDbContext>()
+            .AddCheck<DeletionJobHealthCheck>("Deletion job", tags: [SystemHealth.Tag]);
         builder.Services.AddHostedService<AdminSeedJob>();
 
         builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>();
@@ -208,6 +217,7 @@ public static class AccountModule
         SaveCurrentUserPhotoEndpoint.Map(endpoints);
         DeleteCurrentUserPhotoEndpoint.Map(endpoints);
         GetCurrentUserEndpoint.Map(endpoints);
+        GetUserStatsEndpoint.Map(endpoints);
         CreateSessionEndpoint.Map(endpoints);
         RefreshSessionEndpoint.Map(endpoints);
         RevokeSessionEndpoint.Map(endpoints);

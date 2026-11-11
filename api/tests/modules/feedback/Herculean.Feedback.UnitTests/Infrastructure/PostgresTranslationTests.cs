@@ -34,6 +34,10 @@ public sealed class PostgresTranslationTests
         ShouldTranslateAsync(dbContext => new TicketReadRepository(dbContext).ExportAsync(Token));
 
     [Fact]
+    public Task TheWaitingCountTranslates() =>
+        ShouldTranslateAsync(dbContext => new InboxReadRepository(dbContext).CountWaitingAsync(Token));
+
+    [Fact]
     public Task TheInboxTranslates() =>
         ShouldTranslateAsync(dbContext => new InboxReadRepository(dbContext).ListAsync(TicketStatus.Open, Token));
 

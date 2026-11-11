@@ -9,6 +9,7 @@ using Herculean.Account.Infrastructure;
 using Herculean.Feedback.Infrastructure;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Entities;
+using Herculean.SharedKernel.Health;
 using Herculean.Training.Infrastructure;
 
 using Microsoft.AspNetCore.Authorization;
@@ -94,6 +95,7 @@ public sealed class GuardTests
         app.MapAccountModuleEndpoints();
         app.MapTrainingModuleEndpoints();
         app.MapFeedbackModuleEndpoints();
+        app.MapSystemHealth();
 
         ((IEndpointRouteBuilder)app).DataSources
             .SelectMany(source => source.Endpoints)

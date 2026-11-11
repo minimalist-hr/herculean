@@ -1,5 +1,5 @@
-import { InboxScreen } from '@/features/admin/inbox-screen';
+import { OverviewScreen } from '@/features/admin/overview-screen';
 
-export default function InboxRoute() {
-  return <InboxScreen />;
+export default function OverviewRoute() {
+  return <OverviewScreen />;
 }

@@ -10,6 +10,7 @@ namespace Herculean.Account.Infrastructure.Users;
 internal sealed partial class AccountDeletionJob(
     IServiceScopeFactory scopeFactory,
     TimeProvider timeProvider,
+    DeletionJobRuns runs,
     ILogger<AccountDeletionJob> logger) : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromDays(1);
@@ -24,11 +25,13 @@ internal sealed partial class AccountDeletionJob(
             {
                 await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
                 await scope.ServiceProvider.GetRequiredService<DeleteDueAccountsHandler>().HandleAsync(stoppingToken);
+                runs.Ran(timeProvider.GetUtcNow(), failed: false);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
                 // Only the type: the exception's message can hold an address, and emails are never logged.
                 LogDeleteFailed(logger, exception.GetType().Name);
+                runs.Ran(timeProvider.GetUtcNow(), failed: true);
             }
         }
         while (await timer.WaitForNextTickAsync(stoppingToken));

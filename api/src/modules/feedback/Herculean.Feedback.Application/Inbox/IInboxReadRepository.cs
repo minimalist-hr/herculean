@@ -8,6 +8,9 @@ internal interface IInboxReadRepository
     /// <summary>The tickets in a status, or all of them, the latest message first.</summary>
     Task<List<InboxListRow>> ListAsync(TicketStatus? status, CancellationToken cancellationToken);
 
+    /// <summary>Counts the tickets, not closed, whose latest message is the user's.</summary>
+    Task<int> CountWaitingAsync(CancellationToken cancellationToken);
+
     /// <summary>A ticket with its messages, or null if there is none.</summary>
     Task<InboxTicketRow?> GetAsync(TicketId id, CancellationToken cancellationToken);
 

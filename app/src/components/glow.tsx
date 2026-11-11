@@ -9,13 +9,15 @@ interface GlowProps {
   radiusY: number;
   /** Where along the radius the light has faded out, for example 0.9. */
   fadeAt: number;
+  /** The light's color. The accent without one. */
+  color?: string;
 }
 
 // Enough stops that the curve between them looks smooth.
 const steps = 12;
 
 /** A soft accent light, from the middle of the area outwards. It fills its parent. */
-export function Glow({ radiusX, radiusY, fadeAt }: GlowProps) {
+export function Glow({ radiusX, radiusY, fadeAt, color }: GlowProps) {
   const { colors, opacity } = useTheme();
 
   return (
@@ -36,7 +38,7 @@ export function Glow({ radiusX, radiusY, fadeAt }: GlowProps) {
               <Stop
                 key={step}
                 offset={along * fadeAt}
-                stopColor={colors.primary}
+                stopColor={color ?? colors.primary}
                 stopOpacity={opacity.glow * (1 - smoothstep(along))}
               />
             );

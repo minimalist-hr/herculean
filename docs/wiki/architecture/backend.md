@@ -171,6 +171,19 @@ Herculean.Training.Application/
 - The deletion scheduled and account deleted emails go through the outbox too. Their events hold the address, because the account is gone by the last one.
 - Each email has HTML and plain text. The HTML follows section 5 of the [design document](https://gitlab.com/minimalist-sds/herculean/-/blob/main/docs/design/design-document.md), and is an embedded resource next to its code.
 
+## Health
+
+- Health checks tagged `system` are what an admin sees on System health (M51), from `GET /api/v1/admin/health` (`SystemHealth` in SharedKernel). Each has a status, how long it took and one line of detail.
+- The checks, in order: API (always working), Database (reads the PostgreSQL version), Email (connects to the SMTP server and sends nothing), Outbox (behind when an event failed or waited over 5 minutes) and Deletion job (down when its last run failed, behind when it hasn't run for over 25 hours).
+- A check that takes over a second is slow.
+- The `/health` endpoint stays Development only.
+
+## Admin numbers
+
+- Each module counts its own numbers for Overview (M20), so each tile loads on its own: Account `GET /api/v1/admin/users/stats`, Training `GET /api/v1/admin/training/stats`, Feedback `GET /api/v1/admin/feedback/stats`.
+- A week is the last 7 days, then the 7 before them (`Weeks` in SharedKernel), the same on every day. Trends cover 4 weeks.
+- Training counts only finished workouts, never what anyone logged. Admins are never counted as users.
+
 ## Logging
 
 - Code logs through `ILogger<T>` with `[LoggerMessage]` methods. The build writes their bodies, checks each template against its parameters, and skips the work when the level is off.

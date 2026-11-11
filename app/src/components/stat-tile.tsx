@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { SkeletonLine, textLine } from '@/components/skeleton';
@@ -12,6 +13,7 @@ export function StatTile({
   detail,
   skeletonWidth = 90,
   total = false,
+  children,
 }: {
   label: string;
   /** A status color: the label then has a dot before it, and the tile is shorter. */
@@ -22,6 +24,8 @@ export function StatTile({
   skeletonWidth?: number;
   /** A period's total: its value shrinks to fit one line, and its detail line keeps its place while it loads. */
   total?: boolean;
+  /** What shows below, for example a trend line. */
+  children?: ReactNode;
 }) {
   const { colors, radius, size, space, text } = useTheme();
   const hasStatus = labelColor !== undefined;
@@ -67,6 +71,7 @@ export function StatTile({
       {(total ? !loading : detail !== undefined) && (
         <Text style={text.meta}>{detail}</Text>
       )}
+      {children}
     </View>
   );
 }

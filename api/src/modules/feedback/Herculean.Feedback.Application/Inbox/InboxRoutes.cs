@@ -6,6 +6,8 @@ internal static class InboxRoutes
 
     public const string Tickets = "/api/v1/admin/feedback";
 
+    public const string Stats = $"{Tickets}/stats";
+
     public const string Ticket = $"{Tickets}/{{id:guid}}";
 
     public const string Messages = $"{Ticket}/messages";

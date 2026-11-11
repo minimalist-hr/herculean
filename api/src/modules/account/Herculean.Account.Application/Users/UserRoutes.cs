@@ -4,6 +4,8 @@ internal static class UserRoutes
 {
     public const string Tag = "Users";
 
+    public const string Stats = "/api/v1/admin/users/stats";
+
     public const string Users = "/api/v1/users";
 
     public const string Me = Users + "/me";

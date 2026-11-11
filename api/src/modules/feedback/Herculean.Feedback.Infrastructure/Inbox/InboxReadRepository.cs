@@ -41,6 +41,13 @@ internal sealed class InboxReadRepository(FeedbackDbContext dbContext) : IInboxR
         ];
     }
 
+    public Task<int> CountWaitingAsync(CancellationToken cancellationToken) =>
+        Tickets()
+            .Where(ticket => ticket.Status != TicketStatus.Closed)
+            .CountAsync(
+                ticket => ticket.Messages.OrderByDescending(message => message.CreatedAtUtc).Select(message => message.Author).First() == MessageAuthor.User,
+                cancellationToken);
+
     public Task<InboxTicketRow?> GetAsync(TicketId id, CancellationToken cancellationToken) =>
         Tickets()
             .Where(ticket => ticket.Id == id)

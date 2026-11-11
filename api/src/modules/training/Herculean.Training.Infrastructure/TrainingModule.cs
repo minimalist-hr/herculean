@@ -43,6 +43,8 @@ using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.Routines.RestoreRoutine;
 using Herculean.Training.Application.Routines.UpdateRoutine;
 using Herculean.Training.Application.Settings;
+using Herculean.Training.Application.Stats;
+using Herculean.Training.Application.Stats.GetTrainingStats;
 using Herculean.Training.Application.Settings.GetWorkoutSettings;
 using Herculean.Training.Application.Settings.UpdateWorkoutSettings;
 using Herculean.Training.Application.WeekPlan;
@@ -78,6 +80,7 @@ using Herculean.Training.Infrastructure.Export;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.Settings;
+using Herculean.Training.Infrastructure.Stats;
 using Herculean.Training.Infrastructure.WeekPlan;
 using Herculean.Training.Infrastructure.Workouts;
 
@@ -122,6 +125,8 @@ public static class TrainingModule
         builder.Services.AddScoped<IExportReadRepository, ExportReadRepository>();
         builder.Services.AddScoped<IWorkoutSettingsReadRepository, WorkoutSettingsReadRepository>();
         builder.Services.AddScoped<IWorkoutReadRepository, WorkoutReadRepository>();
+        builder.Services.AddScoped<ITrainingStatsReadRepository, TrainingStatsReadRepository>();
+        builder.Services.AddScoped<GetTrainingStatsHandler>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
         builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
@@ -256,6 +261,7 @@ public static class TrainingModule
         DeleteGroupEndpoint.Map(endpoints);
         RestoreGroupEndpoint.Map(endpoints);
         UpdateGroupOrderEndpoint.Map(endpoints);
+        GetTrainingStatsEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

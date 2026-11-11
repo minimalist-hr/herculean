@@ -6,6 +6,7 @@ using Herculean.Account.Infrastructure;
 using Herculean.Feedback.Infrastructure;
 using Herculean.ServiceDefaults;
 using Herculean.SharedKernel.Auth;
+using Herculean.SharedKernel.Health;
 using Herculean.SharedKernel.Results;
 using Herculean.Training.Infrastructure;
 
@@ -44,6 +45,7 @@ builder.Services.AddOpenApi(options =>
 
 // Every endpoint needs a signed-in user who isn't an admin, unless it says otherwise.
 builder.Services.AddHerculeanAuthorization();
+builder.Services.AddSystemHealth();
 
 builder.AddAccountModule();
 builder.AddTrainingModule();
@@ -79,6 +81,7 @@ app.MapDefaultEndpoints();
 app.MapAccountModuleEndpoints();
 app.MapTrainingModuleEndpoints();
 app.MapFeedbackModuleEndpoints();
+app.MapSystemHealth();
 
 if (app.Environment.IsDevelopment())
 {

@@ -13,8 +13,10 @@ export const textLine = {
   meta: 16,
   listItemName: 21,
   cardTitle: 29,
+  statValue: 23,
   bigStat: 31,
   pageTitle: 34,
+  heroStat: 56,
 };
 
 /** A block in the shape of content that is loading. It pulses gently, and stands still when the phone asks for reduced motion. */

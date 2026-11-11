@@ -38,9 +38,9 @@ app/
   | Signed out | Sign in, Create account, A10–A12 | A01 |
   | Needs setup | Setup | A30 |
   | Ready | The tabs | Home |
-  | Admin | `admin/`: the feedback inbox and its tickets | M01 |
+  | Admin | `admin/`: tabs Overview, Feedback, Users and Settings | M20 |
 
-- An account whose role is admin gets the Admin status at sign in and at launch, whatever its name.
+- An account whose role is admin gets the Admin status at sign in and at launch, whatever its name. Its tabs use the same tab bar as the user's; the Settings tab shows a dot while a service is down, checked when the admin area opens and every 5 minutes.
 - On a wide screen, such as the web, every page sits in a centered column (`size.contentMaxWidth`, 640 px).
 - Terms and privacy are open in every status.
 - A10–A12 are also open while restoring, so a reset link can open the app from closed. A signed-in user who opens a link with the app already running goes to Home.

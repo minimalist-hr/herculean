@@ -1,19 +1,17 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { usePageEnd } from '@/components/above-tab-bar';
 import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
-import { TextLink } from '@/components/text-link';
 import { emptyTitles, StatusChips } from '@/features/feedback/status-chips';
 import {
   TicketList,
   TicketListSkeleton,
   TicketRow,
 } from '@/features/feedback/ticket-rows';
-import { SignOutSheet } from '@/features/settings/account-sheets';
 import { useTheme } from '@/theme/theme-provider';
 
 import { useInbox, type InboxFilter, type InboxTicket } from './use-inbox';
@@ -29,11 +27,10 @@ export function senderOf({
 /** The admin's first page: every user's feedback, by status. */
 export function InboxScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const pageEnd = usePageEnd();
   const { colors, size, space } = useTheme();
   const [filter, setFilter] = useState<InboxFilter>('open');
   const inbox = useInbox(filter);
-  const [signingOut, setSigningOut] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   async function pullToRefresh() {
@@ -67,7 +64,7 @@ export function InboxScreen() {
               first={index === 0}
               onPress={() => {
                 router.push({
-                  pathname: '/admin/[id]',
+                  pathname: '/admin/feedback/[id]',
                   params: { id: ticket.id },
                 });
               }}
@@ -99,7 +96,7 @@ export function InboxScreen() {
         contentContainerStyle={{
           gap: space.xl,
           paddingTop: size.topPaddingTab,
-          paddingBottom: insets.bottom + space.xl,
+          paddingBottom: pageEnd,
         }}
         refreshControl={
           <RefreshControl
@@ -116,14 +113,7 @@ export function InboxScreen() {
         <View style={{ paddingHorizontal: size.sidePadding }}>
           <ScreenHeading
             title="Feedback"
-            action={
-              <TextLink
-                label="Sign out"
-                onPress={() => {
-                  setSigningOut(true);
-                }}
-              />
-            }
+            subtitle="What users report and suggest."
           />
         </View>
         <StatusChips selected={filter} onSelect={setFilter} />
@@ -131,12 +121,6 @@ export function InboxScreen() {
           {renderList()}
         </View>
       </ScrollView>
-      <SignOutSheet
-        visible={signingOut}
-        onClose={() => {
-          setSigningOut(false);
-        }}
-      />
     </>
   );
 }

@@ -14,7 +14,6 @@ import { InboxScreen } from './inbox-screen';
 import { InboxTicketScreen } from './inbox-ticket-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
-const mockSignOut = jest.fn<Promise<void>, []>();
 
 jest.mock('@/api/client', () => {
   const createClient =
@@ -27,10 +26,6 @@ jest.mock('@/api/client', () => {
     refreshTokens: () => Promise.resolve(true),
   };
 });
-
-jest.mock('@/features/account/session-flows', () => ({
-  signOut: () => mockSignOut(),
-}));
 
 const waiting = {
   id: 'ticket-1',
@@ -145,8 +140,8 @@ async function renderAt(initialUrl: string) {
   await renderRouter(
     {
       _layout: Layout,
-      'admin/index': InboxScreen,
-      'admin/[id]': InboxTicketScreen,
+      'admin/feedback/index': InboxScreen,
+      'admin/feedback/[id]': InboxTicketScreen,
     },
     { initialUrl },
   );
@@ -154,13 +149,12 @@ async function renderAt(initialUrl: string) {
 
 beforeEach(() => {
   mockFetch.mockReset();
-  mockSignOut.mockReset();
 });
 
 describe('Feedback inbox', () => {
   test('starts on open tickets, with All first, each with its sender and a dot when it waits for a reply', async () => {
     answerWith();
-    await renderAt('/admin');
+    await renderAt('/admin/feedback');
 
     expect(
       await screen.findByRole('button', {
@@ -181,7 +175,7 @@ describe('Feedback inbox', () => {
 
   test('a status chip reads its tickets', async () => {
     answerWith();
-    await renderAt('/admin');
+    await renderAt('/admin/feedback');
     await screen.findByRole('button', { name: /^Bug/ });
 
     await fireEvent.press(screen.getByRole('button', { name: 'Closed' }));
@@ -199,7 +193,7 @@ describe('Feedback inbox', () => {
 
   test('nothing in a status says so', async () => {
     answerWith({ list: [] });
-    await renderAt('/admin');
+    await renderAt('/admin/feedback');
 
     expect(await screen.findByText('Nothing open')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'All' }));
@@ -209,7 +203,7 @@ describe('Feedback inbox', () => {
 
   test('an inbox that fails says so', async () => {
     answerWith({ listStatus: 500 });
-    await renderAt('/admin');
+    await renderAt('/admin/feedback');
 
     expect(
       await screen.findByText('Couldn’t load the inbox.'),
@@ -218,7 +212,7 @@ describe('Feedback inbox', () => {
 
   test('pulling down reads the inbox again', async () => {
     answerWith();
-    await renderAt('/admin');
+    await renderAt('/admin/feedback');
     await screen.findByRole('button', { name: /^Bug/ });
     mockFetch.mockClear();
 
@@ -231,22 +225,6 @@ describe('Feedback inbox', () => {
 
     await waitFor(() => {
       expect(sent('GET', '/api/v1/admin/feedback')).toHaveLength(1);
-    });
-  });
-
-  test('Sign out asks first, then signs out', async () => {
-    answerWith();
-    mockSignOut.mockResolvedValue();
-    await renderAt('/admin');
-
-    await fireEvent.press(
-      await screen.findByRole('link', { name: 'Sign out' }),
-    );
-    expect(await screen.findByText('Sign out?')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Sign out' }));
-
-    await waitFor(() => {
-      expect(mockSignOut).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -262,7 +240,7 @@ async function confirm(label: string, question: string) {
 describe('A ticket in the inbox', () => {
   test('opens from the inbox with its sender, device and thread, the user’s messages under their name and yours as You', async () => {
     answerWith();
-    await renderAt('/admin');
+    await renderAt('/admin/feedback');
 
     await fireEvent.press(await screen.findByRole('button', { name: /^Bug/ }));
 
@@ -282,7 +260,7 @@ describe('A ticket in the inbox', () => {
 
   test('a reply is sent', async () => {
     answerWith();
-    await renderAt('/admin/ticket-1');
+    await renderAt('/admin/feedback/ticket-1');
     await screen.findByText('Which phone is it on?');
 
     await fireEvent.changeText(
@@ -303,7 +281,7 @@ describe('A ticket in the inbox', () => {
 
   test('Close ticket asks first, then closes it', async () => {
     answerWith();
-    await renderAt('/admin/ticket-1');
+    await renderAt('/admin/feedback/ticket-1');
 
     await confirm('Close ticket', 'Close this ticket?');
 
@@ -319,7 +297,7 @@ describe('A ticket in the inbox', () => {
 
   test('a closed ticket reopens, and its reply box says to reopen it first', async () => {
     answerWith({ status: 'closed' });
-    await renderAt('/admin/ticket-1');
+    await renderAt('/admin/feedback/ticket-1');
 
     await screen.findByRole('button', { name: 'Reopen ticket' });
     await fireEvent.press(screen.getByRole('button', { name: 'Send' }));
@@ -338,7 +316,7 @@ describe('A ticket in the inbox', () => {
 
   test('a status change that fails says so', async () => {
     answerWith({ statusChange: 500 });
-    await renderAt('/admin/ticket-1');
+    await renderAt('/admin/feedback/ticket-1');
 
     await confirm('Close ticket', 'Close this ticket?');
 
@@ -349,7 +327,7 @@ describe('A ticket in the inbox', () => {
 
   test('pulling down reads the ticket again', async () => {
     answerWith();
-    await renderAt('/admin/ticket-1');
+    await renderAt('/admin/feedback/ticket-1');
     await screen.findByText('Which phone is it on?');
     mockFetch.mockClear();
 
@@ -369,7 +347,7 @@ describe('A ticket in the inbox', () => {
     mockFetch.mockImplementation(() =>
       Promise.resolve(new Response(null, { status: 500 })),
     );
-    await renderAt('/admin/ticket-1');
+    await renderAt('/admin/feedback/ticket-1');
 
     expect(
       await screen.findByText('Couldn’t load this feedback.'),

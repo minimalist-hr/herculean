@@ -361,15 +361,16 @@ Changes on W30 stay in the app until Save workout.
 
 ## 10. Admin
 
-**What it does:** Minimalist's own accounts read every user's feedback, reply and close it. An admin sees nothing else of the app.
+**What it does:** Minimalist's own accounts see how Herculean is doing, read every user's feedback, reply and close it, and check the system. An admin sees nothing else of the app.
 
-**Screens:** M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M05 Sign out, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket.
+**Screens:** M20 Overview, M21 Loading, M22 A tile failed, M23 Users says why, M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket, M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure.
 
 **Flows**
-- **Sign in:** A01 → M01, and at launch straight to M01.
+- **Sign in:** A01 → M20, and at launch straight to M20. Tabs: Overview, Feedback, Users and Settings.
+- **Overview:** users large across the top, then tiles for active users, workouts, feedback to answer and accounts deleting soon, with 4-week trends. To answer → Feedback.
 - **Inbox:** status chips All, Open, Answered and Closed, Open picked first. A ticket → M10.
 - **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again.
-- **Sign out:** the link on M01 → M05 → A01.
+- **Settings:** System health → M51. Sign out → M05 → A01.
 
 **Entities:** User (role). Reads Ticket, Ticket message, Screenshot, and each sender's name and email from Account.
 
@@ -382,6 +383,10 @@ Changes on W30 stay in the app until Save workout.
 | GET | `/api/v1/admin/feedback/{id}/screenshots/{screenshotId}` | M10 |
 | POST | `/api/v1/admin/feedback/{id}/messages` | M10 |
 | PUT | `/api/v1/admin/feedback/{id}/status` | M10 |
+| GET | `/api/v1/admin/users/stats` | M20 |
+| GET | `/api/v1/admin/training/stats` | M20 |
+| GET | `/api/v1/admin/feedback/stats` | M20 |
+| GET | `/api/v1/admin/health` | M50, M51, the Settings tab's dot |
 
 **Done when**
 - An admin can't reach anything a user can, in the app or the API, and a user can't reach the inbox.

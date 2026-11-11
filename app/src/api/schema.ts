@@ -100,6 +100,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count the users
+         * @description How many users there are, how many are new or waiting for deletion, and new users each week for 4 weeks. Weeks are the last 7 days and the 7 before them. Admins only.
+         */
+        get: operations["GetUserStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sessions": {
         parameters: {
             query?: never;
@@ -1064,6 +1084,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/training/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count the training
+         * @description Active users and finished workouts this week and each week for 4 weeks, counted over every user. Admins only.
+         */
+        get: operations["GetTrainingStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback": {
         parameters: {
             query?: never;
@@ -1228,6 +1268,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/feedback/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count the feedback waiting
+         * @description How many tickets wait for Minimalist's reply. Admins only.
+         */
+        get: operations["GetFeedbackStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback/{id}": {
         parameters: {
             query?: never;
@@ -1301,6 +1361,26 @@ export interface paths {
          * @description Marks every reply on one of the signed-in user's tickets as read. Marking it again changes nothing.
          */
         put: operations["MarkTicketRead"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check the system
+         * @description Runs every check of the services the API needs, and says how each is doing. Admins only.
+         */
+        get: operations["GetSystemHealth"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1805,6 +1885,14 @@ export interface components {
         FeedbackExportResponse: {
             /** @description The tickets, oldest first. */
             tickets: components["schemas"]["TicketExportResponse"][];
+        };
+        /** @description How much feedback needs the admin. */
+        FeedbackStatsResponse: {
+            /**
+             * Format: int32
+             * @description Tickets, not closed, whose latest message is the user's.
+             */
+            waitingForReply: number;
         };
         /** @description The first day the user can reach. */
         FirstDayResponse: {
@@ -2358,6 +2446,25 @@ export interface components {
             /** @description The screenshot as a Base64 JPEG. */
             image: string;
         };
+        /** @description How one service is doing. */
+        ServiceHealthResponse: {
+            /** @description The service, for example Database. */
+            name: string;
+            /** @description How it is doing. */
+            status: components["schemas"]["ServiceStatus"];
+            /**
+             * Format: int32
+             * @description How long its check took, in milliseconds.
+             */
+            durationMs: number;
+            /** @description One line about it, or why it needs attention. */
+            detail: string;
+        };
+        /**
+         * @description How a service is doing.
+         * @enum {unknown}
+         */
+        ServiceStatus: "working" | "slow" | "behind" | "down";
         /** @description A month of sessions. */
         SessionMonthResponse: {
             /** @description The month, as yyyy-MM. */
@@ -2456,6 +2563,16 @@ export interface components {
              * @default false
              */
             lengthenedPartials: boolean;
+        };
+        /** @description How every service is doing. */
+        SystemHealthResponse: {
+            /**
+             * Format: date-time
+             * @description When the checks ran.
+             */
+            checkedAtUtc: string;
+            /** @description Each service, the API first. */
+            services: components["schemas"]["ServiceHealthResponse"][];
         };
         /**
          * @description Light or dark: matchPhone follows the phone's setting.
@@ -2562,6 +2679,28 @@ export interface components {
             expiresIn: number;
             /** @description Gets new tokens when the access token expires. Keep it in secure storage. */
             refreshToken: string;
+        };
+        /** @description How much people train. Weeks are the last 7 days and the 7 before them. */
+        TrainingStatsResponse: {
+            /**
+             * Format: int32
+             * @description Users who finished a workout in the last 7 days.
+             */
+            activeThisWeek: number;
+            /**
+             * Format: int32
+             * @description Workouts finished in the last 7 days.
+             */
+            workoutsThisWeek: number;
+            /**
+             * Format: int32
+             * @description Workouts finished in the 7 days before.
+             */
+            workoutsLastWeek: number;
+            /** @description Active users each week for the last 4 weeks, oldest first, the last 7 days last. */
+            activePerWeek: number[];
+            /** @description Workouts finished each week for the last 4 weeks, oldest first, the last 7 days last. */
+            workoutsPerWeek: number[];
         };
         /** @description An exercise with sets that aren't checked. */
         UncheckedExerciseResponse: {
@@ -2722,6 +2861,26 @@ export interface components {
             timeZone: string;
             /** @description What the account is for. An admin sees only the feedback inbox. */
             role: components["schemas"]["Role"];
+        };
+        /** @description How many people use Herculean. Admins aren't counted. */
+        UserStatsResponse: {
+            /**
+             * Format: int32
+             * @description Every user, those waiting for deletion included.
+             */
+            total: number;
+            /**
+             * Format: int32
+             * @description Users who created their account in the last 7 days.
+             */
+            newThisWeek: number;
+            /**
+             * Format: int32
+             * @description Accounts waiting to be deleted.
+             */
+            deletingSoon: number;
+            /** @description New users each week for the last 4 weeks, oldest first, the last 7 days last. */
+            newPerWeek: number[];
         };
         /**
          * @description A day of the week. The week plan starts on Monday.
@@ -3290,6 +3449,44 @@ export interface operations {
             };
             /** @description The account no longer exists. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetUserStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The counts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserStatsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6212,6 +6409,44 @@ export interface operations {
             };
         };
     };
+    GetTrainingStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The counts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainingStatsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     ListTickets: {
         parameters: {
             query?: never;
@@ -6628,6 +6863,44 @@ export interface operations {
             };
         };
     };
+    GetFeedbackStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The count. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackStatsResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     GetTicket: {
         parameters: {
             query?: never;
@@ -6798,6 +7071,44 @@ export interface operations {
             };
             /** @description The user has no ticket with this ID. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetSystemHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Each service, the API first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemHealthResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

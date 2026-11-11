@@ -4,6 +4,7 @@ using Herculean.Account.Contracts;
 using Herculean.Feedback.Application.AccountDeleted;
 using Herculean.Feedback.Application.Auth;
 using Herculean.Feedback.Application.Inbox;
+using Herculean.Feedback.Application.Inbox.GetFeedbackStats;
 using Herculean.Feedback.Application.Inbox.GetInboxScreenshot;
 using Herculean.Feedback.Application.Inbox.GetInboxTicket;
 using Herculean.Feedback.Application.Inbox.ListInboxTickets;
@@ -71,6 +72,7 @@ public static class FeedbackModule
         builder.Services.AddScoped<ReplyToTicketHandler>();
         builder.Services.AddScoped<IValidator<UpdateTicketStatusRequest>, UpdateTicketStatusValidator>();
         builder.Services.AddScoped<UpdateTicketStatusHandler>();
+        builder.Services.AddScoped<GetFeedbackStatsHandler>();
     }
 
     /// <summary>Maps every Feedback endpoint.</summary>
@@ -86,6 +88,7 @@ public static class FeedbackModule
         GetInboxScreenshotEndpoint.Map(endpoints);
         ReplyToTicketEndpoint.Map(endpoints);
         UpdateTicketStatusEndpoint.Map(endpoints);
+        GetFeedbackStatsEndpoint.Map(endpoints);
         GetTicketEndpoint.Map(endpoints);
         GetScreenshotEndpoint.Map(endpoints);
         AddTicketMessageEndpoint.Map(endpoints);

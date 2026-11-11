@@ -461,6 +461,53 @@
         ]
       }
     },
+    "/api/v1/admin/users/stats": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Count the users",
+        "description": "How many users there are, how many are new or waiting for deletion, and new users each week for 4 weeks. Weeks are the last 7 days and the 7 before them. Admins only.",
+        "operationId": "GetUserStats",
+        "responses": {
+          "200": {
+            "description": "The counts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStatsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/sessions": {
       "post": {
         "tags": [
@@ -4427,6 +4474,53 @@
         ]
       }
     },
+    "/api/v1/admin/training/stats": {
+      "get": {
+        "tags": [
+          "Training stats"
+        ],
+        "summary": "Count the training",
+        "description": "Active users and finished workouts this week and each week for 4 weeks, counted over every user. Admins only.",
+        "operationId": "GetTrainingStats",
+        "responses": {
+          "200": {
+            "description": "The counts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingStatsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback": {
       "post": {
         "tags": [
@@ -4993,6 +5087,53 @@
         ]
       }
     },
+    "/api/v1/admin/feedback/stats": {
+      "get": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Count the feedback waiting",
+        "description": "How many tickets wait for Minimalist's reply. Admins only.",
+        "operationId": "GetFeedbackStats",
+        "responses": {
+          "200": {
+            "description": "The count.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackStatsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback/{id}": {
       "get": {
         "tags": [
@@ -5234,6 +5375,53 @@
           },
           "404": {
             "description": "The user has no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Check the system",
+        "description": "Runs every check of the services the API needs, and says how each is doing. Admins only.",
+        "operationId": "GetSystemHealth",
+        "responses": {
+          "200": {
+            "description": "Each service, the API first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemHealthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6389,6 +6577,20 @@
         },
         "description": "Every ticket the user sent, for the data export."
       },
+      "FeedbackStatsResponse": {
+        "required": [
+          "waitingForReply"
+        ],
+        "type": "object",
+        "properties": {
+          "waitingForReply": {
+            "type": "integer",
+            "description": "Tickets, not closed, whose latest message is the user's.",
+            "format": "int32"
+          }
+        },
+        "description": "How much feedback needs the admin."
+      },
       "FirstDayResponse": {
         "required": [
           "date"
@@ -7396,6 +7598,44 @@
         },
         "description": "A screenshot on a message."
       },
+      "ServiceHealthResponse": {
+        "required": [
+          "name",
+          "status",
+          "durationMs",
+          "detail"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The service, for example Database."
+          },
+          "status": {
+            "description": "How it is doing.",
+            "$ref": "#/components/schemas/ServiceStatus"
+          },
+          "durationMs": {
+            "type": "integer",
+            "description": "How long its check took, in milliseconds.",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string",
+            "description": "One line about it, or why it needs attention."
+          }
+        },
+        "description": "How one service is doing."
+      },
+      "ServiceStatus": {
+        "enum": [
+          "working",
+          "slow",
+          "behind",
+          "down"
+        ],
+        "description": "How a service is doing."
+      },
       "SessionMonthResponse": {
         "required": [
           "month",
@@ -7550,6 +7790,28 @@
           }
         },
         "description": "The exercise to swap to."
+      },
+      "SystemHealthResponse": {
+        "required": [
+          "checkedAtUtc",
+          "services"
+        ],
+        "type": "object",
+        "properties": {
+          "checkedAtUtc": {
+            "type": "string",
+            "description": "When the checks ran.",
+            "format": "date-time"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceHealthResponse"
+            },
+            "description": "Each service, the API first."
+          }
+        },
+        "description": "How every service is doing."
       },
       "Theme": {
         "enum": [
@@ -7772,6 +8034,50 @@
           }
         },
         "description": "The OAuth 2.0 token response (RFC 6749), in camelCase."
+      },
+      "TrainingStatsResponse": {
+        "required": [
+          "activeThisWeek",
+          "workoutsThisWeek",
+          "workoutsLastWeek",
+          "activePerWeek",
+          "workoutsPerWeek"
+        ],
+        "type": "object",
+        "properties": {
+          "activeThisWeek": {
+            "type": "integer",
+            "description": "Users who finished a workout in the last 7 days.",
+            "format": "int32"
+          },
+          "workoutsThisWeek": {
+            "type": "integer",
+            "description": "Workouts finished in the last 7 days.",
+            "format": "int32"
+          },
+          "workoutsLastWeek": {
+            "type": "integer",
+            "description": "Workouts finished in the 7 days before.",
+            "format": "int32"
+          },
+          "activePerWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Active users each week for the last 4 weeks, oldest first, the last 7 days last."
+          },
+          "workoutsPerWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Workouts finished each week for the last 4 weeks, oldest first, the last 7 days last."
+          }
+        },
+        "description": "How much people train. Weeks are the last 7 days and the 7 before them."
       },
       "UncheckedExerciseResponse": {
         "required": [
@@ -8183,6 +8489,41 @@
         },
         "description": "The signed-in user."
       },
+      "UserStatsResponse": {
+        "required": [
+          "total",
+          "newThisWeek",
+          "deletingSoon",
+          "newPerWeek"
+        ],
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Every user, those waiting for deletion included.",
+            "format": "int32"
+          },
+          "newThisWeek": {
+            "type": "integer",
+            "description": "Users who created their account in the last 7 days.",
+            "format": "int32"
+          },
+          "deletingSoon": {
+            "type": "integer",
+            "description": "Accounts waiting to be deleted.",
+            "format": "int32"
+          },
+          "newPerWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "New users each week for the last 4 weeks, oldest first, the last 7 days last."
+          }
+        },
+        "description": "How many people use Herculean. Admins aren't counted."
+      },
       "Weekday": {
         "enum": [
           "monday",
@@ -8582,10 +8923,16 @@
       "name": "Workouts"
     },
     {
+      "name": "Training stats"
+    },
+    {
       "name": "Feedback"
     },
     {
       "name": "Feedback inbox"
+    },
+    {
+      "name": "System"
     }
   ]
 }

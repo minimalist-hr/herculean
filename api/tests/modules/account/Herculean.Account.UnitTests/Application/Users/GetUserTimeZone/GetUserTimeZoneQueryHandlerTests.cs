@@ -1,3 +1,4 @@
+using Herculean.Account.Application.Users.GetUserStats;
 using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetUserTimeZone;
 using Herculean.Account.Contracts;
@@ -24,6 +25,9 @@ public sealed class GetUserTimeZoneQueryHandlerTests
             id == userId ? Task.FromResult(timeZone) : throw new InvalidOperationException("No such user.");
 
         public Task<DateTimeOffset> GetCreatedAtUtcAsync(UserId id, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Not used here.");
+
+        public Task<UserCounts> CountUsersAsync(DateTimeOffset since, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("Not used here.");
 
         public Task<IReadOnlyList<UserContact>> ListContactsAsync(IReadOnlyCollection<UserId> ids, CancellationToken cancellationToken) =>

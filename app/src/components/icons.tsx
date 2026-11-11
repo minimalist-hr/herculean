@@ -268,3 +268,35 @@ export function LinkIcon({ color, size }: IconProps) {
     </Icon>
   );
 }
+
+export function OverviewIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M5 20v-8M12 20V4M19 20v-12M3 20h18" />
+    </Icon>
+  );
+}
+
+export function FeedbackIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M4 5h16v11H10l-6 4z" />
+    </Icon>
+  );
+}
+
+export function UsersIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M8 4h8v8H8zM4 20c0-3.5 3.5-5 8-5s8 1.5 8 5" />
+    </Icon>
+  );
+}
+
+export function SettingsIcon({ color, size }: IconProps) {
+  return (
+    <Icon color={color} size={size}>
+      <Path d="M4 7h9M17 7h3M4 17h3M11 17h9M13 5h4v4h-4zM7 15h4v4H7z" />
+    </Icon>
+  );
+}
