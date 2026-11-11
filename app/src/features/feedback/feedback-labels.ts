@@ -31,6 +31,9 @@ export function backLabel(from?: string) {
   return from === 'home' ? 'Home' : 'Your feedback';
 }
 
+/** What a page's actions say before it has loaded. */
+export const notLoadedMessage = 'This page hasn’t loaded yet.';
+
 export const closedMessage =
   'This feedback is closed. Send new feedback instead.';
 

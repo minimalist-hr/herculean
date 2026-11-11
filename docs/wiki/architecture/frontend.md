@@ -38,7 +38,10 @@ app/
   | Signed out | Sign in, Create account, A10–A12 | A01 |
   | Needs setup | Setup | A30 |
   | Ready | The tabs | Home |
+  | Admin | `admin/`: the feedback inbox and its tickets | M01 |
 
+- An account whose role is admin gets the Admin status at sign in and at launch, whatever its name.
+- On a wide screen, such as the web, every page sits in a centered column (`size.contentMaxWidth`, 640 px).
 - Terms and privacy are open in every status.
 - A10–A12 are also open while restoring, so a reset link can open the app from closed. A signed-in user who opens a link with the app already running goes to Home.
 - Four tabs: Home, Workout, Routines, Exercises. Sub-pages open on top of the tabs, or in a tab's own stack when the design keeps the tab bar, as Exercises does. Only a tab's first page shows the tab bar and the Resume bar; every other page in a tab hides them (`hidesTabBar` in `components/tab-bar.tsx`), and `useEndRoom` keeps room at a page's end for whichever is there. Lists with search keep it at the top with `components/sticky-controls.tsx`. Links between exercises, routines and workouts go through `features/links/use-links.ts`: it opens the page in the current tab, passes a `from` such as `routine:<id>`, and goes back to a page already open further back instead of opening it twice. `FromBackLink` names the back link from that page's own query, so a rename shows. A tab always opens its first page: leaving it pops its stack (`popToTopOnBlur`), and pages pushed from another tab use `withAnchor`, so the first page sits under them. Pages opened from Home take `from=home` and go back through `features/home/use-go-back.ts`, which handles Android's back too.

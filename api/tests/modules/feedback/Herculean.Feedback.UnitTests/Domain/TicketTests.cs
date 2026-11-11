@@ -27,6 +27,31 @@ public sealed class TicketTests
     }
 
     [Fact]
+    public void MinimalistsReplyAnswersTheTicketAndIsUnread()
+    {
+        Ticket ticket = Ticket.Create(_userId, TicketType.Bug, "The timer stops.", [], FeedbackDatabase.Device);
+
+        ticket.ReplyAsAdmin("Fixed.", []);
+
+        ticket.Status.ShouldBe(TicketStatus.Answered);
+        ticket.HasUnreadReply.ShouldBeTrue();
+        ticket.Messages[^1].Author.ShouldBe(MessageAuthor.Admin);
+        ticket.Messages[^1].UserId.ShouldBe(_userId);
+    }
+
+    [Fact]
+    public void ATicketClosesAndReopens()
+    {
+        Ticket ticket = Ticket.Create(_userId, TicketType.Bug, "The timer stops.", [], FeedbackDatabase.Device);
+
+        ticket.Close();
+        ticket.IsClosed.ShouldBeTrue();
+        ticket.Reopen();
+
+        ticket.Status.ShouldBe(TicketStatus.Open);
+    }
+
+    [Fact]
     public void ARepliedTicketWaitsForMinimalistAgain()
     {
         Ticket ticket = Ticket.Create(_userId, TicketType.Bug, "The timer stops.", [], FeedbackDatabase.Device);

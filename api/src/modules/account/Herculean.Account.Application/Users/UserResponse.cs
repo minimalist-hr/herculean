@@ -11,7 +11,8 @@ internal sealed record UserResponse(
     [property: Description("The units the app shows weights and lengths in.")] Units Units,
     [property: Description("Light or dark, or matching the phone.")] Theme Theme,
     [property: Description("The accent color.")] Color Color,
-    [property: Description("The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it.")] string TimeZone)
+    [property: Description("The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it.")] string TimeZone,
+    [property: Description("What the account is for. An admin sees only the feedback inbox.")] Role Role)
 {
-    public static UserResponse From(User user) => new(user.Email, user.Name, user.Units, user.Theme, user.Color, user.TimeZone);
+    public static UserResponse From(User user) => new(user.Email, user.Name, user.Units, user.Theme, user.Color, user.TimeZone, user.Role);
 }

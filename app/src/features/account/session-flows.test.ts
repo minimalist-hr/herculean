@@ -124,6 +124,29 @@ test('a user without a name goes back to setup', async () => {
   await expect(status()).resolves.toBe('needsSetup');
 });
 
+test('an admin goes to the inbox, even without a name', async () => {
+  await saveTokens({
+    accessToken: 'access',
+    expiresIn: 900,
+    refreshToken: 'refresh',
+  });
+  answer({
+    '/api/v1/sessions/refresh': () => Response.json(newTokens),
+    '/api/v1/users/me': () =>
+      Response.json({
+        email: 'admin@minimalist.hr',
+        name: null,
+        units: 'metric',
+        timeZone: 'Etc/UTC',
+        role: 'admin',
+      }),
+  });
+
+  await restoreSession();
+
+  await expect(status()).resolves.toBe('admin');
+});
+
 test('no stored refresh token shows sign in', async () => {
   answer({});
 

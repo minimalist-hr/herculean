@@ -10,7 +10,8 @@ type TokenResponse = components['schemas']['TokenResponse'];
  * Where the user is, which decides the screens the app shows:
  * restoring at launch, signed out, signed in but setup not finished, or ready.
  */
-export type SessionStatus = 'restoring' | 'signedOut' | 'needsSetup' | 'ready';
+export type SessionStatus =
+  'restoring' | 'signedOut' | 'needsSetup' | 'ready' | 'admin';
 
 const refreshTokenKey = 'refreshToken';
 
@@ -37,6 +38,11 @@ export async function saveTokens(tokens: TokenResponse) {
 /** Shows the app to a signed-in user: setup until it is done, then the tabs. */
 export function enterApp(setupDone: boolean) {
   setStatus(setupDone ? 'ready' : 'needsSetup');
+}
+
+/** Shows an admin the feedback inbox, and nothing else. */
+export function enterAdmin() {
+  setStatus('admin');
 }
 
 /** Signs the user out on this device, or confirms there is no session at launch. */

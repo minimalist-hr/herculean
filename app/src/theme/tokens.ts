@@ -205,6 +205,7 @@ export const tokens = {
   size: {
     screen: { width: 390, height: 844 },
     sidePadding: 16,
+    contentMaxWidth: 640,
     topPaddingTab: 16,
     statTilePadding: 14,
     topPaddingSubPage: 8,

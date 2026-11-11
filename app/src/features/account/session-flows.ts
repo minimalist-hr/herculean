@@ -3,7 +3,7 @@ import { toApiError } from '@/api/problem';
 import { queryClient } from '@/api/query-client';
 import { clearStored } from '@/storage/phone-storage';
 
-import { endSession, enterApp, readRefreshToken } from './session';
+import { endSession, enterAdmin, enterApp, readRefreshToken } from './session';
 import { currentUserKey } from './use-current-user';
 
 /** Removes what the app holds for the user who was signed in. */
@@ -25,7 +25,7 @@ export async function signOut() {
 }
 
 /**
- * With new tokens saved, asks the API who is signed in, then shows setup or the app.
+ * With new tokens saved, asks the API who is signed in, then shows setup, the app, or an admin's inbox.
  * @throws When the API gives no answer, for example without a connection.
  */
 export async function enterSignedIn() {
@@ -33,6 +33,10 @@ export async function enterSignedIn() {
   if (data !== undefined) {
     // Kept for the first screen, which then knows the units and the name.
     queryClient.setQueryData(currentUserKey, data);
+    if (data.role === 'admin') {
+      enterAdmin();
+      return;
+    }
     // A user without a name has not finished setup.
     enterApp(data.name !== null);
     return;

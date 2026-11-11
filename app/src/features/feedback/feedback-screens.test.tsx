@@ -3,7 +3,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { useState, type ReactElement } from 'react';
-import { Text, View, type RefreshControlProps } from 'react-native';
+import { Keyboard, Text, View, type RefreshControlProps } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { createTestQueryClient } from '@/test-utils/query-client';
@@ -203,9 +203,27 @@ beforeEach(() => {
 });
 
 describe('Your feedback', () => {
+  test('starts on answered tickets, with All first', async () => {
+    answerWith();
+    await renderAt('/settings/feedback');
+
+    expect(
+      await screen.findByRole('button', { name: /^Suggestion/ }),
+    ).toBeOnTheScreen();
+    expect(
+      screen.queryByRole('button', { name: /^Bug/ }),
+    ).not.toBeOnTheScreen();
+    expect(
+      screen
+        .getAllByRole('button', { name: /^(All|Open|Answered|Closed)$/ })
+        .map((chip) => chip.props.accessibilityLabel as string),
+    ).toEqual(['All', 'Open', 'Answered', 'Closed']);
+  });
+
   test('each ticket shows its type, message, status and date, and an unread reply says so', async () => {
     answerWith();
     await renderAt('/settings/feedback');
+    await fireEvent.press(await screen.findByRole('button', { name: 'All' }));
 
     expect(
       await screen.findByRole('button', {
@@ -224,7 +242,9 @@ describe('Your feedback', () => {
     answerWith();
     await renderAt('/settings/feedback');
 
-    await fireEvent.press(await screen.findByRole('button', { name: /^Bug/ }));
+    await fireEvent.press(
+      await screen.findByRole('button', { name: /^Suggestion/ }),
+    );
 
     expect(await screen.findByText('Which phone is it on?')).toBeOnTheScreen();
     expect(
@@ -235,6 +255,7 @@ describe('Your feedback', () => {
   test('a status that changed shows on the list after reading the thread', async () => {
     answerWith();
     await renderAt('/settings/feedback');
+    await fireEvent.press(await screen.findByRole('button', { name: 'All' }));
     await fireEvent.press(await screen.findByRole('button', { name: /^Bug/ }));
     await screen.findByText('Which phone is it on?');
 
@@ -249,9 +270,44 @@ describe('Your feedback', () => {
       await screen.findByRole('link', { name: 'Your feedback' }),
     );
 
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Closed' }),
+    );
+
     expect(
       await screen.findByRole('button', { name: /^Bug, .*, Closed, / }),
     ).toBeOnTheScreen();
+  });
+
+  test('status chips show only their tickets, and an empty one says so', async () => {
+    answerWith();
+    await renderAt('/settings/feedback');
+    await screen.findByRole('button', { name: /^Suggestion/ });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Answered' }));
+    expect(
+      screen.queryByRole('button', { name: /^Bug/ }),
+    ).not.toBeOnTheScreen();
+    expect(
+      screen.getByRole('button', { name: /^Suggestion/ }),
+    ).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Closed' }));
+
+    expect(await screen.findByText('Nothing closed')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Pick All to see everything you sent.'),
+    ).toBeOnTheScreen();
+  });
+
+  test('without feedback the chips look muted and say why', async () => {
+    answerWith({ tickets: [] });
+    await renderAt('/settings/feedback');
+    await screen.findByText('No feedback yet');
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Open' }));
+
+    expect(await screen.findByText('Send feedback first.')).toBeOnTheScreen();
+    expect(screen.getByText('No feedback yet')).toBeOnTheScreen();
   });
 
   test('with no feedback it says so, and New feedback opens the form', async () => {
@@ -277,7 +333,7 @@ describe('Your feedback', () => {
     await fireEvent.press(screen.getByRole('link', { name: 'Try again' }));
 
     expect(
-      await screen.findByRole('button', { name: /^Bug/ }),
+      await screen.findByRole('button', { name: /^Suggestion/ }),
     ).toBeOnTheScreen();
   });
 });
@@ -548,7 +604,8 @@ describe('A ticket', () => {
     ).toBeOnTheScreen();
   });
 
-  test('a reply is sent and the box empties', async () => {
+  test('a reply is sent, the box empties and the keyboard closes', async () => {
+    const dismiss = jest.spyOn(Keyboard, 'dismiss');
     answerWith();
     await renderAt('/settings/feedback/ticket-1');
     await screen.findByText('Which phone is it on?');
@@ -559,9 +616,11 @@ describe('A ticket', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Reply')).toHaveDisplayValue('');
     });
+    expect(dismiss).toHaveBeenCalled();
     await expect(
       sent('POST', '/api/v1/feedback/ticket-1/messages')[0].clone().json(),
     ).resolves.toEqual({ message: 'A Pixel 8.', screenshots: [] });
+    dismiss.mockRestore();
   });
 
   test('a reply that fails stays in the box and says so', async () => {

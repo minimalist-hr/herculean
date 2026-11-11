@@ -33,7 +33,7 @@ export interface paths {
         };
         /**
          * Get the signed-in user
-         * @description Returns the signed-in user. A user without a name has not finished setup.
+         * @description Returns the signed-in account, a user or an admin. A user without a name has not finished setup.
          */
         get: operations["GetCurrentUser"];
         put?: never;
@@ -1128,6 +1128,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the feedback inbox
+         * @description Every user's tickets, or those in one status, the one with the latest message first. Admins only.
+         */
+        get: operations["ListInboxTickets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a ticket in the inbox
+         * @description Any user's ticket, with who sent it, the device and every message. Admins only.
+         */
+        get: operations["GetInboxTicket"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/screenshots/{screenshotId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a screenshot in the inbox
+         * @description One screenshot on any user's ticket. Admins only.
+         */
+        get: operations["GetInboxScreenshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reply to a ticket as Minimalist
+         * @description Adds Minimalist's message to any user's ticket, which is then answered, with an unread reply for the user. A closed ticket takes no replies. Admins only.
+         */
+        post: operations["ReplyToTicket"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Close or reopen a ticket
+         * @description Closes any user's ticket, or reopens it so it waits for Minimalist. Setting the same status again changes nothing. Admins only.
+         */
+        put: operations["UpdateTicketStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback/{id}": {
         parameters: {
             query?: never;
@@ -1753,6 +1853,55 @@ export interface components {
             /** @description The group's name. */
             name: string;
         };
+        /** @description A ticket in the inbox. */
+        InboxTicketListItemResponse: {
+            /**
+             * Format: uuid
+             * @description The ticket's ID.
+             */
+            id: string;
+            /** @description What it is about. */
+            type: components["schemas"]["TicketType"];
+            /** @description Where it stands. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description The start of its first message, at most 200 characters. */
+            preview: string;
+            /**
+             * Format: date-time
+             * @description When its latest message was sent.
+             */
+            lastMessageAtUtc: string;
+            /** @description Whether its latest message is the user's, so it waits for a reply. */
+            waitingForReply: boolean;
+            /** @description The sender's name, or null before setup or when the account is gone. */
+            senderName: null | string;
+            /** @description The sender's email, or null when the account is gone. */
+            senderEmail: null | string;
+        };
+        /** @description A ticket in the inbox, with who sent it, from which device, and its thread. */
+        InboxTicketResponse: {
+            /**
+             * Format: uuid
+             * @description The ticket's ID.
+             */
+            id: string;
+            /** @description What it is about. */
+            type: components["schemas"]["TicketType"];
+            /** @description Where it stands. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description The sender's name, or null before setup or when the account is gone. */
+            senderName: null | string;
+            /** @description The sender's email, or null when the account is gone. */
+            senderEmail: null | string;
+            /** @description The app's version it was sent from. */
+            appVersion: string;
+            /** @description The phone it was sent from, or null when it isn't known. */
+            phone: null | string;
+            /** @description The operating system it was sent from. */
+            os: string;
+            /** @description Its messages, oldest first. */
+            messages: components["schemas"]["TicketMessageResponse"][];
+        };
         /** @description An exercise's sets the last time it was done. */
         LastTimeResponse: {
             /**
@@ -2030,6 +2179,13 @@ export interface components {
             /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the user's other groups, regardless of case. */
             name: string;
         };
+        /** @description Minimalist's reply to a ticket. */
+        ReplyToTicketRequest: {
+            /** @description The message, 1 to 2,000 characters. Spaces around it are removed. */
+            message: string;
+            /** @description Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none. */
+            screenshots: null | string[];
+        };
         /** @description The new email, and the password that proves it's the user asking. */
         RequestEmailChangeRequest: {
             /** @description The new address. The link goes there. */
@@ -2049,6 +2205,11 @@ export interface components {
             /** @description The refresh token this device holds now. */
             refreshToken: string;
         };
+        /**
+         * @description What an account is for: a user trains, and an admin only manages feedback.
+         * @enum {unknown}
+         */
+        Role: "user" | "admin";
         /** @description A routine, its days and its exercises. */
         RoutineDetailsResponse: {
             /**
@@ -2483,6 +2644,11 @@ export interface components {
             /** @description Whether lengthened partials were done after it. */
             partialsDone?: null | boolean;
         };
+        /** @description A ticket's new status. */
+        UpdateTicketStatusRequest: {
+            /** @description Closed, or open to reopen it. Answered comes only from a reply. */
+            status: components["schemas"]["TicketStatus"];
+        };
         /** @description Whether lengthened partials follow an exercise's sets in this workout. */
         UpdateWorkoutExerciseLengthenedPartialsRequest: {
             /** @description True turns them on for this workout, false turns them off. The routine doesn't change. */
@@ -2554,6 +2720,8 @@ export interface components {
             color: components["schemas"]["Color"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it. */
             timeZone: string;
+            /** @description What the account is for. An admin sees only the feedback inbox. */
+            role: components["schemas"]["Role"];
         };
         /**
          * @description A day of the week. The week plan starts on Monday.
@@ -6173,6 +6341,284 @@ export interface operations {
             };
             /** @description Not signed in, or the access token expired. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListInboxTickets: {
+        parameters: {
+            query?: {
+                /** @description Only tickets that stand here: open, answered or closed. Left out, every ticket. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The tickets, which can be none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxTicketListItemResponse"][];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetInboxTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The ticket. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxTicketResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no ticket with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetInboxScreenshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                screenshotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The screenshot. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScreenshotResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no such screenshot on this ticket. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ReplyToTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplyToTicketRequest"];
+            };
+        };
+        responses: {
+            /** @description The reply is sent. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no ticket with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The ticket is closed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateTicketStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTicketStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description The status is saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no ticket with this ID. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

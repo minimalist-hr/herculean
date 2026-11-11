@@ -12,6 +12,11 @@ internal sealed class TicketRepository(FeedbackDbContext dbContext) : ITicketRep
     public Task<Ticket?> GetAsync(TicketId id, CancellationToken cancellationToken) =>
         dbContext.Tickets.SingleOrDefaultAsync(ticket => ticket.Id == id, cancellationToken);
 
+    public Task<Ticket?> GetAnyAsync(TicketId id, CancellationToken cancellationToken) =>
+        dbContext.Tickets
+            .IgnoreQueryFilters([FeedbackDbContext.UserFilter])
+            .SingleOrDefaultAsync(ticket => ticket.Id == id, cancellationToken);
+
     public void Add(Ticket ticket)
     {
         dbContext.Tickets.Add(ticket);

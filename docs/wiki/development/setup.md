@@ -45,6 +45,13 @@ Email sent locally shows up in Mailpit, not in a real inbox. To tap a link in an
 
 The API reference (Scalar) opens from the API's **Scalar** link in the dashboard.
 
+To have an admin account locally, set one in user secrets from `api/`, then restart the API. Sign in with it on A01: it sees only the feedback inbox.
+
+```
+dotnet user-secrets set "Admin:Accounts:0:Email" "admin@example.com" --project src/Herculean.Api
+dotnet user-secrets set "Admin:Accounts:0:Password" "<a password>" --project src/Herculean.Api
+```
+
 To browse the database, open pgweb from the dashboard. It always runs at `http://localhost:8082`.
 
 To send a request, open a `.http` file, for example `CreateUser.http`, and send one of its requests.

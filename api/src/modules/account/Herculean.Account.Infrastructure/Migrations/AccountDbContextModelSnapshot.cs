@@ -188,6 +188,12 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
                     b.Property<string>("Theme")
                         .IsRequired()
                         .HasColumnType("text")

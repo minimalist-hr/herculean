@@ -1,3 +1,4 @@
+using Herculean.Account.Contracts;
 using Herculean.Account.Application.Users;
 using Herculean.Account.Domain.Users;
 
@@ -20,4 +21,11 @@ internal sealed class UserReadRepository(AccountDbContext dbContext) : IUserRead
             .Where(user => user.Id == id)
             .Select(user => user.CreatedAtUtc)
             .SingleAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<UserContact>> ListContactsAsync(IReadOnlyCollection<UserId> ids, CancellationToken cancellationToken) =>
+        await dbContext.Users
+            .AsNoTracking()
+            .Where(user => ids.Contains(user.Id))
+            .Select(user => new UserContact(user.Id.Value, user.Name, user.Email))
+            .ToListAsync(cancellationToken);
 }

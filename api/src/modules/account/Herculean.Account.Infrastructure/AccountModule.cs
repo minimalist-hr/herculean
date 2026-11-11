@@ -36,6 +36,8 @@ using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetCurrentUser;
 using Herculean.Account.Application.Users.GetUserCreatedAt;
 using Herculean.Account.Application.Users.GetUserTimeZone;
+using Herculean.Account.Application.Users.SeedAdmins;
+using Herculean.Account.Application.Users.GetUserContacts;
 using Herculean.Account.Application.Users.PasswordChanged;
 using Herculean.Account.Application.Users.UpdateCurrentUser;
 using Herculean.Account.Contracts;
@@ -87,6 +89,8 @@ public static class AccountModule
             .BindConfiguration(EmailOptions.Section)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        builder.Services.AddOptions<AdminOptions>()
+            .BindConfiguration(AdminOptions.Section);
         builder.Services.AddOptions<LinksOptions>()
             .BindConfiguration(LinksOptions.Section)
             .ValidateDataAnnotations()
@@ -112,6 +116,9 @@ public static class AccountModule
         builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
         builder.Services.AddScoped<IQueryHandler<GetUserTimeZoneQuery, string>, GetUserTimeZoneQueryHandler>();
         builder.Services.AddScoped<IQueryHandler<GetUserCreatedAtQuery, DateTimeOffset>, GetUserCreatedAtQueryHandler>();
+        builder.Services.AddScoped<IQueryHandler<GetUserContactsQuery, IReadOnlyList<UserContact>>, GetUserContactsQueryHandler>();
+        builder.Services.AddScoped<SeedAdminsHandler>();
+        builder.Services.AddHostedService<AdminSeedJob>();
 
         builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>();
         builder.Services.AddScoped<CreateUserHandler>();

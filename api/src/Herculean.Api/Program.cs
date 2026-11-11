@@ -42,9 +42,8 @@ builder.Services.AddOpenApi(options =>
     options.AddSchemaTransformer<ProblemDetailsSchemaTransformer>();
 });
 
-// Every endpoint needs a signed-in user, unless it is marked anonymous.
-builder.Services.AddAuthorizationBuilder()
-    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+// Every endpoint needs a signed-in user who isn't an admin, unless it says otherwise.
+builder.Services.AddHerculeanAuthorization();
 
 builder.AddAccountModule();
 builder.AddTrainingModule();

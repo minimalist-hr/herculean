@@ -207,7 +207,7 @@
           "Users"
         ],
         "summary": "Get the signed-in user",
-        "description": "Returns the signed-in user. A user without a name has not finished setup.",
+        "description": "Returns the signed-in account, a user or an admin. A user without a name has not finished setup.",
         "operationId": "GetCurrentUser",
         "responses": {
           "200": {
@@ -4606,6 +4606,393 @@
         ]
       }
     },
+    "/api/v1/admin/feedback": {
+      "get": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "List the feedback inbox",
+        "description": "Every user's tickets, or those in one status, the one with the latest message first. Admins only.",
+        "operationId": "ListInboxTickets",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Only tickets that stand here: open, answered or closed. Left out, every ticket.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The tickets, which can be none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InboxTicketListItemResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/{id}": {
+      "get": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Get a ticket in the inbox",
+        "description": "Any user's ticket, with who sent it, the device and every message. Admins only.",
+        "operationId": "GetInboxTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The ticket.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxTicketResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/{id}/screenshots/{screenshotId}": {
+      "get": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Get a screenshot in the inbox",
+        "description": "One screenshot on any user's ticket. Admins only.",
+        "operationId": "GetInboxScreenshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "screenshotId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The screenshot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScreenshotResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no such screenshot on this ticket.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/{id}/messages": {
+      "post": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Reply to a ticket as Minimalist",
+        "description": "Adds Minimalist's message to any user's ticket, which is then answered, with an unread reply for the user. A closed ticket takes no replies. Admins only.",
+        "operationId": "ReplyToTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyToTicketRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The reply is sent."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The ticket is closed.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/{id}/status": {
+      "put": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Close or reopen a ticket",
+        "description": "Closes any user's ticket, or reopens it so it waits for Minimalist. Setting the same status again changes nothing. Admins only.",
+        "operationId": "UpdateTicketStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTicketStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The status is saved."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback/{id}": {
       "get": {
         "tags": [
@@ -6095,6 +6482,128 @@
         },
         "description": "A muscle group. It orders the exercise list and the chips."
       },
+      "InboxTicketListItemResponse": {
+        "required": [
+          "id",
+          "type",
+          "status",
+          "preview",
+          "lastMessageAtUtc",
+          "waitingForReply",
+          "senderName",
+          "senderEmail"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ticket's ID.",
+            "format": "uuid"
+          },
+          "type": {
+            "description": "What it is about.",
+            "$ref": "#/components/schemas/TicketType"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/TicketStatus"
+          },
+          "preview": {
+            "type": "string",
+            "description": "The start of its first message, at most 200 characters."
+          },
+          "lastMessageAtUtc": {
+            "type": "string",
+            "description": "When its latest message was sent.",
+            "format": "date-time"
+          },
+          "waitingForReply": {
+            "type": "boolean",
+            "description": "Whether its latest message is the user's, so it waits for a reply."
+          },
+          "senderName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sender's name, or null before setup or when the account is gone."
+          },
+          "senderEmail": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sender's email, or null when the account is gone."
+          }
+        },
+        "description": "A ticket in the inbox."
+      },
+      "InboxTicketResponse": {
+        "required": [
+          "id",
+          "type",
+          "status",
+          "senderName",
+          "senderEmail",
+          "appVersion",
+          "phone",
+          "os",
+          "messages"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ticket's ID.",
+            "format": "uuid"
+          },
+          "type": {
+            "description": "What it is about.",
+            "$ref": "#/components/schemas/TicketType"
+          },
+          "status": {
+            "description": "Where it stands.",
+            "$ref": "#/components/schemas/TicketStatus"
+          },
+          "senderName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sender's name, or null before setup or when the account is gone."
+          },
+          "senderEmail": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The sender's email, or null when the account is gone."
+          },
+          "appVersion": {
+            "type": "string",
+            "description": "The app's version it was sent from."
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The phone it was sent from, or null when it isn't known."
+          },
+          "os": {
+            "type": "string",
+            "description": "The operating system it was sent from."
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketMessageResponse"
+            },
+            "description": "Its messages, oldest first."
+          }
+        },
+        "description": "A ticket in the inbox, with who sent it, from which device, and its thread."
+      },
       "LastTimeResponse": {
         "required": [
           "date",
@@ -6552,6 +7061,30 @@
         },
         "description": "A group's new name."
       },
+      "ReplyToTicketRequest": {
+        "required": [
+          "message",
+          "screenshots"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The message, 1 to 2,000 characters. Spaces around it are removed."
+          },
+          "screenshots": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none."
+          }
+        },
+        "description": "Minimalist's reply to a ticket."
+      },
       "RequestEmailChangeRequest": {
         "required": [
           "newEmail",
@@ -6600,6 +7133,13 @@
           }
         },
         "description": "The refresh token of the device signing out."
+      },
+      "Role": {
+        "enum": [
+          "user",
+          "admin"
+        ],
+        "description": "What an account is for: a user trains, and an admin only manages feedback."
       },
       "RoutineDetailsResponse": {
         "required": [
@@ -7445,6 +7985,19 @@
         },
         "description": "The fields to change. A field left out, or null, stays the same."
       },
+      "UpdateTicketStatusRequest": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Closed, or open to reopen it. Answered comes only from a reply.",
+            "$ref": "#/components/schemas/TicketStatus"
+          }
+        },
+        "description": "A ticket's new status."
+      },
       "UpdateWorkoutExerciseLengthenedPartialsRequest": {
         "required": [
           "lengthenedPartials"
@@ -7591,7 +8144,8 @@
           "units",
           "theme",
           "color",
-          "timeZone"
+          "timeZone",
+          "role"
         ],
         "type": "object",
         "properties": {
@@ -7621,6 +8175,10 @@
           "timeZone": {
             "type": "string",
             "description": "The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it."
+          },
+          "role": {
+            "description": "What the account is for. An admin sees only the feedback inbox.",
+            "$ref": "#/components/schemas/Role"
           }
         },
         "description": "The signed-in user."
@@ -8025,6 +8583,9 @@
     },
     {
       "name": "Feedback"
+    },
+    {
+      "name": "Feedback inbox"
     }
   ]
 }

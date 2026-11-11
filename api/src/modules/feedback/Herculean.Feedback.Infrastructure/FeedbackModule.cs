@@ -3,6 +3,12 @@ using FluentValidation;
 using Herculean.Account.Contracts;
 using Herculean.Feedback.Application.AccountDeleted;
 using Herculean.Feedback.Application.Auth;
+using Herculean.Feedback.Application.Inbox;
+using Herculean.Feedback.Application.Inbox.GetInboxScreenshot;
+using Herculean.Feedback.Application.Inbox.GetInboxTicket;
+using Herculean.Feedback.Application.Inbox.ListInboxTickets;
+using Herculean.Feedback.Application.Inbox.ReplyToTicket;
+using Herculean.Feedback.Application.Inbox.UpdateTicketStatus;
 using Herculean.Feedback.Application.Tickets;
 using Herculean.Feedback.Application.Tickets.AddTicketMessage;
 using Herculean.Feedback.Application.Tickets.CreateTicket;
@@ -14,6 +20,7 @@ using Herculean.Feedback.Application.Tickets.ListTickets;
 using Herculean.Feedback.Application.Tickets.MarkTicketRead;
 using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
+using Herculean.Feedback.Infrastructure.Inbox;
 using Herculean.Feedback.Infrastructure.Tickets;
 using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Events;
@@ -40,6 +47,7 @@ public static class FeedbackModule
 
         builder.Services.AddScoped<ITicketRepository, TicketRepository>();
         builder.Services.AddScoped<ITicketReadRepository, TicketReadRepository>();
+        builder.Services.AddScoped<IInboxReadRepository, InboxReadRepository>();
 
         builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
         builder.Services.AddIntegrationEventHandler<AccountDeletedIntegrationEvent, AccountDeletedIntegrationEventHandler>();
@@ -54,6 +62,15 @@ public static class FeedbackModule
         builder.Services.AddScoped<MarkTicketReadHandler>();
         builder.Services.AddScoped<GetUnreadFeedbackHandler>();
         builder.Services.AddScoped<ExportFeedbackHandler>();
+
+        builder.Services.AddScoped<IValidator<ListInboxTicketsRequest>, ListInboxTicketsValidator>();
+        builder.Services.AddScoped<ListInboxTicketsHandler>();
+        builder.Services.AddScoped<GetInboxTicketHandler>();
+        builder.Services.AddScoped<GetInboxScreenshotHandler>();
+        builder.Services.AddScoped<IValidator<ReplyToTicketRequest>, ReplyToTicketValidator>();
+        builder.Services.AddScoped<ReplyToTicketHandler>();
+        builder.Services.AddScoped<IValidator<UpdateTicketStatusRequest>, UpdateTicketStatusValidator>();
+        builder.Services.AddScoped<UpdateTicketStatusHandler>();
     }
 
     /// <summary>Maps every Feedback endpoint.</summary>
@@ -64,6 +81,11 @@ public static class FeedbackModule
         ListTicketsEndpoint.Map(endpoints);
         GetUnreadFeedbackEndpoint.Map(endpoints);
         ExportFeedbackEndpoint.Map(endpoints);
+        ListInboxTicketsEndpoint.Map(endpoints);
+        GetInboxTicketEndpoint.Map(endpoints);
+        GetInboxScreenshotEndpoint.Map(endpoints);
+        ReplyToTicketEndpoint.Map(endpoints);
+        UpdateTicketStatusEndpoint.Map(endpoints);
         GetTicketEndpoint.Map(endpoints);
         GetScreenshotEndpoint.Map(endpoints);
         AddTicketMessageEndpoint.Map(endpoints);

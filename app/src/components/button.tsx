@@ -23,6 +23,8 @@ interface ButtonProps {
   /** As tall as the smallest touch target, for a bar with little room. */
   /** Smaller, for a floating bar. Its tap area stays 44 px. */
   compact?: boolean;
+  /** As tall as a text field, to sit beside one in a row. */
+  fieldHeight?: boolean;
 }
 
 export function Button({
@@ -35,6 +37,7 @@ export function Button({
   muted = false,
   icon,
   compact = false,
+  fieldHeight = false,
 }: ButtonProps) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const filled = variant === 'primary' || variant === 'danger';
@@ -62,7 +65,11 @@ export function Button({
         },
         filled
           ? {
-              height: compact ? size.floatingBar.control : size.primaryButton,
+              height: compact
+                ? size.floatingBar.control
+                : fieldHeight
+                  ? size.input
+                  : size.primaryButton,
               backgroundColor:
                 variant === 'danger' ? colors.dangerFill : colors.primary,
             }
@@ -80,7 +87,9 @@ export function Button({
       {icon?.({ color: textColor, size: 16 })}
       <Text
         style={[
-          filled && !compact ? text.primaryButton : text.secondaryButton,
+          filled && !compact && !fieldHeight
+            ? text.primaryButton
+            : text.secondaryButton,
           { color: textColor },
         ]}
       >

@@ -62,22 +62,42 @@ export function useTicket(id: string) {
   return ticket;
 }
 
-export function useScreenshot(ticketId: string, id: string) {
+/** Whose screens read a thread: the user's own, or the admin's inbox. */
+export type ThreadReader = 'user' | 'admin';
+
+async function readScreenshot(
+  ticketId: string,
+  id: string,
+  reader: ThreadReader,
+) {
+  const params = { params: { path: { id: ticketId, screenshotId: id } } };
+  const { data, error } =
+    reader === 'admin'
+      ? await api.GET(
+          '/api/v1/admin/feedback/{id}/screenshots/{screenshotId}',
+          params,
+        )
+      : await api.GET(
+          '/api/v1/feedback/{id}/screenshots/{screenshotId}',
+          params,
+        );
+  if (data === undefined) {
+    throw toApiError(error);
+  }
+
+  return data.image;
+}
+
+export function useScreenshot(
+  ticketId: string,
+  id: string,
+  reader: ThreadReader = 'user',
+) {
   return useQuery({
-    queryKey: feedbackKeys.screenshot(ticketId, id),
+    queryKey: [...feedbackKeys.screenshot(ticketId, id), reader],
     // A screenshot never changes.
     staleTime: Infinity,
-    queryFn: async () => {
-      const { data, error } = await api.GET(
-        '/api/v1/feedback/{id}/screenshots/{screenshotId}',
-        { params: { path: { id: ticketId, screenshotId: id } } },
-      );
-      if (data === undefined) {
-        throw toApiError(error);
-      }
-
-      return data.image;
-    },
+    queryFn: () => readScreenshot(ticketId, id, reader),
   });
 }
 

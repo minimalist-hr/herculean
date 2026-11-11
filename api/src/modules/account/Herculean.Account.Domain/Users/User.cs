@@ -6,6 +6,9 @@ internal sealed class User : Entity<UserId>
 {
     internal const int NameMaxLength = 50;
 
+    /// <summary>Admins don't train, so they need no setup or time zone of their own.</summary>
+    internal const string AdminTimeZone = "Etc/UTC";
+
     /// <summary>How long a deleted account can still be kept. Must match the copy on H19, A07 and H21.</summary>
     internal static readonly TimeSpan DeletionWait = TimeSpan.FromDays(14);
 
@@ -23,6 +26,10 @@ internal sealed class User : Entity<UserId>
     public string Email { get; private set; }
 
     public string PasswordHash { get; private set; }
+
+    public Role Role { get; private set; } = Role.User;
+
+    public bool IsAdmin => Role == Role.Admin;
 
     /// <summary>Empty until setup.</summary>
     public string? Name { get; private set; }
@@ -50,6 +57,10 @@ internal sealed class User : Entity<UserId>
 
     public static User Create(string email, string passwordHash, string timeZone) =>
         new(UserId.New(), NormalizeEmail(email), passwordHash, timeZone);
+
+    /// <summary>One of Minimalist's own accounts, from configuration, with the password set there.</summary>
+    public static User CreateAdmin(string email, string passwordHash) =>
+        new(UserId.New(), NormalizeEmail(email), passwordHash, AdminTimeZone) { Role = Role.Admin };
 
     /// <summary>Emails are stored this way, so they are unique regardless of case.</summary>
     public static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();

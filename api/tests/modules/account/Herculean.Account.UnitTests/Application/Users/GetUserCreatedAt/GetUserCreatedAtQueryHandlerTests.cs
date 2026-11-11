@@ -26,5 +26,8 @@ public sealed class GetUserCreatedAtQueryHandlerTests
 
         public Task<DateTimeOffset> GetCreatedAtUtcAsync(UserId id, CancellationToken cancellationToken) =>
             id == userId ? Task.FromResult(createdAtUtc) : throw new InvalidOperationException("No such user.");
+
+        public Task<IReadOnlyList<UserContact>> ListContactsAsync(IReadOnlyCollection<UserId> ids, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Not used here.");
     }
 }

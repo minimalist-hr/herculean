@@ -28,7 +28,7 @@ public sealed class UpdateCurrentUserHandlerTests
             new UpdateCurrentUserRequest(" Filip ", Units.Imperial, TimeZone: null),
             TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Imperial, Theme.MatchPhone, Color.Nitro, "Europe/Zagreb"));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Imperial, Theme.MatchPhone, Color.Nitro, "Europe/Zagreb", Role.User));
         _unitOfWork.Saved.ShouldBeTrue();
     }
 
@@ -41,7 +41,7 @@ public sealed class UpdateCurrentUserHandlerTests
             new UpdateCurrentUserRequest(Name: null, Units: null, TimeZone: "Europe/London"),
             TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Metric, Theme.MatchPhone, Color.Nitro, "Europe/London"));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Metric, Theme.MatchPhone, Color.Nitro, "Europe/London", Role.User));
     }
 
     [Fact]

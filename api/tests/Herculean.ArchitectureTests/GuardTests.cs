@@ -7,9 +7,11 @@ using FluentValidation;
 
 using Herculean.Account.Infrastructure;
 using Herculean.Feedback.Infrastructure;
+using Herculean.SharedKernel.Auth;
 using Herculean.SharedKernel.Entities;
 using Herculean.Training.Infrastructure;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -26,6 +28,9 @@ public sealed class GuardTests
 {
     private static readonly string[] RegisteredSuffixes = ["Handler", "Validator", "Repository"];
     private static readonly string[] ModuleLayers = ["Domain", "Application", "Infrastructure"];
+
+    // Every admin endpoint lives here, and only admin endpoints do.
+    private const string AdminRoutes = "/api/v1/admin/";
 
     public static TheoryData<string> ModuleNames => new(Modules);
 
@@ -79,6 +84,24 @@ public sealed class GuardTests
         Layer(module, "Application").GetTypes()
             .Where(type => type.Name.EndsWith("Endpoint", StringComparison.Ordinal) && !mapped.Contains(type))
             .Select(type => type.Name)
+            .ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void AdminEndpointsAndOnlyThoseNeedTheAdminRole()
+    {
+        using WebApplication app = CreateApiBuilder().Build();
+        app.MapAccountModuleEndpoints();
+        app.MapTrainingModuleEndpoints();
+        app.MapFeedbackModuleEndpoints();
+
+        ((IEndpointRouteBuilder)app).DataSources
+            .SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>()
+            .Where(endpoint =>
+                endpoint.RoutePattern.RawText!.StartsWith(AdminRoutes, StringComparison.Ordinal)
+                != endpoint.Metadata.OfType<IAuthorizeData>().Any(data => data.Policy == AuthorizationPolicies.Admin))
+            .Select(endpoint => endpoint.RoutePattern.RawText)
             .ShouldBeEmpty();
     }
 

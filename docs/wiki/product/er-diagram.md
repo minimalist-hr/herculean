@@ -32,7 +32,8 @@ erDiagram
 |---|---|---|
 | Email | string | Unique, case-insensitive |
 | PasswordHash | string | |
-| Name | string? | Empty until setup (A30) |
+| Role | enum | `User`, `Admin`. Admins come from configuration |
+| Name | string? | Empty until setup (A30), and always for an admin |
 | Photo | UserPhoto? | |
 | TimeZone | string | IANA name, for example `Europe/Zagreb` |
 | Theme | enum | `MatchPhone`, `Dark`, `Light`. Starts at `MatchPhone` |

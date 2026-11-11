@@ -1,3 +1,5 @@
+using Herculean.SharedKernel.Auth;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +26,7 @@ internal sealed class JwtBearerSetup(IOptions<JwtOptions> options) : IConfigureN
             ValidAudience = jwtOptions.Audience,
             IssuerSigningKey = jwtOptions.CreateSigningKey(),
             ValidAlgorithms = [JwtOptions.Algorithm],
+            RoleClaimType = AuthorizationPolicies.RoleClaim,
         };
     }
 

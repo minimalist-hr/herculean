@@ -23,6 +23,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Units).HasConversion<string>();
         builder.Property(user => user.Theme).HasConversion<string>();
         builder.Property(user => user.Color).HasConversion<string>();
+        builder.Property(user => user.Role).HasConversion<string>().HasMaxLength(20);
 
         builder.HasOne(user => user.Photo)
             .WithOne()

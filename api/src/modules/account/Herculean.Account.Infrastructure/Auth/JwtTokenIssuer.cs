@@ -4,6 +4,7 @@ using System.Text;
 
 using Herculean.Account.Application.Auth;
 using Herculean.Account.Domain.Users;
+using Herculean.SharedKernel.Auth;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -26,7 +27,7 @@ internal sealed class JwtTokenIssuer(IOptions<JwtOptions> options, TimeProvider 
         {
             Issuer = jwtOptions.Issuer,
             Audience = jwtOptions.Audience,
-            Claims = new Dictionary<string, object> { [JwtRegisteredClaimNames.Sub] = user.Id.Value.ToString() },
+            Claims = Claims(user),
             IssuedAt = nowUtc,
             NotBefore = nowUtc,
             Expires = nowUtc + jwtOptions.AccessTokenLifetime,
@@ -40,6 +41,18 @@ internal sealed class JwtTokenIssuer(IOptions<JwtOptions> options, TimeProvider 
     }
 
     public string HashRefreshToken(string refreshToken) => Hash(refreshToken);
+
+    // Only an admin's token names a role, so a user's stays as it was.
+    private static Dictionary<string, object> Claims(User user)
+    {
+        Dictionary<string, object> claims = new() { [JwtRegisteredClaimNames.Sub] = user.Id.Value.ToString() };
+        if (user.IsAdmin)
+        {
+            claims[AuthorizationPolicies.RoleClaim] = AuthorizationPolicies.AdminRole;
+        }
+
+        return claims;
+    }
 
     // The token is random and long, so a fast hash is enough. Only the hash is stored.
     internal static string Hash(string token) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(token)));

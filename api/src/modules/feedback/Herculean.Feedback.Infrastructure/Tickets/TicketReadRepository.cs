@@ -12,6 +12,10 @@ internal sealed class TicketReadRepository(FeedbackDbContext dbContext) : ITicke
 {
     internal const int PreviewMaxLength = 200;
 
+    /// <summary>The start of a ticket's first message, for a list.</summary>
+    internal static string PreviewOf(string message) =>
+        message.Length > PreviewMaxLength ? message[..PreviewMaxLength] : message;
+
     public async Task<List<TicketListItemResponse>> ListAsync(CancellationToken cancellationToken)
     {
         var tickets = await dbContext.Tickets
@@ -35,7 +39,7 @@ internal sealed class TicketReadRepository(FeedbackDbContext dbContext) : ITicke
                     ticket.Id,
                     ticket.Type,
                     ticket.Status,
-                    ticket.FirstMessage.Length > PreviewMaxLength ? ticket.FirstMessage[..PreviewMaxLength] : ticket.FirstMessage,
+                    PreviewOf(ticket.FirstMessage),
                     ticket.LastMessageAtUtc,
                     ticket.HasUnreadReply)),
         ];

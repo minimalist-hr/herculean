@@ -38,6 +38,7 @@ const homeOf: Record<SessionStatus, Href> = {
   signedOut: '/sign-in',
   needsSetup: '/setup',
   ready: '/',
+  admin: '/admin',
 };
 
 export default function RootLayout() {
@@ -69,7 +70,7 @@ export default function RootLayout() {
 }
 
 function AppStack() {
-  const { colors } = useTheme();
+  const { colors, size } = useTheme();
   const insets = useSafeAreaInsets();
   const status = useSessionStatus();
   const pageOptions = usePageOptions();
@@ -104,41 +105,47 @@ function AppStack() {
           { paddingTop: insets.top, backgroundColor: colors.bg },
         ]}
       >
-        <Stack screenOptions={pageOptions}>
-          <Stack.Protected guard={status === 'restoring'} redirectTo={home}>
-            <Stack.Screen name="launch" />
-          </Stack.Protected>
-          <Stack.Protected guard={status === 'signedOut'} redirectTo={home}>
-            <Stack.Screen name="sign-in" />
-            <Stack.Screen name="create-account" />
-          </Stack.Protected>
-          {/* A reset link can open the app from closed, so these don't wait for the session to be restored. */}
-          <Stack.Protected
-            guard={status === 'signedOut' || status === 'restoring'}
-            redirectTo={home}
-          >
-            <Stack.Screen name="forgot-password" />
-            <Stack.Screen name="reset-link-sent" />
-            <Stack.Screen name="new-password" />
-          </Stack.Protected>
-          <Stack.Protected guard={status === 'needsSetup'} redirectTo={home}>
-            <Stack.Screen name="setup" />
-          </Stack.Protected>
-          <Stack.Protected guard={status === 'ready'} redirectTo={home}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="routine/[id]/edit" />
-            <Stack.Screen name="routine/new" />
-            <Stack.Screen name="exercise/new" />
-            <Stack.Screen name="exercise/[id]/edit" />
-            <Stack.Screen name="group/new" />
-            <Stack.Screen name="group/[id]/edit" />
-            <Stack.Screen name="settings" />
-          </Stack.Protected>
-          {/* An email change link works signed in, signed out and from a closed app. */}
-          <Stack.Screen name="confirm-email" />
-          <Stack.Screen name="terms" />
-          <Stack.Screen name="privacy" />
-        </Stack>
+        {/* On a wide screen, such as the web, pages sit in a centered column. */}
+        <View style={[styles.column, { maxWidth: size.contentMaxWidth }]}>
+          <Stack screenOptions={pageOptions}>
+            <Stack.Protected guard={status === 'restoring'} redirectTo={home}>
+              <Stack.Screen name="launch" />
+            </Stack.Protected>
+            <Stack.Protected guard={status === 'signedOut'} redirectTo={home}>
+              <Stack.Screen name="sign-in" />
+              <Stack.Screen name="create-account" />
+            </Stack.Protected>
+            {/* A reset link can open the app from closed, so these don't wait for the session to be restored. */}
+            <Stack.Protected
+              guard={status === 'signedOut' || status === 'restoring'}
+              redirectTo={home}
+            >
+              <Stack.Screen name="forgot-password" />
+              <Stack.Screen name="reset-link-sent" />
+              <Stack.Screen name="new-password" />
+            </Stack.Protected>
+            <Stack.Protected guard={status === 'needsSetup'} redirectTo={home}>
+              <Stack.Screen name="setup" />
+            </Stack.Protected>
+            <Stack.Protected guard={status === 'ready'} redirectTo={home}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="routine/[id]/edit" />
+              <Stack.Screen name="routine/new" />
+              <Stack.Screen name="exercise/new" />
+              <Stack.Screen name="exercise/[id]/edit" />
+              <Stack.Screen name="group/new" />
+              <Stack.Screen name="group/[id]/edit" />
+              <Stack.Screen name="settings" />
+            </Stack.Protected>
+            <Stack.Protected guard={status === 'admin'} redirectTo={home}>
+              <Stack.Screen name="admin" />
+            </Stack.Protected>
+            {/* An email change link works signed in, signed out and from a closed app. */}
+            <Stack.Screen name="confirm-email" />
+            <Stack.Screen name="terms" />
+            <Stack.Screen name="privacy" />
+          </Stack>
+        </View>
       </View>
       <NotificationBar />
     </NavigationThemeProvider>
@@ -148,5 +155,10 @@ function AppStack() {
 const styles = StyleSheet.create({
   app: {
     flex: 1,
+  },
+  column: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
   },
 });

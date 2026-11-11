@@ -65,6 +65,26 @@ internal sealed class Ticket : Entity<TicketId>
         Status = TicketStatus.Open;
     }
 
+    /// <summary>Minimalist's reply. The ticket then waits for the user, who has an unread reply. A closed ticket takes no replies.</summary>
+    public void ReplyAsAdmin(string message, IEnumerable<byte[]> screenshots)
+    {
+        AddMessage(MessageAuthor.Admin, message, screenshots);
+        Status = TicketStatus.Answered;
+        HasUnreadReply = true;
+    }
+
+    /// <summary>Done: no one can reply until it is reopened.</summary>
+    public void Close()
+    {
+        Status = TicketStatus.Closed;
+    }
+
+    /// <summary>Waits for Minimalist again.</summary>
+    public void Reopen()
+    {
+        Status = TicketStatus.Open;
+    }
+
     public void MarkRead()
     {
         HasUnreadReply = false;

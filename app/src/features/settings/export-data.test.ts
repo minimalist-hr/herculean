@@ -62,6 +62,7 @@ const sources: ExportSources = {
     theme: 'matchPhone',
     color: 'nitro',
     timeZone: 'Europe/Zagreb',
+    role: 'user',
   },
   settings: { defaultRestSeconds: 180, restSound: true, restVibrate: false },
   photo: '/9j/',

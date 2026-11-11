@@ -23,6 +23,7 @@ Each feature lists what it does, its screens, flows, entities, endpoints, what i
 | 7 | [Settings](#7-settings) | H10–H19 |
 | 8 | [Home](#8-home) | H01–H09, H44 |
 | 9 | [Feedback](#9-feedback) | F01–F27, H91, H92 |
+| 10 | [Admin](#10-admin) | M01–M15 |
 
 Each feature lists its main screens. Every state is in `docs/design/screen-index.md`.
 
@@ -334,7 +335,7 @@ Changes on W30 stay in the app until Save workout.
 
 **Flows**
 - **Send:** Feedback on H10 → F01 → New feedback → F10, or Send feedback at the end of Home → F10 with Home as its back link. Send feedback → the new ticket's F20, which says "Feedback sent."
-- **Read:** a ticket on F01 → F20. Opening it marks Minimalist's replies read, which clears the dots on its row, H10's Feedback row and the Home avatar. Pulling down reads the thread again.
+- **Read:** status chips All, Open, Answered and Closed filter F01, Answered picked first. A ticket → F20. Opening it marks Minimalist's replies read, which clears the dots on its row, H10's Feedback row and the Home avatar. Pulling down reads the thread again.
 - **Reply:** the reply box on F20, until the ticket is closed.
 
 **Entities:** Ticket, Ticket message, Screenshot.
@@ -352,8 +353,36 @@ Changes on W30 stay in the app until Save workout.
 | PUT | `/api/v1/feedback/{id}/read` | F20 |
 | GET | `/api/v1/feedback/export` | Export data on H10 |
 
-**Left to other features:** Minimalist's replies and statuses come with the admin inbox (#84), and push notifications for replies with #85.
+**Left to other features:** Minimalist's replies and statuses are in [10. Admin](#10-admin), and push notifications for replies come with #85.
 
 **Done when**
 - The list, a thread and each screenshot load and fail on their own.
 - Deleting an account deletes its feedback.
+
+## 10. Admin
+
+**What it does:** Minimalist's own accounts read every user's feedback, reply and close it. An admin sees nothing else of the app.
+
+**Screens:** M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M05 Sign out, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket.
+
+**Flows**
+- **Sign in:** A01 → M01, and at launch straight to M01.
+- **Inbox:** status chips All, Open, Answered and Closed, Open picked first. A ticket → M10.
+- **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again.
+- **Sign out:** the link on M01 → M05 → A01.
+
+**Entities:** User (role). Reads Ticket, Ticket message, Screenshot, and each sender's name and email from Account.
+
+**Endpoints**
+
+| Method | Route | Used by |
+|---|---|---|
+| GET | `/api/v1/admin/feedback` | M01, `?status=open`, `answered` or `closed` |
+| GET | `/api/v1/admin/feedback/{id}` | M10 |
+| GET | `/api/v1/admin/feedback/{id}/screenshots/{screenshotId}` | M10 |
+| POST | `/api/v1/admin/feedback/{id}/messages` | M10 |
+| PUT | `/api/v1/admin/feedback/{id}/status` | M10 |
+
+**Done when**
+- An admin can't reach anything a user can, in the app or the API, and a user can't reach the inbox.
+- The inbox, a ticket and each screenshot load and fail on their own.

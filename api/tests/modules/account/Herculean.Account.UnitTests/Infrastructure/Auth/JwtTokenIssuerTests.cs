@@ -28,6 +28,20 @@ public sealed class JwtTokenIssuerTests
     private readonly User _user = User.Create("filip@example.com", "hash", "Europe/Zagreb");
 
     [Fact]
+    public void AUsersTokenHasNoRole()
+    {
+        new JsonWebToken(_issuer.Issue(_user).AccessToken).TryGetPayloadValue("role", out string _).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void AnAdminsTokenSaysAdmin()
+    {
+        User admin = User.CreateAdmin("admin@minimalist.hr", "hash");
+
+        new JsonWebToken(_issuer.Issue(admin).AccessToken).GetPayloadValue<string>("role").ShouldBe("admin");
+    }
+
+    [Fact]
     public async Task AccessTokenIsSignedForTheUser()
     {
         TokenResponse tokens = _issuer.Issue(_user);

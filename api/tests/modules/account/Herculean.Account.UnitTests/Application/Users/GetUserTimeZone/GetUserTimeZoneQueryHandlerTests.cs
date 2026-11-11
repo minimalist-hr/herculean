@@ -25,5 +25,8 @@ public sealed class GetUserTimeZoneQueryHandlerTests
 
         public Task<DateTimeOffset> GetCreatedAtUtcAsync(UserId id, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("Not used here.");
+
+        public Task<IReadOnlyList<UserContact>> ListContactsAsync(IReadOnlyCollection<UserId> ids, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Not used here.");
     }
 }

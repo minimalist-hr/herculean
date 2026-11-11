@@ -4,6 +4,8 @@
     <!-- Every build writes api/openapi.json. The app generates its API client from it. -->
     <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../..</OpenApiDocumentsDirectory>
     <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+    <!-- Local secrets, such as the admin accounts. -->
+    <UserSecretsId>herculean-api</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
