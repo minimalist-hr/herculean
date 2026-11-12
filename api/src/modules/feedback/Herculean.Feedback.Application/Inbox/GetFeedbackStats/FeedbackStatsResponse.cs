@@ -4,4 +4,5 @@ namespace Herculean.Feedback.Application.Inbox.GetFeedbackStats;
 
 [Description("How much feedback needs the admin.")]
 internal sealed record FeedbackStatsResponse(
-    [property: Description("Tickets, not closed, whose latest message is the user's.")] int WaitingForReply);
+    [property: Description("Tickets, not closed, whose latest message is the user's.")] int WaitingForReply,
+    [property: Description("Of those, how many are high priority.")] int HighWaitingForReply);

@@ -56,6 +56,7 @@ export function InboxScreen() {
               lastMessageAtUtc={ticket.lastMessageAtUtc}
               sender={senderOf(ticket)}
               dot={ticket.waitingForReply ? 'waiting for a reply' : undefined}
+              high={ticket.priority === 'high'}
               first={index === 0}
               onPress={() => {
                 router.push({

@@ -13,6 +13,12 @@ export default function InboxTicketRoute() {
           params: { id, back },
         });
       }}
+      openNote={(id, back) => {
+        router.push({
+          pathname: '/admin/feedback/note/[id]',
+          params: { id, back },
+        });
+      }}
     />
   );
 }

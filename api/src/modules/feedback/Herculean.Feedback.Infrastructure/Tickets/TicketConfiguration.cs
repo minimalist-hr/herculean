@@ -15,6 +15,7 @@ internal sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(ticket => ticket.UserId).HasConversion<TypedIdConverter<UserId>>();
         builder.Property(ticket => ticket.Type).HasConversion<string>().HasMaxLength(20);
         builder.Property(ticket => ticket.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(ticket => ticket.Priority).HasConversion<string>().HasMaxLength(20);
         builder.Property(ticket => ticket.AppVersion).HasMaxLength(Ticket.AppVersionMaxLength);
         builder.Property(ticket => ticket.Phone).HasMaxLength(Ticket.PhoneMaxLength);
         builder.Property(ticket => ticket.Os).HasMaxLength(Ticket.OsMaxLength);

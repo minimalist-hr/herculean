@@ -9,6 +9,8 @@ internal sealed class UserDataRepository(FeedbackDbContext dbContext) : IUserDat
 {
     public async Task RemoveAllAsync(UserId userId, CancellationToken cancellationToken)
     {
+        await RemoveAsync(dbContext.TicketNotes.Where(row => row.UserId == userId), cancellationToken);
+        await RemoveAsync(dbContext.FeedbackBlocks.Where(row => row.UserId == userId), cancellationToken);
         await RemoveAsync(dbContext.Set<Screenshot>().Where(row => row.UserId == userId), cancellationToken);
         await RemoveAsync(dbContext.Set<TicketMessage>().Where(row => row.UserId == userId), cancellationToken);
         await RemoveAsync(dbContext.Tickets.Where(row => row.UserId == userId), cancellationToken);

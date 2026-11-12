@@ -1,6 +1,8 @@
 using Herculean.Feedback.Application.Tickets.AddTicketMessage;
 using Herculean.Feedback.Domain;
+using Herculean.Feedback.Domain.Blocks;
 using Herculean.Feedback.Domain.Tickets;
+using Herculean.Feedback.Infrastructure.Blocks;
 using Herculean.Feedback.Infrastructure.Tickets;
 using Herculean.SharedKernel.Results;
 
@@ -14,7 +16,7 @@ public sealed class AddTicketMessageHandlerTests : IDisposable
 
     public AddTicketMessageHandlerTests()
     {
-        _handler = new AddTicketMessageHandler(new AddTicketMessageValidator(), new TicketRepository(_database.DbContext), _database.DbContext);
+        _handler = new AddTicketMessageHandler(new AddTicketMessageValidator(), new TicketRepository(_database.DbContext), new FeedbackBlockRepository(_database.DbContext), _database.DbContext);
     }
 
     [Fact]
@@ -31,6 +33,18 @@ public sealed class AddTicketMessageHandlerTests : IDisposable
         TicketMessage reply = messages.Single(message => message.Text == "On Android 15.");
         reply.Author.ShouldBe(MessageAuthor.User);
         reply.Screenshots.ShouldHaveSingleItem();
+    }
+
+    [Fact]
+    public async Task ABlockedUserCantReply()
+    {
+        Ticket ticket = await _database.SaveTicketAsync();
+        await _database.BlockAsync();
+
+        Result result = await HandleAsync(ticket, new AddTicketMessageRequest("Hello?", null));
+
+        result.Error.ShouldBe(FeedbackBlockErrors.Blocked);
+        (await _database.ListMessagesAsync(ticket)).ShouldHaveSingleItem();
     }
 
     [Fact]

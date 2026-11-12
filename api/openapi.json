@@ -74,7 +74,7 @@
           "Users"
         ],
         "summary": "Change the signed-in user",
-        "description": "Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes.",
+        "description": "Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme and color.",
         "operationId": "UpdateCurrentUser",
         "requestBody": {
           "content": {
@@ -5284,7 +5284,7 @@
           "Feedback inbox"
         ],
         "summary": "List the feedback inbox",
-        "description": "Every user's tickets, or those in one status or from one user, the one with the latest message first. Admins only.",
+        "description": "Every user's tickets, or those in one status or from one user: high priority first, then the one with the latest message first. Admins only.",
         "operationId": "ListInboxTickets",
         "parameters": [
           {
@@ -5721,6 +5721,696 @@
         ]
       }
     },
+    "/api/v1/admin/feedback/{id}/priority": {
+      "put": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Set a ticket's priority",
+        "description": "Sets any user's ticket to normal or high priority. High tickets come first in the inbox. Admins only.",
+        "operationId": "UpdateTicketPriority",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTicketPriorityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The priority is saved."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/{id}/notes": {
+      "post": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Add a note to a ticket",
+        "description": "Adds a note to any user's ticket. Only admins see notes, and they go with the ticket. Admins only.",
+        "operationId": "AddTicketNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddTicketNoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The note is saved."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no ticket with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/{id}/notes/{noteId}": {
+      "delete": {
+        "tags": [
+          "Feedback inbox"
+        ],
+        "summary": "Delete a note",
+        "description": "Deletes a note on a ticket for good. Admins only.",
+        "operationId": "DeleteTicketNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "noteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The note is gone."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no such note on this ticket.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/saved-replies": {
+      "get": {
+        "tags": [
+          "Saved replies"
+        ],
+        "summary": "List saved replies",
+        "description": "Every saved reply, in the order they were made. Every admin shares them. Admins only.",
+        "operationId": "ListSavedReplies",
+        "responses": {
+          "200": {
+            "description": "The saved replies, which can be none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SavedReplyResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Saved replies"
+        ],
+        "summary": "Create a saved reply",
+        "description": "Saves an answer every admin can pick on a ticket. At most 50. Admins only.",
+        "operationId": "CreateSavedReply",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveSavedReplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The saved reply's ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedReplyCreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "There are 50 saved replies already.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/feedback/saved-replies/{id}": {
+      "put": {
+        "tags": [
+          "Saved replies"
+        ],
+        "summary": "Change a saved reply",
+        "description": "Changes a saved reply's title and text. Admins only.",
+        "operationId": "UpdateSavedReply",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveSavedReplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The saved reply is changed."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no saved reply with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Saved replies"
+        ],
+        "summary": "Delete a saved reply",
+        "description": "Deletes a saved reply for good. Admins only.",
+        "operationId": "DeleteSavedReply",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The saved reply is gone."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no saved reply with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/feedback-block": {
+      "get": {
+        "tags": [
+          "Feedback blocks"
+        ],
+        "summary": "Get whether a user is blocked",
+        "description": "Whether a user is blocked from sending feedback. Admins only.",
+        "operationId": "GetFeedbackBlock",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether they are blocked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackBlockResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Feedback blocks"
+        ],
+        "summary": "Block a user's feedback",
+        "description": "Stops a user from sending feedback or replying. They can still read their tickets, and aren't told until they try. Blocking again changes nothing. Admins only.",
+        "operationId": "BlockFeedback",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "They are blocked."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Feedback blocks"
+        ],
+        "summary": "Unblock a user's feedback",
+        "description": "Lets a user send feedback and reply again. Unblocking someone who isn't blocked changes nothing. Admins only.",
+        "operationId": "UnblockFeedback",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "They can send feedback."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/feedback/block": {
+      "get": {
+        "tags": [
+          "Feedback blocks"
+        ],
+        "summary": "Get whether you can send feedback",
+        "description": "Whether the signed-in user is blocked from sending feedback or replying, so the app can say so first.",
+        "operationId": "GetOwnFeedbackBlock",
+        "responses": {
+          "200": {
+            "description": "Whether you are blocked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackBlockResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback/{id}": {
       "get": {
         "tags": [
@@ -6068,6 +6758,19 @@
           }
         },
         "description": "A reply to a ticket."
+      },
+      "AddTicketNoteRequest": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The note, 1 to 2,000 characters, trimmed."
+          }
+        },
+        "description": "A note on a ticket, which only admins see."
       },
       "AddWorkoutExercisesRequest": {
         "type": "object",
@@ -7209,6 +7912,19 @@
         },
         "description": "Everything the user planned and logged, for a copy of their data."
       },
+      "FeedbackBlockResponse": {
+        "required": [
+          "blocked"
+        ],
+        "type": "object",
+        "properties": {
+          "blocked": {
+            "type": "boolean",
+            "description": "True when Minimalist blocked them from sending feedback or replying."
+          }
+        },
+        "description": "Whether a user can send feedback."
+      },
       "FeedbackExportResponse": {
         "required": [
           "tickets"
@@ -7227,13 +7943,19 @@
       },
       "FeedbackStatsResponse": {
         "required": [
-          "waitingForReply"
+          "waitingForReply",
+          "highWaitingForReply"
         ],
         "type": "object",
         "properties": {
           "waitingForReply": {
             "type": "integer",
             "description": "Tickets, not closed, whose latest message is the user's.",
+            "format": "int32"
+          },
+          "highWaitingForReply": {
+            "type": "integer",
+            "description": "Of those, how many are high priority.",
             "format": "int32"
           }
         },
@@ -7340,6 +8062,7 @@
           "preview",
           "lastMessageAtUtc",
           "waitingForReply",
+          "priority",
           "senderName",
           "senderEmail"
         ],
@@ -7371,6 +8094,10 @@
             "type": "boolean",
             "description": "Whether its latest message is the user's, so it waits for a reply."
           },
+          "priority": {
+            "description": "How urgent it is. High tickets come first.",
+            "$ref": "#/components/schemas/TicketPriority"
+          },
           "senderName": {
             "type": [
               "null",
@@ -7399,7 +8126,9 @@
           "appVersion",
           "phone",
           "os",
-          "messages"
+          "priority",
+          "messages",
+          "notes"
         ],
         "type": "object",
         "properties": {
@@ -7450,12 +8179,23 @@
             "type": "string",
             "description": "The operating system it was sent from."
           },
+          "priority": {
+            "description": "How urgent it is.",
+            "$ref": "#/components/schemas/TicketPriority"
+          },
           "messages": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TicketMessageResponse"
             },
             "description": "Its messages, oldest first."
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketNoteResponse"
+            },
+            "description": "Notes only admins see, oldest first."
           }
         },
         "description": "A ticket in the inbox, with who sent it, from which device, and its thread."
@@ -8239,6 +8979,62 @@
         },
         "description": "The new profile photo."
       },
+      "SavedReplyCreatedResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Its ID.",
+            "format": "uuid"
+          }
+        },
+        "description": "The new saved reply."
+      },
+      "SavedReplyResponse": {
+        "required": [
+          "id",
+          "title",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The saved reply's ID.",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "What it's called."
+          },
+          "text": {
+            "type": "string",
+            "description": "The reply. {name} stands for the user's name."
+          }
+        },
+        "description": "An answer Minimalist sends often."
+      },
+      "SaveSavedReplyRequest": {
+        "required": [
+          "title",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "What it's called, 1 to 50 characters, trimmed, unique in any case."
+          },
+          "text": {
+            "type": "string",
+            "description": "The reply, 1 to 2,000 characters, trimmed. {name} becomes the user's name when it's picked."
+          }
+        },
+        "description": "A saved reply's title and text."
+      },
       "ScreenshotResponse": {
         "required": [
           "image"
@@ -8612,6 +9408,38 @@
         },
         "description": "A message in a ticket's thread."
       },
+      "TicketNoteResponse": {
+        "required": [
+          "id",
+          "text",
+          "writtenAtUtc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The note's ID.",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string",
+            "description": "What it says."
+          },
+          "writtenAtUtc": {
+            "type": "string",
+            "description": "When it was written.",
+            "format": "date-time"
+          }
+        },
+        "description": "A note on a ticket, which only admins see."
+      },
+      "TicketPriority": {
+        "enum": [
+          "normal",
+          "high"
+        ],
+        "description": "How urgent a ticket is to Minimalist: normal, or high, which comes first in the inbox."
+      },
       "TicketResponse": {
         "required": [
           "id",
@@ -8944,6 +9772,19 @@
           }
         },
         "description": "The fields to change. A field left out, or null, stays the same."
+      },
+      "UpdateTicketPriorityRequest": {
+        "required": [
+          "priority"
+        ],
+        "type": "object",
+        "properties": {
+          "priority": {
+            "description": "Normal or high.",
+            "$ref": "#/components/schemas/TicketPriority"
+          }
+        },
+        "description": "A ticket's new priority."
       },
       "UpdateTicketStatusRequest": {
         "required": [
@@ -9686,6 +10527,12 @@
     },
     {
       "name": "Feedback inbox"
+    },
+    {
+      "name": "Saved replies"
+    },
+    {
+      "name": "Feedback blocks"
     },
     {
       "name": "System"

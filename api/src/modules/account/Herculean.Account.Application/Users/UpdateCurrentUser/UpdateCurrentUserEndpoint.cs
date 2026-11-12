@@ -14,13 +14,15 @@ internal static class UpdateCurrentUserEndpoint
 
     internal static void Map(IEndpointRouteBuilder endpoints)
     {
+        // An admin changes its own theme and color too.
         endpoints.MapPatch(UserRoutes.Me, HandleAsync)
+            .RequireAuthorization()
             .WithName(Name)
             .WithTags(UserRoutes.Tag);
     }
 
     [EndpointSummary("Change the signed-in user")]
-    [EndpointDescription("Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes.")]
+    [EndpointDescription("Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme and color.")]
     [ProducesResponseType<UserResponse>(StatusCodes.Status200OK, Description = "The user after the change.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each field.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]

@@ -10,6 +10,12 @@ export default function UserTicketRoute() {
       openUser={(id, back) => {
         router.push({ pathname: '/admin/users/[id]', params: { id, back } });
       }}
+      openNote={(id, back) => {
+        router.push({
+          pathname: '/admin/users/ticket/note/[id]',
+          params: { id, back },
+        });
+      }}
     />
   );
 }

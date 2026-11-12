@@ -22,7 +22,7 @@ internal static class ListInboxTicketsEndpoint
     }
 
     [EndpointSummary("List the feedback inbox")]
-    [EndpointDescription("Every user's tickets, or those in one status or from one user, the one with the latest message first. Admins only.")]
+    [EndpointDescription("Every user's tickets, or those in one status or from one user: high priority first, then the one with the latest message first. Admins only.")]
     [ProducesResponseType<List<InboxTicketListItemResponse>>(StatusCodes.Status200OK, Description = "The tickets, which can be none.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json", Description = "A field is not valid. The errors name each one.")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized, "application/problem+json", Description = "Not signed in, or the access token expired.")]

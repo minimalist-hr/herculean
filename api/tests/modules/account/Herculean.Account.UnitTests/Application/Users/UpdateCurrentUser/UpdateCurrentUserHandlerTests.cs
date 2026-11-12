@@ -56,6 +56,41 @@ public sealed class UpdateCurrentUserHandlerTests
     }
 
     [Fact]
+    public async Task AnAdminChangesItsThemeAndColor()
+    {
+        User admin = AdminSignedIn();
+
+        Result<UserResponse> result = await _handler.HandleAsync(new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Flux), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
+        admin.Theme.ShouldBe(Theme.Light);
+        admin.Color.ShouldBe(Color.Flux);
+    }
+
+    [Theory]
+    [InlineData("Filip", null, null)]
+    [InlineData(null, "Imperial", null)]
+    [InlineData(null, null, "Europe/Zagreb")]
+    public async Task AnAdminChangesNothingElse(string? name, string? units, string? timeZone)
+    {
+        AdminSignedIn();
+
+        Result<UserResponse> result = await _handler.HandleAsync(
+            new UpdateCurrentUserRequest(name, units is null ? null : Enum.Parse<Units>(units), TimeZone: timeZone), TestContext.Current.CancellationToken);
+
+        result.Error.ShouldBe(UserErrors.AdminAppearanceOnly);
+        _unitOfWork.Saved.ShouldBeFalse();
+    }
+
+    private User AdminSignedIn()
+    {
+        User admin = User.CreateAdmin("admin@minimalist.hr", "hash");
+        _userRepository.Add(admin);
+        _currentUserAccessor.UserId = admin.Id.Value;
+        return admin;
+    }
+
+    [Fact]
     public async Task InvalidRequestFailsWithFieldErrors()
     {
         Result<UserResponse> result = await _handler.HandleAsync(

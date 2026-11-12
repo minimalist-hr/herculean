@@ -17,6 +17,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 import {
   backLabel,
+  blockedMessage,
   closedMessage,
   notLoadedMessage,
   statusColor,
@@ -31,7 +32,12 @@ import {
   useMinuteClock,
   useScrollToNew,
 } from './thread';
-import { useMarkRead, useReply, useTicket } from './use-feedback';
+import {
+  useFeedbackBlocked,
+  useMarkRead,
+  useReply,
+  useTicket,
+} from './use-feedback';
 
 /** A ticket: its thread, oldest first, and a reply box. */
 export function TicketScreen() {
@@ -39,6 +45,7 @@ export function TicketScreen() {
   const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const { colors, size, space } = useTheme();
   const ticket = useTicket(id);
+  const blocked = useFeedbackBlocked().data === true;
   const markRead = useMarkRead(id);
   const reply = useReply(id);
   const unread = ticket.data?.hasUnreadReply === true;
@@ -91,6 +98,9 @@ export function TicketScreen() {
   function unavailableReason() {
     if (ticket.data === undefined) {
       return notLoadedMessage;
+    }
+    if (blocked) {
+      return blockedMessage;
     }
 
     return ticket.data.status === 'closed' ? closedMessage : undefined;

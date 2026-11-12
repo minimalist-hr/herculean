@@ -14,5 +14,17 @@ internal static class InboxRoutes
 
     public const string Status = $"{Ticket}/status";
 
+    public const string Priority = $"{Ticket}/priority";
+
+    public const string Notes = $"{Ticket}/notes";
+
+    public const string Note = $"{Notes}/{{noteId:guid}}";
+
+    public const string SavedReplies = $"{Tickets}/saved-replies";
+
+    public const string SavedReply = $"{SavedReplies}/{{id:guid}}";
+
+    public const string SavedRepliesTag = "Saved replies";
+
     public const string Screenshot = $"{Ticket}/screenshots/{{screenshotId:guid}}";
 }

@@ -352,6 +352,7 @@ Changes on W30 stay in the app until Save workout.
 | POST | `/api/v1/feedback/{id}/messages` | F20 |
 | PUT | `/api/v1/feedback/{id}/read` | F20 |
 | GET | `/api/v1/feedback/export` | Export data on H10 |
+| GET | `/api/v1/feedback/block` | F01, F20 and the Home card, muted when blocked |
 
 **Left to other features:** Minimalist's replies and statuses are in [10. Admin](#10-admin), and push notifications for replies come with #85.
 
@@ -363,16 +364,16 @@ Changes on W30 stay in the app until Save workout.
 
 **What it does:** Minimalist's own accounts see how Herculean is doing, read every user's feedback, reply and close it, help users with their accounts, and check the system. An admin sees nothing else of the app.
 
-**Screens:** M20 Overview, M21 Loading, M22 A tile failed, M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket, M30 Users, M31 Loading, M32 No matches, M33 Load failure, M34 Deleting soon, M40 User, M41 Loading, M42 Load failure, M43 Feedback failed, M44 Deleting soon, M45 Sign out all devices, M46 Send reset link, M47 Cancel deletion, M48 Close account, M49 Couldn’t do it, M60 Remove photo, M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure.
+**Screens:** M20 Overview, M21 Loading, M22 A tile failed, M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket, M18 Saved replies, M19 Add note, M77 Delete note, M78 Priority, M30 Users, M31 Loading, M32 No matches, M33 Load failure, M34 Deleting soon, M40 User, M41 Loading, M42 Load failure, M43 Feedback failed, M44 Deleting soon, M45 Sign out all devices, M46 Send reset link, M47 Cancel deletion, M48 Close account, M49 Couldn’t do it, M60 Remove photo, M61 Block feedback, M62 Unblock feedback, M70 Saved replies, M71 No saved replies, M72 Loading, M73 Load failure, M74 New saved reply, M75 Edit saved reply, M76 Delete saved reply, M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure.
 
 **Flows**
 - **Sign in:** A01 → M20, and at launch straight to M20. Tabs: Overview, Feedback, Users and Settings.
 - **Overview:** users large across the top, then tiles for active users, workouts, feedback to answer and accounts deleting soon, with 4-week trends. To answer → Feedback. Deleting soon → Users on Deleting soon.
 - **Inbox:** status chips All, Open, Answered and Closed, Open picked first. A ticket → M10.
-- **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again. The sender card → M40.
+- **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again. The sender card → M40. Priority (M78), notes (M19, M77) and saved replies in the reply box (M18).
 - **Users:** search by name or email as you type, chips All and Deleting soon, 20 at a time. A user → M40.
 - **User:** photo, joined, last active, workout and routine counts, their feedback (a ticket → M10), then Remove photo, Sign out all devices, Send reset link, and Close account or Cancel deletion, each asking first (M60, M45 to M48). Closing and removing a photo email the user (H94, H93), and a closed account can't sign in (A61).
-- **Settings:** System health → M51. Sign out → M05 → A01.
+- **Settings:** Theme and Color → H12 and H13. Saved replies → M70. System health → M51. Sign out → M05 → A01.
 
 **Entities:** User (role, last active). Reads Ticket, Ticket message, Screenshot, and each sender's name and email from Account.
 
@@ -385,6 +386,16 @@ Changes on W30 stay in the app until Save workout.
 | GET | `/api/v1/admin/feedback/{id}/screenshots/{screenshotId}` | M10 |
 | POST | `/api/v1/admin/feedback/{id}/messages` | M10 |
 | PUT | `/api/v1/admin/feedback/{id}/status` | M10 |
+| PUT | `/api/v1/admin/feedback/{id}/priority` | M78 |
+| POST | `/api/v1/admin/feedback/{id}/notes` | M19 |
+| DELETE | `/api/v1/admin/feedback/{id}/notes/{noteId}` | M77 |
+| GET | `/api/v1/admin/feedback/saved-replies` | M18, M50, M70 |
+| POST | `/api/v1/admin/feedback/saved-replies` | M74 |
+| PUT | `/api/v1/admin/feedback/saved-replies/{id}` | M75 |
+| DELETE | `/api/v1/admin/feedback/saved-replies/{id}` | M76 |
+| GET | `/api/v1/admin/users/{id}/feedback-block` | M40 |
+| PUT | `/api/v1/admin/users/{id}/feedback-block` | M61 |
+| DELETE | `/api/v1/admin/users/{id}/feedback-block` | M62 |
 | GET | `/api/v1/admin/users/stats` | M20 |
 | GET | `/api/v1/admin/users` | M30, `?search=`, `?deletingSoon=true`, `?cursor=` |
 | GET | `/api/v1/admin/users/{id}` | M40 |

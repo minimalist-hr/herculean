@@ -50,6 +50,22 @@ public sealed class ListInboxTicketsHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task HighTicketsComeFirst()
+    {
+        await _database.SaveTicketAsync(userId: _ana, message: "Older high", createdAtUtc: Monday);
+        await _database.SaveTicketAsync(userId: _ana, message: "Newer normal", createdAtUtc: Monday.AddDays(1));
+        Ticket high = (await _database.ListAllTicketsAsync()).Single(ticket => ticket.CreatedAtUtc == Monday);
+        _database.DbContext.Attach(high);
+        high.ChangePriority(TicketPriority.High);
+        await _database.DbContext.SaveChangesAsync(FeedbackDatabase.Token);
+
+        List<InboxTicketListItemResponse> tickets = await ListAsync(null);
+
+        tickets.Select(ticket => ticket.Preview).ShouldBe(["Older high", "Newer normal"]);
+        tickets[0].Priority.ShouldBe(TicketPriority.High);
+    }
+
+    [Fact]
     public async Task AUserShowsOnlyTheirTickets()
     {
         await _database.SaveTicketAsync(userId: _ana, message: "Ana's");

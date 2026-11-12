@@ -1,5 +1,6 @@
 using Herculean.Feedback.Application.Auth;
 using Herculean.Feedback.Domain;
+using Herculean.Feedback.Domain.Blocks;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.Feedback.Infrastructure;
 using Herculean.SharedKernel.Auth;
@@ -70,6 +71,26 @@ internal sealed class FeedbackDatabase : IDisposable
         DbContext.ChangeTracker.Clear();
 
         return message;
+    }
+
+    /// <summary>Blocks a user from sending feedback.</summary>
+    public async Task BlockAsync(UserId? userId = null)
+    {
+        DbContext.FeedbackBlocks.Add(FeedbackBlock.Create(userId ?? UserId));
+        await DbContext.SaveChangesAsync(Token);
+        DbContext.ChangeTracker.Clear();
+    }
+
+    /// <summary>Saves a note on a ticket, written at a moment.</summary>
+    public async Task<TicketNote> SaveNoteAsync(Ticket ticket, string text, DateTimeOffset? writtenAtUtc = null)
+    {
+        TicketNote note = TicketNote.Create(ticket, text);
+        DbContext.TicketNotes.Add(note);
+        DbContext.Entry(note).Property(saved => saved.CreatedAtUtc).CurrentValue = writtenAtUtc ?? DateTimeOffset.UnixEpoch;
+        await DbContext.SaveChangesAsync(Token);
+        DbContext.ChangeTracker.Clear();
+
+        return note;
     }
 
     public Task<List<Ticket>> ListAllTicketsAsync() =>

@@ -90,7 +90,7 @@ function answerWith(answers: Answers = {}) {
       case '/api/v1/admin/training/stats':
         return answer(answers.training, trainingStats);
       case '/api/v1/admin/feedback/stats':
-        return answer(200, { waitingForReply: 3 });
+        return answer(200, { waitingForReply: 3, highWaitingForReply: 2 });
       case '/api/v1/admin/health':
         return answer(answers.healthStatus, {
           checkedAtUtc: new Date().toISOString(),
@@ -180,6 +180,13 @@ describe('Overview', () => {
     );
 
     expect(await screen.findByText('Feedback page')).toBeOnTheScreen();
+  });
+
+  test('To answer says how many are high', async () => {
+    answerWith();
+    await renderAt('/admin');
+
+    expect(await screen.findByText('2 high')).toBeOnTheScreen();
   });
 
   test('Deleting soon opens Users on Deleting soon', async () => {

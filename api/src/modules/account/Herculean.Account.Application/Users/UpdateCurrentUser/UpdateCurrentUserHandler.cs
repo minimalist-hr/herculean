@@ -29,6 +29,12 @@ internal sealed class UpdateCurrentUserHandler(
             return UserErrors.NotFound;
         }
 
+        // An admin has no setup or training, so only its appearance changes.
+        if (user.IsAdmin && (request.Name is not null || request.Units is not null || request.TimeZone is not null))
+        {
+            return UserErrors.AdminAppearanceOnly;
+        }
+
         if (request.Name is not null)
         {
             user.ChangeName(request.Name);

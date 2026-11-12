@@ -47,7 +47,7 @@ export interface paths {
         head?: never;
         /**
          * Change the signed-in user
-         * @description Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes.
+         * @description Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme and color.
          */
         patch: operations["UpdateCurrentUser"];
         trace?: never;
@@ -1325,7 +1325,7 @@ export interface paths {
         };
         /**
          * List the feedback inbox
-         * @description Every user's tickets, or those in one status or from one user, the one with the latest message first. Admins only.
+         * @description Every user's tickets, or those in one status or from one user: high priority first, then the one with the latest message first. Admins only.
          */
         get: operations["ListInboxTickets"];
         put?: never;
@@ -1428,6 +1428,162 @@ export interface paths {
          * @description How many tickets wait for Minimalist's reply. Admins only.
          */
         get: operations["GetFeedbackStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/priority": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set a ticket's priority
+         * @description Sets any user's ticket to normal or high priority. High tickets come first in the inbox. Admins only.
+         */
+        put: operations["UpdateTicketPriority"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a note to a ticket
+         * @description Adds a note to any user's ticket. Only admins see notes, and they go with the ticket. Admins only.
+         */
+        post: operations["AddTicketNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/notes/{noteId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a note
+         * @description Deletes a note on a ticket for good. Admins only.
+         */
+        delete: operations["DeleteTicketNote"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/saved-replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List saved replies
+         * @description Every saved reply, in the order they were made. Every admin shares them. Admins only.
+         */
+        get: operations["ListSavedReplies"];
+        put?: never;
+        /**
+         * Create a saved reply
+         * @description Saves an answer every admin can pick on a ticket. At most 50. Admins only.
+         */
+        post: operations["CreateSavedReply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/saved-replies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change a saved reply
+         * @description Changes a saved reply's title and text. Admins only.
+         */
+        put: operations["UpdateSavedReply"];
+        post?: never;
+        /**
+         * Delete a saved reply
+         * @description Deletes a saved reply for good. Admins only.
+         */
+        delete: operations["DeleteSavedReply"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/feedback-block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get whether a user is blocked
+         * @description Whether a user is blocked from sending feedback. Admins only.
+         */
+        get: operations["GetFeedbackBlock"];
+        /**
+         * Block a user's feedback
+         * @description Stops a user from sending feedback or replying. They can still read their tickets, and aren't told until they try. Blocking again changes nothing. Admins only.
+         */
+        put: operations["BlockFeedback"];
+        post?: never;
+        /**
+         * Unblock a user's feedback
+         * @description Lets a user send feedback and reply again. Unblocking someone who isn't blocked changes nothing. Admins only.
+         */
+        delete: operations["UnblockFeedback"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get whether you can send feedback
+         * @description Whether the signed-in user is blocked from sending feedback or replying, so the app can say so first.
+         */
+        get: operations["GetOwnFeedbackBlock"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1550,6 +1706,11 @@ export interface components {
             message: string;
             /** @description Up to 4 screenshots, each a Base64 JPEG of at most 1 MB, or none. */
             screenshots: null | string[];
+        };
+        /** @description A note on a ticket, which only admins see. */
+        AddTicketNoteRequest: {
+            /** @description The note, 1 to 2,000 characters, trimmed. */
+            text: string;
         };
         /** @description Exercises to add to a workout: new ones, or a removed one to put back. */
         AddWorkoutExercisesRequest: {
@@ -2060,6 +2221,11 @@ export interface components {
             /** @description The workouts, oldest first. */
             workouts: components["schemas"]["ExportedWorkout"][];
         };
+        /** @description Whether a user can send feedback. */
+        FeedbackBlockResponse: {
+            /** @description True when Minimalist blocked them from sending feedback or replying. */
+            blocked: boolean;
+        };
         /** @description Every ticket the user sent, for the data export. */
         FeedbackExportResponse: {
             /** @description The tickets, oldest first. */
@@ -2072,6 +2238,11 @@ export interface components {
              * @description Tickets, not closed, whose latest message is the user's.
              */
             waitingForReply: number;
+            /**
+             * Format: int32
+             * @description Of those, how many are high priority.
+             */
+            highWaitingForReply: number;
         };
         /** @description The first day the user can reach. */
         FirstDayResponse: {
@@ -2140,6 +2311,8 @@ export interface components {
             lastMessageAtUtc: string;
             /** @description Whether its latest message is the user's, so it waits for a reply. */
             waitingForReply: boolean;
+            /** @description How urgent it is. High tickets come first. */
+            priority: components["schemas"]["TicketPriority"];
             /** @description The sender's name, or null before setup or when the account is gone. */
             senderName: null | string;
             /** @description The sender's email, or null when the account is gone. */
@@ -2171,8 +2344,12 @@ export interface components {
             phone: null | string;
             /** @description The operating system it was sent from. */
             os: string;
+            /** @description How urgent it is. */
+            priority: components["schemas"]["TicketPriority"];
             /** @description Its messages, oldest first. */
             messages: components["schemas"]["TicketMessageResponse"][];
+            /** @description Notes only admins see, oldest first. */
+            notes: components["schemas"]["TicketNoteResponse"][];
         };
         /** @description An exercise's sets the last time it was done. */
         LastTimeResponse: {
@@ -2625,6 +2802,33 @@ export interface components {
             /** @description The photo as a Base64 JPEG, at most 1 MB. */
             image: string;
         };
+        /** @description The new saved reply. */
+        SavedReplyCreatedResponse: {
+            /**
+             * Format: uuid
+             * @description Its ID.
+             */
+            id: string;
+        };
+        /** @description An answer Minimalist sends often. */
+        SavedReplyResponse: {
+            /**
+             * Format: uuid
+             * @description The saved reply's ID.
+             */
+            id: string;
+            /** @description What it's called. */
+            title: string;
+            /** @description The reply. {name} stands for the user's name. */
+            text: string;
+        };
+        /** @description A saved reply's title and text. */
+        SaveSavedReplyRequest: {
+            /** @description What it's called, 1 to 50 characters, trimmed, unique in any case. */
+            title: string;
+            /** @description The reply, 1 to 2,000 characters, trimmed. {name} becomes the user's name when it's picked. */
+            text: string;
+        };
         /** @description A screenshot on a message. */
         ScreenshotResponse: {
             /** @description The screenshot as a Base64 JPEG. */
@@ -2826,6 +3030,26 @@ export interface components {
             /** @description Its screenshots' IDs in order, which can be none. Each one loads on its own. */
             screenshotIds: string[];
         };
+        /** @description A note on a ticket, which only admins see. */
+        TicketNoteResponse: {
+            /**
+             * Format: uuid
+             * @description The note's ID.
+             */
+            id: string;
+            /** @description What it says. */
+            text: string;
+            /**
+             * Format: date-time
+             * @description When it was written.
+             */
+            writtenAtUtc: string;
+        };
+        /**
+         * @description How urgent a ticket is to Minimalist: normal, or high, which comes first in the inbox.
+         * @enum {unknown}
+         */
+        TicketPriority: "normal" | "high";
         /** @description A ticket with its thread. */
         TicketResponse: {
             /**
@@ -2966,6 +3190,11 @@ export interface components {
             checked?: null | boolean;
             /** @description Whether lengthened partials were done after it. */
             partialsDone?: null | boolean;
+        };
+        /** @description A ticket's new priority. */
+        UpdateTicketPriorityRequest: {
+            /** @description Normal or high. */
+            priority: components["schemas"]["TicketPriority"];
         };
         /** @description A ticket's new status. */
         UpdateTicketStatusRequest: {
@@ -7551,6 +7780,524 @@ export interface operations {
             };
             /** @description The account isn't an admin. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateTicketPriority: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTicketPriorityRequest"];
+            };
+        };
+        responses: {
+            /** @description The priority is saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no ticket with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AddTicketNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddTicketNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description The note is saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no ticket with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteTicketNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                noteId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The note is gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no such note on this ticket. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListSavedReplies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The saved replies, which can be none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedReplyResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateSavedReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveSavedReplyRequest"];
+            };
+        };
+        responses: {
+            /** @description The saved reply's ID. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedReplyCreatedResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There are 50 saved replies already. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateSavedReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveSavedReplyRequest"];
+            };
+        };
+        responses: {
+            /** @description The saved reply is changed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no saved reply with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteSavedReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The saved reply is gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no saved reply with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetFeedbackBlock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Whether they are blocked. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackBlockResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    BlockFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description They are blocked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UnblockFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description They can send feedback. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetOwnFeedbackBlock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Whether you are blocked. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackBlockResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

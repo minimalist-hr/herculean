@@ -24,13 +24,13 @@ internal sealed class ListUsersHandler(IValidator<ListUsersRequest> validator, I
 
         // One more than a page, to know whether another page follows.
         List<UserListRow> rows = await userReadRepository.ListUsersAsync(search, deletingSoon, after, PageSize + 1, cancellationToken);
-        List<UserListRow> page = rows.Take(PageSize).ToList();
+        List<UserListRow> page = [.. rows.Take(PageSize)];
         string? nextCursor = rows.Count > PageSize
             ? ListUsersValidator.FormatCursor(deletingSoon ? page[^1].DeletionScheduledForUtc!.Value : page[^1].CreatedAtUtc)
             : null;
 
         return new UsersPageResponse(
-            page.Select(row => new UserListItemResponse(row.Id, row.Name, row.Email, row.LastActiveUtc, row.DeletionScheduledForUtc, row.IsClosed, row.HasPhoto)).ToList(),
+            [.. page.Select(row => new UserListItemResponse(row.Id, row.Name, row.Email, row.LastActiveUtc, row.DeletionScheduledForUtc, row.IsClosed, row.HasPhoto))],
             nextCursor);
     }
 }

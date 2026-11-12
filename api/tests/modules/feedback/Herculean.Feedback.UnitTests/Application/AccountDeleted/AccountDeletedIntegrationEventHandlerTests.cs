@@ -37,6 +37,21 @@ public sealed class AccountDeletedIntegrationEventHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task DeletesTheUsersNotesAndBlockToo()
+    {
+        Ticket ticket = await _database.SaveTicketAsync();
+        await _database.SaveNoteAsync(ticket, "Mine");
+        await _database.SaveNoteAsync(await _database.SaveTicketAsync(userId: _otherUserId), "Theirs");
+        await _database.BlockAsync();
+        await _database.BlockAsync(_otherUserId);
+
+        await HandleAsync();
+
+        (await _dbContext.TicketNotes.IgnoreQueryFilters().Select(row => row.UserId).ToListAsync(FeedbackDatabase.Token)).ShouldBe([_otherUserId]);
+        (await _dbContext.FeedbackBlocks.IgnoreQueryFilters().Select(row => row.UserId).ToListAsync(FeedbackDatabase.Token)).ShouldBe([_otherUserId]);
+    }
+
+    [Fact]
     public async Task TheEventSentTwiceChangesNothingMore()
     {
         await _database.SaveTicketAsync();

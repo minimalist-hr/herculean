@@ -19,7 +19,11 @@ import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
-import { limitReachedMessage, typeLabels } from './feedback-labels';
+import {
+  blockedMessage,
+  limitReachedMessage,
+  typeLabels,
+} from './feedback-labels';
 import { ScreenshotField } from './screenshot-field';
 import { useSendFeedback, type TicketType } from './use-feedback';
 
@@ -66,6 +70,13 @@ export function NewFeedbackScreen() {
         error.problem.code === 'ticket.limit_reached'
       ) {
         notifyFailure(limitReachedMessage);
+        return;
+      }
+      if (
+        error instanceof ApiProblemError &&
+        error.problem.code === 'feedback.blocked'
+      ) {
+        notifyFailure(blockedMessage);
         return;
       }
       const formErrors = toFormErrors(error, ['message']);

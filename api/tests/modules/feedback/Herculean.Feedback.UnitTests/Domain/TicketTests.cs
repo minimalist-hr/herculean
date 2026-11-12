@@ -62,4 +62,14 @@ public sealed class TicketTests
         ticket.Messages.Select(message => message.Text).ShouldBe(["The timer stops.", "Still stops."]);
         ticket.IsClosed.ShouldBeFalse();
     }
+
+    [Fact]
+    public void ANewTicketIsNormalAndItsPriorityChanges()
+    {
+        Ticket ticket = Ticket.Create(UserId.From(Guid.CreateVersion7()), TicketType.Bug, "Hi", [], FeedbackDatabase.Device);
+
+        ticket.Priority.ShouldBe(TicketPriority.Normal);
+        ticket.ChangePriority(TicketPriority.High);
+        ticket.Priority.ShouldBe(TicketPriority.High);
+    }
 }

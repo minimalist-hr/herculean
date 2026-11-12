@@ -82,6 +82,7 @@ interface Answers {
   trainingStatus?: number;
   tickets?: object[];
   actionStatus?: number;
+  blocked?: boolean;
 }
 
 function answerWith(answers: Answers = {}) {
@@ -106,6 +107,9 @@ function answerWith(answers: Answers = {}) {
       return cursor === null
         ? json(answers.listStatus, pages[0])
         : json(answers.nextPageStatus, pages[1]);
+    }
+    if (pathname === '/api/v1/admin/users/user-1/feedback-block') {
+      return json(200, { blocked: answers.blocked ?? false });
     }
     if (pathname === '/api/v1/admin/users/user-1/photo') {
       return json(200, { image: '/9j/4A==' });
@@ -593,4 +597,52 @@ describe('Closed and photos', () => {
       lastActiveText(new Date(2026, 10, 9, 14, 5).toISOString(), now),
     ).toBe('Last active Mon, 9th Nov, 14:05');
   });
+});
+
+describe('Blocking feedback', () => {
+  test('the details say whether they can send feedback', async () => {
+    answerWith({ blocked: true });
+    await renderAt('/admin/users/user-1');
+
+    expect(await screen.findByText('Blocked')).toBeOnTheScreen();
+    expect(
+      screen.getByRole('button', { name: 'Unblock feedback' }),
+    ).toBeOnTheScreen();
+  });
+
+  test.each([
+    [
+      false,
+      'Block feedback',
+      'Block their feedback?',
+      'PUT',
+      'Feedback blocked.',
+    ],
+    [
+      true,
+      'Unblock feedback',
+      'Unblock their feedback?',
+      'DELETE',
+      'Feedback unblocked.',
+    ],
+  ])(
+    'blocked %s: %s asks first, then does it',
+    async (blocked, label, question, method, done) => {
+      answerWith({ blocked });
+      await renderAt('/admin/users/user-1');
+      await screen.findByText(blocked ? 'Blocked' : 'Allowed');
+      await screen.findByText('Ana');
+
+      await fireEvent.press(screen.getByRole('button', { name: label }));
+      expect(await screen.findByText(question)).toBeOnTheScreen();
+      const buttons = screen.getAllByRole('button', { name: label });
+      await fireEvent.press(buttons[buttons.length - 1]);
+
+      expect(await screen.findByText(done)).toBeOnTheScreen();
+      expect(
+        sent(method, '/api/v1/admin/users/user-1/feedback-block'),
+      ).toHaveLength(1);
+      await clearNotification();
+    },
+  );
 });

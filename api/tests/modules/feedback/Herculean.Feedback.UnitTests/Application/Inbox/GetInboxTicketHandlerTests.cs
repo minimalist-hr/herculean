@@ -30,6 +30,8 @@ public sealed class GetInboxTicketHandlerTests : IDisposable
         InboxTicketResponse found = (await _handler.HandleAsync(ticket.Id.Value, FeedbackDatabase.Token)).Value;
 
         found.SenderId.ShouldBe(_ana.Value);
+        found.Priority.ShouldBe(TicketPriority.Normal);
+        found.Notes.ShouldBeEmpty();
         found.SenderName.ShouldBe("Ana");
         found.SenderEmail.ShouldBe("ana@example.com");
         found.AppVersion.ShouldBe(FeedbackDatabase.Device.AppVersion);
@@ -45,6 +47,19 @@ public sealed class GetInboxTicketHandlerTests : IDisposable
         Result<InboxTicketResponse> result = await _handler.HandleAsync(Guid.CreateVersion7(), FeedbackDatabase.Token);
 
         result.Error.ShouldBe(TicketErrors.NotFound);
+    }
+
+    [Fact]
+    public async Task NotesComeOldestFirst()
+    {
+        Ticket ticket = await _database.SaveTicketAsync(userId: _ana);
+        await _database.SaveNoteAsync(ticket, "Second", Monday.AddHours(2));
+        await _database.SaveNoteAsync(ticket, "First", Monday.AddHours(1));
+
+        InboxTicketResponse found = (await _handler.HandleAsync(ticket.Id.Value, FeedbackDatabase.Token)).Value;
+
+        found.Notes.Select(note => note.Text).ShouldBe(["First", "Second"]);
+        found.Notes[0].WrittenAtUtc.ShouldBe(Monday.AddHours(1));
     }
 
     public void Dispose()

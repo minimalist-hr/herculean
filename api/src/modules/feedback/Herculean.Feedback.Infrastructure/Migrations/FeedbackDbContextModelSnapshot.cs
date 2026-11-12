@@ -23,6 +23,66 @@ namespace Herculean.Feedback.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Herculean.Feedback.Domain.Blocks.FeedbackBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_feedback_blocks");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_feedback_blocks_user_id");
+
+                    b.ToTable("feedback_blocks", "feedback");
+                });
+
+            modelBuilder.Entity("Herculean.Feedback.Domain.SavedReplies.SavedReply", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_saved_replies");
+
+                    b.ToTable("saved_replies", "feedback");
+                });
+
             modelBuilder.Entity("Herculean.Feedback.Domain.Tickets.Screenshot", b =>
                 {
                     b.Property<Guid>("Id")
@@ -94,6 +154,12 @@ namespace Herculean.Feedback.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("phone");
 
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("priority");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -164,6 +230,46 @@ namespace Herculean.Feedback.Infrastructure.Migrations
                         .HasDatabaseName("ix_ticket_messages_ticket_id");
 
                     b.ToTable("ticket_messages", "feedback");
+                });
+
+            modelBuilder.Entity("Herculean.Feedback.Domain.Tickets.TicketNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("text");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ticket_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_ticket_notes");
+
+                    b.HasIndex("TicketId")
+                        .HasDatabaseName("ix_ticket_notes_ticket_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_ticket_notes_user_id");
+
+                    b.ToTable("ticket_notes", "feedback");
                 });
 
             modelBuilder.Entity("Herculean.Feedback.Domain.Tickets.Screenshot", b =>

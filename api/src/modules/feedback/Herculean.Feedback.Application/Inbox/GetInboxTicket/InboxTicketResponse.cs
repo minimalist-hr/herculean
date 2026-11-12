@@ -16,4 +16,12 @@ internal sealed record InboxTicketResponse(
     [property: Description("The app's version it was sent from.")] string AppVersion,
     [property: Description("The phone it was sent from, or null when it isn't known.")] string? Phone,
     [property: Description("The operating system it was sent from.")] string Os,
-    [property: Description("Its messages, oldest first.")] List<TicketMessageResponse> Messages);
+    [property: Description("How urgent it is.")] TicketPriority Priority,
+    [property: Description("Its messages, oldest first.")] List<TicketMessageResponse> Messages,
+    [property: Description("Notes only admins see, oldest first.")] List<TicketNoteResponse> Notes);
+
+[Description("A note on a ticket, which only admins see.")]
+internal sealed record TicketNoteResponse(
+    [property: Description("The note's ID.")] Guid Id,
+    [property: Description("What it says.")] string Text,
+    [property: Description("When it was written.")] DateTimeOffset WrittenAtUtc);

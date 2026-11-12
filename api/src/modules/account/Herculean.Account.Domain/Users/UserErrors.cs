@@ -26,6 +26,9 @@ internal static class UserErrors
     public static readonly Error AccountClosed =
         Error.Conflict("user.account_closed", "This account was closed for breaking our terms. Questions: hello@minimalist.hr.");
 
+    public static readonly Error AdminAppearanceOnly =
+        Error.Conflict("user.admin_appearance_only", "An admin changes only its theme and color.");
+
     public static readonly Error SameEmail = Error.Validation(new Dictionary<string, string[]>
     {
         ["newEmail"] = ["That's already your email."],

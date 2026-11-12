@@ -3,6 +3,7 @@ using FluentValidation.Results;
 
 using Herculean.Feedback.Application.Auth;
 using Herculean.Feedback.Domain;
+using Herculean.Feedback.Domain.Blocks;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.SharedKernel.Results;
 using Herculean.SharedKernel.Validation;
@@ -13,6 +14,7 @@ internal sealed class CreateTicketHandler(
     IValidator<CreateTicketRequest> validator,
     CurrentUser currentUser,
     ITicketRepository ticketRepository,
+    IFeedbackBlockRepository blockRepository,
     TimeProvider timeProvider,
     IUnitOfWork unitOfWork)
 {
@@ -22,6 +24,11 @@ internal sealed class CreateTicketHandler(
         if (!validationResult.IsValid)
         {
             return validationResult.ToError();
+        }
+
+        if (await blockRepository.IsCurrentUserBlockedAsync(cancellationToken))
+        {
+            return FeedbackBlockErrors.Blocked;
         }
 
         DateTimeOffset dayAgo = timeProvider.GetUtcNow().AddDays(-1);

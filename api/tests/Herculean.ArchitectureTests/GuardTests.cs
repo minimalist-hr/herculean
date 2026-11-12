@@ -126,7 +126,7 @@ public sealed class GuardTests
     [MemberData(nameof(UserDataModuleNames))]
     public void EveryUserDataEntityHasAUserId(string module)
     {
-        Entities(module)
+        UserDataEntities(module)
             .Where(type => type.GetProperty("UserId") is null)
             .Select(type => type.Name)
             .ShouldBeEmpty();
@@ -143,7 +143,7 @@ public sealed class GuardTests
         Type dbContextType = Layer(module, "Infrastructure").GetTypes().Single(type => type.IsSubclassOf(typeof(DbContext)));
         IModel model = ((DbContext)scope.ServiceProvider.GetRequiredService(dbContextType)).Model;
 
-        Entities(module)
+        UserDataEntities(module)
             .SelectMany(type => MissingQueryFilters(type, model))
             .ShouldBeEmpty();
     }
@@ -244,4 +244,8 @@ public sealed class GuardTests
 
     private static IEnumerable<Type> Entities(string module) =>
         Layer(module, "Domain").GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(Entity)));
+
+    // Minimalist's own data in a user data module, such as saved replies, belongs to no user.
+    private static IEnumerable<Type> UserDataEntities(string module) =>
+        Entities(module).Where(type => type.GetCustomAttribute<AdminDataAttribute>() is null);
 }

@@ -1,3 +1,4 @@
+using Herculean.Feedback.Application.Inbox.GetInboxTicket;
 using Herculean.Feedback.Application.Tickets.GetTicket;
 using Herculean.Feedback.Domain.Tickets;
 
@@ -11,7 +12,8 @@ internal sealed record InboxListRow(
     TicketStatus Status,
     string Preview,
     DateTimeOffset LastMessageAtUtc,
-    bool WaitingForReply);
+    bool WaitingForReply,
+    TicketPriority Priority);
 
 /// <summary>A ticket with its thread, before its sender is named.</summary>
 internal sealed record InboxTicketRow(
@@ -22,4 +24,6 @@ internal sealed record InboxTicketRow(
     string AppVersion,
     string? Phone,
     string Os,
-    List<TicketMessageResponse> Messages);
+    TicketPriority Priority,
+    List<TicketMessageResponse> Messages,
+    List<TicketNoteResponse> Notes);

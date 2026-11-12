@@ -116,6 +116,21 @@ export function useUnreadFeedback() {
   });
 }
 
+/** Whether Minimalist blocked the user from sending feedback, so the app says so before they write. */
+export function useFeedbackBlocked() {
+  return useQuery({
+    queryKey: feedbackKeys.block,
+    queryFn: async () => {
+      const { data, error } = await api.GET('/api/v1/feedback/block');
+      if (data === undefined) {
+        throw toApiError(error);
+      }
+
+      return data.blocked;
+    },
+  });
+}
+
 export function useSendFeedback() {
   const queryClient = useQueryClient();
 

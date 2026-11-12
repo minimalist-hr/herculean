@@ -2,7 +2,9 @@ using Herculean.Feedback.Application.Auth;
 using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.Feedback.Infrastructure;
+using Herculean.Feedback.Infrastructure.Blocks;
 using Herculean.Feedback.Infrastructure.Inbox;
+using Herculean.Feedback.Infrastructure.SavedReplies;
 using Herculean.Feedback.Infrastructure.Tickets;
 using Herculean.SharedKernel.Auth;
 
@@ -53,6 +55,22 @@ public sealed class PostgresTranslationTests
     [Fact]
     public Task AnInboxScreenshotTranslates() =>
         ShouldTranslateAsync(dbContext => new InboxReadRepository(dbContext).GetScreenshotAsync(TicketId.New(), ScreenshotId.New(), Token));
+
+    [Fact]
+    public Task TheNotesTranslate() =>
+        ShouldTranslateAsync(dbContext => new TicketNoteRepository(dbContext).GetAsync(TicketId.New(), TicketNoteId.New(), Token));
+
+    [Fact]
+    public Task TheSavedRepliesTranslate() =>
+        ShouldTranslateAsync(dbContext => new SavedReplyReadRepository(dbContext).ListAsync(Token));
+
+    [Fact]
+    public Task TheSavedReplyTitlesTranslate() =>
+        ShouldTranslateAsync(dbContext => new SavedReplyRepository(dbContext).ListTitlesAsync(Token));
+
+    [Fact]
+    public Task ABlockTranslates() =>
+        ShouldTranslateAsync(dbContext => new FeedbackBlockRepository(dbContext).GetAsync(new UserId(Guid.CreateVersion7()), Token));
 
     [Fact]
     public Task AnyTicketTranslates() =>

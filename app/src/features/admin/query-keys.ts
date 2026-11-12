@@ -13,3 +13,11 @@ export const userKeys = {
   training: (id: string) => ['admin-users', 'training', id] as const,
   photo: (id: string) => ['admin-users', 'photo', id] as const,
 };
+
+export const savedReplyKeys = {
+  all: ['saved-replies'] as const,
+};
+
+export const blockKeys = {
+  user: (id: string) => ['feedback-block', id] as const,
+};

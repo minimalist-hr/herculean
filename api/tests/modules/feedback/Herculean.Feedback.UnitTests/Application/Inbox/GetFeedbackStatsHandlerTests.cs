@@ -21,6 +21,28 @@ public sealed class GetFeedbackStatsHandlerTests : IDisposable
         FeedbackStatsResponse stats = await new GetFeedbackStatsHandler(new InboxReadRepository(_database.DbContext)).HandleAsync(FeedbackDatabase.Token);
 
         stats.WaitingForReply.ShouldBe(1);
+        stats.HighWaitingForReply.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task CountsHighTicketsWaiting()
+    {
+        Ticket high = await _database.SaveTicketAsync(createdAtUtc: Monday);
+        await SetPriorityAsync(high, TicketPriority.High);
+        await _database.SaveTicketAsync(createdAtUtc: Monday);
+
+        FeedbackStatsResponse stats = await new GetFeedbackStatsHandler(new InboxReadRepository(_database.DbContext)).HandleAsync(FeedbackDatabase.Token);
+
+        stats.WaitingForReply.ShouldBe(2);
+        stats.HighWaitingForReply.ShouldBe(1);
+    }
+
+    private async Task SetPriorityAsync(Ticket ticket, TicketPriority priority)
+    {
+        _database.DbContext.Attach(ticket);
+        ticket.ChangePriority(priority);
+        await _database.DbContext.SaveChangesAsync(FeedbackDatabase.Token);
+        _database.DbContext.ChangeTracker.Clear();
     }
 
     public void Dispose()

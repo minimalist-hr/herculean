@@ -13,6 +13,8 @@ import { tokens } from '@/theme/tokens';
 import { InboxScreen } from './inbox-screen';
 import InboxTicketRoute from '@/app/admin/feedback/[id]';
 
+import { AddNoteScreen } from './add-note-screen';
+
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
 jest.mock('@/api/client', () => {
@@ -59,6 +61,8 @@ function ticketOf(status: string) {
     appVersion: '1.0.0',
     phone: 'Google Pixel 8',
     os: 'Android 15',
+    priority: 'normal',
+    notes: [],
     messages: [
       {
         id: 'message-1',
@@ -83,6 +87,9 @@ interface Answers {
   listStatus?: number;
   status?: string;
   statusChange?: number;
+  notes?: object[];
+  priority?: string;
+  savedReplies?: object[];
 }
 
 function answerWith(answers: Answers = {}) {
@@ -92,7 +99,10 @@ function answerWith(answers: Answers = {}) {
     const id = parts[5];
     const part = parts[6];
 
-    if (request.method === 'PUT') {
+    if (id === 'saved-replies') {
+      return Promise.resolve(Response.json(answers.savedReplies ?? []));
+    }
+    if (request.method === 'PUT' || request.method === 'DELETE') {
       return Promise.resolve(
         new Response(null, { status: answers.statusChange ?? 204 }),
       );
@@ -111,7 +121,13 @@ function answerWith(answers: Answers = {}) {
       return Promise.resolve(Response.json({ image: '/9j/4A==' }));
     }
 
-    return Promise.resolve(Response.json(ticketOf(answers.status ?? 'open')));
+    return Promise.resolve(
+      Response.json({
+        ...ticketOf(answers.status ?? 'open'),
+        priority: answers.priority ?? 'normal',
+        notes: answers.notes ?? [],
+      }),
+    );
   });
 }
 
@@ -144,6 +160,7 @@ async function renderAt(initialUrl: string) {
       'admin/feedback/index': InboxScreen,
       'admin/feedback/[id]': InboxTicketRoute,
       'admin/feedback/user/[id]': () => <Text>User page</Text>,
+      'admin/feedback/note/[id]': AddNoteScreen,
     },
     { initialUrl },
   );
@@ -365,5 +382,119 @@ describe('A ticket in the inbox', () => {
     expect(
       await screen.findByText('Couldn’t load this feedback.'),
     ).toBeOnTheScreen();
+  });
+});
+
+describe('Ticket tools', () => {
+  test('a high ticket says so in the inbox', async () => {
+    answerWith({ list: [{ ...waiting, priority: 'high' }] });
+    await renderAt('/admin/feedback');
+
+    expect(
+      await screen.findByRole('button', { name: /, high priority, / }),
+    ).toBeOnTheScreen();
+    expect(screen.getByText(' · High')).toBeOnTheScreen();
+  });
+
+  test('Priority opens its sheet and saves at once', async () => {
+    answerWith();
+    await renderAt('/admin/feedback/ticket-1');
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Priority, Normal' }),
+    );
+    await fireEvent.press(await screen.findByRole('radio', { name: /^High/ }));
+
+    await waitFor(() => {
+      expect(
+        sent('PUT', '/api/v1/admin/feedback/ticket-1/priority'),
+      ).toHaveLength(1);
+    });
+    await expect(
+      sent('PUT', '/api/v1/admin/feedback/ticket-1/priority')[0].clone().json(),
+    ).resolves.toEqual({ priority: 'high' });
+  });
+
+  test('notes show oldest first, and a delete asks first', async () => {
+    answerWith({
+      notes: [
+        {
+          id: 'note-1',
+          text: 'Asked on Discord too.',
+          writtenAtUtc: '2026-11-10T09:05:00Z',
+        },
+      ],
+    });
+    await renderAt('/admin/feedback/ticket-1');
+
+    expect(await screen.findByText('Asked on Discord too.')).toBeOnTheScreen();
+    await confirm('Delete note', 'Delete this note?');
+
+    await waitFor(() => {
+      expect(
+        sent('DELETE', '/api/v1/admin/feedback/ticket-1/notes/note-1'),
+      ).toHaveLength(1);
+    });
+  });
+
+  test('Add note opens its page with the type as its back link, and saves', async () => {
+    answerWith();
+    await renderAt('/admin/feedback/ticket-1');
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Add note' }),
+    );
+    expect(await screen.findByRole('link', { name: 'Bug' })).toBeOnTheScreen();
+    await fireEvent.changeText(screen.getByLabelText('Note'), ' Duplicate. ');
+    await fireEvent.press(screen.getByRole('button', { name: 'Save note' }));
+
+    expect(await screen.findByText('Note saved.')).toBeOnTheScreen();
+    await expect(
+      sent('POST', '/api/v1/admin/feedback/ticket-1/notes')[0].clone().json(),
+    ).resolves.toEqual({ text: 'Duplicate.' });
+  });
+
+  test('an empty note says so', async () => {
+    answerWith();
+    await renderAt('/admin/feedback/note/ticket-1?back=Bug');
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Save note' }),
+    );
+
+    expect(await screen.findByText('Write a note.')).toBeOnTheScreen();
+  });
+
+  test('a saved reply fills the reply with the user’s name', async () => {
+    answerWith({
+      savedReplies: [
+        { id: 'reply-1', title: 'Fixed', text: 'Hi {name}, fixed in 1.0.1.' },
+      ],
+    });
+    await renderAt('/admin/feedback/ticket-1');
+    await screen.findByText('Which phone is it on?');
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Saved replies' }),
+    );
+    await fireEvent.press(await screen.findByRole('button', { name: 'Fixed' }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Reply')).toHaveDisplayValue(
+        'Hi Ana, fixed in 1.0.1.',
+      );
+    });
+  });
+
+  test('without saved replies, the sheet says where to add them', async () => {
+    answerWith();
+    await renderAt('/admin/feedback/ticket-1');
+    await screen.findByText('Which phone is it on?');
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Saved replies' }),
+    );
+
+    expect(await screen.findByText('Add them in Settings.')).toBeOnTheScreen();
   });
 });

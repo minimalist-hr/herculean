@@ -31,7 +31,7 @@ internal sealed class ListInboxTicketsHandler(
             .Select(row =>
             {
                 UserContact? sender = senders.GetValueOrDefault(row.UserId);
-                return new InboxTicketListItemResponse(row.Id, row.Type, row.Status, row.Preview, row.LastMessageAtUtc, row.WaitingForReply, sender?.Name, sender?.Email);
+                return new InboxTicketListItemResponse(row.Id, row.Type, row.Status, row.Preview, row.LastMessageAtUtc, row.WaitingForReply, row.Priority, sender?.Name, sender?.Email);
             })
             .ToList();
     }

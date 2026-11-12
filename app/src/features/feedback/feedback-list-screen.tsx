@@ -7,7 +7,7 @@ import { BackLink } from '@/components/back-link';
 import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { NewButton, useNewButtonRoom } from '@/components/new-button';
-import { dismissNotification } from '@/components/notifications';
+import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { ScreenHeading } from '@/components/screen-heading';
 import { useTheme } from '@/theme/theme-provider';
@@ -19,7 +19,8 @@ import {
   type StatusFilter,
 } from './status-chips';
 import { TicketList, TicketListSkeleton, TicketRow } from './ticket-rows';
-import { useTickets } from './use-feedback';
+import { blockedMessage } from './feedback-labels';
+import { useFeedbackBlocked, useTickets } from './use-feedback';
 
 /** Your feedback: every ticket you sent, the latest first. */
 export function FeedbackListScreen() {
@@ -28,6 +29,7 @@ export function FeedbackListScreen() {
   const pageEnd = usePageEnd();
   const newButtonRoom = useNewButtonRoom();
   const tickets = useTickets();
+  const blocked = useFeedbackBlocked().data === true;
   const refreshControl = usePullToRefresh(() => tickets.refetch());
   const [filter, setFilter] = useState<StatusFilter>('answered');
   const noFeedback = tickets.data?.length === 0;
@@ -122,7 +124,13 @@ export function FeedbackListScreen() {
       </ScrollView>
       <NewButton
         label="New feedback"
+        muted={blocked}
         onPress={() => {
+          if (blocked) {
+            notifyFailure(blockedMessage);
+            return;
+          }
+
           dismissNotification();
           router.push('/settings/feedback/new');
         }}

@@ -37,6 +37,7 @@ import {
 } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
+import { useFeedbackBlock, useSetFeedbackBlock } from './use-feedback-block';
 import { UserAvatar } from './user-avatar';
 import { deletesOnText, nameOf } from './user-rows';
 import {
@@ -48,8 +49,11 @@ import {
 } from './use-users';
 
 /** What each action asks first, and what it says once done. */
+/** Every action on the page: the account's, and blocking feedback. */
+type PageAction = UserAction | 'blockFeedback' | 'unblockFeedback';
+
 const actions: Record<
-  UserAction,
+  PageAction,
   {
     label: string;
     waitingLabel: string;
@@ -66,6 +70,22 @@ const actions: Record<
     message: 'It’s deleted, and they get an email saying why.',
     done: 'Photo removed.',
     danger: true,
+  },
+  blockFeedback: {
+    label: 'Block feedback',
+    waitingLabel: 'Blocking',
+    title: 'Block their feedback?',
+    message:
+      'They can read their tickets but can’t send feedback or reply. They aren’t told until they try.',
+    done: 'Feedback blocked.',
+    danger: true,
+  },
+  unblockFeedback: {
+    label: 'Unblock feedback',
+    waitingLabel: 'Unblocking',
+    title: 'Unblock their feedback?',
+    message: 'They can send feedback and reply again.',
+    done: 'Feedback unblocked.',
   },
   signOut: {
     label: 'Sign out all devices',
@@ -116,15 +136,23 @@ export function UserScreen({
   const training = useUserTraining(id);
   const tickets = useUserTickets(id);
   const action = useUserAction(id);
+  const block = useFeedbackBlock(id);
+  const setBlock = useSetFeedbackBlock(id);
+  const blocked = block.data?.blocked;
   // Kept after the sheet closes, so its words stay while it slides away.
-  const [asking, setAsking] = useState<UserAction>('signOut');
+  const [asking, setAsking] = useState<PageAction>('signOut');
   const [confirming, setConfirming] = useState(false);
   const refreshControl = usePullToRefresh(() =>
-    Promise.all([user.refetch(), training.refetch(), tickets.refetch()]),
+    Promise.all([
+      user.refetch(),
+      training.refetch(),
+      tickets.refetch(),
+      block.refetch(),
+    ]),
   );
   const deleting = user.data?.deletionScheduledForUtc ?? null;
 
-  function ask(next: UserAction) {
+  function ask(next: PageAction) {
     if (user.data === undefined) {
       notifyFailure(notLoadedMessage);
       return;
@@ -135,16 +163,28 @@ export function UserScreen({
     setConfirming(true);
   }
 
-  async function confirm(current: UserAction) {
+  async function confirm(current: PageAction) {
     dismissNotification();
     try {
-      await action.mutateAsync(current);
+      if (current === 'blockFeedback' || current === 'unblockFeedback') {
+        await setBlock.mutateAsync(current === 'blockFeedback');
+      } else {
+        await action.mutateAsync(current);
+      }
       notifySuccess(actions[current].done);
     } catch {
       notifyFailure('Couldn’t do that. Try again.');
     } finally {
       setConfirming(false);
     }
+  }
+
+  function blockValue() {
+    if (block.data !== undefined) {
+      return block.data.blocked ? 'Blocked' : 'Allowed';
+    }
+
+    return block.isLoadingError ? noValue : undefined;
   }
 
   function trainingValue(count: 'workouts' | 'routines') {
@@ -193,6 +233,7 @@ export function UserScreen({
           />
           <SettingsRow label="Workouts" value={trainingValue('workouts')} />
           <SettingsRow label="Routines" value={trainingValue('routines')} />
+          <SettingsRow label="Feedback" value={blockValue()} />
         </SettingsSection>
         {training.isLoadingError && (
           <LoadFailure
@@ -222,6 +263,7 @@ export function UserScreen({
               preview={ticket.preview}
               lastMessageAtUtc={ticket.lastMessageAtUtc}
               dot={ticket.waitingForReply ? 'waiting for a reply' : undefined}
+              high={ticket.priority === 'high'}
               first={index === 0}
               onPress={() => {
                 openTicket(
@@ -313,6 +355,23 @@ export function UserScreen({
           )}
           <SettingsRow
             first={user.data?.hasPhoto !== true}
+            label={
+              blocked === true
+                ? actions.unblockFeedback.label
+                : actions.blockFeedback.label
+            }
+            hasValue={false}
+            muted={muted || blocked === undefined}
+            onPress={() => {
+              if (blocked === undefined) {
+                notifyFailure(notLoadedMessage);
+                return;
+              }
+
+              ask(blocked ? 'unblockFeedback' : 'blockFeedback');
+            }}
+          />
+          <SettingsRow
             label={actions.signOut.label}
             hasValue={false}
             muted={muted}
@@ -361,7 +420,7 @@ export function UserScreen({
           label={actions[asking].label}
           waitingLabel={actions[asking].waitingLabel}
           variant={actions[asking].danger === true ? 'danger' : 'primary'}
-          waiting={action.isPending}
+          waiting={action.isPending || setBlock.isPending}
           onPress={() => void confirm(asking)}
         />
       </Sheet>

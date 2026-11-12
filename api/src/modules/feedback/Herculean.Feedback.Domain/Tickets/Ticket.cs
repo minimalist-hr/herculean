@@ -42,6 +42,8 @@ internal sealed class Ticket : Entity<TicketId>
 
     public string Os { get; private set; }
 
+    public TicketPriority Priority { get; private set; } = TicketPriority.Normal;
+
     /// <summary>A reply from Minimalist that the user hasn't opened yet.</summary>
     public bool HasUnreadReply { get; private set; }
 
@@ -83,6 +85,11 @@ internal sealed class Ticket : Entity<TicketId>
     public void Reopen()
     {
         Status = TicketStatus.Open;
+    }
+
+    public void ChangePriority(TicketPriority priority)
+    {
+        Priority = priority;
     }
 
     public void MarkRead()

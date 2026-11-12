@@ -37,5 +37,8 @@ export const notLoadedMessage = 'This page hasn’t loaded yet.';
 export const closedMessage =
   'This feedback is closed. Send new feedback instead.';
 
+/** What sending says once Minimalist blocked the user. Must match F18 and F28. */
+export const blockedMessage = 'You can’t send feedback right now.';
+
 export const limitReachedMessage =
   'You’ve sent a lot of feedback today. Try again tomorrow.';

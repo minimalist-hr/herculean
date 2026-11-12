@@ -26,6 +26,7 @@ export function TicketRow({
   lastMessageAtUtc,
   sender,
   dot,
+  high = false,
   first,
   onPress,
 }: {
@@ -37,6 +38,8 @@ export function TicketRow({
   sender?: string;
   /** What the dot after the type means, for example "new reply". No dot without it. */
   dot?: string;
+  /** A high priority ticket, in the inbox. */
+  high?: boolean;
   first: boolean;
   onPress: () => void;
 }) {
@@ -49,7 +52,15 @@ export function TicketRow({
     <Tappable
       feedback="fill"
       accessibilityRole="button"
-      accessibilityLabel={[typeLabel, sender, preview, statusLabel, date, dot]
+      accessibilityLabel={[
+        typeLabel,
+        sender,
+        preview,
+        statusLabel,
+        high ? 'high priority' : undefined,
+        date,
+        dot,
+      ]
         .filter((part) => part !== undefined)
         .join(', ')}
       onPress={onPress}
@@ -69,6 +80,7 @@ export function TicketRow({
         <View style={[styles.line, { gap: space.sm }]}>
           <Text style={[text.listItemName, { color: colors.text }]}>
             {typeLabel}
+            {high && <Text style={{ color: colors.warn }}>{' · High'}</Text>}
           </Text>
           {dot !== undefined && <UnreadDot />}
         </View>

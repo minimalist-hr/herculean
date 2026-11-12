@@ -23,6 +23,8 @@ interface FormPageProps {
   action?: ReactNode;
   /** Turn off while something in the form is being dragged. */
   scrollEnabled?: boolean;
+  /** A header icon button beside the title, such as a delete. */
+  headerAction?: ReactNode;
   children: ReactNode;
 }
 
@@ -33,6 +35,7 @@ export function FormPage({
   subtitle,
   action,
   scrollEnabled = true,
+  headerAction,
   children,
 }: FormPageProps) {
   const { colors, size, space } = useTheme();
@@ -62,7 +65,11 @@ export function FormPage({
                 router.back();
               }}
             />
-            <ScreenHeading title={title} subtitle={subtitle} />
+            <ScreenHeading
+              title={title}
+              subtitle={subtitle}
+              action={headerAction}
+            />
           </View>
           {children}
         </ScrollView>

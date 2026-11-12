@@ -43,7 +43,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 ### Account
 
-- An account is a user, who trains, or an admin, who manages feedback and helps users with their accounts. Admins come from configuration, have no training data or setup, and can't change their email or delete themselves in the app.
+- An account is a user, who trains, or an admin, who manages feedback and helps users with their accounts. Admins come from configuration, have no training data or setup, can change only their theme and color, and can't change their email or delete themselves in the app.
 - An email is unique and not case-sensitive.
 - A password has 8 to 128 characters.
 - A name has 1 to 50 characters, trimmed.
@@ -213,4 +213,8 @@ Every action in the table is built.
 - A user can send 10 tickets in any 24 hours.
 - A reply from Minimalist is unread until the user opens the ticket.
 - An admin sees every user's tickets. A reply from Minimalist answers the ticket. An admin closes a ticket and can reopen it, and replies only to one that isn't closed.
-- Deleting an account deletes its tickets, messages and screenshots.
+- A ticket's priority is normal or high. High tickets come first in the inbox.
+- An admin can add notes to a ticket, 1 to 2,000 characters, which users never see. A note can be deleted, not changed.
+- Saved replies are shared by every admin: at most 50, a title of 1 to 50 characters unique in any case, and a text of 1 to 2,000. Picking one puts its text in the reply, with {name} as the user's name, or "there" without one.
+- An admin can block a user from feedback: they can still read their tickets, but can't send new feedback or reply. They aren't told until they try.
+- Deleting an account deletes its tickets, messages, screenshots and notes, and any block.

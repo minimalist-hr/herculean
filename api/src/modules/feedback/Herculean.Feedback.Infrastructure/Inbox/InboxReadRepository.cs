@@ -1,4 +1,5 @@
 using Herculean.Feedback.Application.Inbox;
+using Herculean.Feedback.Application.Inbox.GetInboxTicket;
 using Herculean.Feedback.Application.Tickets.GetTicket;
 using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
@@ -29,13 +30,15 @@ internal sealed class InboxReadRepository(FeedbackDbContext dbContext) : IInboxR
                 FirstMessage = ticket.Messages.OrderBy(message => message.CreatedAtUtc).Select(message => message.Text).First(),
                 LastMessageAtUtc = ticket.Messages.Max(message => message.CreatedAtUtc),
                 LastAuthor = ticket.Messages.OrderByDescending(message => message.CreatedAtUtc).Select(message => message.Author).First(),
+                ticket.Priority,
             })
             .ToListAsync(cancellationToken);
 
         return
         [
             .. tickets
-                .OrderByDescending(ticket => ticket.LastMessageAtUtc)
+                .OrderByDescending(ticket => ticket.Priority == TicketPriority.High)
+                .ThenByDescending(ticket => ticket.LastMessageAtUtc)
                 .Select(ticket => new InboxListRow(
                     ticket.Id,
                     ticket.UserId,
@@ -43,19 +46,25 @@ internal sealed class InboxReadRepository(FeedbackDbContext dbContext) : IInboxR
                     ticket.Status,
                     TicketReadRepository.PreviewOf(ticket.FirstMessage),
                     ticket.LastMessageAtUtc,
-                    ticket.LastAuthor == MessageAuthor.User)),
+                    ticket.LastAuthor == MessageAuthor.User,
+                    ticket.Priority)),
         ];
     }
 
-    public Task<int> CountWaitingAsync(CancellationToken cancellationToken) =>
-        Tickets()
+    public async Task<(int Waiting, int HighWaiting)> CountWaitingAsync(CancellationToken cancellationToken)
+    {
+        List<TicketPriority> waiting = await Tickets()
             .Where(ticket => ticket.Status != TicketStatus.Closed)
-            .CountAsync(
-                ticket => ticket.Messages.OrderByDescending(message => message.CreatedAtUtc).Select(message => message.Author).First() == MessageAuthor.User,
-                cancellationToken);
+            .Where(ticket => ticket.Messages.OrderByDescending(message => message.CreatedAtUtc).Select(message => message.Author).First() == MessageAuthor.User)
+            .Select(ticket => ticket.Priority)
+            .ToListAsync(cancellationToken);
 
-    public Task<InboxTicketRow?> GetAsync(TicketId id, CancellationToken cancellationToken) =>
-        Tickets()
+        return (waiting.Count, waiting.Count(priority => priority == TicketPriority.High));
+    }
+
+    public async Task<InboxTicketRow?> GetAsync(TicketId id, CancellationToken cancellationToken)
+    {
+        InboxTicketRow? row = await Tickets()
             .Where(ticket => ticket.Id == id)
             .Select(ticket => new InboxTicketRow(
                 ticket.Id.Value,
@@ -65,6 +74,7 @@ internal sealed class InboxReadRepository(FeedbackDbContext dbContext) : IInboxR
                 ticket.AppVersion,
                 ticket.Phone,
                 ticket.Os,
+                ticket.Priority,
                 ticket.Messages
                     .OrderBy(message => message.CreatedAtUtc)
                     .Select(message => new TicketMessageResponse(
@@ -73,8 +83,24 @@ internal sealed class InboxReadRepository(FeedbackDbContext dbContext) : IInboxR
                         message.Text,
                         message.CreatedAtUtc,
                         message.Screenshots.OrderBy(screenshot => screenshot.Order).Select(screenshot => screenshot.Id.Value).ToList()))
-                    .ToList()))
+                    .ToList(),
+                new List<TicketNoteResponse>()))
             .SingleOrDefaultAsync(cancellationToken);
+        if (row is null)
+        {
+            return null;
+        }
+
+        List<TicketNoteResponse> notes = await dbContext.TicketNotes
+            .IgnoreQueryFilters([FeedbackDbContext.UserFilter])
+            .AsNoTracking()
+            .Where(note => note.TicketId == id)
+            .OrderBy(note => note.CreatedAtUtc)
+            .Select(note => new TicketNoteResponse(note.Id.Value, note.Text, note.CreatedAtUtc))
+            .ToListAsync(cancellationToken);
+
+        return row with { Notes = notes };
+    }
 
     public Task<byte[]?> GetScreenshotAsync(TicketId ticketId, ScreenshotId screenshotId, CancellationToken cancellationToken) =>
         dbContext.Set<TicketMessage>()

@@ -36,12 +36,14 @@ import { useUpdateDefaultRest, useUpdateUser } from './use-update-settings';
 
 type Schemas = components['schemas'];
 
-export function ThemeScreen() {
+/** Theme, from Profile, or from Settings for an admin. */
+export function ThemeScreen({ back }: { back?: string }) {
   const user = useCurrentUser();
   const update = useUpdateUser();
 
   return (
     <ChoicePage<Schemas['Theme']>
+      back={back}
       title="Theme"
       subtitle="Match my phone is the default."
       choices={[
@@ -69,13 +71,15 @@ const colors: Schemas['Color'][] = [
   'neon',
 ];
 
-export function ColorScreen() {
+/** Color, from Profile, or from Settings for an admin. */
+export function ColorScreen({ back }: { back?: string }) {
   const { scheme } = useTheme();
   const user = useCurrentUser();
   const update = useUpdateUser();
 
   return (
     <ChoicePage<Schemas['Color']>
+      back={back}
       title="Color"
       subtitle="Used for buttons, today and completed sets."
       choices={colors.map((color) => ({

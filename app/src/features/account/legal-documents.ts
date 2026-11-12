@@ -40,12 +40,12 @@ export const termsOfService: LegalDocument = {
 
 export const privacyPolicy: LegalDocument = {
   title: 'Privacy policy',
-  lastUpdated: 'Last updated 11 November 2026',
+  lastUpdated: 'Last updated 12 November 2026',
   intro: 'This policy explains what Herculean stores about you and why.',
   sections: [
     {
       title: '1. What we store',
-      body: 'Your email, name, a protected form of your password that can’t be read, your optional profile photo, your settings, the routines, exercises and groups you set up, the workouts and sets you log, and the feedback you send, with its screenshots and the app version, phone and system it came from.',
+      body: 'Your email, name, a protected form of your password that can’t be read, your optional profile photo, your settings, the routines, exercises and groups you set up, the workouts and sets you log, and the feedback you send, with its screenshots, the app version, phone and system it came from, and our notes on it.',
     },
     {
       title: '2. Why',

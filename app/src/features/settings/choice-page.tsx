@@ -29,6 +29,8 @@ interface ChoicePageProps<Value extends string> {
   saved: Value | undefined;
   saving: boolean;
   onSave: (value: Value) => Promise<unknown>;
+  /** The page its back link returns to. Profile unless said. */
+  back?: string;
 }
 
 /** A setting with a few choices, saved with its button. The back link cancels. */
@@ -49,6 +51,7 @@ function ChoiceForm<Value extends string>({
   saved,
   saving,
   onSave,
+  back = 'Profile',
 }: ChoicePageProps<Value> & { saved: Value }) {
   const router = useRouter();
   const { space } = useTheme();
@@ -72,7 +75,7 @@ function ChoiceForm<Value extends string>({
   return (
     <>
       <FormPage
-        back="Profile"
+        back={back}
         title={title}
         subtitle={subtitle}
         action={

@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   Image,
   Keyboard,
@@ -22,6 +29,7 @@ import { photoUri } from '@/features/settings/use-user-photo';
 import { formatRelativeTime } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
+import { blockedMessage } from './feedback-labels';
 import { messageMaxLength } from './new-feedback-screen';
 import {
   DraftScreenshots,
@@ -63,15 +71,18 @@ export function useScrollToNew() {
   const following = useRef(false);
 
   // The reply is the page's only field, so the keyboard opens only for it.
-  useEffect(() => {
-    const subscription = Keyboard.addListener('keyboardDidShow', () => {
-      ref.current?.scrollToEnd({ animated: true });
-    });
+  // Only while the page is in front: a page opened over it, like Add note, has its own fields.
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = Keyboard.addListener('keyboardDidShow', () => {
+        ref.current?.scrollToEnd({ animated: true });
+      });
 
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+      return () => {
+        subscription.remove();
+      };
+    }, []),
+  );
 
   return {
     ref,
@@ -225,12 +236,27 @@ export function ThreadSkeleton({ label }: { label: string }) {
 }
 
 /** The reply box in one row: add screenshots, the reply, Send. It looks muted and says why when it can't be used. */
+/** What a failed reply says: closed meanwhile, blocked meanwhile, or try again. */
+function sendFailureMessage(error: unknown, closedMessage: string) {
+  if (error instanceof ApiProblemError) {
+    if (error.problem.code === 'ticket.closed') {
+      return closedMessage;
+    }
+    if (error.problem.code === 'feedback.blocked') {
+      return blockedMessage;
+    }
+  }
+
+  return 'Couldn’t send. Try again.';
+}
+
 export function ReplyBox({
   send,
   sending,
   unavailableReason,
   closedMessage,
   onSent,
+  extraAction,
 }: {
   send: (reply: MessageDraft) => Promise<void>;
   sending: boolean;
@@ -239,6 +265,8 @@ export function ReplyBox({
   closedMessage: string;
   /** After a reply is sent, for example to show it. */
   onSent: () => void;
+  /** A button before Add screenshot, given a way to put text in the reply, such as the admin's saved replies. */
+  extraAction?: (insert: (text: string) => void) => ReactNode;
 }) {
   const { colors, opacity, radius, size, space, text } = useTheme();
   const [message, setMessage] = useState('');
@@ -269,12 +297,7 @@ export function ReplyBox({
       Keyboard.dismiss();
       onSent();
     } catch (error) {
-      notifyFailure(
-        error instanceof ApiProblemError &&
-          error.problem.code === 'ticket.closed'
-          ? closedMessage
-          : 'Couldn’t send. Try again.',
-      );
+      notifyFailure(sendFailureMessage(error, closedMessage));
     }
   }
 
@@ -284,6 +307,12 @@ export function ReplyBox({
         <View style={{ gap: space.sm }}>
           <DraftScreenshots images={screenshots} onChange={setScreenshots} />
           <View style={[styles.replyRow, { gap: space.sm }]}>
+            {extraAction?.((inserted) => {
+              dismissNotification();
+              setMessage((current) =>
+                current.trim() === '' ? inserted : `${current}\n\n${inserted}`,
+              );
+            })}
             <HeaderIconButton
               label="Add screenshot"
               onPress={addScreenshots.add}

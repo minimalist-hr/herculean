@@ -5,7 +5,10 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { usePageEnd } from '@/components/above-tab-bar';
 import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { ScreenHeading } from '@/components/screen-heading';
+import type { components } from '@/api/schema';
+import { useCurrentUser } from '@/features/account/use-current-user';
 import { SignOutSheet } from '@/features/settings/account-sheets';
+import { colorLabels, themeLabels } from '@/features/settings/settings-labels';
 import {
   SettingsRow,
   SettingsSection,
@@ -13,6 +16,7 @@ import {
 import { noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
+import { useSavedReplies } from './use-saved-replies';
 import { summaryOf, useSystemHealth } from './use-system-health';
 
 /** The admin's settings: System health and Sign out. */
@@ -21,7 +25,11 @@ export function AdminSettingsScreen() {
   const { colors, size, space } = useTheme();
   const pageEnd = usePageEnd();
   const health = useSystemHealth();
-  const refreshControl = usePullToRefresh(() => health.refetch());
+  const user = useCurrentUser();
+  const savedReplies = useSavedReplies();
+  const refreshControl = usePullToRefresh(() =>
+    Promise.all([health.refetch(), savedReplies.refetch()]),
+  );
   const [signingOut, setSigningOut] = useState(false);
   const summary =
     health.data === undefined ? undefined : summaryOf(health.data.services);
@@ -32,6 +40,24 @@ export function AdminSettingsScreen() {
     }
 
     return health.isLoadingError ? noValue : undefined;
+  }
+
+  function userValue(
+    show: (data: components['schemas']['UserResponse']) => string,
+  ) {
+    if (user.data !== undefined) {
+      return show(user.data);
+    }
+
+    return user.isLoadingError ? noValue : undefined;
+  }
+
+  function savedRepliesValue() {
+    if (savedReplies.data !== undefined) {
+      return String(savedReplies.data.length);
+    }
+
+    return savedReplies.isLoadingError ? noValue : undefined;
   }
 
   return (
@@ -48,6 +74,23 @@ export function AdminSettingsScreen() {
         }}
       >
         <ScreenHeading title="Settings" subtitle="Keep an eye on Herculean." />
+        <SettingsSection title="Appearance">
+          <SettingsRow
+            first
+            label="Theme"
+            value={userValue((data) => themeLabels[data.theme])}
+            onPress={() => {
+              router.push('/admin/settings/theme');
+            }}
+          />
+          <SettingsRow
+            label="Color"
+            value={userValue((data) => colorLabels[data.color])}
+            onPress={() => {
+              router.push('/admin/settings/color');
+            }}
+          />
+        </SettingsSection>
         <SettingsSection title="System">
           <SettingsRow
             first
@@ -60,6 +103,16 @@ export function AdminSettingsScreen() {
             }
             onPress={() => {
               router.push('/admin/settings/health');
+            }}
+          />
+        </SettingsSection>
+        <SettingsSection title="Feedback">
+          <SettingsRow
+            first
+            label="Saved replies"
+            value={savedRepliesValue()}
+            onPress={() => {
+              router.push('/admin/settings/saved-replies');
             }}
           />
         </SettingsSection>

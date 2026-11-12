@@ -92,6 +92,11 @@ export function OverviewScreen() {
             label="To answer"
             query={feedback}
             value={(data) => data.waitingForReply}
+            detail={(data) =>
+              data.highWaitingForReply > 0
+                ? `${String(data.highWaitingForReply)} high`
+                : undefined
+            }
             onPress={() => {
               router.navigate('/admin/feedback');
             }}

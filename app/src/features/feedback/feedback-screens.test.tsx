@@ -6,6 +6,7 @@ import { useState, type ReactElement } from 'react';
 import { Keyboard, Text, View, type RefreshControlProps } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
+import { dismissNotification } from '@/components/notifications';
 import { createTestQueryClient } from '@/test-utils/query-client';
 import { ThemeProvider } from '@/theme/theme-provider';
 import { tokens } from '@/theme/tokens';
@@ -93,6 +94,7 @@ interface Answers {
   sendProblem?: object;
   replyStatus?: number;
   replyProblem?: object;
+  blocked?: boolean;
 }
 
 function answerWith(answers: Answers = {}) {
@@ -106,6 +108,11 @@ function answerWith(answers: Answers = {}) {
     const { pathname } = new URL(request.url);
     const [, , , , id, part] = pathname.split('/') as (string | undefined)[];
 
+    if (id === 'block') {
+      return Promise.resolve(
+        Response.json({ blocked: answers.blocked ?? false }),
+      );
+    }
     if (request.method === 'POST' && id === undefined) {
       if (answers.sendProblem !== undefined) {
         return Promise.resolve(
@@ -695,5 +702,93 @@ describe('A ticket', () => {
 
     expect(await screen.findByText('Write a reply first.')).toBeOnTheScreen();
     expect(sent('POST', '/api/v1/feedback/ticket-1/messages')).toHaveLength(0);
+  });
+});
+
+describe('Blocked from feedback', () => {
+  test('New feedback looks muted and says why', async () => {
+    answerWith({ blocked: true });
+    await renderAt('/settings/feedback');
+    await screen.findByRole('button', { name: /^Suggestion/ });
+
+    await waitFor(() => {
+      expect(sent('GET', '/api/v1/feedback/block')).toHaveLength(1);
+    });
+    await fireEvent.press(screen.getByRole('button', { name: 'New feedback' }));
+
+    expect(
+      await screen.findByText('You can’t send feedback right now.'),
+    ).toBeOnTheScreen();
+    await act(() => {
+      dismissNotification();
+    });
+    expect(screen.queryByLabelText('Message')).not.toBeOnTheScreen();
+  });
+
+  test('the Home card looks muted and says why', async () => {
+    answerWith({ blocked: true });
+    await renderAt('/');
+    // Muted once the block has loaded.
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Send feedback' })).toHaveStyle({
+        opacity: tokens.opacity.dimmed,
+      });
+    });
+
+    await fireEvent.press(screen.getByRole('link', { name: 'Send feedback' }));
+
+    expect(
+      await screen.findByText('You can’t send feedback right now.'),
+    ).toBeOnTheScreen();
+    await act(() => {
+      dismissNotification();
+    });
+  });
+
+  test('a ticket’s reply box looks muted and says why', async () => {
+    answerWith({ blocked: true });
+    await renderAt('/settings/feedback/ticket-1');
+    await screen.findByText('Which phone is it on?');
+    await waitFor(() => {
+      expect(sent('GET', '/api/v1/feedback/block')).toHaveLength(1);
+    });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Send' }));
+
+    expect(
+      await screen.findByText('You can’t send feedback right now.'),
+    ).toBeOnTheScreen();
+    await act(() => {
+      dismissNotification();
+    });
+  });
+
+  test('a send refused because of a block says why', async () => {
+    answerWith({
+      sendStatus: 409,
+      sendProblem: {
+        type: 'about:blank',
+        title: 'Conflict',
+        status: 409,
+        code: 'feedback.blocked',
+        traceId: '1',
+      },
+    });
+    await renderAt('/settings/feedback/new');
+
+    await fireEvent.changeText(
+      await screen.findByLabelText('Message'),
+      'The timer stops.',
+    );
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Send feedback' }),
+    );
+
+    expect(
+      await screen.findByText('You can’t send feedback right now.'),
+    ).toBeOnTheScreen();
+    await act(() => {
+      dismissNotification();
+    });
   });
 });

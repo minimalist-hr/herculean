@@ -1,5 +1,7 @@
 using Herculean.Feedback.Application.Tickets.CreateTicket;
+using Herculean.Feedback.Domain.Blocks;
 using Herculean.Feedback.Domain.Tickets;
+using Herculean.Feedback.Infrastructure.Blocks;
 using Herculean.Feedback.Infrastructure.Tickets;
 using Herculean.SharedKernel.Results;
 using Herculean.SharedKernel.Validation;
@@ -17,7 +19,7 @@ public sealed class CreateTicketHandlerTests : IDisposable
 
     public CreateTicketHandlerTests()
     {
-        _handler = new CreateTicketHandler(new CreateTicketValidator(), _database.CurrentUser, new TicketRepository(_database.DbContext), _timeProvider, _database.DbContext);
+        _handler = new CreateTicketHandler(new CreateTicketValidator(), _database.CurrentUser, new TicketRepository(_database.DbContext), new FeedbackBlockRepository(_database.DbContext), _timeProvider, _database.DbContext);
     }
 
     [Fact]
@@ -34,6 +36,25 @@ public sealed class CreateTicketHandlerTests : IDisposable
         TicketMessage message = (await _database.ListMessagesAsync(ticket)).ShouldHaveSingleItem();
         message.Text.ShouldBe("The timer stops.");
         message.Screenshots.Count.ShouldBe(4);
+    }
+
+    [Fact]
+    public async Task ABlockedUserCantSendFeedback()
+    {
+        await _database.BlockAsync();
+
+        Result<TicketCreatedResponse> result = await HandleAsync(Request());
+
+        result.Error.ShouldBe(FeedbackBlockErrors.Blocked);
+        (await _database.ListAllTicketsAsync()).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task AnotherUsersBlockDoesntMatter()
+    {
+        await _database.BlockAsync(Herculean.Feedback.Domain.UserId.From(Guid.CreateVersion7()));
+
+        (await HandleAsync(Request())).IsSuccess.ShouldBeTrue();
     }
 
     [Fact]

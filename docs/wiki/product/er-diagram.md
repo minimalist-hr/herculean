@@ -217,12 +217,13 @@ erDiagram
 
 ## Feedback
 
-Every Feedback entity has a `UserId` (type `UserId`): the user who sent the ticket, on Minimalist's replies too. It has no foreign key to the Account module.
+Every Feedback entity but SavedReply has a `UserId` (type `UserId`): the user who sent the ticket, on Minimalist's replies and notes too, or the user who is blocked. It has no foreign key to the Account module. SavedReply is Minimalist's own (`[AdminData]`), shared by every admin.
 
 ```mermaid
 erDiagram
     Ticket ||--|{ TicketMessage : has
     TicketMessage ||--o{ Screenshot : has
+    Ticket ||--o{ TicketNote : has
 ```
 
 ### Ticket
@@ -232,6 +233,7 @@ erDiagram
 | UserId | UserId | |
 | Type | enum | `Bug`, `Suggestion`, `Other` |
 | Status | enum | `Open`, `Answered`, `Closed` |
+| Priority | enum | `Normal`, `High`. Starts at `Normal` |
 | AppVersion | string(50) | |
 | Phone | string(100)? | Empty on the web |
 | Os | string(50) | |
@@ -254,3 +256,24 @@ erDiagram
 | MessageId | TicketMessageId | → TicketMessage |
 | Order | int | |
 | Image | bytes | A JPEG of at most 1 MB |
+
+### TicketNote
+
+| Property | Type | Notes |
+|---|---|---|
+| UserId | UserId | The ticket's user |
+| TicketId | TicketId | → Ticket |
+| Text | string(2000) | Only admins see it |
+
+### SavedReply
+
+| Property | Type | Notes |
+|---|---|---|
+| Title | string(50) | Unique in any case |
+| Text | string(2000) | {name} stands for the user's name |
+
+### FeedbackBlock
+
+| Property | Type | Notes |
+|---|---|---|
+| UserId | UserId | Unique. The user who can't send feedback |

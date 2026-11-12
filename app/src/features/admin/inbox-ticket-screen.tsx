@@ -37,6 +37,8 @@ import {
 import { useTheme } from '@/theme/theme-provider';
 
 import { senderOf } from './inbox-screen';
+import { SavedRepliesButton } from './saved-replies-button';
+import { NotesSection, PrioritySection } from './ticket-tools';
 import {
   useAdminReply,
   useInboxTicket,
@@ -49,9 +51,12 @@ const reopenToReply = 'Reopen it to reply.';
 /** A ticket for the admin: who sent it, from which device, its thread, its status and a reply box. */
 export function InboxTicketScreen({
   openUser,
+  openNote,
 }: {
   /** Opens the sender's page, with the ticket's type as its back link. */
   openUser: (userId: string, back: string) => void;
+  /** Opens Add note, with the ticket's type as its back link. */
+  openNote: (ticketId: string, back: string) => void;
 }) {
   const router = useRouter();
   const { id, back } = useLocalSearchParams<{ id: string; back?: string }>();
@@ -104,6 +109,15 @@ export function InboxTicketScreen({
             onPress={() => {
               dismissNotification();
               setConfirming(true);
+            }}
+          />
+          <PrioritySection ticketId={id} priority={data.priority} />
+          <NotesSection
+            ticketId={id}
+            notes={data.notes}
+            onAdd={() => {
+              dismissNotification();
+              openNote(id, typeLabels[data.type]);
             }}
           />
           {data.messages.map((message) => (
@@ -192,6 +206,12 @@ export function InboxTicketScreen({
           unavailableReason={unavailableReason()}
           closedMessage={reopenToReply}
           onSent={followNewMessage}
+          extraAction={(insert) => (
+            <SavedRepliesButton
+              name={ticket.data?.senderName ?? null}
+              onPick={insert}
+            />
+          )}
         />
       </KeyboardAvoidingView>
       <Sheet
