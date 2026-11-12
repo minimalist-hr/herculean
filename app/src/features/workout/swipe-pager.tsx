@@ -12,7 +12,6 @@ import {
   View,
 } from 'react-native';
 import Animated, {
-  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -22,10 +21,10 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons';
 import { useReduceMotion } from '@/components/use-reduce-motion';
 import { useTheme } from '@/theme/theme-provider';
+import { motionEasing } from '@/theme/motion';
 
 import { isSidewaysSwipe, pageAfterSwipe } from './page-swipe';
 
-const easing = Easing.bezier(0.33, 1, 0.68, 1);
 /** Small enough to sit in the side padding, so the hint takes no room. */
 const hintSize = 12;
 /** How far a page follows the finger when there is no page that way. */
@@ -83,8 +82,10 @@ export function SwipePager({
 
     // Anything else, like a button, slides in from the side the new page lies on.
     offset.set(cameFromLater ? -width : width);
-    offset.set(withTiming(0, { duration: motion.sheetMs, easing }));
-  }, [current.key, motion.sheetMs, offset, reduceMotion, width]);
+    offset.set(
+      withTiming(0, { duration: motion.standardMs, easing: motionEasing }),
+    );
+  }, [current.key, motion.standardMs, offset, reduceMotion, width]);
 
   // A gesture keeps the handlers it started with, so they read the latest values from here.
   const latest = useRef({
@@ -92,7 +93,7 @@ export function SwipePager({
     canGoForward,
     onChange,
     reduceMotion,
-    sheetMs: motion.sheetMs,
+    sheetMs: motion.standardMs,
     width,
   });
   useLayoutEffect(() => {
@@ -101,7 +102,7 @@ export function SwipePager({
       canGoForward,
       onChange,
       reduceMotion,
-      sheetMs: motion.sheetMs,
+      sheetMs: motion.standardMs,
       width,
     };
   });
@@ -124,7 +125,7 @@ export function SwipePager({
       offset.set(
         withTiming(
           toValue,
-          { duration: latest.current.sheetMs, easing },
+          { duration: latest.current.sheetMs, easing: motionEasing },
           (finished) => {
             if (finished === true && direction !== 0) {
               scheduleOnRN(change, direction);

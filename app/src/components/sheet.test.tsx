@@ -14,7 +14,11 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { Button } from './button';
 import { NotificationBar } from './notification-bar';
-import { notifyFailure, notifySuccess } from './notifications';
+import {
+  afterSheetsClose,
+  notifyFailure,
+  notifySuccess,
+} from './notifications';
 import { Sheet } from './sheet';
 
 const onClose = jest.fn();
@@ -252,7 +256,7 @@ test('a failure shows once, over the sheet', async () => {
   );
 });
 
-test('a success shows once', async () => {
+test('a success sends the sheet down, then shows once', async () => {
   await renderSheet();
   await measure();
 
@@ -260,7 +264,10 @@ test('a success shows once', async () => {
     notifySuccess('Pecs saved.');
   });
 
-  expect(screen.getByRole('alert')).toHaveTextContent('Pecs saved.');
+  expect(await screen.findByRole('alert')).toHaveTextContent('Pecs saved.');
+  expect(screen.getAllByRole('alert')).toHaveLength(1);
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText('Rename group')).toBeNull();
 });
 
 test('a failure goes when its sheet closes', async () => {
@@ -276,4 +283,70 @@ test('a failure goes when its sheet closes', async () => {
   await waitFor(() => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
+});
+
+function ActingSheet({ onDone }: { onDone: () => void }) {
+  const [visible, setVisible] = useState(true);
+
+  return (
+    <Sheet visible={visible} title="Delete Legs?" onClose={onClose}>
+      <Button
+        label="Delete"
+        onPress={() => {
+          afterSheetsClose(onDone);
+          setVisible(false);
+        }}
+      />
+    </Sheet>
+  );
+}
+
+test('an action waits until its sheet has gone down', async () => {
+  const done = jest.fn();
+  await renderRouter({
+    _layout: Layout,
+    index: () => <ActingSheet onDone={done} />,
+  });
+  await measure();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Delete' }));
+
+  await waitFor(() => {
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+  expect(screen.queryByText('Delete Legs?')).toBeNull();
+});
+
+test('with no sheet open, an action happens at once', () => {
+  const done = jest.fn();
+
+  afterSheetsClose(done);
+
+  expect(done).toHaveBeenCalledTimes(1);
+});
+
+test('an action that leaves sends an open sheet down first, and tells its screen', async () => {
+  const done = jest.fn();
+  await renderRouter({
+    _layout: Layout,
+    index: () => (
+      <Sheet visible title="Start Legs?" onClose={onClose}>
+        <Button
+          label="Start workout"
+          onPress={() => {
+            afterSheetsClose(done);
+          }}
+        />
+      </Sheet>
+    ),
+  });
+  await measure();
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
+
+  await waitFor(() => {
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText('Start Legs?')).toBeNull();
 });

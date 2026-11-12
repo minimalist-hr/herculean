@@ -2,6 +2,7 @@ import { useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { afterSheetsClose } from '@/components/notifications';
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { HeaderIconButton } from '@/components/header-icon-button';
@@ -158,7 +159,9 @@ function Details({ routine }: { routine: Routine }) {
           onPress={() => {
             deleteRoutine.mutate(routine, {
               onSuccess: () => {
-                router.back();
+                afterSheetsClose(() => {
+                  router.back();
+                });
               },
             });
           }}

@@ -1,15 +1,19 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { NameLink } from '@/components/name-link';
 import { StatusLabel } from '@/components/status-label';
+import { appear, disappear } from '@/theme/motion';
 import { useTheme } from '@/theme/theme-provider';
 
 export function Card({ children }: { children: ReactNode }) {
   const { colors, radius, space } = useTheme();
 
   return (
-    <View
+    <Animated.View
+      entering={appear}
+      exiting={disappear}
       style={[
         styles.card,
         {
@@ -22,7 +26,7 @@ export function Card({ children }: { children: ReactNode }) {
       ]}
     >
       {children}
-    </View>
+    </Animated.View>
   );
 }
 

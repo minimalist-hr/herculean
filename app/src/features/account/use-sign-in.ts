@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
+import { untilSheetsClose } from '@/components/notifications';
 import { api } from '@/api/client';
 import { toApiError } from '@/api/problem';
 
@@ -23,6 +24,8 @@ export function useKeepAccount() {
       }
 
       await saveTokens(data);
+      // The keep account sheet slides down before the app opens.
+      await untilSheetsClose();
       await enterSignedIn();
     },
   });

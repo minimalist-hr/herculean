@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Keyboard } from 'react-native';
 
 import { Button } from './button';
+import { afterSheetsClose } from './notifications';
 import { Sheet } from './sheet';
 
 /** Asks before leaving a form that has changes, however the user leaves. */
@@ -57,7 +58,9 @@ export function useLeaveGuard(dirty: boolean) {
           onPress={() => {
             setAsking(false);
             if (repeatLeaving !== undefined) {
-              leave(repeatLeaving);
+              afterSheetsClose(() => {
+                leave(repeatLeaving);
+              });
             }
           }}
         />

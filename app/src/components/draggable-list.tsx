@@ -275,10 +275,10 @@ function DraggableRow({
 
     Animated.timing(offset, {
       toValue: shift * step,
-      duration: reduceMotion ? 0 : motion.sheetMs,
+      duration: reduceMotion ? 0 : motion.standardMs,
       useNativeDriver: false,
     }).start();
-  }, [dragging, motion.sheetMs, offset, reduceMotion, shift, step]);
+  }, [dragging, motion.standardMs, offset, reduceMotion, shift, step]);
 
   const handle = useMemo(
     () =>

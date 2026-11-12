@@ -56,12 +56,13 @@ export const InTabsContext = createContext(false);
 
 /**
  * The space a page keeps after its content: 12 px above a floating bar when one shows,
- * 24 px otherwise, and on a page without the tab bar, the phone's own buttons below that.
+ * 24 px otherwise, and below that the tab bar, which floats over the page, or on a page
+ * without it, the phone's own buttons.
  * A page with its own bar, like the rest bar, passes the room that bar takes.
  */
 export function usePageEnd(ownBar = 0) {
   const inTabs = useContext(InTabsContext);
-  const { floatingRoom } = useAboveTabBar();
+  const { tabBar, floatingRoom } = useAboveTabBar();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const { space } = useTheme();
@@ -72,7 +73,7 @@ export function usePageEnd(ownBar = 0) {
 
   const withoutTabs = hidesTabBar(pathname);
   const bar = ownBar > 0 ? ownBar : withoutTabs ? 0 : floatingRoom;
-  const below = withoutTabs ? insets.bottom : 0;
+  const below = withoutTabs ? insets.bottom : tabBar;
 
   return below + (bar > 0 ? bar + space.md : space.xl);
 }

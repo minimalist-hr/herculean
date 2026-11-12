@@ -3,7 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 
 import { api } from '@/api/client';
 import { ApiProblemError, toApiError } from '@/api/problem';
-import { notifyFailure } from '@/components/notifications';
+import { afterSheetsClose, notifyFailure } from '@/components/notifications';
 
 import { dayDataKeys, workoutKeys } from './query-keys';
 
@@ -34,11 +34,14 @@ export function useStartWorkout({ replace = false } = {}) {
     },
     onSuccess: async (workout) => {
       const logging = `/workout/log/${workout.id}` as Href;
-      if (replace) {
-        router.replace(logging);
-      } else {
-        router.push(logging);
-      }
+      // A sheet that started it slides down first.
+      afterSheetsClose(() => {
+        if (replace) {
+          router.replace(logging);
+        } else {
+          router.push(logging);
+        }
+      });
       await Promise.all(
         [...dayDataKeys, workoutKeys.inProgress].map((queryKey) =>
           queryClient.invalidateQueries({ queryKey }),

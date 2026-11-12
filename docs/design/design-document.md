@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.86 · 13 November 2026 · Minimalist
+Version 0.87 · 13 November 2026 · Minimalist
+
+> Changes since 0.86: motion (4.6). Pages, tabs, the tab bar, the floating bars, cards and rows fade, all on one curve; sheets slide down before their action leaves the page.
 
 > Changes since 0.85: a workout can start empty, with no routine, from Choose a routine (W10, W60) and from the no routines card (W05, H05), which asks first (W33), today or on a past day. Its day shows it like any other workout, by its name, with nothing to open. A workout can be named on Finish workout (L30) and when edited (W30); it starts as its routine's name, or Workout when empty.
 
@@ -302,6 +304,10 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 ### 4.5 Icons
 
 Inline stroke icons (24 px grid, stroke 1.75–2, square line caps), drawn at 16–22 px. No emoji. Icon-only buttons always have an aria label. Every exercise name that opens E10 ends in a small open-out icon.
+
+### 4.6 Motion
+
+One curve for everything, quick to start and gentle to land, at two speeds: 220 ms for pages, tabs, sheets, bars and notifications, and 150 ms for small things. Pages and tabs fade in and out, the same way everywhere, and every tab is ready from the start, so the first switch fades too. The tab bar floats over the bottom of the page and fades out on a page with a back link, and back in on a tab's first page, so no page changes size. The rest bar, the Resume bar and their small buttons fade in and out. Cards, lists, and empty and failure boxes fade in as they appear, so content replaces its skeleton softly, and sets and exercises on L01 and W30 fade in when added and out when removed; opening an exercise on L01 fades it open. A sheet rises from the bottom; its action that ends it, such as Delete or Start workout, slides the sheet down first, then leaves the page or says what happened, and a failure shows over the sheet, which stays. With Reduce motion on, nothing moves.
 
 ---
 

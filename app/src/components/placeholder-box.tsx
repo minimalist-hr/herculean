@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { appear, disappear } from '@/theme/motion';
 import { useTheme } from '@/theme/theme-provider';
 
 /** The dashed box that stands where content will be: an empty state, no matches, or a failure. */
@@ -15,7 +17,9 @@ export function PlaceholderBox({
   const { colors, radius, space } = useTheme();
 
   return (
-    <View
+    <Animated.View
+      entering={appear}
+      exiting={disappear}
       style={[
         styles.box,
         {
@@ -28,7 +32,7 @@ export function PlaceholderBox({
       ]}
     >
       {children}
-    </View>
+    </Animated.View>
   );
 }
 

@@ -354,7 +354,7 @@ test('after Undo nothing has changed, so leaving does not ask', async () => {
   await loaded();
 
   await removeSquat();
-  await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Undo' }));
   await screen.findByRole('button', { name: 'Remove Squat' });
   await fireEvent.press(screen.getByRole('link', { name: 'Legs' }));
 

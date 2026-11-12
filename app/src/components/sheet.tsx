@@ -19,7 +19,6 @@ import {
 } from 'react-native';
 import Animated, {
   cancelAnimation,
-  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -36,13 +35,17 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
+import { motionEasing } from '@/theme/motion';
 
 import { CloseIcon } from './icons';
 import { NotificationBar } from './notification-bar';
 import {
   dismissFailure,
   sheetClosed,
+  sheetDown,
   sheetOpened,
+  sheetSinking,
+  useSinkRequests,
   useTopSheet,
 } from './notifications';
 import { closesAfterDrag } from './sheet-drag';
@@ -55,11 +58,14 @@ const borderTop = 1;
 const bodyPullStartsAfter = 8;
 const millisecondsInSecond = 1000;
 
-const easing = Easing.bezier(0.33, 1, 0.68, 1);
-
 function settle(value: SharedValue<number>, toValue: number) {
   'worklet';
-  value.set(withTiming(toValue, { duration: 180, easing }));
+  value.set(
+    withTiming(toValue, {
+      duration: tokens.motion.fastMs,
+      easing: motionEasing,
+    }),
+  );
 }
 
 interface SheetProps {
@@ -85,7 +91,7 @@ interface SheetProps {
 
 /** A sheet rising over a dimmed screen. It closes back to the screen that opened it, and pulling the grabber down closes it. */
 export function Sheet({
-  visible,
+  visible: wanted,
   title,
   message,
   onClose,
@@ -107,6 +113,18 @@ export function Sheet({
   const [headingHeight, setHeadingHeight] = useState(0);
   const [bodyHeight, setBodyHeight] = useState<number | null>(null);
   const [actionsHeight, setActionsHeight] = useState(0);
+  // An action that leaves the page asks every open sheet to go down first, so it slides away instead of vanishing.
+  const sinkRequests = useSinkRequests();
+  const [wasWanted, setWasWanted] = useState(wanted);
+  const [openedAt, setOpenedAt] = useState(sinkRequests);
+  if (wanted !== wasWanted) {
+    setWasWanted(wanted);
+    if (wanted) {
+      setOpenedAt(sinkRequests);
+    }
+  }
+  const visible = wanted && sinkRequests === openedAt;
+
   // It stays open after visible turns false, until it has gone down.
   const [open, setOpen] = useState(visible);
   if (visible && !open) {
@@ -159,9 +177,18 @@ export function Sheet({
     sheetOpened(id);
 
     return () => {
+      sheetSinking(id);
       sheetClosed(id);
     };
   }, [id, visible]);
+
+  // A sheet leaving with its page is down too, so nothing waits for it.
+  useEffect(
+    () => () => {
+      sheetDown(id);
+    },
+    [id],
+  );
 
   useEffect(() => {
     if (!visible) {
@@ -182,10 +209,14 @@ export function Sheet({
     progress.set(
       withTiming(
         visible ? 1 : 0,
-        { duration: reduceMotion ? 0 : motion.sheetMs, easing },
+        {
+          duration: reduceMotion ? 0 : motion.standardMs,
+          easing: motionEasing,
+        },
         (finished) => {
           if (finished === true && !visible) {
             scheduleOnRN(setOpen, false);
+            scheduleOnRN(sheetDown, id);
           }
         },
       ),
@@ -195,8 +226,9 @@ export function Sheet({
       cancelAnimation(progress);
     };
   }, [
+    id,
     measured,
-    motion.sheetMs,
+    motion.standardMs,
     open,
     progress,
     pulledDown,
@@ -209,6 +241,14 @@ export function Sheet({
   useEffect(() => {
     latest.current = { shownHeight, onClose };
   });
+
+  // Gone down for an action, it tells its screen it is closed, so it can open again later.
+  const sunk = wanted && !visible;
+  useEffect(() => {
+    if (sunk) {
+      latest.current.onClose();
+    }
+  }, [sunk]);
 
   const pull = useRef(0);
 

@@ -6,7 +6,7 @@ import { renderRouter } from 'expo-router/testing-library';
 
 import ExerciseRoute from '@/app/(tabs)/exercises/[id]';
 import EditExerciseRoute from '@/app/exercise/[id]/edit';
-import { TabBar } from '@/components/tab-bar';
+import { FloatingTabBar } from '@/components/tab-bar';
 import { NotificationBar } from '@/components/notification-bar';
 import { ThemeProvider } from '@/theme/theme-provider';
 
@@ -158,7 +158,7 @@ async function openDetails() {
       _layout: Layout,
       '(tabs)/_layout': () => (
         <Tabs
-          tabBar={(props) => <TabBar {...props} />}
+          tabBar={(props) => <FloatingTabBar {...props} />}
           screenOptions={{ headerShown: false }}
         >
           <Tabs.Screen name="exercises" options={{ title: 'Exercises' }} />

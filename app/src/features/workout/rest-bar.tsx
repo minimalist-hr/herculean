@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { Floating } from '@/components/floating';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -152,116 +153,124 @@ export function RestBar({
 
   if (!rest.open) {
     return (
-      <Tappable
-        accessibilityRole="button"
-        accessibilityLabel={`Show rest timer, ${time}`}
-        onPress={() => {
-          onChange(show(rest));
-        }}
-        style={[
-          styles.small,
-          box,
-          {
-            right: size.sidePadding,
-            gap: space.sm,
-            height: size.floatingBar.control,
-            paddingHorizontal: space.md,
-          },
-        ]}
-        hitSlop={barHitSlop}
-      >
-        <ClockIcon color={colors.muted} size={16} />
-        <Text style={[text.quickPick, { color: timeColor }]}>{time}</Text>
-      </Tappable>
+      <Floating key="small">
+        <Tappable
+          accessibilityRole="button"
+          accessibilityLabel={`Show rest timer, ${time}`}
+          onPress={() => {
+            onChange(show(rest));
+          }}
+          style={[
+            styles.small,
+            box,
+            {
+              right: size.sidePadding,
+              gap: space.sm,
+              height: size.floatingBar.control,
+              paddingHorizontal: space.md,
+            },
+          ]}
+          hitSlop={barHitSlop}
+        >
+          <ClockIcon color={colors.muted} size={16} />
+          <Text style={[text.quickPick, { color: timeColor }]}>{time}</Text>
+        </Tappable>
+      </Floating>
     );
   }
 
   return (
-    <View
-      accessibilityRole="timer"
-      accessibilityLabel="Rest timer"
-      style={[
-        styles.bar,
-        box,
-        {
-          left: size.sidePadding,
-          right: size.sidePadding,
-          gap: barGap,
-          paddingLeft: barPaddingLeft,
-          paddingRight: space.sm,
-        },
-      ]}
-    >
-      <Tappable
-        accessibilityRole="button"
-        accessibilityLabel="Hide rest timer"
-        onPress={() => {
-          onChange(hide(rest));
-        }}
-        hitSlop={barHitSlop}
-        style={[styles.hide, { height: size.floatingBar.control }]}
+    <Floating key="bar">
+      <View
+        accessibilityRole="timer"
+        accessibilityLabel="Rest timer"
+        style={[
+          styles.bar,
+          box,
+          {
+            left: size.sidePadding,
+            right: size.sidePadding,
+            gap: barGap,
+            paddingLeft: barPaddingLeft,
+            paddingRight: space.sm,
+          },
+        ]}
       >
-        <ChevronDownIcon color={colors.muted} size={18} />
-      </Tappable>
-      {/* The label and the time share a baseline, with room between them. */}
-      <View style={[styles.reading, { gap: space.sm }]}>
-        <Text
-          style={[
-            text.cardTitle,
-            {
-              color: colors.muted,
-              fontSize: Math.round(fontSize * labelRatio),
-            },
-          ]}
+        <Tappable
+          accessibilityRole="button"
+          accessibilityLabel="Hide rest timer"
+          onPress={() => {
+            onChange(hide(rest));
+          }}
+          hitSlop={barHitSlop}
+          style={[styles.hide, { height: size.floatingBar.control }]}
         >
-          REST
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={[text.cardTitle, styles.time, { color: timeColor, fontSize }]}
-        >
-          {time}
-        </Text>
-      </View>
-      {!over && (
-        <>
-          <StepButton
-            label={`−${String(stepSeconds)}`}
-            spoken={`Subtract ${String(stepSeconds)} seconds`}
-            onPress={() => {
-              onChange(adjust(rest, -stepSeconds));
-            }}
-          />
-          <StepButton
-            label={`+${String(stepSeconds)}`}
-            spoken={`Add ${String(stepSeconds)} seconds`}
-            onPress={() => {
-              onChange(adjust(rest, stepSeconds));
-            }}
-          />
-        </>
-      )}
-      {/* A fixed width, so the time and the steppers don't move when the label changes. */}
-      <View style={styles.action}>
-        {clock.phase === 'ready' ? (
-          <Button
-            compact
-            label="Start"
-            onPress={() => {
-              onChange(start(rest, currentTime()));
-            }}
-          />
-        ) : (
-          <Button
-            compact
-            label={over ? 'Done' : 'Skip'}
-            onPress={() => {
-              onChange(finish(rest));
-            }}
-          />
+          <ChevronDownIcon color={colors.muted} size={18} />
+        </Tappable>
+        {/* The label and the time share a baseline, with room between them. */}
+        <View style={[styles.reading, { gap: space.sm }]}>
+          <Text
+            style={[
+              text.cardTitle,
+              {
+                color: colors.muted,
+                fontSize: Math.round(fontSize * labelRatio),
+              },
+            ]}
+          >
+            REST
+          </Text>
+          <Text
+            numberOfLines={1}
+            style={[
+              text.cardTitle,
+              styles.time,
+              { color: timeColor, fontSize },
+            ]}
+          >
+            {time}
+          </Text>
+        </View>
+        {!over && (
+          <>
+            <StepButton
+              label={`−${String(stepSeconds)}`}
+              spoken={`Subtract ${String(stepSeconds)} seconds`}
+              onPress={() => {
+                onChange(adjust(rest, -stepSeconds));
+              }}
+            />
+            <StepButton
+              label={`+${String(stepSeconds)}`}
+              spoken={`Add ${String(stepSeconds)} seconds`}
+              onPress={() => {
+                onChange(adjust(rest, stepSeconds));
+              }}
+            />
+          </>
         )}
+        {/* A fixed width, so the time and the steppers don't move when the label changes. */}
+        <View style={styles.action}>
+          {clock.phase === 'ready' ? (
+            <Button
+              compact
+              label="Start"
+              onPress={() => {
+                onChange(start(rest, currentTime()));
+              }}
+            />
+          ) : (
+            <Button
+              compact
+              label={over ? 'Done' : 'Skip'}
+              onPress={() => {
+                onChange(finish(rest));
+              }}
+            />
+          )}
+        </View>
       </View>
-    </View>
+    </Floating>
   );
 }
 
@@ -277,36 +286,38 @@ export function PartialsBar({
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      accessibilityLabel="Lengthened partials"
-      style={[
-        styles.bar,
-        {
-          bottom: insets.bottom + space.sm,
-          left: size.sidePadding,
-          right: size.sidePadding,
-          gap: space.sm,
-          paddingLeft: space.lg,
-          paddingRight: space.sm,
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.raised,
-        },
-      ]}
-    >
-      <Text
-        numberOfLines={2}
-        style={[text.dayName, styles.reading, { color: colors.muted }]}
+    <Floating key="partials">
+      <View
+        accessibilityLabel="Lengthened partials"
+        style={[
+          styles.bar,
+          {
+            bottom: insets.bottom + space.sm,
+            left: size.sidePadding,
+            right: size.sidePadding,
+            gap: space.sm,
+            paddingLeft: space.lg,
+            paddingRight: space.sm,
+            borderRadius: radius.card,
+            borderColor: colors.border,
+            backgroundColor: colors.raised,
+          },
+        ]}
       >
-        LENGTHENED PARTIALS
-      </Text>
-      <View style={styles.action}>
-        <Button compact variant="secondary" label="Skip" onPress={onSkip} />
+        <Text
+          numberOfLines={2}
+          style={[text.dayName, styles.reading, { color: colors.muted }]}
+        >
+          LENGTHENED PARTIALS
+        </Text>
+        <View style={styles.action}>
+          <Button compact variant="secondary" label="Skip" onPress={onSkip} />
+        </View>
+        <View style={styles.action}>
+          <Button compact label="Done" onPress={onDone} />
+        </View>
       </View>
-      <View style={styles.action}>
-        <Button compact label="Done" onPress={onDone} />
-      </View>
-    </View>
+    </Floating>
   );
 }
 

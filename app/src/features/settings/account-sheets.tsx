@@ -7,6 +7,7 @@ import { api } from '@/api/client';
 import { toApiError, toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
 import {
+  untilSheetsClose,
   clearingNotification,
   dismissNotification,
   notifyFailure,
@@ -23,7 +24,13 @@ interface AccountSheetProps {
 }
 
 export function SignOutSheet({ visible, onClose }: AccountSheetProps) {
-  const signOutNow = useMutation({ mutationFn: signOut });
+  // The sheet slides down before the app goes to Sign in.
+  const signOutNow = useMutation({
+    mutationFn: async () => {
+      await untilSheetsClose();
+      await signOut();
+    },
+  });
 
   return (
     <Sheet
@@ -73,8 +80,9 @@ export function DeleteAccountSheet({ visible, onClose }: AccountSheetProps) {
     dismissNotification();
     try {
       await deleteAccount.mutateAsync(currentPassword);
-      await endSession();
       notifySuccess('Account will be deleted in 14 days.');
+      await untilSheetsClose();
+      await endSession();
     } catch (error) {
       const formErrors = toFormErrors(error, ['currentPassword']);
       if (formErrors.fields.currentPassword !== undefined) {

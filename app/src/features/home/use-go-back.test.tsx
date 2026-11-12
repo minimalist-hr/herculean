@@ -5,7 +5,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import { BackHandler, Pressable, Text } from 'react-native';
 
 import {
-  TabBar,
+  FloatingTabBar,
   tabScreenOptions,
   tabStackSettings,
 } from '@/components/tab-bar';
@@ -67,7 +67,7 @@ async function openFromHome(openedFromHome: boolean) {
       _layout: () => (
         <ThemeProvider theme="dark">
           <Tabs
-            tabBar={(props) => <TabBar {...props} />}
+            tabBar={(props) => <FloatingTabBar {...props} />}
             screenOptions={tabScreenOptions}
           >
             <Tabs.Screen name="index" options={{ title: 'Home' }} />

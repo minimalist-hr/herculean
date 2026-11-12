@@ -106,9 +106,9 @@ internal sealed class CreateWorkoutHandler(
             return WorkoutErrors.BeforeFirstDay;
         }
 
-        return await routineRepository.GetAsync(id, cancellationToken) is Routine routine
-            ? new WorkoutRoutine(routine.Id, routine.Name)
-            : RoutineErrors.NotFound;
+        Routine? routine = await routineRepository.GetAsync(id, cancellationToken);
+
+        return routine is null ? RoutineErrors.NotFound : new WorkoutRoutine(routine.Id, routine.Name);
     }
 
     private async Task<Result<WorkoutRoutine>> PlannedRoutineAsync(DateOnly date, UserCalendar calendar, CancellationToken cancellationToken)

@@ -1,12 +1,35 @@
 import { usePathname } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
+import { motionEasing } from '@/theme/motion';
+import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
-import { Tappable } from './tappable';
 
-/** Leaving a tab returns it to its first page, so a tab always opens there. */
-export const tabScreenOptions = { headerShown: false, popToTopOnBlur: true };
+import { setTabBarHeight } from './above-tab-bar';
+import { Tappable } from './tappable';
+import { useReduceMotion } from './use-reduce-motion';
+
+/**
+ * Leaving a tab returns it to its first page, so a tab always opens there.
+ * Tabs fade like pages. Every tab is ready from the start, so the first switch fades like every other.
+ */
+export const tabScreenOptions = {
+  headerShown: false,
+  popToTopOnBlur: true,
+  lazy: false,
+  animation: 'fade',
+  transitionSpec: {
+    animation: 'timing',
+    config: { duration: tokens.motion.standardMs },
+  },
+} as const;
 
 /** Keeps a tab's first page under a page opened from another tab, so leaving the tab can return to it. */
 export const tabStackSettings = { anchor: 'index' };
@@ -27,7 +50,43 @@ export function hidesTabBar(pathname: string) {
   return !tabPages.includes(pathname);
 }
 
-export function TabBar({
+/**
+ * The tab bar floats over the bottom of the tabs, fades out on pages with a back link,
+ * and fades back in on a tab's first page. No page changes size, so nothing jumps.
+ */
+export function FloatingTabBar(props: BottomTabBarProps) {
+  const { motion } = useTheme();
+  const reduceMotion = useReduceMotion();
+  const hidden = hidesTabBar(usePathname());
+  const shown = useSharedValue(hidden ? 0 : 1);
+
+  useEffect(() => {
+    shown.set(
+      withTiming(hidden ? 0 : 1, {
+        duration: reduceMotion ? 0 : motion.standardMs,
+        easing: motionEasing,
+      }),
+    );
+  }, [hidden, motion.standardMs, reduceMotion, shown]);
+
+  const fade = useAnimatedStyle(() => ({ opacity: shown.get() }));
+
+  return (
+    <Animated.View
+      pointerEvents={hidden ? 'none' : 'auto'}
+      accessibilityElementsHidden={hidden}
+      importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
+      onLayout={(event) => {
+        setTabBarHeight(event.nativeEvent.layout.height);
+      }}
+      style={[styles.floating, fade]}
+    >
+      <TabBar {...props} />
+    </Animated.View>
+  );
+}
+
+function TabBar({
   state,
   descriptors,
   emitter,
@@ -36,11 +95,6 @@ export function TabBar({
 }: BottomTabBarProps) {
   const { colors, radius, size, text } = useTheme();
   const { tabBar } = size;
-  const pathname = usePathname();
-
-  if (hidesTabBar(pathname)) {
-    return null;
-  }
 
   return (
     <View
@@ -127,6 +181,12 @@ export function TabBar({
 const badgeSize = 8;
 
 const styles = StyleSheet.create({
+  floating: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   badge: {
     position: 'absolute',
     top: -badgeSize / 4,

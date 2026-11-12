@@ -1,6 +1,7 @@
 import { usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Floating } from '@/components/floating';
 
 import { setFloatingRoom, useAboveTabBar } from '@/components/above-tab-bar';
 import { hidesTabBar } from '@/components/tab-bar';
@@ -74,81 +75,85 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
     const count = `${String(progress.done)}/${String(progress.total)}`;
 
     return (
-      <Tappable
-        accessibilityRole="button"
-        accessibilityLabel={`Show workout, ${sets}`}
-        onPress={() => {
-          setHidden(false);
-        }}
-        style={[
-          styles.small,
-          box,
-          {
-            right: size.sidePadding,
-            gap: space.sm,
-            height: size.floatingBar.control,
-            paddingHorizontal: space.md,
-          },
-        ]}
-        hitSlop={barHitSlop}
-      >
-        <WorkoutIcon color={colors.muted} size={16} />
-        <Text style={[text.quickPick, { color: colors.text }]}>{count}</Text>
-      </Tappable>
+      <Floating key="small">
+        <Tappable
+          accessibilityRole="button"
+          accessibilityLabel={`Show workout, ${sets}`}
+          onPress={() => {
+            setHidden(false);
+          }}
+          style={[
+            styles.small,
+            box,
+            {
+              right: size.sidePadding,
+              gap: space.sm,
+              height: size.floatingBar.control,
+              paddingHorizontal: space.md,
+            },
+          ]}
+          hitSlop={barHitSlop}
+        >
+          <WorkoutIcon color={colors.muted} size={16} />
+          <Text style={[text.quickPick, { color: colors.text }]}>{count}</Text>
+        </Tappable>
+      </Floating>
     );
   }
 
   return (
-    <View
-      style={[
-        styles.bar,
-        box,
-        {
-          left: size.sidePadding,
-          right: size.sidePadding,
-          gap: barGap,
-          paddingLeft: space.sm,
-          paddingRight: space.sm,
-          paddingBottom: progressHeight,
-        },
-      ]}
-    >
-      <Tappable
-        accessibilityRole="button"
-        accessibilityLabel="Hide workout bar"
-        onPress={() => {
-          setHidden(true);
-        }}
-        hitSlop={barHitSlop}
-        style={[styles.hide, { height: size.floatingBar.control }]}
+    <Floating key="bar">
+      <View
+        style={[
+          styles.bar,
+          box,
+          {
+            left: size.sidePadding,
+            right: size.sidePadding,
+            gap: barGap,
+            paddingLeft: space.sm,
+            paddingRight: space.sm,
+            paddingBottom: progressHeight,
+          },
+        ]}
       >
-        <ChevronDownIcon color={colors.muted} size={18} />
-      </Tappable>
-      <View style={styles.text}>
-        <Text
-          style={[text.quickPick, { color: colors.text }]}
-          numberOfLines={1}
+        <Tappable
+          accessibilityRole="button"
+          accessibilityLabel="Hide workout bar"
+          onPress={() => {
+            setHidden(true);
+          }}
+          hitSlop={barHitSlop}
+          style={[styles.hide, { height: size.floatingBar.control }]}
         >
-          {name}
-        </Text>
-        <Text style={text.meta}>
-          {elapsed === null ? sets : `${sets} · ${formatClock(elapsed)}`}
-        </Text>
+          <ChevronDownIcon color={colors.muted} size={18} />
+        </Tappable>
+        <View style={styles.text}>
+          <Text
+            style={[text.quickPick, { color: colors.text }]}
+            numberOfLines={1}
+          >
+            {name}
+          </Text>
+          <Text style={text.meta}>
+            {elapsed === null ? sets : `${sets} · ${formatClock(elapsed)}`}
+          </Text>
+        </View>
+        <Button
+          compact
+          label="Resume"
+          onPress={() => {
+            router.push(
+              { pathname: '/workout/log/[id]', params: { id } },
+              { withAnchor: true },
+            );
+          }}
+        />
+        <View style={styles.progress}>
+          <ProgressBar done={progress.done} total={progress.total} />
+        </View>
       </View>
-      <Button
-        compact
-        label="Resume"
-        onPress={() => {
-          router.push(
-            { pathname: '/workout/log/[id]', params: { id } },
-            { withAnchor: true },
-          );
-        }}
-      />
-      <View style={styles.progress}>
-        <ProgressBar done={progress.done} total={progress.total} />
-      </View>
-    </View>
+    </Floating>
   );
 }
 

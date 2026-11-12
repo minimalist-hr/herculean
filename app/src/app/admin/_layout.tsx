@@ -1,14 +1,14 @@
 import { Tabs } from 'expo-router/tabs';
 import { StyleSheet, View } from 'react-native';
 
-import { InTabsContext, setTabBarHeight } from '@/components/above-tab-bar';
+import { InTabsContext } from '@/components/above-tab-bar';
 import {
   FeedbackIcon,
   OverviewIcon,
   SettingsIcon,
   UsersIcon,
 } from '@/components/icons';
-import { TabBar, tabScreenOptions } from '@/components/tab-bar';
+import { FloatingTabBar, tabScreenOptions } from '@/components/tab-bar';
 import { useSystemHealth } from '@/features/admin/use-system-health';
 
 export default function AdminTabsLayout() {
@@ -21,15 +21,7 @@ export default function AdminTabsLayout() {
     <InTabsContext.Provider value>
       <View style={styles.tabs}>
         <Tabs
-          tabBar={(props) => (
-            <View
-              onLayout={(event) => {
-                setTabBarHeight(event.nativeEvent.layout.height);
-              }}
-            >
-              <TabBar {...props} />
-            </View>
-          )}
+          tabBar={(props) => <FloatingTabBar {...props} />}
           screenOptions={tabScreenOptions}
         >
           <Tabs.Screen

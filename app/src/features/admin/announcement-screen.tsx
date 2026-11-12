@@ -11,7 +11,11 @@ import { HeaderIconButton } from '@/components/header-icon-button';
 import { TrashIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { NotLoadedButton } from '@/components/not-loaded-button';
-import { notifyFailure, notifySuccess } from '@/components/notifications';
+import {
+  afterSheetsClose,
+  notifyFailure,
+  notifySuccess,
+} from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
 import { FieldSkeleton } from '@/components/skeleton';
 import { useLeaveGuard } from '@/components/use-leave-guard';
@@ -110,7 +114,9 @@ function AnnouncementForm({ current }: { current: Announcement | null }) {
       await remove.mutateAsync();
       setConfirmingRemove(false);
       notifySuccess('Announcement removed.');
-      router.back();
+      afterSheetsClose(() => {
+        router.back();
+      });
     } catch {
       guard.block();
       notifyFailure('Couldn’t remove the announcement. Try again.');

@@ -29,11 +29,14 @@ export function NewButton({
   onPress: () => void;
 }) {
   const { colors, opacity, radius, size, space } = useTheme();
-  const { floatingRoom } = useAboveTabBar();
+  const { tabBar, floatingRoom } = useAboveTabBar();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const withoutTabs = hidesTabBar(pathname);
-  const below = withoutTabs ? insets.bottom : floatingRoom;
+  // The tab bar floats over the page, so the button sits above it, and above a floating bar on it.
+  const below = withoutTabs ? insets.bottom : tabBar;
+  const gap =
+    !withoutTabs && floatingRoom > 0 ? floatingRoom + space.sm : space.lg;
 
   return (
     <Tappable
@@ -44,7 +47,7 @@ export function NewButton({
         styles.button,
         {
           right: size.sidePadding,
-          bottom: below + (below > 0 && !withoutTabs ? space.sm : space.lg),
+          bottom: below + gap,
           width: size.newButton,
           height: size.newButton,
           borderRadius: radius.control,

@@ -1,14 +1,14 @@
 import { Tabs } from 'expo-router/tabs';
 import { StyleSheet, View } from 'react-native';
 
-import { InTabsContext, setTabBarHeight } from '@/components/above-tab-bar';
+import { InTabsContext } from '@/components/above-tab-bar';
 import {
   ExercisesIcon,
   HomeIcon,
   RoutinesIcon,
   WorkoutIcon,
 } from '@/components/icons';
-import { TabBar, tabScreenOptions } from '@/components/tab-bar';
+import { FloatingTabBar, tabScreenOptions } from '@/components/tab-bar';
 import { useKeepTimeZone } from '@/features/account/use-keep-time-zone';
 import { useOpenFromRestAlert } from '@/features/workout/rest-alert';
 import { ResumeBar } from '@/features/workout/resume-bar';
@@ -21,15 +21,7 @@ export default function TabsLayout() {
     <InTabsContext.Provider value>
       <View style={styles.tabs}>
         <Tabs
-          tabBar={(props) => (
-            <View
-              onLayout={(event) => {
-                setTabBarHeight(event.nativeEvent.layout.height);
-              }}
-            >
-              <TabBar {...props} />
-            </View>
-          )}
+          tabBar={(props) => <FloatingTabBar {...props} />}
           screenOptions={tabScreenOptions}
         >
           <Tabs.Screen

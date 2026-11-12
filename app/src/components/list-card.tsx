@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { appear, disappear } from '@/theme/motion';
 import { useTheme } from '@/theme/theme-provider';
 
 /** Rows in one card, each drawing the line above it. */
@@ -8,7 +10,9 @@ export function ListCard({ children }: { children: ReactNode }) {
   const { colors, radius } = useTheme();
 
   return (
-    <View
+    <Animated.View
+      entering={appear}
+      exiting={disappear}
       style={[
         styles.card,
         {
@@ -19,7 +23,7 @@ export function ListCard({ children }: { children: ReactNode }) {
       ]}
     >
       {children}
-    </View>
+    </Animated.View>
   );
 }
 

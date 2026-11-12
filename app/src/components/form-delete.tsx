@@ -7,7 +7,11 @@ import { useTheme } from '@/theme/theme-provider';
 import { Button } from './button';
 import { HeaderIconButton } from './header-icon-button';
 import { TrashIcon } from './icons';
-import { notifyFailure, notifySuccess } from './notifications';
+import {
+  afterSheetsClose,
+  notifyFailure,
+  notifySuccess,
+} from './notifications';
 import { Sheet } from './sheet';
 
 /** A delete on a page: a trash icon beside the title that asks first on a sheet. */
@@ -51,7 +55,9 @@ export function useFormDelete(
       await deleting.onDelete();
       setConfirming(false);
       notifySuccess(deleting.deletedMessage);
-      router.back();
+      afterSheetsClose(() => {
+        router.back();
+      });
     } catch {
       guard?.block();
       notifyFailure(deleting.failureMessage);

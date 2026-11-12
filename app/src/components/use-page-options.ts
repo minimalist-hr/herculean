@@ -2,12 +2,13 @@ import { useTheme } from '@/theme/theme-provider';
 
 /** The options every stack of pages shares. */
 export function usePageOptions() {
-  const { colors } = useTheme();
+  const { colors, motion } = useTheme();
 
   return {
     headerShown: false,
     contentStyle: { backgroundColor: colors.bg },
-    // Pages cross-fade. A slide on Android shows the leaving page empty while it slides out.
+    // Pages fade in and out, like tabs, the same way on every phone.
     animation: 'fade',
+    animationDuration: motion.standardMs,
   } as const;
 }

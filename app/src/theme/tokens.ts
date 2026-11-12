@@ -204,7 +204,10 @@ export const tokens = {
   motion: {
     spinMs: 800,
     pulseMs: 1400,
-    sheetMs: 220,
+    /** Small things: a row, a field's message, content replacing its skeleton. */
+    fastMs: 150,
+    /** Pages, tabs, sheets, bars and notifications. */
+    standardMs: 220,
     notificationSuccessMs: 4000,
     notificationFailureMs: 6000,
   },

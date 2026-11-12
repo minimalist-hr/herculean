@@ -1,5 +1,6 @@
 import { useRouter, type Href } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
@@ -25,6 +26,7 @@ import {
 } from '@/features/routines/superset-stripe';
 import { formatLastTime, weightIn, weightUnitOf } from '@/formats/formats';
 import { tokens } from '@/theme/tokens';
+import { appear, disappear } from '@/theme/motion';
 import { useTheme } from '@/theme/theme-provider';
 
 import { maxSetsPerExercise, type SetField } from './set-values';
@@ -51,31 +53,33 @@ export function ClosedExercise({
   const { colors, radius, size, space, text } = useTheme();
 
   return (
-    <Tappable
-      feedback="fill"
-      accessibilityRole="button"
-      accessibilityLabel={`Open ${exercise.name}`}
-      onPress={onOpen}
-      style={[
-        styles.closed,
-        {
-          gap: space.md,
-          minHeight: size.listRowMin,
-          paddingVertical: space.sm,
-          paddingHorizontal: space.lg,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-        { borderRadius: radius.card },
-        blockCardStyle(place, radius.card),
-      ]}
-    >
-      <ExerciseTargetText exercise={exercise} />
-      <Text style={text.meta}>
-        {`${String(checkedSets(exercise))}/${String(exercise.sets.length)}`}
-      </Text>
-      <ChevronRightIcon color={colors.muted} size={16} />
-    </Tappable>
+    <Animated.View entering={appear} exiting={disappear}>
+      <Tappable
+        feedback="fill"
+        accessibilityRole="button"
+        accessibilityLabel={`Open ${exercise.name}`}
+        onPress={onOpen}
+        style={[
+          styles.closed,
+          {
+            gap: space.md,
+            minHeight: size.listRowMin,
+            paddingVertical: space.sm,
+            paddingHorizontal: space.lg,
+            borderColor: colors.border,
+            backgroundColor: colors.card,
+          },
+          { borderRadius: radius.card },
+          blockCardStyle(place, radius.card),
+        ]}
+      >
+        <ExerciseTargetText exercise={exercise} />
+        <Text style={text.meta}>
+          {`${String(checkedSets(exercise))}/${String(exercise.sets.length)}`}
+        </Text>
+        <ChevronRightIcon color={colors.muted} size={16} />
+      </Tappable>
+    </Animated.View>
   );
 }
 
@@ -172,7 +176,9 @@ function SetRow({
   const weight = String(weightIn(set.weightKg, units));
 
   return (
-    <View
+    <Animated.View
+      entering={appear}
+      exiting={disappear}
       style={[
         styles.row,
         {
@@ -287,7 +293,7 @@ function SetRow({
           </View>
         </Tappable>
       )}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -342,7 +348,9 @@ export function OpenExercise({
     superset.unavailable !== undefined;
 
   return (
-    <View
+    <Animated.View
+      entering={appear}
+      exiting={disappear}
       testID="open-exercise"
       style={[
         styles.open,
@@ -512,7 +520,7 @@ export function OpenExercise({
           onAddSet();
         }}
       />
-    </View>
+    </Animated.View>
   );
 }
 

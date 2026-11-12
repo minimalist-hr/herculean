@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Platform, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { motionCurve } from '@/theme/motion';
 import { useTheme } from '@/theme/theme-provider';
 
 import { AlertIcon, CheckIcon } from './icons';
@@ -35,8 +36,8 @@ export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
     const visible = notification !== null;
     const animation = Animated.timing(progress, {
       toValue: visible ? 1 : 0,
-      duration: reduceMotion ? 0 : motion.sheetMs,
-      easing: Easing.bezier(0.33, 1, 0.68, 1),
+      duration: reduceMotion ? 0 : motion.standardMs,
+      easing: Easing.bezier(...motionCurve),
       // The web has no native animation driver.
       useNativeDriver: Platform.OS !== 'web',
     });
@@ -49,7 +50,7 @@ export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
     return () => {
       animation.stop();
     };
-  }, [motion.sheetMs, notification, progress, reduceMotion, shown]);
+  }, [motion.standardMs, notification, progress, reduceMotion, shown]);
 
   useEffect(() => {
     if (notification === null) {

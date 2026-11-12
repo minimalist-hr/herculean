@@ -10,7 +10,7 @@ import { HomeIcon, WorkoutIcon } from './icons';
 import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 import {
   hidesTabBar,
-  TabBar,
+  FloatingTabBar,
   tabScreenOptions,
   tabStackSettings,
 } from './tab-bar';
@@ -19,7 +19,7 @@ function Layout() {
   return (
     <ThemeProvider theme="dark">
       <Tabs
-        tabBar={(props) => <TabBar {...props} />}
+        tabBar={(props) => <FloatingTabBar {...props} />}
         screenOptions={tabScreenOptions}
       >
         <Tabs.Screen
@@ -65,7 +65,7 @@ function LayoutWithStack() {
   return (
     <ThemeProvider theme="dark">
       <Tabs
-        tabBar={(props) => <TabBar {...props} />}
+        tabBar={(props) => <FloatingTabBar {...props} />}
         screenOptions={tabScreenOptions}
       >
         <Tabs.Screen

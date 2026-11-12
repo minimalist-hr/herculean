@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { BackspaceIcon, TrashIcon } from '@/components/icons';
-import { notifyFailure } from '@/components/notifications';
+import { afterSheetsClose, notifyFailure } from '@/components/notifications';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { FormPage } from '@/components/form-page';
 import { Sheet } from '@/components/sheet';
@@ -264,7 +264,9 @@ export function SetEditorPage({
     setConfirmingRemove(false);
     guard.allow();
     onRemove();
-    router.back();
+    afterSheetsClose(() => {
+      router.back();
+    });
   }
 
   return (

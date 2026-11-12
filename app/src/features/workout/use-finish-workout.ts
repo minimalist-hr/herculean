@@ -5,6 +5,7 @@ import { api } from '@/api/client';
 import type { components } from '@/api/schema';
 import { ApiProblemError, toApiError } from '@/api/problem';
 import {
+  afterSheetsClose,
   dismissNotification,
   notifyFailure,
   notifySuccess,
@@ -58,7 +59,9 @@ export function useSaveWorkout(id: string) {
     },
     onSuccess: async (saved) => {
       void cancelRestAlert().catch(() => undefined);
-      router.dismiss(pagesBackToDay);
+      afterSheetsClose(() => {
+        router.dismiss(pagesBackToDay);
+      });
       notifySuccess(`${saved.name} saved.`);
       await Promise.all(
         [...changedByAWorkout, workoutKeys.workout(id)].map((queryKey) =>
@@ -133,7 +136,9 @@ export function useDiscardWorkout(id: string, name: string) {
   return useMutation({
     mutationFn: () => deleteWorkout(id),
     onSuccess: async () => {
-      router.dismiss(pagesBackToDay);
+      afterSheetsClose(() => {
+        router.dismiss(pagesBackToDay);
+      });
       offerUndo(`${name} discarded.`);
       await refresh();
     },

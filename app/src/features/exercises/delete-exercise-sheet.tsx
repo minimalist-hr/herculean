@@ -1,3 +1,4 @@
+import { afterSheetsClose } from '@/components/notifications';
 import { Button } from '@/components/button';
 import { Sheet } from '@/components/sheet';
 
@@ -31,7 +32,11 @@ export function DeleteExerciseSheet({
         waitingLabel="Deleting exercise"
         waiting={deleteExercise.isPending}
         onPress={() => {
-          deleteExercise.mutate(exercise, { onSuccess: onDeleted });
+          deleteExercise.mutate(exercise, {
+            onSuccess: () => {
+              afterSheetsClose(onDeleted);
+            },
+          });
         }}
       />
     </Sheet>
