@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { usePageEnd } from '@/components/above-tab-bar';
 import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
@@ -31,13 +32,7 @@ export function InboxScreen() {
   const { colors, size, space } = useTheme();
   const [filter, setFilter] = useState<InboxFilter>('open');
   const inbox = useInbox(filter);
-  const [refreshing, setRefreshing] = useState(false);
-
-  async function pullToRefresh() {
-    setRefreshing(true);
-    await inbox.refetch();
-    setRefreshing(false);
-  }
+  const refreshControl = usePullToRefresh(() => inbox.refetch());
 
   function renderList() {
     if (inbox.data !== undefined) {
@@ -98,17 +93,7 @@ export function InboxScreen() {
           paddingTop: size.topPaddingTab,
           paddingBottom: pageEnd,
         }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              void pullToRefresh();
-            }}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.raised}
-          />
-        }
+        refreshControl={refreshControl}
       >
         <View style={{ paddingHorizontal: size.sidePadding }}>
           <ScreenHeading

@@ -43,7 +43,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 ### Account
 
-- An account is a user, who trains, or an admin, who only manages feedback. Admins come from configuration, have no training data or setup, and can't change their email or delete themselves in the app.
+- An account is a user, who trains, or an admin, who manages feedback and helps users with their accounts. Admins come from configuration, have no training data or setup, and can't change their email or delete themselves in the app.
 - An email is unique and not case-sensitive.
 - A password has 8 to 128 characters.
 - A name has 1 to 50 characters, trimmed.
@@ -55,6 +55,10 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Changing the password deletes every refresh token except the current one, and emails the user.
 - A token is deleted once it is used or revoked.
 - Deleting an account needs the current password, signs out every device and schedules the deletion for 14 days later. An email says when. Signing in before then offers to keep the account, and the email address stays taken until the deletion.
+- An admin can sign a user out of every device, send them a reset link, remove a profile photo that breaks the terms, close an account that breaks them, and cancel a deletion. An admin sees a user's name, email, photo, when they joined and were last active, and how many workouts and routines they have, never what is in them.
+- Closing an account is not the user's choice: every device is signed out, it can't sign in or be kept, an email says why, and it is deleted after 14 days like any other. An account the user already deleted keeps its date. Cancelling the deletion opens a closed account again.
+- Removing a photo emails the user why.
+- A user is last active when their app signs in or renews its sign in.
 - After the 14 days, all the account's data is deleted, soft-deleted rows included, and there is no undo. A last email tells the user.
 - A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and 28 starter exercises, which can be edited or deleted like any other:
   - Chest: Flat barbell bench press (also Shoulders, Triceps), Incline dumbbell bench press (Triceps), Cable crossover, Smith machine incline bench press (Shoulders, Triceps), Flat dumbbell bench press (Triceps), Machine crossover.

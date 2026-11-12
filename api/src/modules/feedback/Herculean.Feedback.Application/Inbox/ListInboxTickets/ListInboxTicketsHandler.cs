@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 
 using Herculean.Account.Contracts;
+using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.SharedKernel.Queries;
 using Herculean.SharedKernel.Results;
@@ -23,7 +24,7 @@ internal sealed class ListInboxTicketsHandler(
         }
 
         TicketStatus? status = request.Status is null ? null : Enum.Parse<TicketStatus>(request.Status, ignoreCase: true);
-        List<InboxListRow> rows = await inboxReadRepository.ListAsync(status, cancellationToken);
+        List<InboxListRow> rows = await inboxReadRepository.ListAsync(status, request.UserId is Guid userId ? new UserId(userId) : null, cancellationToken);
         Dictionary<Guid, UserContact> senders = await Senders.ReadAsync(contacts, rows.Select(row => row.UserId), cancellationToken);
 
         return rows

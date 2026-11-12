@@ -203,6 +203,21 @@ beforeEach(() => {
 });
 
 describe('Your feedback', () => {
+  test('pulling down reads it again', async () => {
+    answerWith();
+    await renderAt('/settings/feedback');
+    await screen.findByRole('button', { name: /^Suggestion/ });
+
+    answerWith({ tickets: [{ ...answered, preview: 'A new reply.' }] });
+    const { refreshControl } = screen.getByTestId('feedback-list-scroll')
+      .props as { refreshControl: ReactElement<RefreshControlProps> };
+    await act(() => {
+      void refreshControl.props.onRefresh?.();
+    });
+
+    expect(await screen.findByText('A new reply.')).toBeOnTheScreen();
+  });
+
   test('starts on answered tickets, with All first', async () => {
     answerWith();
     await renderAt('/settings/feedback');

@@ -183,6 +183,7 @@ Herculean.Training.Application/
 - Each module counts its own numbers for Overview (M20), so each tile loads on its own: Account `GET /api/v1/admin/users/stats`, Training `GET /api/v1/admin/training/stats`, Feedback `GET /api/v1/admin/feedback/stats`.
 - A week is the last 7 days, then the 7 before them (`Weeks` in SharedKernel), the same on every day. Trends cover 4 weeks.
 - Training counts only finished workouts, never what anyone logged. Admins are never counted as users.
+- A user's page (M40) loads the same way: the account from Account, the workout and routine counts from Training (`GET /api/v1/admin/users/{id}/training`), and their tickets from Feedback. Admin accounts are never listed, opened or acted on there.
 
 ## Logging
 

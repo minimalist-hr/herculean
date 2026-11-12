@@ -40,5 +40,8 @@ public sealed class GetTrainingStatsHandlerTests
             Since = since;
             return Task.FromResult(workouts.ToList());
         }
+
+        public Task<UserTrainingCounts> CountForUserAsync(Guid userId, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
     }
 }

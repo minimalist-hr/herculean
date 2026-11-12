@@ -50,6 +50,17 @@ public sealed class ListInboxTicketsHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task AUserShowsOnlyTheirTickets()
+    {
+        await _database.SaveTicketAsync(userId: _ana, message: "Ana's");
+        await _database.SaveTicketAsync(userId: _ivo, message: "Ivo's");
+
+        List<InboxTicketListItemResponse> tickets = (await _handler.HandleAsync(new ListInboxTicketsRequest(null, _ivo.Value), FeedbackDatabase.Token)).Value;
+
+        tickets.ShouldHaveSingleItem().Preview.ShouldBe("Ivo's");
+    }
+
+    [Fact]
     public async Task ATicketMinimalistAnsweredLastIsNotWaiting()
     {
         Ticket ticket = await _database.SaveTicketAsync(userId: _ana, createdAtUtc: Monday);

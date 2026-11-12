@@ -11,6 +11,8 @@ import { inboxKeys } from './query-keys';
 
 export type InboxTicket = components['schemas']['InboxTicketListItemResponse'];
 
+export type InboxTicketDetails = components['schemas']['InboxTicketResponse'];
+
 export type InboxFilter = StatusFilter;
 
 export function useInbox(filter: InboxFilter) {

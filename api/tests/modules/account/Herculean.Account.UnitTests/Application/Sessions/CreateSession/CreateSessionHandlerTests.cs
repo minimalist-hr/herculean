@@ -43,6 +43,18 @@ public sealed class CreateSessionHandlerTests
     }
 
     [Fact]
+    public async Task AClosedAccountSaysSoAndSignsNobodyIn()
+    {
+        User user = AddUser("hashed:password");
+        user.Close(DateTimeOffset.UnixEpoch);
+
+        Result<TokenResponse> result = await _handler.HandleAsync(new CreateSessionRequest("filip@example.com", "password"), TestContext.Current.CancellationToken);
+
+        result.Error.ShouldBe(UserErrors.AccountClosed);
+        user.RefreshTokens.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task AWrongPasswordNeverTellsThatTheAccountIsWaitingToBeDeleted()
     {
         User user = AddUser("hashed:password");

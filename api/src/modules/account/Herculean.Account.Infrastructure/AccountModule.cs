@@ -37,6 +37,16 @@ using Herculean.Account.Application.Users.GetCurrentUser;
 using Herculean.Account.Application.Users.GetUserCreatedAt;
 using Herculean.Account.Application.Users.GetUserTimeZone;
 using Herculean.Account.Application.Users.GetUserStats;
+using Herculean.Account.Application.Users.ListUsers;
+using Herculean.Account.Application.Users.GetUser;
+using Herculean.Account.Application.Users.SignOutUser;
+using Herculean.Account.Application.Users.SendUserPasswordReset;
+using Herculean.Account.Application.Users.AccountClosed;
+using Herculean.Account.Application.Users.CloseUserAccount;
+using Herculean.Account.Application.Users.GetUserPhoto;
+using Herculean.Account.Application.Users.ProfilePhotoRemoved;
+using Herculean.Account.Application.Users.RemoveUserPhoto;
+using Herculean.Account.Application.Users.CancelUserDeletion;
 using Herculean.Account.Application.Users.SeedAdmins;
 using Herculean.Account.Application.Users.GetUserContacts;
 using Herculean.Account.Application.Users.PasswordChanged;
@@ -121,6 +131,14 @@ public static class AccountModule
         builder.Services.AddScoped<IQueryHandler<GetUserContactsQuery, IReadOnlyList<UserContact>>, GetUserContactsQueryHandler>();
         builder.Services.AddScoped<SeedAdminsHandler>();
         builder.Services.AddScoped<GetUserStatsHandler>();
+        builder.Services.AddScoped<ListUsersHandler>();
+        builder.Services.AddScoped<GetUserHandler>();
+        builder.Services.AddScoped<SignOutUserHandler>();
+        builder.Services.AddScoped<SendUserPasswordResetHandler>();
+        builder.Services.AddScoped<CloseUserAccountHandler>();
+        builder.Services.AddScoped<RemoveUserPhotoHandler>();
+        builder.Services.AddScoped<GetUserPhotoHandler>();
+        builder.Services.AddScoped<CancelUserDeletionHandler>();
         builder.Services.AddSingleton<DeletionJobRuns>();
         builder.Services.AddHealthChecks()
             .AddDatabaseCheck<AccountDbContext>()
@@ -130,6 +148,7 @@ public static class AccountModule
         builder.Services.AddHostedService<AdminSeedJob>();
 
         builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>();
+        builder.Services.AddScoped<IValidator<ListUsersRequest>, ListUsersValidator>();
         builder.Services.AddScoped<CreateUserHandler>();
         builder.Services.AddScoped<IValidator<UpdateCurrentUserRequest>, UpdateCurrentUserValidator>();
         builder.Services.AddScoped<UpdateCurrentUserHandler>();
@@ -152,6 +171,8 @@ public static class AccountModule
         builder.Services.AddScoped<DeleteCurrentUserPhotoHandler>();
         builder.Services.AddHostedService<AccountDeletionJob>();
         builder.Services.AddIntegrationEventHandler<AccountDeletionScheduledIntegrationEvent, AccountDeletionScheduledIntegrationEventHandler>();
+        builder.Services.AddIntegrationEventHandler<AccountClosedIntegrationEvent, AccountClosedIntegrationEventHandler>();
+        builder.Services.AddIntegrationEventHandler<ProfilePhotoRemovedIntegrationEvent, ProfilePhotoRemovedIntegrationEventHandler>();
         builder.Services.AddScoped<IValidator<DeleteCurrentUserRequest>, DeleteCurrentUserValidator>();
         builder.Services.AddScoped<DeleteCurrentUserHandler>();
         builder.Services.AddIntegrationEventHandler<AccountDeletionNoticeRequestedIntegrationEvent, AccountDeletionNoticeRequestedIntegrationEventHandler>();
@@ -218,6 +239,14 @@ public static class AccountModule
         DeleteCurrentUserPhotoEndpoint.Map(endpoints);
         GetCurrentUserEndpoint.Map(endpoints);
         GetUserStatsEndpoint.Map(endpoints);
+        ListUsersEndpoint.Map(endpoints);
+        GetUserEndpoint.Map(endpoints);
+        SignOutUserEndpoint.Map(endpoints);
+        SendUserPasswordResetEndpoint.Map(endpoints);
+        CloseUserAccountEndpoint.Map(endpoints);
+        RemoveUserPhotoEndpoint.Map(endpoints);
+        GetUserPhotoEndpoint.Map(endpoints);
+        CancelUserDeletionEndpoint.Map(endpoints);
         CreateSessionEndpoint.Map(endpoints);
         RefreshSessionEndpoint.Map(endpoints);
         RevokeSessionEndpoint.Map(endpoints);

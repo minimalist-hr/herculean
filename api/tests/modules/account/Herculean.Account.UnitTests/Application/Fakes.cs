@@ -200,6 +200,24 @@ internal sealed class FakeEmailSender : IEmailSender
         return Task.CompletedTask;
     }
 
+    public List<SentPasswordChangedEmail> AccountClosedEmails { get; } = [];
+
+    public Task SendAccountClosedAsync(string email, DateTimeOffset deleteAtUtc, string timeZone, CancellationToken cancellationToken)
+    {
+        AccountClosedEmails.Add(new SentPasswordChangedEmail(email, deleteAtUtc, timeZone));
+
+        return Task.CompletedTask;
+    }
+
+    public List<string> PhotoRemovedEmails { get; } = [];
+
+    public Task SendProfilePhotoRemovedAsync(string email, CancellationToken cancellationToken)
+    {
+        PhotoRemovedEmails.Add(email);
+
+        return Task.CompletedTask;
+    }
+
     public List<SentEmail> EmailChangeLinks { get; } = [];
 
     public List<SentPasswordChangedEmail> EmailChangedEmails { get; } = [];

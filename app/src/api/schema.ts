@@ -120,6 +120,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List users
+         * @description Users, not admins, 20 a page: the newest first, or those waiting for deletion, the soonest first. A search matches part of a name or email. Admins only.
+         */
+        get: operations["ListUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a user
+         * @description A user's name, email, when they joined and were last active, and when the account gets deleted. Admins only.
+         */
+        get: operations["GetUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/sessions/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign a user out everywhere
+         * @description Signs the user out on every device, so each has to sign in again. Admins only.
+         */
+        post: operations["SignOutUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a user a reset link
+         * @description Emails the user a link to set a new password, like Forgot password does. Admins only.
+         */
+        post: operations["SendUserPasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/deletion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close a user's account
+         * @description Closes an account that broke the terms: every device is signed out, it can't sign in, an email says why, and it gets deleted in 14 days unless the deletion is cancelled. An account the user already deleted keeps its date. Admins only.
+         */
+        post: operations["CloseUserAccount"];
+        /**
+         * Cancel a user's deletion
+         * @description Keeps an account that was waiting for deletion. The user signs in again as before. Admins only.
+         */
+        delete: operations["CancelUserDeletion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a user's photo
+         * @description A user's profile photo, or null when there is none. Admins only.
+         */
+        get: operations["GetUserPhoto"];
+        put?: never;
+        post?: never;
+        /**
+         * Remove a user's photo
+         * @description Deletes a profile photo that broke the terms, and emails the user why. Admins only.
+         */
+        delete: operations["RemoveUserPhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sessions": {
         parameters: {
             query?: never;
@@ -1104,6 +1232,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users/{id}/training": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count a user's training
+         * @description How many workouts a user finished and how many routines they have. A user with none, or no such user, has zeros. Admins only.
+         */
+        get: operations["GetUserTraining"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback": {
         parameters: {
             query?: never;
@@ -1177,7 +1325,7 @@ export interface paths {
         };
         /**
          * List the feedback inbox
-         * @description Every user's tickets, or those in one status, the one with the latest message first. Admins only.
+         * @description Every user's tickets, or those in one status or from one user, the one with the latest message first. Admins only.
          */
         get: operations["ListInboxTickets"];
         put?: never;
@@ -1413,6 +1561,37 @@ export interface components {
              * @default false
              */
             asSuperset: boolean;
+        };
+        /** @description A user's account, as an admin sees it. Never what they logged. */
+        AdminUserResponse: {
+            /**
+             * Format: uuid
+             * @description The user's ID.
+             */
+            id: string;
+            /** @description Their name, or null before setup. */
+            name: null | string;
+            /** @description Their email. */
+            email: string;
+            /**
+             * Format: date-time
+             * @description When they created their account.
+             */
+            createdAtUtc: string;
+            /**
+             * Format: date-time
+             * @description The last time their app signed in or renewed its sign in, or null if it never has.
+             */
+            lastActiveAtUtc: null | string;
+            /**
+             * Format: date-time
+             * @description When the account gets deleted, or null when it isn't going to be.
+             */
+            deletionScheduledForUtc: null | string;
+            /** @description Whether Minimalist closed it for breaking the terms. */
+            closed: boolean;
+            /** @description Whether they have a profile photo. */
+            hasPhoto: boolean;
         };
         /** @description The best set of an exercise. */
         BestSetResponse: {
@@ -1977,6 +2156,11 @@ export interface components {
             type: components["schemas"]["TicketType"];
             /** @description Where it stands. */
             status: components["schemas"]["TicketStatus"];
+            /**
+             * Format: uuid
+             * @description The sender's user ID, which stays after the account is gone.
+             */
+            senderId: string;
             /** @description The sender's name, or null before setup or when the account is gone. */
             senderName: null | string;
             /** @description The sender's email, or null when the account is gone. */
@@ -2840,6 +3024,32 @@ export interface components {
             /** @description The name of the routine planned on it. Null on a rest day. */
             routineName: null | string;
         };
+        /** @description A user in the list. */
+        UserListItemResponse: {
+            /**
+             * Format: uuid
+             * @description The user's ID.
+             */
+            id: string;
+            /** @description Their name, or null before setup. */
+            name: null | string;
+            /** @description Their email. */
+            email: string;
+            /**
+             * Format: date-time
+             * @description The last time their app signed in or renewed its sign in, or null if it never has.
+             */
+            lastActiveAtUtc: null | string;
+            /**
+             * Format: date-time
+             * @description When the account gets deleted, or null when it isn't going to be.
+             */
+            deletionScheduledForUtc: null | string;
+            /** @description Whether Minimalist closed it for breaking the terms. */
+            closed: boolean;
+            /** @description Whether they have a profile photo. */
+            hasPhoto: boolean;
+        };
         /** @description The user's profile photo. */
         UserPhotoResponse: {
             /** @description The photo as a Base64 JPEG, or null when there is none. */
@@ -2862,6 +3072,13 @@ export interface components {
             /** @description What the account is for. An admin sees only the feedback inbox. */
             role: components["schemas"]["Role"];
         };
+        /** @description A page of users. Admins aren't listed. */
+        UsersPageResponse: {
+            /** @description The users on this page. */
+            users: components["schemas"]["UserListItemResponse"][];
+            /** @description Pass it as cursor for the next page. Null on the last page. */
+            nextCursor: null | string;
+        };
         /** @description How many people use Herculean. Admins aren't counted. */
         UserStatsResponse: {
             /**
@@ -2881,6 +3098,19 @@ export interface components {
             deletingSoon: number;
             /** @description New users each week for the last 4 weeks, oldest first, the last 7 days last. */
             newPerWeek: number[];
+        };
+        /** @description A user's training, as counts only. Never what they logged. */
+        UserTrainingResponse: {
+            /**
+             * Format: int32
+             * @description Workouts they finished, deleted ones left out.
+             */
+            workouts: number;
+            /**
+             * Format: int32
+             * @description Routines they have, deleted ones left out.
+             */
+            routines: number;
         };
         /**
          * @description A day of the week. The week plan starts on Monday.
@@ -3487,6 +3717,393 @@ export interface operations {
             };
             /** @description The account isn't an admin. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListUsers: {
+        parameters: {
+            query?: {
+                /** @description Part of a name or email, in any case. Left out, every user. */
+                search?: string;
+                /** @description Only accounts waiting for deletion, the soonest first. Left out or false, every user, the newest first. */
+                deletingSoon?: boolean;
+                /** @description The nextCursor of the page before. Leave it out for the first page. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page, which can be empty. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsersPageResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SignOutUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signed out everywhere. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SendUserPasswordReset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The email is on its way. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CloseUserAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The account is closed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CancelUserDeletion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The account stays. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetUserPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The photo, or null. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserPhotoResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RemoveUserPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The photo is gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no user with this ID. Admins aren't users here. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6447,6 +7064,46 @@ export interface operations {
             };
         };
     };
+    GetUserTraining: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The counts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTrainingResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     ListTickets: {
         parameters: {
             query?: never;
@@ -6590,6 +7247,8 @@ export interface operations {
             query?: {
                 /** @description Only tickets that stand here: open, answered or closed. Left out, every ticket. */
                 status?: string;
+                /** @description Only this user's tickets. Left out, everyone's. */
+                userId?: string;
             };
             header?: never;
             path?: never;

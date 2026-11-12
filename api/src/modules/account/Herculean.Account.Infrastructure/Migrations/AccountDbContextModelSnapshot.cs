@@ -178,6 +178,14 @@ namespace Herculean.Account.Infrastructure.Migrations
                         .HasColumnType("character varying(254)")
                         .HasColumnName("email");
 
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_closed");
+
+                    b.Property<DateTimeOffset?>("LastActiveUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_active_utc");
+
                     b.Property<string>("Name")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")

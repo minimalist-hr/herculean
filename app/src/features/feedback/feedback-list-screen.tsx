@@ -8,6 +8,7 @@ import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
 import { NewButton, useNewButtonRoom } from '@/components/new-button';
 import { dismissNotification } from '@/components/notifications';
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { ScreenHeading } from '@/components/screen-heading';
 import { useTheme } from '@/theme/theme-provider';
 
@@ -27,6 +28,7 @@ export function FeedbackListScreen() {
   const pageEnd = usePageEnd();
   const newButtonRoom = useNewButtonRoom();
   const tickets = useTickets();
+  const refreshControl = usePullToRefresh(() => tickets.refetch());
   const [filter, setFilter] = useState<StatusFilter>('answered');
   const noFeedback = tickets.data?.length === 0;
 
@@ -88,6 +90,8 @@ export function FeedbackListScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
       <ScrollView
+        testID="feedback-list-scroll"
+        refreshControl={refreshControl}
         contentContainerStyle={{
           gap: space.xl,
           paddingTop: size.topPaddingSubPage,

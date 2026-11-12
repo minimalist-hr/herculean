@@ -33,6 +33,11 @@ internal sealed class RestoreAccountHandler(
             return UserErrors.InvalidCredentials;
         }
 
+        if (user.IsClosed)
+        {
+            return UserErrors.AccountClosed;
+        }
+
         user.CancelDeletion();
         TokenResponse tokenResponse = tokenIssuer.Issue(user);
         await unitOfWork.SaveChangesAsync(cancellationToken);

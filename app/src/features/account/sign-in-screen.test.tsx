@@ -198,6 +198,33 @@ describe('an account waiting to be deleted', () => {
   });
 });
 
+test('a closed account says so, with no way to keep it', async () => {
+  mockFetch.mockResolvedValue(
+    Response.json(
+      {
+        type: 'about:blank',
+        title: 'Conflict',
+        status: 409,
+        detail: 'Closed.',
+        code: 'user.account_closed',
+        traceId: '1',
+      },
+      { status: 409 },
+    ),
+  );
+  await renderSignIn();
+  await fillIn('filip@example.com', 'password');
+  await pressSignIn();
+
+  expect(
+    await screen.findByText(
+      'This account was closed for breaking our terms. Questions: hello@minimalist.hr.',
+    ),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText('Keep your account?')).not.toBeOnTheScreen();
+  expect(getAccessToken()).toBeNull();
+});
+
 test('signing in opens Home for a user who finished setup', async () => {
   answerSignIn('Filip');
   await renderSignIn();

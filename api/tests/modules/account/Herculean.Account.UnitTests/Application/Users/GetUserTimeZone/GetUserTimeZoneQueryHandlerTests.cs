@@ -1,4 +1,6 @@
+using Herculean.Account.Application.Users.GetUser;
 using Herculean.Account.Application.Users.GetUserStats;
+using Herculean.Account.Application.Users.ListUsers;
 using Herculean.Account.Application.Users;
 using Herculean.Account.Application.Users.GetUserTimeZone;
 using Herculean.Account.Contracts;
@@ -28,6 +30,12 @@ public sealed class GetUserTimeZoneQueryHandlerTests
             throw new InvalidOperationException("Not used here.");
 
         public Task<UserCounts> CountUsersAsync(DateTimeOffset since, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Not used here.");
+
+        public Task<List<UserListRow>> ListUsersAsync(string? search, bool deletingSoon, DateTimeOffset? after, int take, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Not used here.");
+
+        public Task<AdminUserResponse?> GetUserAsync(UserId id, CancellationToken cancellationToken) =>
             throw new InvalidOperationException("Not used here.");
 
         public Task<IReadOnlyList<UserContact>> ListContactsAsync(IReadOnlyCollection<UserId> ids, CancellationToken cancellationToken) =>

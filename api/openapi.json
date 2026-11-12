@@ -508,6 +508,526 @@
         ]
       }
     },
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "List users",
+        "description": "Users, not admins, 20 a page: the newest first, or those waiting for deletion, the soonest first. A search matches part of a name or email. Admins only.",
+        "operationId": "ListUsers",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Part of a name or email, in any case. Left out, every user.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deletingSoon",
+            "in": "query",
+            "description": "Only accounts waiting for deletion, the soonest first. Left out or false, every user, the newest first.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The nextCursor of the page before. Leave it out for the first page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The page, which can be empty.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}": {
+      "get": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Get a user",
+        "description": "A user's name, email, when they joined and were last active, and when the account gets deleted. Admins only.",
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/sessions/revoke": {
+      "post": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Sign a user out everywhere",
+        "description": "Signs the user out on every device, so each has to sign in again. Admins only.",
+        "operationId": "SignOutUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Signed out everywhere."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/password-reset": {
+      "post": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Send a user a reset link",
+        "description": "Emails the user a link to set a new password, like Forgot password does. Admins only.",
+        "operationId": "SendUserPasswordReset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The email is on its way."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/deletion": {
+      "post": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Close a user's account",
+        "description": "Closes an account that broke the terms: every device is signed out, it can't sign in, an email says why, and it gets deleted in 14 days unless the deletion is cancelled. An account the user already deleted keeps its date. Admins only.",
+        "operationId": "CloseUserAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The account is closed."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Cancel a user's deletion",
+        "description": "Keeps an account that was waiting for deletion. The user signs in again as before. Admins only.",
+        "operationId": "CancelUserDeletion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The account stays."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/photo": {
+      "delete": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Remove a user's photo",
+        "description": "Deletes a profile photo that broke the terms, and emails the user why. Admins only.",
+        "operationId": "RemoveUserPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The photo is gone."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Admin users"
+        ],
+        "summary": "Get a user's photo",
+        "description": "A user's profile photo, or null when there is none. Admins only.",
+        "operationId": "GetUserPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The photo, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPhotoResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no user with this ID. Admins aren't users here.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/sessions": {
       "post": {
         "tags": [
@@ -4521,6 +5041,64 @@
         ]
       }
     },
+    "/api/v1/admin/users/{id}/training": {
+      "get": {
+        "tags": [
+          "Training stats"
+        ],
+        "summary": "Count a user's training",
+        "description": "How many workouts a user finished and how many routines they have. A user with none, or no such user, has zeros. Admins only.",
+        "operationId": "GetUserTraining",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The counts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTrainingResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback": {
       "post": {
         "tags": [
@@ -4706,7 +5284,7 @@
           "Feedback inbox"
         ],
         "summary": "List the feedback inbox",
-        "description": "Every user's tickets, or those in one status, the one with the latest message first. Admins only.",
+        "description": "Every user's tickets, or those in one status or from one user, the one with the latest message first. Admins only.",
         "operationId": "ListInboxTickets",
         "parameters": [
           {
@@ -4715,6 +5293,15 @@
             "description": "Only tickets that stand here: open, answered or closed. Left out, every ticket.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Only this user's tickets. Left out, everyone's.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -5514,6 +6101,67 @@
           }
         },
         "description": "Exercises to add to a workout: new ones, or a removed one to put back."
+      },
+      "AdminUserResponse": {
+        "required": [
+          "id",
+          "name",
+          "email",
+          "createdAtUtc",
+          "lastActiveAtUtc",
+          "deletionScheduledForUtc",
+          "closed",
+          "hasPhoto"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The user's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Their name, or null before setup."
+          },
+          "email": {
+            "type": "string",
+            "description": "Their email."
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "description": "When they created their account.",
+            "format": "date-time"
+          },
+          "lastActiveAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The last time their app signed in or renewed its sign in, or null if it never has.",
+            "format": "date-time"
+          },
+          "deletionScheduledForUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the account gets deleted, or null when it isn't going to be.",
+            "format": "date-time"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Whether Minimalist closed it for breaking the terms."
+          },
+          "hasPhoto": {
+            "type": "boolean",
+            "description": "Whether they have a profile photo."
+          }
+        },
+        "description": "A user's account, as an admin sees it. Never what they logged."
       },
       "BestSetResponse": {
         "required": [
@@ -6745,6 +7393,7 @@
           "id",
           "type",
           "status",
+          "senderId",
           "senderName",
           "senderEmail",
           "appVersion",
@@ -6766,6 +7415,11 @@
           "status": {
             "description": "Where it stands.",
             "$ref": "#/components/schemas/TicketStatus"
+          },
+          "senderId": {
+            "type": "string",
+            "description": "The sender's user ID, which stays after the account is gone.",
+            "format": "uuid"
           },
           "senderName": {
             "type": [
@@ -8427,6 +9081,61 @@
         },
         "description": "The day after a day."
       },
+      "UserListItemResponse": {
+        "required": [
+          "id",
+          "name",
+          "email",
+          "lastActiveAtUtc",
+          "deletionScheduledForUtc",
+          "closed",
+          "hasPhoto"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The user's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Their name, or null before setup."
+          },
+          "email": {
+            "type": "string",
+            "description": "Their email."
+          },
+          "lastActiveAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The last time their app signed in or renewed its sign in, or null if it never has.",
+            "format": "date-time"
+          },
+          "deletionScheduledForUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the account gets deleted, or null when it isn't going to be.",
+            "format": "date-time"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Whether Minimalist closed it for breaking the terms."
+          },
+          "hasPhoto": {
+            "type": "boolean",
+            "description": "Whether they have a profile photo."
+          }
+        },
+        "description": "A user in the list."
+      },
       "UserPhotoResponse": {
         "required": [
           "image"
@@ -8489,6 +9198,30 @@
         },
         "description": "The signed-in user."
       },
+      "UsersPageResponse": {
+        "required": [
+          "users",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserListItemResponse"
+            },
+            "description": "The users on this page."
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Pass it as cursor for the next page. Null on the last page."
+          }
+        },
+        "description": "A page of users. Admins aren't listed."
+      },
       "UserStatsResponse": {
         "required": [
           "total",
@@ -8523,6 +9256,26 @@
           }
         },
         "description": "How many people use Herculean. Admins aren't counted."
+      },
+      "UserTrainingResponse": {
+        "required": [
+          "workouts",
+          "routines"
+        ],
+        "type": "object",
+        "properties": {
+          "workouts": {
+            "type": "integer",
+            "description": "Workouts they finished, deleted ones left out.",
+            "format": "int32"
+          },
+          "routines": {
+            "type": "integer",
+            "description": "Routines they have, deleted ones left out.",
+            "format": "int32"
+          }
+        },
+        "description": "A user's training, as counts only. Never what they logged."
       },
       "Weekday": {
         "enum": [
@@ -8885,6 +9638,9 @@
   "tags": [
     {
       "name": "Users"
+    },
+    {
+      "name": "Admin users"
     },
     {
       "name": "Sessions"

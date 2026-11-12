@@ -34,7 +34,12 @@ internal sealed class CreateSessionHandler(
             return UserErrors.InvalidCredentials;
         }
 
-        // After the password check, so only the owner learns the account is waiting to be deleted.
+        // After the password check, so only the owner learns the account was closed or is waiting to be deleted.
+        if (user.IsClosed)
+        {
+            return UserErrors.AccountClosed;
+        }
+
         if (user.DeletionScheduledForUtc is DateTimeOffset deleteAtUtc)
         {
             return UserErrors.DeletionScheduled(LocalDates.FormatDate(deleteAtUtc, user.TimeZone));

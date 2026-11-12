@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ChevronRightIcon } from '@/components/icons';
+import { ListCard } from '@/components/list-card';
 import { Skeleton } from '@/components/skeleton';
 import { StatusLabel } from '@/components/status-label';
 import { Tappable } from '@/components/tappable';
@@ -14,22 +15,7 @@ import type { TicketStatus, TicketType } from './use-feedback';
 
 /** Tickets in one card, with a line between rows. */
 export function TicketList({ children }: { children: ReactNode }) {
-  const { colors, radius } = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.card,
-        {
-          borderRadius: radius.card,
-          borderColor: colors.border,
-          backgroundColor: colors.card,
-        },
-      ]}
-    >
-      {children}
-    </View>
-  );
+  return <ListCard>{children}</ListCard>;
 }
 
 /** A ticket in a list: its type, who sent it if that matters, its first line, status and last message, opening its thread. */
@@ -153,10 +139,6 @@ export function TicketListSkeleton({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -22,6 +22,10 @@ internal static class UserErrors
     public static Error DeletionScheduled(string deleteOn) =>
         Error.Conflict("user.deletion_scheduled", $"Your account will be deleted on {deleteOn}.");
 
+    /// <summary>The right password, but Minimalist closed the account. It can't be kept by signing in.</summary>
+    public static readonly Error AccountClosed =
+        Error.Conflict("user.account_closed", "This account was closed for breaking our terms. Questions: hello@minimalist.hr.");
+
     public static readonly Error SameEmail = Error.Validation(new Dictionary<string, string[]>
     {
         ["newEmail"] = ["That's already your email."],

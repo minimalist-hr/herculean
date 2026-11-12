@@ -3,7 +3,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import { useState, type ReactElement } from 'react';
-import type { RefreshControlProps } from 'react-native';
+import { Text, type RefreshControlProps } from 'react-native';
 
 import { NotificationBar } from '@/components/notification-bar';
 import { createTestQueryClient } from '@/test-utils/query-client';
@@ -11,7 +11,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 import { tokens } from '@/theme/tokens';
 
 import { InboxScreen } from './inbox-screen';
-import { InboxTicketScreen } from './inbox-ticket-screen';
+import InboxTicketRoute from '@/app/admin/feedback/[id]';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
 
@@ -53,6 +53,7 @@ function ticketOf(status: string) {
     id: 'ticket-1',
     type: 'bug',
     status,
+    senderId: 'user-1',
     senderName: 'Ana',
     senderEmail: 'ana@example.com',
     appVersion: '1.0.0',
@@ -141,7 +142,8 @@ async function renderAt(initialUrl: string) {
     {
       _layout: Layout,
       'admin/feedback/index': InboxScreen,
-      'admin/feedback/[id]': InboxTicketScreen,
+      'admin/feedback/[id]': InboxTicketRoute,
+      'admin/feedback/user/[id]': () => <Text>User page</Text>,
     },
     { initialUrl },
   );
@@ -256,6 +258,17 @@ describe('A ticket in the inbox', () => {
       borderColor: tokens.color.accent.nitro.dark.primary,
     });
     expect(await screen.findByLabelText('Screenshot 1')).toBeOnTheScreen();
+  });
+
+  test('the sender card opens their page with the type as its back link', async () => {
+    answerWith();
+    await renderAt('/admin/feedback/ticket-1');
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: /^Ana, ana@example.com/ }),
+    );
+
+    expect(await screen.findByText('User page')).toBeOnTheScreen();
   });
 
   test('a reply is sent', async () => {

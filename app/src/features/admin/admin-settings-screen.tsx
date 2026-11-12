@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { usePageEnd } from '@/components/above-tab-bar';
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { ScreenHeading } from '@/components/screen-heading';
 import { SignOutSheet } from '@/features/settings/account-sheets';
 import {
@@ -20,6 +21,7 @@ export function AdminSettingsScreen() {
   const { colors, size, space } = useTheme();
   const pageEnd = usePageEnd();
   const health = useSystemHealth();
+  const refreshControl = usePullToRefresh(() => health.refetch());
   const [signingOut, setSigningOut] = useState(false);
   const summary =
     health.data === undefined ? undefined : summaryOf(health.data.services);
@@ -35,6 +37,8 @@ export function AdminSettingsScreen() {
   return (
     <>
       <ScrollView
+        testID="admin-settings-scroll"
+        refreshControl={refreshControl}
         style={[styles.screen, { backgroundColor: colors.bg }]}
         contentContainerStyle={{
           gap: space.xl,

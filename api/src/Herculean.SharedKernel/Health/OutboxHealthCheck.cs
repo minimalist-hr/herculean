@@ -27,12 +27,9 @@ internal sealed class OutboxHealthCheck<TContext>(TContext dbContext, TimeProvid
         }
 
         DateTimeOffset tooOld = timeProvider.GetUtcNow() - WaitLimit;
-        if (waiting.Any(message => message.OccurredAtUtc < tooOld))
-        {
-            return HealthCheckResult.Degraded($"{Events(waiting.Count)} waiting, the oldest over {WaitLimit.TotalMinutes:0} minutes.");
-        }
-
-        return HealthCheckResult.Healthy(waiting.Count == 0 ? "Nothing waiting." : $"{Events(waiting.Count)} waiting.");
+        return waiting.Exists(message => message.OccurredAtUtc < tooOld)
+            ? HealthCheckResult.Degraded($"{Events(waiting.Count)} waiting, the oldest over {WaitLimit.TotalMinutes:0} minutes.")
+            : HealthCheckResult.Healthy(waiting.Count == 0 ? "Nothing waiting." : $"{Events(waiting.Count)} waiting.");
     }
 
     private static string Events(int count) => count == 1 ? "1 event" : $"{count} events";

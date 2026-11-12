@@ -120,6 +120,11 @@ export function formatShortDate(date: string) {
   return `${dayNames[weekdays[(utc.getUTCDay() + 6) % 7]].short}, ${dayAndMonth(utc)}`;
 }
 
+/** The day of a moment from the API, in the phone's time, for example "Fri, 16th Oct". */
+export function formatLocalDate(moment: string) {
+  return formatShortDate(dateText(new Date(moment)));
+}
+
 /** A moment from the API, in the phone's time, for example "Fri, 16th Oct, 14:05". */
 export function formatDateTime(moment: string) {
   const local = new Date(moment);

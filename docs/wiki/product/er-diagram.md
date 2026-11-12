@@ -40,6 +40,8 @@ erDiagram
 | Color | enum | `Nitro`, `Titanium`, `Flux`, `Plasma`, `Neon`. Starts at `Nitro` |
 | Units | enum | `Metric`, `Imperial`. Starts at `Metric` |
 | DeletionScheduledForUtc | DateTimeOffset? | Set while the account waits to be deleted |
+| IsClosed | bool | Minimalist closed it for breaking the terms. It can't sign in |
+| LastActiveUtc | DateTimeOffset? | The last sign in or renewed sign in. Null before the first |
 | RefreshTokens | list of RefreshToken | |
 | PasswordResetTokens | list of PasswordResetToken | |
 | EmailChangeTokens | list of EmailChangeToken | |

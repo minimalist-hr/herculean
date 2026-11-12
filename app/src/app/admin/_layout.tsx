@@ -8,7 +8,6 @@ import {
   SettingsIcon,
   UsersIcon,
 } from '@/components/icons';
-import { notifyFailure } from '@/components/notifications';
 import { TabBar, tabScreenOptions } from '@/components/tab-bar';
 import { useSystemHealth } from '@/features/admin/use-system-health';
 
@@ -44,12 +43,6 @@ export default function AdminTabsLayout() {
           <Tabs.Screen
             name="users"
             options={{ title: 'Users', tabBarIcon: UsersIcon }}
-            listeners={{
-              tabPress: (event) => {
-                event.preventDefault();
-                notifyFailure('Users comes in a later update.');
-              },
-            }}
           />
           <Tabs.Screen
             name="settings"

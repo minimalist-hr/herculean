@@ -1,13 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { usePageEnd } from '@/components/above-tab-bar';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { FeedbackCard } from '@/features/feedback/feedback-card';
@@ -48,17 +42,13 @@ export function HomeScreen() {
   const { now, refresh } = useDayRefresh();
   const user = useCurrentUser();
   const queryClient = useQueryClient();
-  const [refreshing, setRefreshing] = useState(false);
-
-  async function pullToRefresh() {
-    setRefreshing(true);
-    await Promise.all([
+  const refreshControl = usePullToRefresh(() =>
+    Promise.all([
       refresh(),
       queryClient.invalidateQueries({ queryKey: workoutKeys.inProgress }),
       queryClient.invalidateQueries({ queryKey: workoutKeys.all }),
-    ]);
-    setRefreshing(false);
-  }
+    ]),
+  );
 
   return (
     <ScrollView
@@ -70,17 +60,7 @@ export function HomeScreen() {
         paddingHorizontal: size.sidePadding,
         paddingBottom: pageEnd,
       }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => {
-            void pullToRefresh();
-          }}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.raised}
-        />
-      }
+      refreshControl={refreshControl}
     >
       <View style={[styles.header, { gap: space.md }]}>
         {/* One line before the avatar. A long name shrinks it instead of wrapping. */}

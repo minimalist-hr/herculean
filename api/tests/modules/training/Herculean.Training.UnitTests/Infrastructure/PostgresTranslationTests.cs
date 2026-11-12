@@ -47,6 +47,10 @@ public sealed class PostgresTranslationTests
         ShouldTranslateAsync(dbContext => new TrainingStatsReadRepository(dbContext).ListFinishedSinceAsync(DateTimeOffset.UnixEpoch, Token));
 
     [Fact]
+    public Task AUsersTrainingCountsTranslate() =>
+        ShouldTranslateAsync(dbContext => new TrainingStatsReadRepository(dbContext).CountForUserAsync(Guid.CreateVersion7(), Token));
+
+    [Fact]
     public Task TheExportTranslates() =>
         ShouldTranslateAsync(dbContext => new ExportReadRepository(dbContext).GetAsync(Token));
 

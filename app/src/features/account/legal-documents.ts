@@ -7,7 +7,7 @@ export interface LegalDocument {
 
 export const termsOfService: LegalDocument = {
   title: 'Terms of service',
-  lastUpdated: 'Last updated 10 November 2026',
+  lastUpdated: 'Last updated 12 November 2026',
   intro:
     'These terms cover your use of Herculean, a workout log made by Minimalist.',
   sections: [
@@ -21,7 +21,7 @@ export const termsOfService: LegalDocument = {
     },
     {
       title: '3. Your content',
-      body: 'The routines, exercises and workouts you log are yours. We only use them to run the app for you.',
+      body: 'The routines, exercises and workouts you log are yours. We only use them to run the app for you. We can remove a profile photo that breaks these terms, and we’ll email you if we do.',
     },
     {
       title: '4. Changes',
@@ -29,7 +29,7 @@ export const termsOfService: LegalDocument = {
     },
     {
       title: '5. Ending',
-      body: 'You can delete your account at any time in Profile. We can close accounts that break these terms.',
+      body: 'You can delete your account at any time in Profile. We can close accounts that break these terms, and we’ll email you if we do.',
     },
     {
       title: '6. Contact',
@@ -49,7 +49,7 @@ export const privacyPolicy: LegalDocument = {
     },
     {
       title: '2. Why',
-      body: 'Only to run the app: to sign you in, show your workouts on every device, calculate your history and records, and answer your feedback.',
+      body: 'Only to run the app: to sign you in, show your workouts on every device, calculate your history and records, and answer your feedback. To help with support, Minimalist can see your name, email, when you joined and last used the app, and how many workouts and routines you have, but never what’s in them.',
     },
     {
       title: '3. What we don’t do',

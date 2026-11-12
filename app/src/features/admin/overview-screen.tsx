@@ -1,14 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { useState, type ReactNode } from 'react';
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { type ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { usePageEnd } from '@/components/above-tab-bar';
 import { Glow } from '@/components/glow';
 import { ChevronRightIcon } from '@/components/icons';
@@ -21,6 +16,7 @@ import { noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { TrendLine } from './trend-line';
+import { setUsersFilter } from './users-filter';
 import {
   overviewKeys,
   useFeedbackStats,
@@ -44,13 +40,9 @@ export function OverviewScreen() {
   const users = useUserStats();
   const training = useTrainingStats();
   const feedback = useFeedbackStats();
-  const [refreshing, setRefreshing] = useState(false);
-
-  async function pullToRefresh() {
-    setRefreshing(true);
-    await queryClient.invalidateQueries({ queryKey: overviewKeys.all });
-    setRefreshing(false);
-  }
+  const refreshControl = usePullToRefresh(() =>
+    queryClient.invalidateQueries({ queryKey: overviewKeys.all }),
+  );
 
   const activeShare =
     users.data === undefined || training.data === undefined
@@ -69,17 +61,7 @@ export function OverviewScreen() {
         paddingHorizontal: size.sidePadding,
         paddingBottom: pageEnd,
       }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => {
-            void pullToRefresh();
-          }}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.raised}
-        />
-      }
+      refreshControl={refreshControl}
     >
       <ScreenHeading
         title="Overview"
@@ -118,6 +100,10 @@ export function OverviewScreen() {
             label="Deleting soon"
             query={users}
             value={(data) => data.deletingSoon}
+            onPress={() => {
+              setUsersFilter('deletingSoon');
+              router.navigate('/admin/users');
+            }}
           />
         </View>
       </View>

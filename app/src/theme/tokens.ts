@@ -223,6 +223,8 @@ export const tokens = {
     secondaryButton: 44,
     input: 44,
     headerIconButton: 44,
+    userRowAvatar: 40,
+    userPageAvatar: 56,
     floatingBar: { height: 56, control: 36 },
     newButton: 48,
     tabItem: 52,

@@ -36,6 +36,7 @@ internal sealed class JwtTokenIssuer(IOptions<JwtOptions> options, TimeProvider 
 
         string refreshToken = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(RefreshTokenBytes));
         user.AddRefreshToken(Hash(refreshToken), nowUtc + jwtOptions.RefreshTokenLifetime);
+        user.MarkActive(nowUtc);
 
         return new TokenResponse(accessToken, (int)jwtOptions.AccessTokenLifetime.TotalSeconds, refreshToken);
     }

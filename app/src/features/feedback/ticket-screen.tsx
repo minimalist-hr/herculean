@@ -2,12 +2,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
 
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { BackLink } from '@/components/back-link';
 import { LoadFailure } from '@/components/load-failure';
 import { ScreenHeading } from '@/components/screen-heading';
@@ -43,19 +43,13 @@ export function TicketScreen() {
   const reply = useReply(id);
   const unread = ticket.data?.hasUnreadReply === true;
   const now = useMinuteClock();
-  const [refreshing, setRefreshing] = useState(false);
+  const refreshControl = usePullToRefresh(() => ticket.refetch());
   const [viewing, setViewing] = useState<string | null>(null);
   const {
     ref: scrollRef,
     onContentSizeChange,
     follow: followNewMessage,
   } = useScrollToNew();
-
-  async function pullToRefresh() {
-    setRefreshing(true);
-    await ticket.refetch();
-    setRefreshing(false);
-  }
 
   // Opening a ticket reads its replies.
   const { mutate: read } = markRead;
@@ -110,17 +104,7 @@ export function TicketScreen() {
           ref={scrollRef}
           onContentSizeChange={onContentSizeChange}
           keyboardShouldPersistTaps="handled"
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                void pullToRefresh();
-              }}
-              tintColor={colors.primaryText}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.raised}
-            />
-          }
+          refreshControl={refreshControl}
           contentContainerStyle={{
             gap: space.xl,
             paddingTop: size.topPaddingSubPage,

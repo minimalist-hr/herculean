@@ -2,22 +2,24 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { ChevronRightIcon } from '@/components/icons';
 import { LoadFailure } from '@/components/load-failure';
 import { dismissNotification, notifyFailure } from '@/components/notifications';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
 import { Skeleton } from '@/components/skeleton';
 import { StatusLabel } from '@/components/status-label';
+import { Tappable } from '@/components/tappable';
 import {
   notLoadedMessage,
   statusColor,
@@ -39,20 +41,26 @@ import {
   useAdminReply,
   useInboxTicket,
   useUpdateTicketStatus,
+  type InboxTicketDetails,
 } from './use-inbox';
 
 const reopenToReply = 'Reopen it to reply.';
 
 /** A ticket for the admin: who sent it, from which device, its thread, its status and a reply box. */
-export function InboxTicketScreen() {
+export function InboxTicketScreen({
+  openUser,
+}: {
+  /** Opens the sender's page, with the ticket's type as its back link. */
+  openUser: (userId: string, back: string) => void;
+}) {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { colors, size, space, text } = useTheme();
+  const { id, back } = useLocalSearchParams<{ id: string; back?: string }>();
+  const { colors, size, space } = useTheme();
   const ticket = useInboxTicket(id);
   const reply = useAdminReply(id);
   const updateStatus = useUpdateTicketStatus(id);
   const now = useMinuteClock();
-  const [refreshing, setRefreshing] = useState(false);
+  const refreshControl = usePullToRefresh(() => ticket.refetch());
   const [viewing, setViewing] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const {
@@ -61,12 +69,6 @@ export function InboxTicketScreen() {
     follow: followNewMessage,
   } = useScrollToNew();
   const closed = ticket.data?.status === 'closed';
-
-  async function pullToRefresh() {
-    setRefreshing(true);
-    await ticket.refetch();
-    setRefreshing(false);
-  }
 
   async function changeStatus() {
     dismissNotification();
@@ -85,21 +87,17 @@ export function InboxTicketScreen() {
 
       return (
         <>
-          <Card>
-            <View style={{ gap: space.xxs }}>
-              <Text style={[text.listItemName, { color: colors.text }]}>
-                {senderOf(data)}
-              </Text>
-              {data.senderName !== null && data.senderEmail !== null && (
-                <Text style={text.meta}>{data.senderEmail}</Text>
-              )}
-              <Text style={text.meta}>
-                {[`Version ${data.appVersion}`, data.phone, data.os]
-                  .filter((part) => part !== null)
-                  .join(' · ')}
-              </Text>
-            </View>
-          </Card>
+          <SenderCard
+            ticket={data}
+            onPress={
+              // Once the account is gone, there is no page to open.
+              data.senderEmail === null
+                ? undefined
+                : () => {
+                    openUser(data.senderId, typeLabels[data.type]);
+                  }
+            }
+          />
           <Button
             label={closed ? 'Reopen ticket' : 'Close ticket'}
             variant={closed ? 'secondary' : 'dangerOutline'}
@@ -153,17 +151,7 @@ export function InboxTicketScreen() {
           ref={scrollRef}
           onContentSizeChange={onContentSizeChange}
           keyboardShouldPersistTaps="handled"
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                void pullToRefresh();
-              }}
-              tintColor={colors.primaryText}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.raised}
-            />
-          }
+          refreshControl={refreshControl}
           contentContainerStyle={{
             gap: space.xl,
             paddingTop: size.topPaddingSubPage,
@@ -173,7 +161,7 @@ export function InboxTicketScreen() {
         >
           <View style={{ gap: space.xxxs }}>
             <BackLink
-              label="Feedback"
+              label={back ?? 'Feedback'}
               onPress={() => {
                 router.back();
               }}
@@ -236,8 +224,69 @@ export function InboxTicketScreen() {
   );
 }
 
+/** Who sent the ticket and from which device. It opens their page while the account exists. */
+function SenderCard({
+  ticket,
+  onPress,
+}: {
+  ticket: InboxTicketDetails;
+  onPress?: () => void;
+}) {
+  const { colors, radius, space, text } = useTheme();
+  const device = [`Version ${ticket.appVersion}`, ticket.phone, ticket.os]
+    .filter((part) => part !== null)
+    .join(' · ');
+  const details = (
+    <View style={[styles.summary, { gap: space.xxs }]}>
+      <Text style={[text.listItemName, { color: colors.text }]}>
+        {senderOf(ticket)}
+      </Text>
+      {ticket.senderName !== null && ticket.senderEmail !== null && (
+        <Text style={text.meta}>{ticket.senderEmail}</Text>
+      )}
+      <Text style={text.meta}>{device}</Text>
+    </View>
+  );
+
+  if (onPress === undefined) {
+    return <Card>{details}</Card>;
+  }
+
+  return (
+    <Tappable
+      feedback="fill"
+      accessibilityRole="button"
+      accessibilityLabel={[senderOf(ticket), ticket.senderEmail, device]
+        .filter((part) => part !== null)
+        .join(', ')}
+      onPress={onPress}
+      style={[
+        styles.line,
+        {
+          gap: space.md,
+          padding: space.lg,
+          borderWidth: 1,
+          borderRadius: radius.card,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+        },
+      ]}
+    >
+      {details}
+      <ChevronRightIcon color={colors.muted} size={16} />
+    </Tappable>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
+    flex: 1,
+  },
+  line: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  summary: {
     flex: 1,
   },
 });

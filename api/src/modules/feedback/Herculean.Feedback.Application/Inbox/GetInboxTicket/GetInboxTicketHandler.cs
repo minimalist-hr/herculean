@@ -19,6 +19,6 @@ internal sealed class GetInboxTicketHandler(
 
         UserContact? sender = (await Senders.ReadAsync(contacts, [row.UserId], cancellationToken)).GetValueOrDefault(row.UserId);
 
-        return new InboxTicketResponse(row.Id, row.Type, row.Status, sender?.Name, sender?.Email, row.AppVersion, row.Phone, row.Os, row.Messages);
+        return new InboxTicketResponse(row.Id, row.Type, row.Status, row.UserId, sender?.Name, sender?.Email, row.AppVersion, row.Phone, row.Os, row.Messages);
     }
 }

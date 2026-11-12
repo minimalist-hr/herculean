@@ -1,14 +1,8 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { BackLink } from '@/components/back-link';
 import { Glow } from '@/components/glow';
 import { AlertIcon, CheckIcon } from '@/components/icons';
@@ -46,13 +40,7 @@ export function SystemHealthScreen() {
   const { colors, size, space } = useTheme();
   const health = useSystemHealth();
   const now = useMinuteClock();
-  const [refreshing, setRefreshing] = useState(false);
-
-  async function pullToRefresh() {
-    setRefreshing(true);
-    await health.refetch();
-    setRefreshing(false);
-  }
+  const refreshControl = usePullToRefresh(() => health.refetch());
 
   function renderHealth() {
     if (health.data !== undefined) {
@@ -136,17 +124,7 @@ export function SystemHealthScreen() {
         paddingHorizontal: size.sidePadding,
         paddingBottom: insets.bottom + space.xl,
       }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => {
-            void pullToRefresh();
-          }}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.raised}
-        />
-      }
+      refreshControl={refreshControl}
     >
       <View style={{ gap: space.xxxs }}>
         <BackLink

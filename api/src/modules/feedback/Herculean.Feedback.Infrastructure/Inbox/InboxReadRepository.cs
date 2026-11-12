@@ -1,5 +1,6 @@
 using Herculean.Feedback.Application.Inbox;
 using Herculean.Feedback.Application.Tickets.GetTicket;
+using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.Feedback.Infrastructure.Tickets;
 
@@ -10,10 +11,15 @@ namespace Herculean.Feedback.Infrastructure.Inbox;
 /// <summary>Reads every user's tickets: the user filter is off, since an admin reads them.</summary>
 internal sealed class InboxReadRepository(FeedbackDbContext dbContext) : IInboxReadRepository
 {
-    public async Task<List<InboxListRow>> ListAsync(TicketStatus? status, CancellationToken cancellationToken)
+    public async Task<List<InboxListRow>> ListAsync(TicketStatus? status, UserId? userId, CancellationToken cancellationToken)
     {
-        var tickets = await Tickets()
-            .Where(ticket => status == null || ticket.Status == status)
+        IQueryable<Ticket> query = Tickets().Where(ticket => status == null || ticket.Status == status);
+        if (userId is UserId sender)
+        {
+            query = query.Where(ticket => ticket.UserId == sender);
+        }
+
+        var tickets = await query
             .Select(ticket => new
             {
                 Id = ticket.Id.Value,

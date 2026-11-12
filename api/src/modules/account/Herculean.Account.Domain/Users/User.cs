@@ -46,6 +46,12 @@ internal sealed class User : Entity<UserId>
     /// <summary>When the account gets deleted, or null when it isn't going to be.</summary>
     public DateTimeOffset? DeletionScheduledForUtc { get; private set; }
 
+    /// <summary>Minimalist closed it for breaking the terms, so it can't sign in until the deletion is cancelled.</summary>
+    public bool IsClosed { get; private set; }
+
+    /// <summary>The last time the app signed in or renewed its sign in, or null before the first.</summary>
+    public DateTimeOffset? LastActiveUtc { get; private set; }
+
     /// <summary>Null when there is none, or when it wasn't loaded.</summary>
     public UserPhoto? Photo { get; private set; }
 
@@ -103,6 +109,11 @@ internal sealed class User : Entity<UserId>
         _refreshTokens.RemoveAll(token => token.TokenHash != keptRefreshTokenHash);
     }
 
+    public void MarkActive(DateTimeOffset nowUtc)
+    {
+        LastActiveUtc = nowUtc;
+    }
+
     public void AddRefreshToken(string tokenHash, DateTimeOffset expiresAtUtc)
     {
         _refreshTokens.Add(RefreshToken.Create(Id, tokenHash, expiresAtUtc));
@@ -126,6 +137,12 @@ internal sealed class User : Entity<UserId>
     {
         _refreshTokens.Remove(refreshToken);
         _refreshTokens.RemoveAll(token => token.ReplacedAtUtc is not null);
+    }
+
+    /// <summary>Signs out every device. Needs the refresh tokens loaded.</summary>
+    public void SignOutEverywhere()
+    {
+        _refreshTokens.Clear();
     }
 
     /// <summary>Only the newest reset link works: a new token cancels the older ones.</summary>
@@ -167,9 +184,18 @@ internal sealed class User : Entity<UserId>
         _emailChangeTokens.Clear();
     }
 
+    /// <summary>Like <see cref="ScheduleDeletion"/>, but not the user's choice: it can't sign in or be kept. Needs the tokens loaded.</summary>
+    public void Close(DateTimeOffset nowUtc)
+    {
+        ScheduleDeletion(nowUtc);
+        IsClosed = true;
+    }
+
+    /// <summary>The account stays, and a closed one opens again.</summary>
     public void CancelDeletion()
     {
         DeletionScheduledForUtc = null;
+        IsClosed = false;
     }
 
     /// <summary>Only the newest link works: a new token cancels the older ones.</summary>

@@ -12,6 +12,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 import AdminTabsLayout from '@/app/admin/_layout';
 
 import { AdminSettingsScreen } from './admin-settings-screen';
+import { setUsersFilter, useUsersFilter } from './users-filter';
 import { changeOnLastWeek, OverviewScreen } from './overview-screen';
 import { SystemHealthScreen } from './system-health-screen';
 import { summaryOf, type ServiceHealth } from './use-system-health';
@@ -118,6 +119,10 @@ function Layout() {
   );
 }
 
+function UsersStub() {
+  return <Text>{`Users page ${useUsersFilter()}`}</Text>;
+}
+
 async function renderAt(initialUrl: string) {
   await renderRouter(
     {
@@ -125,7 +130,7 @@ async function renderAt(initialUrl: string) {
       'admin/_layout': AdminTabsLayout,
       'admin/index': OverviewScreen,
       'admin/feedback/index': () => <Text>Feedback page</Text>,
-      'admin/users/index': () => null,
+      'admin/users/index': UsersStub,
       'admin/settings/_layout': () => (
         <Stack screenOptions={{ headerShown: false }} />
       ),
@@ -147,6 +152,7 @@ async function pullDown(testID: string) {
 
 beforeEach(() => {
   mockFetch.mockReset();
+  setUsersFilter('all');
   mockSignOut.mockReset();
 });
 
@@ -174,6 +180,19 @@ describe('Overview', () => {
     );
 
     expect(await screen.findByText('Feedback page')).toBeOnTheScreen();
+  });
+
+  test('Deleting soon opens Users on Deleting soon', async () => {
+    answerWith();
+    await renderAt('/admin');
+
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Deleting soon, 2' }),
+    );
+
+    expect(
+      await screen.findByText('Users page deletingSoon'),
+    ).toBeOnTheScreen();
   });
 
   test('a tile that fails shows a dash and Try again, while the others stay', async () => {
@@ -220,15 +239,13 @@ describe('Overview', () => {
 });
 
 describe('Admin tabs', () => {
-  test('Users says it comes later', async () => {
+  test('Users opens its page', async () => {
     answerWith();
     await renderAt('/admin');
 
     await fireEvent.press(await screen.findByRole('tab', { name: 'Users' }));
 
-    expect(
-      await screen.findByText('Users comes in a later update.'),
-    ).toBeOnTheScreen();
+    expect(await screen.findByText('Users page all')).toBeOnTheScreen();
   });
 
   test('a service down puts a dot on Settings', async () => {
@@ -260,6 +277,19 @@ describe('Admin tabs', () => {
 });
 
 describe('Settings', () => {
+  test('pulling down reads the summary again', async () => {
+    answerWith();
+    await renderAt('/admin/settings');
+    await screen.findByText('All working');
+    mockFetch.mockClear();
+
+    await pullDown('admin-settings-scroll');
+
+    await waitFor(() => {
+      expect(paths()).toContain('/api/v1/admin/health');
+    });
+  });
+
   test('System health shows the summary and opens the page', async () => {
     answerWith();
     await renderAt('/admin/settings');

@@ -29,6 +29,7 @@ public sealed class GetInboxTicketHandlerTests : IDisposable
 
         InboxTicketResponse found = (await _handler.HandleAsync(ticket.Id.Value, FeedbackDatabase.Token)).Value;
 
+        found.SenderId.ShouldBe(_ana.Value);
         found.SenderName.ShouldBe("Ana");
         found.SenderEmail.ShouldBe("ana@example.com");
         found.AppVersion.ShouldBe(FeedbackDatabase.Device.AppVersion);

@@ -1,4 +1,5 @@
 using Herculean.Feedback.Application.Auth;
+using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.Feedback.Infrastructure;
 using Herculean.Feedback.Infrastructure.Inbox;
@@ -39,7 +40,11 @@ public sealed class PostgresTranslationTests
 
     [Fact]
     public Task TheInboxTranslates() =>
-        ShouldTranslateAsync(dbContext => new InboxReadRepository(dbContext).ListAsync(TicketStatus.Open, Token));
+        ShouldTranslateAsync(dbContext => new InboxReadRepository(dbContext).ListAsync(TicketStatus.Open, null, Token));
+
+    [Fact]
+    public Task OneUsersInboxTranslates() =>
+        ShouldTranslateAsync(dbContext => new InboxReadRepository(dbContext).ListAsync(null, new UserId(Guid.CreateVersion7()), Token));
 
     [Fact]
     public Task AnInboxTicketTranslates() =>

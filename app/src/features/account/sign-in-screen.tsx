@@ -67,6 +67,13 @@ export function SignInScreen() {
       ) {
         setWaitingToDelete({ ...values, message: error.problem.detail });
         setKeepSheetOpen(true);
+      } else if (
+        error instanceof ApiProblemError &&
+        error.problem.code === 'user.account_closed'
+      ) {
+        notifyFailure(
+          'This account was closed for breaking our terms. Questions: hello@minimalist.hr.',
+        );
       } else {
         notifyFailure('Couldn’t sign in. Try again.');
       }

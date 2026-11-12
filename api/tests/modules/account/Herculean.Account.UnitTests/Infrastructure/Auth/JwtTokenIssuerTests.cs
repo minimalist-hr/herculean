@@ -79,6 +79,14 @@ public sealed class JwtTokenIssuerTests
     }
 
     [Fact]
+    public void IssuingMarksTheUserActive()
+    {
+        _issuer.Issue(_user);
+
+        _user.LastActiveUtc.ShouldBe(Now);
+    }
+
+    [Fact]
     public void EachRefreshTokenIsNew()
     {
         _issuer.Issue(_user).RefreshToken.ShouldNotBe(_issuer.Issue(_user).RefreshToken);

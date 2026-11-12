@@ -23,6 +23,17 @@ public sealed class RestoreAccountHandlerTests
         _handler.HandleAsync(new RestoreAccountRequest(email, password), TestContext.Current.CancellationToken);
 
     [Fact]
+    public async Task AClosedAccountCantBeKept()
+    {
+        _user.Close(DateTimeOffset.UnixEpoch);
+
+        Result<TokenResponse> result = await RestoreAsync("filip@example.com", "password");
+
+        result.Error.ShouldBe(UserErrors.AccountClosed);
+        _user.IsClosed.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task RightPasswordKeepsTheAccountAndSignsIn()
     {
         Result<TokenResponse> result = await RestoreAsync("filip@example.com", "password");

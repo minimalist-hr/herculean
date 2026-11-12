@@ -17,12 +17,11 @@ internal sealed class DeletionJobHealthCheck(DeletionJobRuns runs, TimeProvider 
 
         TimeSpan since = timeProvider.GetUtcNow() - lastRun;
         string ran = $"Ran {Ago(since)}.";
-        if (runs.LastRunFailed)
-        {
-            return Task.FromResult(HealthCheckResult.Unhealthy($"{ran[..^1]}, and failed."));
-        }
+        HealthCheckResult result = runs.LastRunFailed ? HealthCheckResult.Unhealthy($"{ran[..^1]}, and failed.")
+            : since > RunLimit ? HealthCheckResult.Degraded($"{ran} It should run daily.")
+            : HealthCheckResult.Healthy(ran);
 
-        return Task.FromResult(since > RunLimit ? HealthCheckResult.Degraded($"{ran} It should run daily.") : HealthCheckResult.Healthy(ran));
+        return Task.FromResult(result);
     }
 
     internal static string Ago(TimeSpan since)

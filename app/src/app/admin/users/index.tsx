@@ -1,4 +1,5 @@
-/** Users comes in a later update: its tab says so and never opens this. */
+import { UsersScreen } from '@/features/admin/users-screen';
+
 export default function UsersRoute() {
-  return null;
+  return <UsersScreen />;
 }
