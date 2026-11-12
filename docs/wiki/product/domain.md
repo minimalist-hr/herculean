@@ -53,7 +53,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - An email change needs the current password, and takes effect only when the link in the email is opened. A new link cancels older ones. The old address is told, and a reset link sent to it stops working.
 - Sign out deletes that device's refresh token.
 - Changing the password deletes every refresh token except the current one, and emails the user.
-- A token is deleted once it is used or revoked.
+- A token is deleted once it is used or revoked. Expired tokens are deleted daily, and a replaced refresh token once its grace period is over.
 - Deleting an account needs the current password, signs out every device and schedules the deletion for 14 days later. An email says when. Signing in before then offers to keep the account, and the email address stays taken until the deletion.
 - An admin can sign a user out of every device, send them a reset link, remove a profile photo that breaks the terms, close an account that breaks them, and cancel a deletion. An admin sees a user's name, email, photo, when they joined and were last active, and how many workouts and routines they have, never what is in them.
 - Closing an account is not the user's choice: every device is signed out, it can't sign in or be kept, an email says why, and it is deleted after 14 days like any other. An account the user already deleted keeps its date. Cancelling the deletion opens a closed account again.

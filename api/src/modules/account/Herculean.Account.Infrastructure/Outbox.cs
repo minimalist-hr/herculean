@@ -10,4 +10,7 @@ internal sealed class Outbox(AccountDbContext dbContext, TimeProvider timeProvid
     {
         dbContext.Set<OutboxMessage>().Add(OutboxMessage.Create(@event, timeProvider.GetUtcNow()));
     }
+
+    public Task DeleteSentAsync(CancellationToken cancellationToken) =>
+        dbContext.DeleteSentOutboxMessagesAsync(cancellationToken);
 }

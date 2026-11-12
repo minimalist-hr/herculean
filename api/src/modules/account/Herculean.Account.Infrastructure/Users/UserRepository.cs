@@ -75,6 +75,13 @@ internal sealed class UserRepository(AccountDbContext dbContext) : IUserReposito
         return dbContext.Users.AnyAsync(user => user.Email == normalizedEmail, cancellationToken);
     }
 
+    public async Task DeleteExpiredTokensAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken)
+    {
+        await dbContext.Set<RefreshToken>().Where(RefreshToken.CanNeverBeUsed(nowUtc)).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Set<PasswordResetToken>().Where(PasswordResetToken.Expired(nowUtc)).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.Set<EmailChangeToken>().Where(EmailChangeToken.Expired(nowUtc)).ExecuteDeleteAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken) =>
         await dbContext.Users
             .Include(user => user.Photo)

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Herculean.Account.UnitTests.Infrastructure;
 
 /// <summary>
-/// Reads that the in-memory database can't run or that Postgres might not. Each one runs against a server that isn't there:
+/// Reads and bulk deletes that the in-memory database can't run or that Postgres might not. Each one runs against a server that isn't there:
 /// a query Postgres can't run fails before connecting, so failing to connect means it translated.
 /// </summary>
 public sealed class PostgresTranslationTests
@@ -21,6 +21,14 @@ public sealed class PostgresTranslationTests
     [Fact]
     public Task DeletingSoonTranslates() =>
         ShouldTranslateAsync(dbContext => new UserReadRepository(dbContext).ListUsersAsync(null, true, DateTimeOffset.UnixEpoch, 21, Token));
+
+    [Fact]
+    public Task DeletingExpiredTokensTranslates() =>
+        ShouldTranslateAsync(dbContext => new UserRepository(dbContext).DeleteExpiredTokensAsync(DateTimeOffset.UnixEpoch, Token));
+
+    [Fact]
+    public Task DeletingSentOutboxMessagesTranslates() =>
+        ShouldTranslateAsync(dbContext => new Outbox(dbContext, TimeProvider.System).DeleteSentAsync(Token));
 
     private static async Task ShouldTranslateAsync(Func<AccountDbContext, Task> read)
     {

@@ -30,6 +30,7 @@ using Herculean.Account.Application.Users.DeleteCurrentUserPhoto;
 using Herculean.Account.Application.Users.GetCurrentUserPhoto;
 using Herculean.Account.Application.Users.SaveCurrentUserPhoto;
 using Herculean.Account.Application.Users.DeleteDueAccounts;
+using Herculean.Account.Application.Users.DeleteExpiredData;
 using Herculean.Account.Application.Users.ChangePassword;
 using Herculean.Account.Application.Users.CreateUser;
 using Herculean.Account.Application.Users;
@@ -166,6 +167,7 @@ public static class AccountModule
         builder.Services.AddScoped<IValidator<RestoreAccountRequest>, RestoreAccountValidator>();
         builder.Services.AddScoped<RestoreAccountHandler>();
         builder.Services.AddScoped<DeleteDueAccountsHandler>();
+        builder.Services.AddScoped<DeleteExpiredDataHandler>();
         builder.Services.AddScoped<GetCurrentUserPhotoHandler>();
         builder.Services.AddScoped<IValidator<SaveCurrentUserPhotoRequest>, SaveCurrentUserPhotoValidator>();
         builder.Services.AddScoped<SaveCurrentUserPhotoHandler>();

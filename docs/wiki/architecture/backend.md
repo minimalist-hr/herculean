@@ -160,7 +160,7 @@ Herculean.Training.Application/
 
 - Jobs are `BackgroundService`s. There is no job library.
 - **Outbox:** sends saved events.
-- **Account deletion:** once at start and then daily, deletes the accounts whose 14 days are over.
+- **Account deletion:** once at start and then daily, deletes the accounts whose 14 days are over, then expired tokens and sent outbox messages, which can hold an email address. Messages that failed for good stay, with their last error. They are deleted in SQL, without loading them.
 - **Password reset email:** sends the reset links waiting in the queue, one at a time. The queue is in memory: a restart loses what is waiting, and a failed email is only logged. In both cases the user can send the link again.
 
 ## Email

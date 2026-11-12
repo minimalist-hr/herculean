@@ -5,4 +5,7 @@ internal interface IOutbox
 {
     void Add<TEvent>(TEvent @event)
         where TEvent : class;
+
+    /// <summary>Deletes the events every handler finished. Failed ones stay, with their last error.</summary>
+    Task DeleteSentAsync(CancellationToken cancellationToken);
 }

@@ -37,6 +37,9 @@ internal interface IUserRepository
     /// <summary>The users whose time to keep their account is over, with their photo and every kind of token loaded.</summary>
     Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken);
 
+    /// <summary>Deletes every token that can never be used again, without loading it.</summary>
+    Task DeleteExpiredTokensAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken);
+
     void Add(User user);
 
     void Remove(User user);

@@ -45,6 +45,14 @@ internal sealed class FakeUserRepository : IUserRepository
         Users.Remove(user);
     }
 
+    public DateTimeOffset? ExpiredTokensDeletedAt { get; private set; }
+
+    public Task DeleteExpiredTokensAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken)
+    {
+        ExpiredTokensDeletedAt = nowUtc;
+        return Task.CompletedTask;
+    }
+
     public Task<IReadOnlyList<User>> ListDueForDeletionAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<User>>(Users.Where(user => user.DeletionScheduledForUtc <= nowUtc).ToList());
 
@@ -86,6 +94,14 @@ internal sealed class FakeOutbox : IOutbox
         where TEvent : class
     {
         Events.Add(@event);
+    }
+
+    public bool SentDeleted { get; private set; }
+
+    public Task DeleteSentAsync(CancellationToken cancellationToken)
+    {
+        SentDeleted = true;
+        return Task.CompletedTask;
     }
 }
 
