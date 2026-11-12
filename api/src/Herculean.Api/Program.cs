@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,8 +10,6 @@ using Herculean.SharedKernel.Results;
 using Herculean.Training.Infrastructure;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 using Scalar.AspNetCore;
 
@@ -50,12 +47,6 @@ builder.Services.AddSystemHealth();
 builder.AddAccountModule();
 builder.AddTrainingModule();
 builder.AddFeedbackModule();
-
-// The build starts the API to write openapi.json. It has no secrets, so the settings checks are skipped.
-if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
-{
-    builder.Services.RemoveAll<IStartupValidator>();
-}
 
 // The browser preview runs on another origin. The phone app doesn't need CORS.
 if (builder.Environment.IsDevelopment() && builder.Configuration["BrowserPreview:Origin"] is string browserPreviewOrigin)

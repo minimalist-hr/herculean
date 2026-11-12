@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.1",
+  "openapi": "3.2.0",
   "info": {
     "title": "Herculean API",
     "description": "The API of Herculean, a workout log for people who train on a fixed weekly split.",
@@ -11414,70 +11414,70 @@
   },
   "tags": [
     {
-      "name": "Users"
-    },
-    {
       "name": "Admin users"
-    },
-    {
-      "name": "Sessions"
-    },
-    {
-      "name": "Password resets"
-    },
-    {
-      "name": "Email changes"
-    },
-    {
-      "name": "Workout settings"
-    },
-    {
-      "name": "Exercises"
-    },
-    {
-      "name": "Groups"
-    },
-    {
-      "name": "Routines"
-    },
-    {
-      "name": "Week plan"
-    },
-    {
-      "name": "Days"
-    },
-    {
-      "name": "Export"
-    },
-    {
-      "name": "Records"
-    },
-    {
-      "name": "Workouts"
-    },
-    {
-      "name": "Training stats"
-    },
-    {
-      "name": "Starter content"
-    },
-    {
-      "name": "Feedback"
-    },
-    {
-      "name": "Feedback inbox"
-    },
-    {
-      "name": "Saved replies"
-    },
-    {
-      "name": "Feedback blocks"
     },
     {
       "name": "Announcement"
     },
     {
+      "name": "Days"
+    },
+    {
+      "name": "Email changes"
+    },
+    {
+      "name": "Exercises"
+    },
+    {
+      "name": "Export"
+    },
+    {
+      "name": "Feedback"
+    },
+    {
+      "name": "Feedback blocks"
+    },
+    {
+      "name": "Feedback inbox"
+    },
+    {
+      "name": "Groups"
+    },
+    {
+      "name": "Password resets"
+    },
+    {
+      "name": "Records"
+    },
+    {
+      "name": "Routines"
+    },
+    {
+      "name": "Saved replies"
+    },
+    {
+      "name": "Sessions"
+    },
+    {
+      "name": "Starter content"
+    },
+    {
       "name": "System"
+    },
+    {
+      "name": "Training stats"
+    },
+    {
+      "name": "Users"
+    },
+    {
+      "name": "Week plan"
+    },
+    {
+      "name": "Workout settings"
+    },
+    {
+      "name": "Workouts"
     }
   ]
 }

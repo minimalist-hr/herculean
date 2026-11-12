@@ -33,9 +33,9 @@ Every app library must work in Expo Go.
 
 | Need | Choice |
 |---|---|
-| Framework | .NET 10, ASP.NET Core minimal API |
+| Framework | .NET 11, ASP.NET Core minimal API |
 | Database | PostgreSQL |
-| Data access | EF Core, Npgsql |
+| Data access | EF Core 10, Npgsql 10. They move to 11 when their 11 releases are out |
 | Validation | FluentValidation |
 | API docs | Built-in OpenAPI, Scalar |
 | Auth | Our own, no ASP.NET Core Identity ([details](/architecture/backend#auth)) |

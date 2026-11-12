@@ -41,7 +41,7 @@ app:
 
 api:
   stage: check
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:11.0
   extends: .code-changes
   variables:
     NUGET_PACKAGES: $CI_PROJECT_DIR/.nuget
@@ -91,10 +91,10 @@ mr:
       fi
 
 # The C# analyzers run inside the build, so the API is built again here. Tests are not rerun: coverage comes from app and api.
-# Runs on its own on main. On merge requests it is started by hand, to save compute minutes.
+# Runs on its own on main and on merge requests that change code.
 sonarqube:
   stage: analyze
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: mcr.microsoft.com/dotnet/sdk:11.0
   rules:
     # On a merge request it runs by itself, and a failed quality gate shows as a warning without blocking the merge.
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

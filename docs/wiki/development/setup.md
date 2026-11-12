@@ -5,7 +5,7 @@ title: Setup and getting started
 ## Prerequisites
 
 - Git
-- .NET 10 SDK
+- .NET 11 SDK
 - Node.js LTS, with npm
 - Docker Desktop, for PostgreSQL, pgweb and Mailpit
 - Aspire CLI

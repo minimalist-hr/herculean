@@ -59,6 +59,7 @@ using Herculean.Account.Infrastructure.Email;
 using Herculean.Account.Infrastructure.PasswordResets;
 using Herculean.Account.Infrastructure.Users;
 using Herculean.SharedKernel.Auth;
+using Herculean.SharedKernel.Configuration;
 using Herculean.SharedKernel.Events;
 using Herculean.SharedKernel.Health;
 using Herculean.SharedKernel.Persistence;
@@ -92,21 +93,21 @@ public static class AccountModule
         builder.Services.AddOptions<JwtOptions>()
             .BindConfiguration(JwtOptions.Section)
             .ValidateDataAnnotations()
-            .ValidateOnStart();
+            .ValidateWhenRunning();
         builder.Services.AddOptions<TokensOptions>()
             .BindConfiguration(TokensOptions.Section)
             .ValidateDataAnnotations()
-            .ValidateOnStart();
+            .ValidateWhenRunning();
         builder.Services.AddOptions<EmailOptions>()
             .BindConfiguration(EmailOptions.Section)
             .ValidateDataAnnotations()
-            .ValidateOnStart();
+            .ValidateWhenRunning();
         builder.Services.AddOptions<AdminOptions>()
             .BindConfiguration(AdminOptions.Section);
         builder.Services.AddOptions<LinksOptions>()
             .BindConfiguration(LinksOptions.Section)
             .ValidateDataAnnotations()
-            .ValidateOnStart();
+            .ValidateWhenRunning();
 
         // Account issues the access tokens, so it also tells the API how to check them.
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
