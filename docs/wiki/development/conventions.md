@@ -119,7 +119,7 @@ GitLab CI runs `.gitlab-ci.yml` on every merge request and on `main`.
 | check | `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, API client up to date, tests with coverage |
 | check | `api` | Same as `app` | Format check, build, OpenAPI document up to date, tests with coverage |
 | check | `mr` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items) |
-| analyze | `sonarqube` | After `app` and `api` on `main`. Started by hand on merge requests. | SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline on `main`. |
+| analyze | `sonarqube` | After `app` and `api`, on `main` and on merge requests that change code. | SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline on `main`, and shows as a warning on a merge request. |
 | deploy | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |
 
 The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki: the next copy overwrites it.

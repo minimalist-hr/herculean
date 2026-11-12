@@ -96,9 +96,9 @@ sonarqube:
   stage: analyze
   image: mcr.microsoft.com/dotnet/sdk:10.0
   rules:
+    # On a merge request it runs by itself, and a failed quality gate shows as a warning without blocking the merge.
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes: *code-paths
-      when: manual
       allow_failure: true
     - changes: *code-paths
   needs: [app, api]
