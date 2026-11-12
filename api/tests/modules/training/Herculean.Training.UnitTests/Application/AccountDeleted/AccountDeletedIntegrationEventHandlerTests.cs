@@ -43,7 +43,7 @@ public sealed class AccountDeletedIntegrationEventHandlerTests : IDisposable
     [Fact]
     public async Task SoftDeletedRowsGoToo()
     {
-        Group deleted = Group.CreateStarting(_userId)[0];
+        Group deleted = TestGroups.Create(_userId)[0];
         _dbContext.Groups.Add(deleted);
         _dbContext.Entry(deleted).Property(group => group.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -78,7 +78,7 @@ public sealed class AccountDeletedIntegrationEventHandlerTests : IDisposable
 
     private async Task SaveRowsForAsync(UserId userId)
     {
-        IReadOnlyList<Group> groups = Group.CreateStarting(userId);
+        IReadOnlyList<Group> groups = TestGroups.Create(userId);
         _dbContext.Groups.AddRange(groups);
         _dbContext.Exercises.Add(Exercise.Create(userId, "Bench press", groups[0].Id, [groups[1].Id]));
         _dbContext.WorkoutSettings.Add(WorkoutSettings.CreateStarting(userId));

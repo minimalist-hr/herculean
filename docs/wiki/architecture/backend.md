@@ -127,7 +127,7 @@ Herculean.Training.Application/
 
 | Event | From | Handled by | What happens |
 |---|---|---|---|
-| Account created | Account | Training | Creates workout settings with their starting values, the 6 groups and the starter exercises |
+| Account created | Account | Training | Creates workout settings with their starting values, and copies the starter groups and exercises |
 | Account deleted | Account | Training | Deletes the user's training data, soft-deleted rows included |
 | Account deleted | Account | Feedback | Deletes the user's tickets, messages and screenshots |
 | Account deletion scheduled | Account | Account | Sends H38 |

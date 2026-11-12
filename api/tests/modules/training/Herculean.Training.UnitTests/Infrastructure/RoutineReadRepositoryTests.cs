@@ -260,7 +260,7 @@ public sealed class RoutineReadRepositoryTests : IDisposable
 
     private async Task<Routine> SaveRoutineAsync(string name, params (int Sets, int From, int To)[] targets)
     {
-        Group group = Group.CreateStarting(_userId)[0];
+        Group group = TestGroups.Create(_userId)[0];
         _dbContext.Groups.Add(group);
         List<RoutineExerciseValues> values = [];
         foreach ((int sets, int from, int to) in targets)

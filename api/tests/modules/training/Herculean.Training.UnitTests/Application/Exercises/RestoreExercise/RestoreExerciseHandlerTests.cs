@@ -21,7 +21,7 @@ public sealed class RestoreExerciseHandlerTests
 
     public RestoreExerciseHandlerTests()
     {
-        List<Group> groups = [.. Group.CreateStarting(User)];
+        List<Group> groups = [.. TestGroups.Create(User)];
         _chest = groups[0];
         _arms = groups[1];
         _groupRepository.AddRange(groups);

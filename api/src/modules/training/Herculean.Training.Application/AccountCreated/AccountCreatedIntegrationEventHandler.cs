@@ -4,6 +4,7 @@ using Herculean.Training.Domain;
 using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Domain.Starter;
 
 namespace Herculean.Training.Application.AccountCreated;
 
@@ -11,6 +12,8 @@ internal sealed class AccountCreatedIntegrationEventHandler(
     IWorkoutSettingsRepository workoutSettingsRepository,
     IGroupRepository groupRepository,
     IExerciseRepository exerciseRepository,
+    IStarterGroupRepository starterGroupRepository,
+    IStarterExerciseRepository starterExerciseRepository,
     IUnitOfWork unitOfWork) : IIntegrationEventHandler<AccountCreatedIntegrationEvent>
 {
     public async Task HandleAsync(AccountCreatedIntegrationEvent @event, CancellationToken cancellationToken)
@@ -27,14 +30,28 @@ internal sealed class AccountCreatedIntegrationEventHandler(
         // The starter exercises come with the groups, so they are added once too.
         if (!await groupRepository.AnyForUserAsync(userId, cancellationToken))
         {
-            IReadOnlyList<Group> groups = Group.CreateStarting(userId);
-            groupRepository.AddRange(groups);
-            foreach (Exercise exercise in Exercise.CreateStarting(userId, groups))
-            {
-                exerciseRepository.Add(exercise);
-            }
+            await CopyStarterContentAsync(userId, cancellationToken);
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Gives the account its own copy of the starter groups and exercises, as they are now.</summary>
+    private async Task CopyStarterContentAsync(UserId userId, CancellationToken cancellationToken)
+    {
+        List<StarterGroup> starterGroups = await starterGroupRepository.ListAsync(cancellationToken);
+        Dictionary<StarterGroupId, Group> groups = starterGroups
+            .Select((starterGroup, order) => (starterGroup.Id, Group: Group.Create(userId, starterGroup.Name, order)))
+            .ToDictionary(pair => pair.Id, pair => pair.Group);
+        groupRepository.AddRange(groups.Values);
+
+        foreach (StarterExercise starterExercise in await starterExerciseRepository.ListAsync(cancellationToken))
+        {
+            exerciseRepository.Add(Exercise.Create(
+                userId,
+                starterExercise.Name,
+                groups[starterExercise.GroupId].Id,
+                starterExercise.AlsoWorks.Select(alsoWorks => groups[alsoWorks.GroupId].Id)));
+        }
     }
 }

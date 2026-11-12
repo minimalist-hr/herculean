@@ -21,3 +21,9 @@ export const savedReplyKeys = {
 export const blockKeys = {
   user: (id: string) => ['feedback-block', id] as const,
 };
+
+export const starterKeys = {
+  all: ['starter'] as const,
+  groups: ['starter', 'groups'] as const,
+  exercises: ['starter', 'exercises'] as const,
+};

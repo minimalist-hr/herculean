@@ -22,6 +22,7 @@ import {
 } from '@/features/announcement/use-announcement';
 
 import { useSavedReplies } from './use-saved-replies';
+import { useStarterExercises } from './use-starter-content';
 import { summaryOf, useSystemHealth } from './use-system-health';
 
 /** The admin's settings: System health and Sign out. */
@@ -33,11 +34,13 @@ export function AdminSettingsScreen() {
   const user = useCurrentUser();
   const savedReplies = useSavedReplies();
   const announcement = useAdminAnnouncement();
+  const starterExercises = useStarterExercises();
   const refreshControl = usePullToRefresh(() =>
     Promise.all([
       health.refetch(),
       savedReplies.refetch(),
       announcement.refetch(),
+      starterExercises.refetch(),
     ]),
   );
   const [signingOut, setSigningOut] = useState(false);
@@ -68,6 +71,14 @@ export function AdminSettingsScreen() {
     }
 
     return announcement.isLoadingError ? noValue : undefined;
+  }
+
+  function starterExercisesValue() {
+    if (starterExercises.data !== undefined) {
+      return String(starterExercises.data.length);
+    }
+
+    return starterExercises.isLoadingError ? noValue : undefined;
   }
 
   function savedRepliesValue() {
@@ -141,6 +152,13 @@ export function AdminSettingsScreen() {
             value={announcementValue()}
             onPress={() => {
               router.push('/admin/settings/announcement');
+            }}
+          />
+          <SettingsRow
+            label="Starter exercises"
+            value={starterExercisesValue()}
+            onPress={() => {
+              router.push('/admin/settings/starter');
             }}
           />
         </SettingsSection>

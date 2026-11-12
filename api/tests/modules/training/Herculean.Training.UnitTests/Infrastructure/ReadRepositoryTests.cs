@@ -34,7 +34,7 @@ public sealed class ReadRepositoryTests : IDisposable
 
         List<GroupListItemResponse> groups = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
 
-        groups.Select(group => group.Name).ShouldBe(Group.StartingNames);
+        groups.Select(group => group.Name).ShouldBe(TestGroups.Names);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class ReadRepositoryTests : IDisposable
 
         List<GroupListItemResponse> read = await new GroupReadRepository(_dbContext).ListAsync(TestContext.Current.CancellationToken);
 
-        read.Select(group => group.Name).ShouldBe(Group.StartingNames.Skip(1));
+        read.Select(group => group.Name).ShouldBe(TestGroups.Names.Skip(1));
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public sealed class ReadRepositoryTests : IDisposable
 
     private async Task<IReadOnlyList<Group>> SaveGroupsAsync(UserId userId)
     {
-        IReadOnlyList<Group> groups = Group.CreateStarting(userId);
+        IReadOnlyList<Group> groups = TestGroups.Create(userId);
         _dbContext.Groups.AddRange(groups);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

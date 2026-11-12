@@ -5,12 +5,14 @@ using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.WeekPlan;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Domain.Starter;
 using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure.Exercises;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.WeekPlan;
 using Herculean.Training.Infrastructure.Settings;
+using Herculean.Training.Infrastructure.Starter;
 using Herculean.Training.Infrastructure.Workouts;
 
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +40,10 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
 
     public DbSet<Workout> Workouts => Set<Workout>();
 
+    public DbSet<StarterGroup> StarterGroups => Set<StarterGroup>();
+
+    public DbSet<StarterExercise> StarterExercises => Set<StarterExercise>();
+
     private UserId CurrentUserId => currentUser.UserId;
 
     Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
@@ -56,6 +62,9 @@ internal sealed class TrainingDbContext(DbContextOptions<TrainingDbContext> opti
         modelBuilder.ApplyConfiguration(new WorkoutConfiguration());
         modelBuilder.ApplyConfiguration(new WorkoutExerciseConfiguration());
         modelBuilder.ApplyConfiguration(new SetConfiguration());
+        modelBuilder.ApplyConfiguration(new StarterGroupConfiguration());
+        modelBuilder.ApplyConfiguration(new StarterExerciseConfiguration());
+        modelBuilder.ApplyConfiguration(new StarterExerciseAlsoWorksConfiguration());
 
         modelBuilder.Entity<WorkoutSettings>()
             .HasQueryFilter(UserFilter, workoutSettings => workoutSettings.UserId == CurrentUserId);

@@ -16,7 +16,7 @@ public sealed class CreateGroupHandlerTests
 
     public CreateGroupHandlerTests()
     {
-        _groups = Group.CreateStarting(UserId.From(_currentUserAccessor.UserId));
+        _groups = TestGroups.Create(UserId.From(_currentUserAccessor.UserId));
         _groupRepository.AddRange(_groups);
     }
 

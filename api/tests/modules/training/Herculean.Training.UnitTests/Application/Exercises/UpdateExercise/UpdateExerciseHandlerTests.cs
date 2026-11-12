@@ -19,7 +19,7 @@ public sealed class UpdateExerciseHandlerTests
 
     public UpdateExerciseHandlerTests()
     {
-        _groups = Group.CreateStarting(_userId);
+        _groups = TestGroups.Create(_userId);
         _groupRepository.AddRange(_groups);
         _exercise = Exercise.Create(_userId, "Bench press", _groups[0].Id, [_groups[1].Id]);
         _exerciseRepository.Add(_exercise);

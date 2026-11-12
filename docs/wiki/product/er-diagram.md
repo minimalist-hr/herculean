@@ -85,7 +85,7 @@ In its own table, so that reading a user doesn't load the image.
 
 ## Training
 
-Every Training entity has a `UserId` (type `UserId`). It has no foreign key to the Account module.
+Every Training entity but the starter ones has a `UserId` (type `UserId`). It has no foreign key to the Account module. StarterGroup, StarterExercise and StarterExerciseAlsoWorks are Minimalist's own (`[AdminData]`): a new account gets a copy of them.
 
 ```mermaid
 erDiagram
@@ -99,6 +99,9 @@ erDiagram
     Workout ||--o{ WorkoutExercise : has
     Exercise ||--o{ WorkoutExercise : "is done in"
     WorkoutExercise ||--o{ Set : has
+    StarterGroup ||--o{ StarterExercise : "is group of"
+    StarterExercise ||--o{ StarterExerciseAlsoWorks : has
+    StarterGroup ||--o{ StarterExerciseAlsoWorks : "is also worked by"
 ```
 
 ### WorkoutSettings
@@ -214,6 +217,30 @@ erDiagram
 | Checked | bool | |
 | WeightChanged | bool | Changed by hand, so a change on an earlier set leaves it alone |
 | RepsChanged | bool | Changed by hand, so a change on an earlier set leaves them alone |
+
+### StarterGroup
+
+| Property | Type | Notes |
+|---|---|---|
+| Name | string(30) | |
+| NormalizedName | string(30) | Trimmed and lowercase. Unique |
+| Order | int | A new account gets its groups in this order |
+
+### StarterExercise
+
+| Property | Type | Notes |
+|---|---|---|
+| Name | string(100) | |
+| NormalizedName | string(100) | Trimmed and lowercase. Unique |
+| GroupId | StarterGroupId | → StarterGroup |
+| AlsoWorks | list of StarterExerciseAlsoWorks | |
+
+### StarterExerciseAlsoWorks
+
+| Property | Type | Notes |
+|---|---|---|
+| ExerciseId | StarterExerciseId | → StarterExercise |
+| GroupId | StarterGroupId | → StarterGroup. Unique together with ExerciseId |
 
 ## Feedback
 

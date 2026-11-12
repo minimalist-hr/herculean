@@ -35,7 +35,7 @@ public sealed class ExportReadTests : IDisposable
     [Fact]
     public async Task ExportsExercisesRoutinesAndWorkoutsWithTheirNames()
     {
-        IReadOnlyList<Group> groups = Group.CreateStarting(_userId);
+        IReadOnlyList<Group> groups = TestGroups.Create(_userId);
         _dbContext.Groups.AddRange(groups);
         Exercise squat = Exercise.Create(_userId, "Squat", groups[5].Id, []);
         Exercise lunge = Exercise.Create(_userId, "Lunge", groups[5].Id, [groups[0].Id]);

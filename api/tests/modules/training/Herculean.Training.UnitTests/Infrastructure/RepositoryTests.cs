@@ -43,7 +43,7 @@ public sealed class RepositoryTests : IDisposable
     public async Task AddedGroupsAreSaved()
     {
         GroupRepository groupRepository = new(_dbContext);
-        groupRepository.AddRange(Group.CreateStarting(_userId));
+        groupRepository.AddRange(TestGroups.Create(_userId));
         await ((IUnitOfWork)_dbContext).SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _dbContext.ChangeTracker.Clear();
@@ -212,7 +212,7 @@ public sealed class RepositoryTests : IDisposable
 
     private async Task<IReadOnlyList<Group>> SaveGroupsAsync(UserId userId)
     {
-        IReadOnlyList<Group> groups = Group.CreateStarting(userId);
+        IReadOnlyList<Group> groups = TestGroups.Create(userId);
         _dbContext.Groups.AddRange(groups);
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

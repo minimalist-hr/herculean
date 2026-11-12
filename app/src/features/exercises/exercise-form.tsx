@@ -3,9 +3,9 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ApiProblemError, toFormErrors } from '@/api/problem';
-import type { components } from '@/api/schema';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
+import { useFormDelete, type FormDelete } from '@/components/form-delete';
 import { FormError } from '@/components/form-error';
 import { FormPage } from '@/components/form-page';
 import { FieldSkeleton, SkeletonGroup } from '@/components/skeleton';
@@ -18,21 +18,44 @@ import { useTheme } from '@/theme/theme-provider';
 
 import { exerciseSchema, type ExerciseValues } from './exercise-schema';
 import { ChipsSkeleton } from './exercises-skeleton';
-import { useGroups } from './use-groups';
+
+/** The groups an exercise can belong to, as a query. */
+export interface GroupChoices {
+  data?: readonly { id: string; name: string }[];
+  isLoadingError: boolean;
+  refetch: () => unknown;
+}
+
+/** The problem codes the API answers a taken name and a full list with. */
+export interface ExerciseErrorCodes {
+  nameTaken: string;
+  limitReached: string;
+}
+
+const userExerciseCodes: ExerciseErrorCodes = {
+  nameTaken: 'exercise.name_taken',
+  limitReached: 'exercise.limit_reached',
+};
 
 interface ExerciseFormPageProps {
   /** The screen its back link returns to. */
   back: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   initialValues: ExerciseValues;
+  groups: GroupChoices;
+  groupsFailure?: string;
+  codes?: ExerciseErrorCodes;
   saving: boolean;
   /** Saves the values. A failure it throws shows on the form. */
   onSave: (values: ExerciseValues) => Promise<unknown>;
+  /** Edit can have a delete that asks first. */
+  remove?: FormDelete;
 }
 
 function useExerciseForm(
   initialValues: ExerciseValues,
+  codes: ExerciseErrorCodes,
   onSave: (values: ExerciseValues) => Promise<unknown>,
 ) {
   const form = useForm({
@@ -50,14 +73,14 @@ function useExerciseForm(
       guard.block();
       if (
         error instanceof ApiProblemError &&
-        error.problem.code === 'exercise.limit_reached'
+        error.problem.code === codes.limitReached
       ) {
         notifyFailure(error.problem.detail);
         return;
       }
 
       const formErrors = toFormErrors(error, ['name'], {
-        'exercise.name_taken': 'name',
+        [codes.nameTaken]: 'name',
       });
       if (formErrors.fields.name !== undefined) {
         form.setError('name', { message: formErrors.fields.name });
@@ -84,9 +107,16 @@ function AlsoWorksLabel() {
   );
 }
 
-function ExerciseFields({ form }: { form: ExerciseForm }) {
+function ExerciseFields({
+  form,
+  groups,
+  groupsFailure,
+}: {
+  form: ExerciseForm;
+  groups: GroupChoices;
+  groupsFailure: string;
+}) {
   const { colors, size, space, text } = useTheme();
-  const groups = useGroups();
   const { control, setValue, formState } = form;
   const { errors } = formState;
   const groupId = useWatch({ control, name: 'groupId' });
@@ -118,9 +148,7 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
   }
 
   function renderGroups(
-    renderChips: (
-      group: components['schemas']['GroupResponse'],
-    ) => React.ReactNode,
+    renderChips: (group: { id: string; name: string }) => React.ReactNode,
   ) {
     return (
       <View style={[styles.chips, { gap: size.gap.chips }]}>
@@ -157,7 +185,7 @@ function ExerciseFields({ form }: { form: ExerciseForm }) {
 
       {groups.isLoadingError ? (
         <View style={styles.groupsFailed}>
-          <FormError message="Couldn’t load your groups." />
+          <FormError message={groupsFailure} />
           <TextLink
             label="Try again"
             onPress={() => {
@@ -247,10 +275,15 @@ export function ExerciseFormPage({
   title,
   subtitle,
   initialValues,
+  groups,
+  groupsFailure = 'Couldn’t load your groups.',
+  codes = userExerciseCodes,
   saving,
   onSave,
+  remove,
 }: ExerciseFormPageProps) {
-  const { form, submit, guard } = useExerciseForm(initialValues, onSave);
+  const { form, submit, guard } = useExerciseForm(initialValues, codes, onSave);
+  const deleting = useFormDelete(remove, guard);
 
   return (
     <>
@@ -258,6 +291,7 @@ export function ExerciseFormPage({
         back={back}
         title={title}
         subtitle={subtitle}
+        headerAction={deleting.headerAction}
         action={
           <Button
             label="Save exercise"
@@ -267,8 +301,13 @@ export function ExerciseFormPage({
           />
         }
       >
-        <ExerciseFields form={form} />
+        <ExerciseFields
+          form={form}
+          groups={groups}
+          groupsFailure={groupsFailure}
+        />
       </FormPage>
+      {deleting.sheet}
       {guard.sheet}
     </>
   );

@@ -43,6 +43,15 @@ using Herculean.Training.Application.Routines.ListRoutines;
 using Herculean.Training.Application.Routines.RestoreRoutine;
 using Herculean.Training.Application.Routines.UpdateRoutine;
 using Herculean.Training.Application.Settings;
+using Herculean.Training.Application.Starter;
+using Herculean.Training.Application.Starter.CreateStarterExercise;
+using Herculean.Training.Application.Starter.CreateStarterGroup;
+using Herculean.Training.Application.Starter.DeleteStarterExercise;
+using Herculean.Training.Application.Starter.DeleteStarterGroup;
+using Herculean.Training.Application.Starter.ListStarterExercises;
+using Herculean.Training.Application.Starter.ListStarterGroups;
+using Herculean.Training.Application.Starter.RenameStarterGroup;
+using Herculean.Training.Application.Starter.UpdateStarterExercise;
 using Herculean.Training.Application.Stats;
 using Herculean.Training.Application.Stats.GetTrainingStats;
 using Herculean.Training.Application.Stats.GetUserTraining;
@@ -73,6 +82,7 @@ using Herculean.Training.Domain.Exercises;
 using Herculean.Training.Domain.Groups;
 using Herculean.Training.Domain.Routines;
 using Herculean.Training.Domain.Settings;
+using Herculean.Training.Domain.Starter;
 using Herculean.Training.Domain.WeekPlan;
 using Herculean.Training.Domain.Workouts;
 using Herculean.Training.Infrastructure.Days;
@@ -81,6 +91,7 @@ using Herculean.Training.Infrastructure.Export;
 using Herculean.Training.Infrastructure.Groups;
 using Herculean.Training.Infrastructure.Routines;
 using Herculean.Training.Infrastructure.Settings;
+using Herculean.Training.Infrastructure.Starter;
 using Herculean.Training.Infrastructure.Stats;
 using Herculean.Training.Infrastructure.WeekPlan;
 using Herculean.Training.Infrastructure.Workouts;
@@ -106,6 +117,8 @@ public static class TrainingModule
         builder.Services.AddScoped<UserClock>();
         builder.Services.AddUniqueIndexError(ExerciseConfiguration.NameIndex, ExerciseErrors.NameTaken);
         builder.Services.AddUniqueIndexError(GroupConfiguration.NameIndex, GroupErrors.NameTaken);
+        builder.Services.AddUniqueIndexError(StarterGroupConfiguration.NameIndex, StarterErrors.GroupNameTaken);
+        builder.Services.AddUniqueIndexError(StarterExerciseConfiguration.NameIndex, StarterErrors.ExerciseNameTaken);
         builder.Services.AddUniqueIndexError(RoutineConfiguration.NameIndex, RoutineErrors.NameTaken);
         builder.Services.AddUniqueIndexError(WorkoutConfiguration.DateIndex, WorkoutErrors.DateTaken);
         builder.Services.AddUniqueIndexError(WorkoutConfiguration.InProgressIndex, WorkoutErrors.AnotherInProgress);
@@ -129,6 +142,20 @@ public static class TrainingModule
         builder.Services.AddScoped<ITrainingStatsReadRepository, TrainingStatsReadRepository>();
         builder.Services.AddScoped<GetTrainingStatsHandler>();
         builder.Services.AddScoped<GetUserTrainingHandler>();
+
+        builder.Services.AddScoped<IStarterGroupRepository, StarterGroupRepository>();
+        builder.Services.AddScoped<IStarterExerciseRepository, StarterExerciseRepository>();
+        builder.Services.AddScoped<IStarterReadRepository, StarterReadRepository>();
+        builder.Services.AddScoped<IValidator<SaveStarterGroupRequest>, SaveStarterGroupValidator>();
+        builder.Services.AddScoped<IValidator<SaveStarterExerciseRequest>, SaveStarterExerciseValidator>();
+        builder.Services.AddScoped<ListStarterGroupsHandler>();
+        builder.Services.AddScoped<CreateStarterGroupHandler>();
+        builder.Services.AddScoped<RenameStarterGroupHandler>();
+        builder.Services.AddScoped<DeleteStarterGroupHandler>();
+        builder.Services.AddScoped<ListStarterExercisesHandler>();
+        builder.Services.AddScoped<CreateStarterExerciseHandler>();
+        builder.Services.AddScoped<UpdateStarterExerciseHandler>();
+        builder.Services.AddScoped<DeleteStarterExerciseHandler>();
 
         builder.Services.AddIntegrationEventHandler<AccountCreatedIntegrationEvent, AccountCreatedIntegrationEventHandler>();
         builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
@@ -265,6 +292,14 @@ public static class TrainingModule
         UpdateGroupOrderEndpoint.Map(endpoints);
         GetTrainingStatsEndpoint.Map(endpoints);
         GetUserTrainingEndpoint.Map(endpoints);
+        ListStarterGroupsEndpoint.Map(endpoints);
+        CreateStarterGroupEndpoint.Map(endpoints);
+        RenameStarterGroupEndpoint.Map(endpoints);
+        DeleteStarterGroupEndpoint.Map(endpoints);
+        ListStarterExercisesEndpoint.Map(endpoints);
+        CreateStarterExerciseEndpoint.Map(endpoints);
+        UpdateStarterExerciseEndpoint.Map(endpoints);
+        DeleteStarterExerciseEndpoint.Map(endpoints);
     }
 
     /// <summary>Applies the Training module's pending migrations.</summary>

@@ -42,7 +42,7 @@ public sealed class WorkoutTotalsReadTests : IDisposable
 
     private async Task<Exercise> SaveExerciseAsync()
     {
-        Group group = Group.CreateStarting(_userId)[0];
+        Group group = TestGroups.Create(_userId)[0];
         _dbContext.Groups.Add(group);
         Exercise exercise = Exercise.Create(_userId, $"Squat {Guid.NewGuid()}", group.Id, []);
         _dbContext.Exercises.Add(exercise);

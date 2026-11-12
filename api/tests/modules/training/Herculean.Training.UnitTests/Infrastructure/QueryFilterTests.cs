@@ -38,7 +38,7 @@ public sealed class QueryFilterTests : IDisposable
     [Fact]
     public async Task DeletedRowsAreLeftOut()
     {
-        Group deletedGroup = Group.CreateStarting(_userId)[0];
+        Group deletedGroup = TestGroups.Create(_userId)[0];
         _dbContext.Groups.Add(deletedGroup);
         _dbContext.Entry(deletedGroup).Property(group => group.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -67,7 +67,7 @@ public sealed class QueryFilterTests : IDisposable
     [Fact]
     public async Task TheGroupCheckCountsDeletedGroups()
     {
-        Group deletedGroup = Group.CreateStarting(_userId)[0];
+        Group deletedGroup = TestGroups.Create(_userId)[0];
         _dbContext.Groups.Add(deletedGroup);
         _dbContext.Entry(deletedGroup).Property(group => group.DeletedAtUtc).CurrentValue = DateTimeOffset.UnixEpoch;
         await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -89,7 +89,7 @@ public sealed class QueryFilterTests : IDisposable
     {
         foreach (UserId userId in new[] { _userId, _otherUserId })
         {
-            _dbContext.Groups.AddRange(Group.CreateStarting(userId));
+            _dbContext.Groups.AddRange(TestGroups.Create(userId));
             _dbContext.WorkoutSettings.Add(WorkoutSettings.CreateStarting(userId));
         }
 

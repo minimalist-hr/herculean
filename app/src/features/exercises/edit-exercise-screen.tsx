@@ -9,6 +9,7 @@ import { notifySuccess } from '@/components/notifications';
 import { ExerciseFormPage, ExerciseFormSkeleton } from './exercise-form';
 import { useExercise } from './use-exercise';
 import { useUpdateExercise } from './use-update-exercise';
+import { useGroups } from './use-groups';
 
 const title = 'Edit exercise';
 const subtitle = 'Changes show everywhere it’s used, including past workouts.';
@@ -48,6 +49,7 @@ function Form({
 }) {
   const router = useRouter();
   const updateExercise = useUpdateExercise(exercise.id);
+  const groups = useGroups();
 
   return (
     <ExerciseFormPage
@@ -59,6 +61,7 @@ function Form({
         groupId: exercise.group.id,
         alsoWorksGroupIds: exercise.alsoWorksGroups.map((group) => group.id),
       }}
+      groups={groups}
       saving={updateExercise.isPending}
       onSave={async (values) => {
         const saved = await updateExercise.mutateAsync(values);

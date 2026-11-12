@@ -60,7 +60,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - Removing a photo emails the user why.
 - A user is last active when their app signs in or renews its sign in.
 - After the 14 days, all the account's data is deleted, soft-deleted rows included, and there is no undo. A last email tells the user.
-- A new account gets the name, units and default rest time from A30, the 6 groups (Chest, Back, Shoulders, Biceps, Triceps, Legs) and 28 starter exercises, which can be edited or deleted like any other:
+- A new account gets the name, units and default rest time from A30, and its own copy of the starter groups and exercises, which can be edited or deleted like any other. Minimalist edits the starter content in the admin area. A change reaches only accounts created after it. The starter content follows the rules for a user's groups and exercises: at most 50 groups and 500 exercises, names unique in any case, and a group can't be deleted while a starter exercise uses it. New groups go last. Until it is edited, the starter content is these 6 groups and 28 exercises:
   - Chest: Flat barbell bench press (also Shoulders, Triceps), Incline dumbbell bench press (Triceps), Cable crossover, Smith machine incline bench press (Shoulders, Triceps), Flat dumbbell bench press (Triceps), Machine crossover.
   - Back: Pull-up (Biceps), Machine row, Lat pulldown, T-bar row, Cable row.
   - Shoulders: Smith machine press, Dumbbell press, Lateral dumbbell raise, Machine press, Lateral machine raise.

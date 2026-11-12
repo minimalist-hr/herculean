@@ -19,7 +19,7 @@ public sealed class CreateExerciseHandlerTests
 
     public CreateExerciseHandlerTests()
     {
-        _groups = Group.CreateStarting(UserId.From(_currentUserAccessor.UserId));
+        _groups = TestGroups.Create(UserId.From(_currentUserAccessor.UserId));
         _groupRepository.AddRange(_groups);
         _handler = new CreateExerciseHandler(new CreateExerciseValidator(), new CurrentUser(_currentUserAccessor), _exerciseRepository, _groupRepository, _unitOfWork);
     }

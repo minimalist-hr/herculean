@@ -1,19 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { BackLink } from '@/components/back-link';
-import { EmptyCard } from '@/components/empty-card';
-import { ChevronRightIcon } from '@/components/icons';
-import { ListCard } from '@/components/list-card';
-import { LoadFailure } from '@/components/load-failure';
-import { NewButton, useNewButtonRoom } from '@/components/new-button';
-import { dismissNotification, notifyFailure } from '@/components/notifications';
-import { usePageEnd } from '@/components/above-tab-bar';
-import { ScreenHeading } from '@/components/screen-heading';
-import { Skeleton } from '@/components/skeleton';
-import { Tappable } from '@/components/tappable';
-import { useTheme } from '@/theme/theme-provider';
-
+import { AdminListPage } from './admin-list-page';
 import {
   useCreateSavedReply,
   useDeleteSavedReply,
@@ -27,137 +14,43 @@ const maxSavedReplies = 50;
 /** The saved replies every admin can pick on a ticket. */
 export function SavedRepliesScreen() {
   const router = useRouter();
-  const { colors, size, space, text } = useTheme();
-  const pageEnd = usePageEnd();
-  const newButtonRoom = useNewButtonRoom();
   const replies = useSavedReplies();
   const full = (replies.data?.length ?? 0) >= maxSavedReplies;
 
-  function renderList() {
-    if (replies.data !== undefined) {
-      if (replies.data.length === 0) {
-        return (
-          <EmptyCard
-            title="No saved replies"
-            message="Add one to answer faster."
-          />
-        );
-      }
-
-      return (
-        <ListCard>
-          {replies.data.map((reply, index) => (
-            <Tappable
-              key={reply.id}
-              feedback="fill"
-              accessibilityRole="button"
-              accessibilityLabel={reply.title}
-              onPress={() => {
-                router.push({
-                  pathname: '/admin/settings/saved-replies/[id]',
-                  params: { id: reply.id },
-                });
-              }}
-              style={[
-                styles.row,
-                {
-                  gap: space.md,
-                  minHeight: size.optionRowMin,
-                  paddingVertical: space.md,
-                  paddingHorizontal: space.lg,
-                  borderTopWidth: index === 0 ? 0 : 1,
-                  borderTopColor: colors.border,
-                },
-              ]}
-            >
-              <View style={[styles.summary, { gap: space.xxs }]}>
-                <Text style={[text.listItemName, { color: colors.text }]}>
-                  {reply.title}
-                </Text>
-                <Text numberOfLines={1} style={text.meta}>
-                  {reply.text}
-                </Text>
-              </View>
-              <ChevronRightIcon color={colors.muted} size={16} />
-            </Tappable>
-          ))}
-        </ListCard>
-      );
-    }
-
-    if (replies.isLoadingError) {
-      return (
-        <LoadFailure
-          message="Couldn’t load saved replies."
-          onRetry={() => {
-            void replies.refetch();
-          }}
-        />
-      );
-    }
-
-    return (
-      <View accessible accessibilityLabel="Loading saved replies">
-        <ListCard>
-          {[100, 80].map((width, index) => (
-            <View
-              key={index}
-              style={{
-                gap: space.xs,
-                minHeight: size.optionRowMin,
-                paddingVertical: space.md,
-                paddingHorizontal: space.lg,
-                borderTopWidth: index === 0 ? 0 : 1,
-                borderTopColor: colors.border,
-              }}
-            >
-              <Skeleton width={width} height={16} />
-              <Skeleton width={200} height={12} />
-            </View>
-          ))}
-        </ListCard>
-      </View>
-    );
-  }
-
   return (
-    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
-      <ScrollView
-        contentContainerStyle={{
-          gap: space.xl,
-          paddingTop: size.topPaddingSubPage,
-          paddingHorizontal: size.sidePadding,
-          paddingBottom: pageEnd + newButtonRoom,
-        }}
-      >
-        <View style={{ gap: space.xxxs }}>
-          <BackLink
-            label="Settings"
-            onPress={() => {
-              router.back();
-            }}
-          />
-          <ScreenHeading
-            title="Saved replies"
-            subtitle="Answers you send often."
-          />
-        </View>
-        {renderList()}
-      </ScrollView>
-      <NewButton
-        label="New saved reply"
-        muted={full}
-        onPress={() => {
-          if (full) {
-            notifyFailure('At most 50 saved replies.');
-            return;
-          }
-
-          dismissNotification();
+    <AdminListPage
+      back="Settings"
+      title="Saved replies"
+      subtitle="Answers you send often."
+      rows={replies.data?.map((reply) => ({
+        id: reply.id,
+        title: reply.title,
+        detail: reply.text,
+      }))}
+      failed={replies.isLoadingError}
+      onRetry={() => {
+        void replies.refetch();
+      }}
+      failureMessage="Couldn’t load saved replies."
+      loadingLabel="Loading saved replies"
+      empty={{
+        title: 'No saved replies',
+        message: 'Add one to answer faster.',
+      }}
+      onOpen={(id) => {
+        router.push({
+          pathname: '/admin/settings/saved-replies/[id]',
+          params: { id },
+        });
+      }}
+      newButton={{
+        label: 'New saved reply',
+        mutedReason: full ? 'At most 50 saved replies.' : undefined,
+        onPress: () => {
           router.push('/admin/settings/saved-replies/new');
-        }}
-      />
-    </View>
+        },
+      }}
+    />
   );
 }
 
@@ -195,22 +88,14 @@ export function EditSavedReplyScreen() {
       onSave={(draft) => update.mutateAsync(draft)}
       savedMessage="Saved reply changed."
       remove={{
+        label: 'Delete saved reply',
+        title: 'Delete this saved reply?',
+        message: 'It’s gone for good.',
         deleting: remove.isPending,
         onDelete: () => remove.mutateAsync(),
+        deletedMessage: 'Saved reply deleted.',
+        failureMessage: 'Couldn’t delete the reply. Try again.',
       }}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  summary: {
-    flex: 1,
-  },
-});

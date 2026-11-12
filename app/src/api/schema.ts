@@ -1252,6 +1252,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/starter-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List starter groups
+         * @description Every group a new account starts with, in order, with how many starter exercises belong to each. Admins only.
+         */
+        get: operations["ListStarterGroups"];
+        put?: never;
+        /**
+         * Create a starter group
+         * @description Adds a group, last, to what new accounts start with. Accounts already made keep theirs. At most 50. Admins only.
+         */
+        post: operations["CreateStarterGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/starter-groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Rename a starter group
+         * @description Changes a starter group's name for accounts made from now on. Admins only.
+         */
+        put: operations["RenameStarterGroup"];
+        post?: never;
+        /**
+         * Delete a starter group
+         * @description Removes a group from what new accounts start with. Only a group no starter exercise uses can be deleted. Admins only.
+         */
+        delete: operations["DeleteStarterGroup"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/starter-exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List starter exercises
+         * @description Every exercise a new account starts with, in the order they were made. Admins only.
+         */
+        get: operations["ListStarterExercises"];
+        put?: never;
+        /**
+         * Create a starter exercise
+         * @description Adds an exercise to what new accounts start with. Accounts already made keep theirs. At most 500. Admins only.
+         */
+        post: operations["CreateStarterExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/starter-exercises/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change a starter exercise
+         * @description Changes a starter exercise's name and groups for accounts made from now on. Admins only.
+         */
+        put: operations["UpdateStarterExercise"];
+        post?: never;
+        /**
+         * Delete a starter exercise
+         * @description Removes an exercise from what new accounts start with. Accounts already made keep theirs. Admins only.
+         */
+        delete: operations["DeleteStarterExercise"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback": {
         parameters: {
             query?: never;
@@ -2905,6 +3001,23 @@ export interface components {
             /** @description The reply, 1 to 2,000 characters, trimmed. {name} becomes the user's name when it's picked. */
             text: string;
         };
+        /** @description A starter exercise. */
+        SaveStarterExerciseRequest: {
+            /** @description The name, 1 to 100 characters. Spaces around it are removed. It must differ from the other starter exercises, regardless of case. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The starter group it belongs to.
+             */
+            groupId: string;
+            /** @description Other starter groups it also works. Optional. It can't repeat a group, or include the group it belongs to. */
+            alsoWorksGroupIds: null | string[];
+        };
+        /** @description A starter group's name. */
+        SaveStarterGroupRequest: {
+            /** @description The name, 1 to 30 characters. Spaces around it are removed. It must differ from the other starter groups, regardless of case. */
+            name: string;
+        };
         /** @description A screenshot on a message. */
         ScreenshotResponse: {
             /** @description The screenshot as a Base64 JPEG. */
@@ -2986,6 +3099,46 @@ export interface components {
              * @default false
              */
             partialsDone: boolean;
+        };
+        /** @description The new starter group or exercise. */
+        StarterCreatedResponse: {
+            /**
+             * Format: uuid
+             * @description Its ID.
+             */
+            id: string;
+        };
+        /** @description An exercise every new account starts with. */
+        StarterExerciseResponse: {
+            /**
+             * Format: uuid
+             * @description The starter exercise's ID.
+             */
+            id: string;
+            /** @description Its name. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description The starter group it belongs to.
+             */
+            groupId: string;
+            /** @description Other starter groups it also works, which can be none. */
+            alsoWorksGroupIds: string[];
+        };
+        /** @description A group every new account starts with. */
+        StarterGroupResponse: {
+            /**
+             * Format: uuid
+             * @description The starter group's ID.
+             */
+            id: string;
+            /** @description Its name. */
+            name: string;
+            /**
+             * Format: int32
+             * @description How many starter exercises belong to it.
+             */
+            exerciseCount: number;
         };
         /** @description How long the user has kept to their plan. */
         StreakResponse: {
@@ -7400,6 +7553,452 @@ export interface operations {
             };
             /** @description The account isn't an admin. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListStarterGroups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The starter groups, which can be none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StarterGroupResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateStarterGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveStarterGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description The starter group's ID. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StarterCreatedResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There are 50 starter groups already, or one has this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RenameStarterGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveStarterGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description The starter group is renamed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no starter group with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Another starter group has this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteStarterGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The starter group is gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no starter group with this ID. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description A starter exercise uses the group, as its group or as also works. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListStarterExercises: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The starter exercises, which can be none. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StarterExerciseResponse"][];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateStarterExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveStarterExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description The starter exercise's ID. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StarterCreatedResponse"];
+                };
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description A starter group does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There are 500 starter exercises already, or one has this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateStarterExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveStarterExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description The starter exercise is changed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no starter exercise with this ID, or a starter group does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Another starter exercise has this name. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteStarterExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The starter exercise is gone. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description There is no starter exercise with this ID. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

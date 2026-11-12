@@ -5099,6 +5099,576 @@
         ]
       }
     },
+    "/api/v1/admin/starter-groups": {
+      "get": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "List starter groups",
+        "description": "Every group a new account starts with, in order, with how many starter exercises belong to each. Admins only.",
+        "operationId": "ListStarterGroups",
+        "responses": {
+          "200": {
+            "description": "The starter groups, which can be none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StarterGroupResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "Create a starter group",
+        "description": "Adds a group, last, to what new accounts start with. Accounts already made keep theirs. At most 50. Admins only.",
+        "operationId": "CreateStarterGroup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveStarterGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The starter group's ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StarterCreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "There are 50 starter groups already, or one has this name.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/starter-groups/{id}": {
+      "put": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "Rename a starter group",
+        "description": "Changes a starter group's name for accounts made from now on. Admins only.",
+        "operationId": "RenameStarterGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveStarterGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The starter group is renamed."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no starter group with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another starter group has this name.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "Delete a starter group",
+        "description": "Removes a group from what new accounts start with. Only a group no starter exercise uses can be deleted. Admins only.",
+        "operationId": "DeleteStarterGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The starter group is gone."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no starter group with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A starter exercise uses the group, as its group or as also works.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/starter-exercises": {
+      "get": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "List starter exercises",
+        "description": "Every exercise a new account starts with, in the order they were made. Admins only.",
+        "operationId": "ListStarterExercises",
+        "responses": {
+          "200": {
+            "description": "The starter exercises, which can be none.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StarterExerciseResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "Create a starter exercise",
+        "description": "Adds an exercise to what new accounts start with. Accounts already made keep theirs. At most 500. Admins only.",
+        "operationId": "CreateStarterExercise",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveStarterExerciseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The starter exercise's ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StarterCreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A starter group does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "There are 500 starter exercises already, or one has this name.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/starter-exercises/{id}": {
+      "put": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "Change a starter exercise",
+        "description": "Changes a starter exercise's name and groups for accounts made from now on. Admins only.",
+        "operationId": "UpdateStarterExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveStarterExerciseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The starter exercise is changed."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no starter exercise with this ID, or a starter group does not exist.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another starter exercise has this name.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Starter content"
+        ],
+        "summary": "Delete a starter exercise",
+        "description": "Removes an exercise from what new accounts start with. Accounts already made keep theirs. Admins only.",
+        "operationId": "DeleteStarterExercise",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The starter exercise is gone."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "There is no starter exercise with this ID.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback": {
       "post": {
         "tags": [
@@ -9283,6 +9853,50 @@
         },
         "description": "A saved reply's title and text."
       },
+      "SaveStarterExerciseRequest": {
+        "required": [
+          "name",
+          "groupId",
+          "alsoWorksGroupIds"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 100 characters. Spaces around it are removed. It must differ from the other starter exercises, regardless of case."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The starter group it belongs to.",
+            "format": "uuid"
+          },
+          "alsoWorksGroupIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Other starter groups it also works. Optional. It can't repeat a group, or include the group it belongs to."
+          }
+        },
+        "description": "A starter exercise."
+      },
+      "SaveStarterGroupRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name, 1 to 30 characters. Spaces around it are removed. It must differ from the other starter groups, regardless of case."
+          }
+        },
+        "description": "A starter group's name."
+      },
       "ScreenshotResponse": {
         "required": [
           "image"
@@ -9419,6 +10033,79 @@
           }
         },
         "description": "A set in a workout."
+      },
+      "StarterCreatedResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Its ID.",
+            "format": "uuid"
+          }
+        },
+        "description": "The new starter group or exercise."
+      },
+      "StarterExerciseResponse": {
+        "required": [
+          "id",
+          "name",
+          "groupId",
+          "alsoWorksGroupIds"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The starter exercise's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Its name."
+          },
+          "groupId": {
+            "type": "string",
+            "description": "The starter group it belongs to.",
+            "format": "uuid"
+          },
+          "alsoWorksGroupIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Other starter groups it also works, which can be none."
+          }
+        },
+        "description": "An exercise every new account starts with."
+      },
+      "StarterGroupResponse": {
+        "required": [
+          "id",
+          "name",
+          "exerciseCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The starter group's ID.",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Its name."
+          },
+          "exerciseCount": {
+            "type": "integer",
+            "description": "How many starter exercises belong to it.",
+            "format": "int32"
+          }
+        },
+        "description": "A group every new account starts with."
       },
       "StreakResponse": {
         "required": [
@@ -10769,6 +11456,9 @@
     },
     {
       "name": "Training stats"
+    },
+    {
+      "name": "Starter content"
     },
     {
       "name": "Feedback"

@@ -17,7 +17,7 @@ import { tokens } from '@/theme/tokens';
 import { useLinks } from '@/features/links/use-links';
 import { useTheme } from '@/theme/theme-provider';
 
-import { ExerciseRow } from './exercise-row';
+import { bestSetText, ExerciseRow } from './exercise-row';
 import { DetailsSkeleton } from './exercises-skeleton';
 import { countOf } from './groups-list';
 import { NoSessionsCard } from './no-sessions-card';
@@ -92,8 +92,8 @@ function Details({ group }: { group: Group }) {
     return exercises.map((exercise, index) => (
       <ExerciseRow
         key={exercise.id}
-        exercise={exercise}
-        units={units}
+        name={exercise.name}
+        detail={bestSetText(exercise, units)}
         first={index === 0}
         last={index === exercises.length - 1}
         onPress={() => {

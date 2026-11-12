@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
+import { useFormDelete, type FormDelete } from '@/components/form-delete';
 import { FormPage } from '@/components/form-page';
 import {
   clearingNotification,
@@ -26,12 +27,16 @@ interface GroupFormPageProps {
   /** The screen its back link returns to. */
   back: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   initialName: string;
+  /** The problem code the API answers a taken name with. */
+  nameTakenCode?: string;
   saving: boolean;
   /** Saves the name. A failure it throws shows under Name, or in a notification. */
   onSave: (name: string) => Promise<{ name: string }>;
   savedMessage: (name: string) => string;
+  /** Edit can have a delete that asks first. */
+  remove?: FormDelete;
 }
 
 export function GroupFormPage({
@@ -39,9 +44,11 @@ export function GroupFormPage({
   title,
   subtitle,
   initialName,
+  nameTakenCode = 'group.name_taken',
   saving,
   onSave,
   savedMessage,
+  remove,
 }: GroupFormPageProps) {
   const router = useRouter();
   const { control, handleSubmit, setError, formState } = useForm({
@@ -49,6 +56,7 @@ export function GroupFormPage({
     defaultValues: { name: initialName },
   });
   const guard = useLeaveGuard(formState.isDirty);
+  const deleting = useFormDelete(remove, guard);
 
   const submit = handleSubmit(async ({ name }) => {
     guard.allow();
@@ -59,7 +67,7 @@ export function GroupFormPage({
     } catch (error) {
       guard.block();
       const formErrors = toFormErrors(error, ['name'], {
-        'group.name_taken': 'name',
+        [nameTakenCode]: 'name',
       });
       if (formErrors.fields.name !== undefined) {
         setError('name', { message: formErrors.fields.name });
@@ -76,6 +84,7 @@ export function GroupFormPage({
         back={back}
         title={title}
         subtitle={subtitle}
+        headerAction={deleting.headerAction}
         action={
           <Button
             label="Save group"
@@ -102,6 +111,7 @@ export function GroupFormPage({
           )}
         />
       </FormPage>
+      {deleting.sheet}
       {guard.sheet}
     </>
   );

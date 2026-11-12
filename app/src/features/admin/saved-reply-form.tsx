@@ -1,17 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/button';
+import { useFormDelete, type FormDelete } from '@/components/form-delete';
 import { FormPage } from '@/components/form-page';
-import { HeaderIconButton } from '@/components/header-icon-button';
-import { TrashIcon } from '@/components/icons';
-import { notifyFailure, notifySuccess } from '@/components/notifications';
-import { Sheet } from '@/components/sheet';
+import { notifySuccess } from '@/components/notifications';
 import { useLeaveGuard } from '@/components/use-leave-guard';
-import { useTheme } from '@/theme/theme-provider';
 
 import { showSaveFailure, TitleTextFields } from './title-text-fields';
 import {
@@ -49,16 +45,15 @@ export function SavedReplyForm({
   onSave: (draft: SavedReplyDraft) => Promise<unknown>;
   savedMessage: string;
   /** Edit has a delete that asks first. */
-  remove?: { deleting: boolean; onDelete: () => Promise<unknown> };
+  remove?: FormDelete;
 }) {
   const router = useRouter();
-  const { colors } = useTheme();
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const { control, handleSubmit, setError, formState } = useForm({
     resolver: zodResolver(savedReplySchema),
     defaultValues: initial,
   });
   const guard = useLeaveGuard(formState.isDirty);
+  const deleting = useFormDelete(remove, guard);
 
   const submit = handleSubmit(async (draft) => {
     guard.allow();
@@ -72,40 +67,12 @@ export function SavedReplyForm({
     }
   });
 
-  async function confirmDelete() {
-    if (remove === undefined) {
-      return;
-    }
-
-    guard.allow();
-    try {
-      await remove.onDelete();
-      setConfirmingDelete(false);
-      notifySuccess('Saved reply deleted.');
-      router.back();
-    } catch {
-      guard.block();
-      notifyFailure('Couldn’t delete the reply. Try again.');
-    }
-  }
-
   return (
     <>
       <FormPage
         back="Saved replies"
         title={title}
-        headerAction={
-          remove === undefined ? undefined : (
-            <HeaderIconButton
-              label="Delete saved reply"
-              onPress={() => {
-                setConfirmingDelete(true);
-              }}
-            >
-              <TrashIcon color={colors.dangerFill} size={20} />
-            </HeaderIconButton>
-          )
-        }
+        headerAction={deleting.headerAction}
         action={
           <Button
             label="Save reply"
@@ -123,24 +90,7 @@ export function SavedReplyForm({
           textHelper="Write {name} for the user’s name."
         />
       </FormPage>
-      {remove !== undefined && (
-        <Sheet
-          visible={confirmingDelete}
-          title="Delete this saved reply?"
-          message="It’s gone for good."
-          onClose={() => {
-            setConfirmingDelete(false);
-          }}
-        >
-          <Button
-            label="Delete"
-            waitingLabel="Deleting"
-            variant="danger"
-            waiting={remove.deleting}
-            onPress={() => void confirmDelete()}
-          />
-        </Sheet>
-      )}
+      {deleting.sheet}
       {guard.sheet}
     </>
   );

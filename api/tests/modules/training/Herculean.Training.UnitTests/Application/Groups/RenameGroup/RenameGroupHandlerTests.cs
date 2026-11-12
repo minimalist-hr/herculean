@@ -15,7 +15,7 @@ public sealed class RenameGroupHandlerTests
 
     public RenameGroupHandlerTests()
     {
-        _groups = Group.CreateStarting(UserId.From(_currentUserAccessor.UserId));
+        _groups = TestGroups.Create(UserId.From(_currentUserAccessor.UserId));
         _groupRepository.AddRange(_groups);
     }
 

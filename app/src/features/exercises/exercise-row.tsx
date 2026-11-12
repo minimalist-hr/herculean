@@ -8,8 +8,9 @@ import { useTheme } from '@/theme/theme-provider';
 import { Tappable } from '@/components/tappable';
 
 interface ExerciseRowProps {
-  exercise: components['schemas']['ExerciseListItemResponse'];
-  units: components['schemas']['Units'];
+  name: string;
+  /** The line below the name, such as the best set. Without it, the row shows only the name. */
+  detail?: string;
   first: boolean;
   last: boolean;
   /** Opens the exercise. Without it, the row only shows it. */
@@ -18,8 +19,8 @@ interface ExerciseRowProps {
 
 /** An exercise's best set, for a list. */
 export function bestSetText(
-  { bestSet }: ExerciseRowProps['exercise'],
-  units: ExerciseRowProps['units'],
+  { bestSet }: components['schemas']['ExerciseListItemResponse'],
+  units: components['schemas']['Units'],
 ) {
   return bestSet === null
     ? 'Not done yet'
@@ -28,8 +29,8 @@ export function bestSetText(
 
 /** A row of a group's card. The first and last rows close the card. */
 export function ExerciseRow({
-  exercise,
-  units,
+  name,
+  detail,
   first,
   last,
   onPress,
@@ -60,10 +61,8 @@ export function ExerciseRow({
       ]}
     >
       <View style={styles.text}>
-        <Text style={[text.listItemName, { color: colors.text }]}>
-          {exercise.name}
-        </Text>
-        <Text style={text.meta}>{bestSetText(exercise, units)}</Text>
+        <Text style={[text.listItemName, { color: colors.text }]}>{name}</Text>
+        {detail !== undefined && <Text style={text.meta}>{detail}</Text>}
       </View>
       {onPress !== undefined && (
         <ChevronRightIcon color={colors.muted} size={16} />

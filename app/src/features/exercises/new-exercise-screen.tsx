@@ -5,6 +5,7 @@ import { notifySuccess } from '@/components/notifications';
 
 import { ExerciseFormPage } from './exercise-form';
 import { useCreateExercise } from './use-create-exercise';
+import { useGroups } from './use-groups';
 
 interface NewExerciseScreenProps {
   /** The screen its back link returns to. */
@@ -25,6 +26,7 @@ export function NewExerciseScreen({
 }: NewExerciseScreenProps) {
   const router = useRouter();
   const createExercise = useCreateExercise();
+  const groups = useGroups();
 
   return (
     <ExerciseFormPage
@@ -36,6 +38,7 @@ export function NewExerciseScreen({
         groupId: initialGroupId,
         alsoWorksGroupIds: [],
       }}
+      groups={groups}
       saving={createExercise.isPending}
       onSave={async (values) => {
         const exercise = await createExercise.mutateAsync(values);

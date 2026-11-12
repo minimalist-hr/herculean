@@ -4,7 +4,13 @@ import { TextLink } from '@/components/text-link';
 import { useTheme } from '@/theme/theme-provider';
 
 /** The groups couldn't load: the list still shows, and this takes the chips' place. */
-export function ChipsFailure({ onRetry }: { onRetry: () => void }) {
+export function ChipsFailure({
+  message = 'Couldn’t load your groups.',
+  onRetry,
+}: {
+  message?: string;
+  onRetry: () => void;
+}) {
   const { colors, size, space, text } = useTheme();
 
   return (
@@ -18,7 +24,7 @@ export function ChipsFailure({ onRetry }: { onRetry: () => void }) {
         accessibilityRole="alert"
         style={[text.meta, { color: colors.muted }]}
       >
-        Couldn’t load your groups.
+        {message}
       </Text>
       <TextLink label="Try again" onPress={onRetry} />
     </View>

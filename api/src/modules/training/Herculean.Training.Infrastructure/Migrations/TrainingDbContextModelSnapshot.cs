@@ -311,6 +311,124 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.ToTable("workout_settings", "training");
                 });
 
+            modelBuilder.Entity("Herculean.Training.Domain.Starter.StarterExercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("normalized_name");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_starter_exercises");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_starter_exercises_group_id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_starter_exercises_normalized_name");
+
+                    b.ToTable("starter_exercises", "training");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Starter.StarterExerciseAlsoWorks", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<Guid>("ExerciseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("exercise_id");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("group_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_starter_exercise_also_works");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_starter_exercise_also_works_group_id");
+
+                    b.HasIndex("ExerciseId", "GroupId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_starter_exercise_also_works_exercise_id_group_id");
+
+                    b.ToTable("starter_exercise_also_works", "training");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Starter.StarterGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("normalized_name");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id")
+                        .HasName("pk_starter_groups");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_starter_groups_normalized_name");
+
+                    b.ToTable("starter_groups", "training");
+                });
+
             modelBuilder.Entity("Herculean.Training.Domain.WeekPlan.WeekPlanDay", b =>
                 {
                     b.Property<Guid>("Id")
@@ -606,6 +724,33 @@ namespace Herculean.Training.Infrastructure.Migrations
                     b.Navigation("Exercise");
                 });
 
+            modelBuilder.Entity("Herculean.Training.Domain.Starter.StarterExercise", b =>
+                {
+                    b.HasOne("Herculean.Training.Domain.Starter.StarterGroup", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_starter_exercises_starter_groups_group_id");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Starter.StarterExerciseAlsoWorks", b =>
+                {
+                    b.HasOne("Herculean.Training.Domain.Starter.StarterExercise", null)
+                        .WithMany("AlsoWorks")
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_starter_exercise_also_works_starter_exercises_exercise_id");
+
+                    b.HasOne("Herculean.Training.Domain.Starter.StarterGroup", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_starter_exercise_also_works_starter_groups_group_id");
+                });
+
             modelBuilder.Entity("Herculean.Training.Domain.WeekPlan.WeekPlanDay", b =>
                 {
                     b.HasOne("Herculean.Training.Domain.Routines.Routine", "Routine")
@@ -668,6 +813,11 @@ namespace Herculean.Training.Infrastructure.Migrations
             modelBuilder.Entity("Herculean.Training.Domain.Routines.Routine", b =>
                 {
                     b.Navigation("Exercises");
+                });
+
+            modelBuilder.Entity("Herculean.Training.Domain.Starter.StarterExercise", b =>
+                {
+                    b.Navigation("AlsoWorks");
                 });
 
             modelBuilder.Entity("Herculean.Training.Domain.Workouts.Workout", b =>
