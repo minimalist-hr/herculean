@@ -212,6 +212,7 @@ test('a changed value and an added set are saved together', async () => {
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
   expect(await screen.findByText('Legs saved.')).toBeOnTheScreen();
   expect(await sentBody()).toEqual({
+    name: 'Legs',
     durationMinutes: 64,
     exercises: [
       {
@@ -341,6 +342,7 @@ test('an added exercise shows its last time before the workout, and is saved as 
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
   expect(await sentBody()).toEqual({
+    name: 'Legs',
     durationMinutes: 64,
     exercises: [
       {
@@ -525,4 +527,27 @@ test('leaving with no changes just leaves', async () => {
 
   expect(await screen.findByText('Day screen')).toBeOnTheScreen();
   expect(screen.queryByText('Discard changes?')).toBeNull();
+});
+
+test('the name starts filled, and a new one is saved', async () => {
+  answerWith();
+  await renderEdit();
+  const field = screen.getByLabelText('Name');
+  expect(field.props.value).toBe('Legs');
+
+  await fireEvent.changeText(field, 'Leg day');
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+
+  await screen.findByText('Day screen');
+  expect(await sentBody()).toMatchObject({ name: 'Leg day' });
+});
+
+test('a name that is too long says so', async () => {
+  answerWith();
+  await renderEdit();
+
+  await fireEvent.changeText(screen.getByLabelText('Name'), 'a'.repeat(101));
+  await fireEvent.press(screen.getByRole('button', { name: 'Save workout' }));
+
+  expect(await screen.findByText('At most 100 characters.')).toBeOnTheScreen();
 });

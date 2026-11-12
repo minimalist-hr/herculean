@@ -13,7 +13,7 @@ export function useSkipWorkout() {
   return useMutation({
     mutationFn: async (date: string) => {
       const { data, error } = await api.POST('/api/v1/workouts', {
-        body: { date, status: 'skipped' },
+        body: { date, status: 'skipped', empty: false },
       });
       if (data === undefined) {
         throw toApiError(error);

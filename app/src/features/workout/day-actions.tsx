@@ -107,6 +107,96 @@ export function StartButton({
   );
 }
 
+/** Why a workout other than the day's plan can't start on this day, or null when it can. */
+function useOtherStartReason(date: string, notYet: boolean) {
+  const firstDay = useFirstDay();
+
+  return firstReason([
+    [notYet, startNotYet],
+    [
+      firstDay.data !== undefined && date < firstDay.data,
+      'A workout can’t be added before your first day.',
+    ],
+    [useAnotherInProgress(), resumeFirst],
+  ]);
+}
+
+/** Asks before starting a workout with no routine. Its exercises are added while logging. */
+function EmptyWorkoutSheet({
+  date,
+  verb,
+  replace,
+  visible,
+  onClose,
+}: {
+  date: string;
+  verb: 'Start' | 'Log';
+  replace: boolean;
+  visible: boolean;
+  onClose: () => void;
+}) {
+  const start = useStartWorkout({ replace });
+
+  return (
+    <Sheet
+      visible={visible}
+      title={`${verb} an empty workout?`}
+      message="Add exercises as you go. Name it when you finish."
+      onClose={onClose}
+    >
+      <Button
+        label={`${verb} workout`}
+        waitingLabel="Starting workout"
+        waiting={start.isPending}
+        onPress={() => {
+          start.mutate({ date, empty: true });
+        }}
+      />
+    </Sheet>
+  );
+}
+
+/** Starts a workout with no routine on a day, after asking. Logging takes the page's place when replace is set. */
+export function EmptyWorkoutButton({
+  date,
+  today,
+  replace = false,
+}: {
+  date: string;
+  today: string;
+  replace?: boolean;
+}) {
+  const [asking, setAsking] = useState(false);
+  const reason = useOtherStartReason(date, date > today);
+  const verb = date < today ? 'Log' : 'Start';
+
+  return (
+    <>
+      <Button
+        label={`${verb} empty workout`}
+        variant="secondary"
+        muted={reason !== null}
+        onPress={() => {
+          if (reason !== null) {
+            notifyFailure(reason);
+          } else {
+            setAsking(true);
+          }
+        }}
+      />
+      <EmptyWorkoutSheet
+        date={date}
+        verb={verb}
+        replace={replace}
+        visible={asking}
+        onClose={() => {
+          setAsking(false);
+        }}
+      />
+    </>
+  );
+}
+
 export function OtherRoutineButton({
   date,
   notYet = false,
@@ -116,15 +206,7 @@ export function OtherRoutineButton({
   notYet?: boolean;
 }) {
   const router = useRouter();
-  const firstDay = useFirstDay();
-  const reason = firstReason([
-    [notYet, startNotYet],
-    [
-      firstDay.data !== undefined && date < firstDay.data,
-      'A workout can’t be added before your first day.',
-    ],
-    [useAnotherInProgress(), resumeFirst],
-  ]);
+  const reason = useOtherStartReason(date, notYet);
 
   return (
     <Button

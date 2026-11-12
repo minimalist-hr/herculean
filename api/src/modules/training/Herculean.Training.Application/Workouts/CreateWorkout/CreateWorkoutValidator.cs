@@ -17,5 +17,9 @@ internal sealed class CreateWorkoutValidator : AbstractValidator<CreateWorkoutRe
             .Null()
             .When(request => request.Status != WorkoutStatus.InProgress)
             .WithMessage("'{PropertyName}' can only be given when starting a workout.");
+        RuleFor(request => request.Empty)
+            .Equal(false)
+            .When(request => request.Status != WorkoutStatus.InProgress || request.RoutineId is not null)
+            .WithMessage("'{PropertyName}' can only be given when starting a workout without a routine.");
     }
 }

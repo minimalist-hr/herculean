@@ -281,6 +281,7 @@ test('saving completes the workout and returns to the day', async () => {
   await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
     status: 'completed',
     durationMinutes: null,
+    name: 'Legs',
   });
 });
 
@@ -307,6 +308,7 @@ test('a past day takes its duration in minutes', async () => {
   await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
     status: 'completed',
     durationMinutes: 75,
+    name: 'Legs',
   });
 });
 
@@ -333,6 +335,7 @@ test('a past day can be saved with no duration', async () => {
   await expect(requests('PATCH')[0][0].clone().json()).resolves.toEqual({
     status: 'completed',
     durationMinutes: null,
+    name: 'Legs',
   });
 });
 
@@ -459,4 +462,30 @@ test('a discard that fails says so and stays', async () => {
     await screen.findByText('Couldn’t discard the workout. Try again.'),
   ).toBeOnTheScreen();
   expect(screen.getByText('Discard this workout?')).toBeOnTheScreen();
+});
+
+test('the name starts as the workout’s, and a new one is saved', async () => {
+  answerWith();
+  await renderFinish();
+  // It fills in once the workout is read.
+  const field = await screen.findByDisplayValue('Legs');
+
+  await fireEvent.changeText(field, ' Hotel gym ');
+  await fireEvent.press(await loadedButton('Save workout'));
+
+  await screen.findByText('Day screen');
+  await expect(requests('PATCH')[0][0].clone().json()).resolves.toMatchObject({
+    name: 'Hotel gym',
+  });
+});
+
+test('an empty name says so and nothing is saved', async () => {
+  answerWith();
+  await renderFinish();
+
+  await fireEvent.changeText(await screen.findByLabelText('Name'), ' ');
+  await fireEvent.press(await loadedButton('Save workout'));
+
+  expect(await screen.findByText('Enter a name.')).toBeOnTheScreen();
+  expect(requests('PATCH')).toHaveLength(0);
 });

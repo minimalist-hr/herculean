@@ -5,7 +5,8 @@ namespace Herculean.Training.Application.Workouts.EditWorkout;
 [Description("A saved workout as edited: all its exercises in order, each with all its sets.")]
 internal sealed record EditWorkoutRequest(
     [property: Description("Its exercises in order, 1 to 30, each exercise once. Exercises left out are removed.")] List<EditedWorkoutExercise> Exercises,
-    [property: Description("How long it took in minutes, 1 to 600. Null means no duration.")] int? DurationMinutes = null);
+    [property: Description("How long it took in minutes, 1 to 600. Null means no duration.")] int? DurationMinutes = null,
+    [property: Description("A new name, 1 to 100 characters, trimmed. Null keeps the name it has. The routine it came from keeps its name.")] string? Name = null);
 
 [Description("An exercise of the edited workout.")]
 internal sealed record EditedWorkoutExercise(

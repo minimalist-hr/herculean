@@ -32,6 +32,28 @@ Content-Type: application/json
   "status": "inProgress"
 }
 
+### Start an empty workout today → 201 named Workout, with no routine and no exercises, or 409 workout.another_in_progress.
+POST {{host}}/api/v1/workouts
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "date": "2026-01-05",
+  "status": "inProgress",
+  "empty": true
+}
+
+### Empty while skipping → 400 validation, with an error for empty.
+POST {{host}}/api/v1/workouts
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "date": "2026-01-05",
+  "status": "skipped",
+  "empty": true
+}
+
 ### A day that hasn't come yet → 409 workout.date_in_the_future.
 POST {{host}}/api/v1/workouts
 Authorization: Bearer {{createAccount.response.body.$.accessToken}}

@@ -89,6 +89,8 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - A user has at most one workout per date, and at most one workout in progress.
 - A workout belongs to the user's local date when it started.
 - A workout can start from a routine. Its name and exercises are copied when it starts, supersets included, so later routine changes do not affect it.
+- A workout can also start empty, on any day up to today, with no routine and no exercises, named Workout. Its exercises are added while logging, and it plans no sets.
+- A workout can be named when it is saved and when it is edited: 1 to 100 characters, trimmed. The routine keeps its own name.
 - A superset in a workout ends when either exercise is removed, or a reorder or save leaves them apart. Undoing a removal brings it back. A swap keeps it.
 - While logging and when editing a saved workout, an exercise can be paired with the one after it or unpaired, and two exercises added together can be added as a superset. The routine doesn't change.
 - Each set of a new workout starts with the weight and reps of the same set last time. If last time had fewer sets, it takes the last of them. If there was no last time, it starts at 0 kg and the low end of the target reps.

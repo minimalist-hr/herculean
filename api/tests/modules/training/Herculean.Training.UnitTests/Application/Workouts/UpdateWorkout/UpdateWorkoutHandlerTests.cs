@@ -127,4 +127,46 @@ public sealed class UpdateWorkoutHandlerTests
         skipped.IsSuccess.ShouldBeFalse();
         _workout.Status.ShouldBe(WorkoutStatus.InProgress);
     }
+
+    [Fact]
+    public async Task SavingWithANameRenamesIt()
+    {
+        WorkoutExercise exercise = _workout.Exercises[0];
+        _workout.UpdateSet(exercise.Id, exercise.Sets[0].Id, null, null, true);
+
+        Result<WorkoutResponse> result = await _handler.HandleAsync(_workout.Id.Value, new UpdateWorkoutRequest(WorkoutStatus.Completed, Name: " Hotel gym "), TestContext.Current.CancellationToken);
+
+        result.Value.Name.ShouldBe("Hotel gym");
+        _workout.Name.ShouldBe("Hotel gym");
+    }
+
+    [Fact]
+    public async Task SavingWithoutANameKeepsIt()
+    {
+        WorkoutExercise exercise = _workout.Exercises[0];
+        _workout.UpdateSet(exercise.Id, exercise.Sets[0].Id, null, null, true);
+
+        await SaveAsync(_workout.Id.Value);
+
+        _workout.Name.ShouldBe("Legs");
+    }
+
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("A name that is far too long for a workout, because it goes on and on for more than one hundred characters.")]
+    public async Task AnEmptyOrLongNameFailsWithAFieldError(string name)
+    {
+        Result<WorkoutResponse> result = await _handler.HandleAsync(_workout.Id.Value, new UpdateWorkoutRequest(WorkoutStatus.Completed, Name: name), TestContext.Current.CancellationToken);
+
+        result.Error.ShouldNotBeNull().Fields.ShouldContainKey("name");
+        _workout.Name.ShouldBe("Legs");
+    }
+
+    [Fact]
+    public async Task ANameIsNotKeptWhenSavingFails()
+    {
+        await _handler.HandleAsync(_workout.Id.Value, new UpdateWorkoutRequest(WorkoutStatus.Completed, Name: "Arms"), TestContext.Current.CancellationToken);
+
+        _workout.Name.ShouldBe("Legs");
+    }
 }

@@ -31,6 +31,7 @@ import { useElapsed } from './use-elapsed';
 import { useDiscardWorkout, useSaveWorkout } from './use-finish-workout';
 import { useWorkout } from './use-workout';
 import { useWorkoutSummary } from './use-workout-summary';
+import { WorkoutNameField, workoutNameError } from './workout-name-field';
 import { NewRecords, SummaryTiles } from './workout-summary-parts';
 
 function Warning({ title, message }: { title: string; message: string }) {
@@ -69,6 +70,9 @@ export function FinishScreen({ id }: { id: string }) {
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const [typed, setTyped] = useState('');
   const [typedError, setTypedError] = useState<string>();
+  // Until it is changed, the name is the workout's own.
+  const [typedName, setTypedName] = useState<string>();
+  const [nameError, setNameError] = useState<string>();
 
   // Logging already holds the workout, so the warning shows at once, before the summary.
   const workout = useWorkout(id).data;
@@ -80,14 +84,21 @@ export function FinishScreen({ id }: { id: string }) {
   // A past day has no timer, so its duration is typed.
   const pastDay = workout?.startedAtUtc === null;
 
+  const name = typedName ?? named?.name ?? '';
+
   function saveWorkout() {
     const error = durationError(typed);
-    if (error !== undefined) {
-      setTypedError(error);
+    const badName = workoutNameError(name);
+    setTypedError(error);
+    setNameError(badName);
+    if (error !== undefined || badName !== undefined) {
       return;
     }
 
-    save.mutate(pastDay ? durationMinutes(typed) : null);
+    save.mutate({
+      durationMinutes: pastDay ? durationMinutes(typed) : null,
+      name: name.trim(),
+    });
   }
 
   function headingLabel() {
@@ -113,6 +124,14 @@ export function FinishScreen({ id }: { id: string }) {
 
     return (
       <>
+        <WorkoutNameField
+          value={name}
+          error={nameError}
+          onChange={(next) => {
+            setTypedName(next);
+            setNameError(undefined);
+          }}
+        />
         {warning && <Warning title={warning.title} message={warning.message} />}
         {isLongWorkout(elapsed) && (
           <Warning

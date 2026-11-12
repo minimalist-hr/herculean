@@ -39,10 +39,16 @@ export function useSaveWorkout(id: string) {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: async (durationMinutes: number | null) => {
+    mutationFn: async ({
+      durationMinutes,
+      name,
+    }: {
+      durationMinutes: number | null;
+      name: string;
+    }) => {
       const { data, error } = await api.PATCH('/api/v1/workouts/{id}', {
         params: { path: { id } },
-        body: { status: 'completed', durationMinutes },
+        body: { status: 'completed', durationMinutes, name },
       });
       if (data === undefined) {
         throw toApiError(error);
@@ -166,6 +172,7 @@ export function useEditWorkout(id: string) {
     mutationFn: async (body: {
       exercises: EditedExercise[];
       durationMinutes: number | null;
+      name: string;
     }) => {
       const { data, error } = await api.PUT('/api/v1/workouts/{id}', {
         params: { path: { id } },

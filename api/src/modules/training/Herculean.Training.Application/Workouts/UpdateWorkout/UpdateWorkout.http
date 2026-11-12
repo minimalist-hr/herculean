@@ -21,6 +21,26 @@ Content-Type: application/json
   "status": "completed"
 }
 
+### Save with a name → 200 with the new name. Use the ID of a workout in progress with a checked set.
+PATCH {{host}}/api/v1/workouts/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "completed",
+  "name": "Hotel gym"
+}
+
+### An empty name → 400 validation, with an error for name.
+PATCH {{host}}/api/v1/workouts/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "completed",
+  "name": " "
+}
+
 ### Any other status → 400 validation_failed.
 PATCH {{host}}/api/v1/workouts/00000000-0000-0000-0000-000000000000
 Authorization: Bearer {{createAccount.response.body.$.accessToken}}

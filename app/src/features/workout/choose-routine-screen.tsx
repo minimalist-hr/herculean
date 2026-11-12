@@ -7,6 +7,7 @@ import { BackLink } from '@/components/back-link';
 import { Button } from '@/components/button';
 import { EmptyCard } from '@/components/empty-card';
 import { LoadFailure } from '@/components/load-failure';
+import { OrDivider } from '@/components/or-divider';
 import { ScreenHeading } from '@/components/screen-heading';
 import { Sheet } from '@/components/sheet';
 import {
@@ -23,6 +24,7 @@ import { useRoutines } from '@/features/routines/use-routines';
 import { useTheme } from '@/theme/theme-provider';
 
 import { dateText } from '@/formats/dates';
+import { EmptyWorkoutButton } from './day-actions';
 import { useDay } from './use-day';
 import { useDayRefresh } from './use-day-refresh';
 import { useStartWorkout } from './use-start-workout';
@@ -113,7 +115,7 @@ function ConfirmSheet({
   );
 }
 
-/** Picks another routine for one day. The week plan stays as it is. */
+/** Picks another routine for one day, or none. The week plan stays as it is. */
 export function ChooseRoutineScreen({ date }: { date: string }) {
   const router = useRouter();
   const { colors, size, space, text } = useTheme();
@@ -123,8 +125,9 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
   const day = useDay(date);
   const [picked, setPicked] = useState<Routine | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const today = dateText(now);
 
-  const plannedId = day.data?.routine?.id;
+  const plannedId = day.data?.routine?.id ?? undefined;
   // The day only puts its planned routine first, so if it fails, the routines show in their usual order.
   const loaded =
     routines.data !== undefined &&
@@ -220,12 +223,14 @@ export function ChooseRoutineScreen({ date }: { date: string }) {
           }
         />
       </View>
+      <EmptyWorkoutButton date={date} today={today} replace />
+      <OrDivider />
       <View style={{ gap: space.sm }}>{renderContent()}</View>
       {picked !== null && (
         <ConfirmSheet
           routine={picked}
           date={date}
-          today={dateText(now)}
+          today={today}
           visible={sheetOpen}
           onClose={() => {
             setSheetOpen(false);

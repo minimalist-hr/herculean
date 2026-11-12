@@ -374,4 +374,81 @@ public sealed class CreateWorkoutHandlerTests
         result.IsSuccess.ShouldBeFalse();
         result.Error.Code.ShouldBe("validation");
     }
+
+    private Task<Result<WorkoutResponse>> StartEmptyAsync(DateOnly date) =>
+        _handler.HandleAsync(new CreateWorkoutRequest(date, WorkoutStatus.InProgress, Empty: true), TestContext.Current.CancellationToken);
+
+    [Fact]
+    public async Task StartingEmptyOnARestDayAddsAWorkoutWithNoRoutineOrExercises()
+    {
+        Result<WorkoutResponse> result = await StartEmptyAsync(Today);
+
+        result.Value.Name.ShouldBe("Workout");
+        Workout workout = _workoutRepository.Workouts.ShouldHaveSingleItem();
+        workout.Status.ShouldBe(WorkoutStatus.InProgress);
+        workout.RoutineId.ShouldBeNull();
+        workout.Exercises.ShouldBeEmpty();
+        workout.PlannedSets.ShouldBe(0);
+        workout.StartedAtUtc.ShouldBe(_time.GetUtcNow());
+        _unitOfWork.Saved.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task StartingEmptyOnAPlannedDayIgnoresThePlan()
+    {
+        Plan(Weekday.Tuesday);
+        AddExercise();
+
+        await StartEmptyAsync(Today);
+
+        _workoutRepository.Workouts.ShouldHaveSingleItem().Exercises.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task StartingEmptyOnAPastDayHasNoElapsedTime()
+    {
+        await StartEmptyAsync(Today.AddDays(-1));
+
+        _workoutRepository.Workouts.ShouldHaveSingleItem().StartedAtUtc.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task StartingEmptyWithAnotherWorkoutInProgressFails()
+    {
+        await StartEmptyAsync(Today.AddDays(-1));
+
+        Result<WorkoutResponse> result = await StartEmptyAsync(Today);
+
+        result.Error.ShouldBe(WorkoutErrors.AnotherInProgress);
+    }
+
+    [Fact]
+    public async Task StartingEmptyBeforeTheFirstDayFails()
+    {
+        _getUserCreatedAt.CreatedAtUtc = new DateTimeOffset(2026, 11, 2, 12, 0, 0, TimeSpan.Zero);
+
+        Result<WorkoutResponse> result = await StartEmptyAsync(new DateOnly(2026, 11, 1));
+
+        result.Error.ShouldBe(WorkoutErrors.BeforeFirstDay);
+    }
+
+    [Fact]
+    public async Task StartingEmptyOnALaterDayFails()
+    {
+        Result<WorkoutResponse> result = await StartEmptyAsync(Today.AddDays(1));
+
+        result.Error.ShouldBe(WorkoutErrors.DateInTheFuture);
+    }
+
+    [Fact]
+    public async Task EmptyWithARoutineOrWhileSkippingIsNotValid()
+    {
+        Routine push = AddRoutine("Push");
+
+        Result<WorkoutResponse> withRoutine = await _handler.HandleAsync(new CreateWorkoutRequest(Today, WorkoutStatus.InProgress, push.Id.Value, Empty: true), TestContext.Current.CancellationToken);
+        Result<WorkoutResponse> skipping = await _handler.HandleAsync(new CreateWorkoutRequest(Today, WorkoutStatus.Skipped, Empty: true), TestContext.Current.CancellationToken);
+
+        withRoutine.Error.ShouldNotBeNull().Fields.ShouldContainKey("empty");
+        skipping.Error.ShouldNotBeNull().Fields.ShouldContainKey("empty");
+    }
 }

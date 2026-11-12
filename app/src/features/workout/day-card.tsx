@@ -24,6 +24,7 @@ import { useTheme } from '@/theme/theme-provider';
 import {
   Actions,
   DeleteButton,
+  EmptyWorkoutButton,
   OtherRoutineButton,
   SkipButton,
   StartButton,
@@ -41,14 +42,16 @@ import { checkedSets, progressText, workoutProgress } from './workout-progress';
 type Day = components['schemas']['DayResponse'];
 type DayRoutine = components['schemas']['DayRoutineResponse'];
 
-/** Opens a day's routine while it still exists. A deleted one's name stays plain. */
+/** Opens a day's routine while it still exists. A deleted one's name stays plain, and so does an empty workout's. */
 export function routineLink(
   routine: DayRoutine,
   links: { routine: (id: string) => void },
 ) {
-  return routine.exists
+  const { id } = routine;
+
+  return routine.exists && id !== null
     ? () => {
-        links.routine(routine.id);
+        links.routine(id);
       }
     : undefined;
 }
@@ -340,7 +343,14 @@ function RestCard({
   );
 }
 
-export function NoRoutinesCard() {
+/** With no routines, a first one, or a workout with none. */
+export function NoRoutinesCard({
+  date,
+  today,
+}: {
+  date: string;
+  today: string;
+}) {
   const router = useRouter();
 
   return (
@@ -356,6 +366,7 @@ export function NoRoutinesCard() {
           router.push('/routine/new');
         }}
       />
+      <EmptyWorkoutButton date={date} today={today} />
     </Card>
   );
 }
@@ -368,7 +379,7 @@ export function DayCard({ day, today }: { day: Day; today: string }) {
     return day.hasRoutines ? (
       <RestCard date={date} day={day} today={today} />
     ) : (
-      <NoRoutinesCard />
+      <NoRoutinesCard date={day.date} today={today} />
     );
   }
 

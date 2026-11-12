@@ -191,4 +191,28 @@ public sealed class EditWorkoutHandlerTests
 
         result.Error.ShouldNotBeNull().Type.ShouldBe(ErrorType.Validation);
     }
+
+    [Fact]
+    public async Task EditingWithANameRenamesIt()
+    {
+        Result<WorkoutResponse> result = await _handler.HandleAsync(_workout.Id.Value, new EditWorkoutRequest([KeptSquat(new EditedWorkoutSet(100, 5))], Name: "Leg day"), TestContext.Current.CancellationToken);
+
+        result.Value.Name.ShouldBe("Leg day");
+    }
+
+    [Fact]
+    public async Task EditingWithoutANameKeepsIt()
+    {
+        await EditAsync(KeptSquat(new EditedWorkoutSet(100, 5)));
+
+        _workout.Name.ShouldBe("Legs");
+    }
+
+    [Fact]
+    public async Task AnEmptyNameFailsWithAFieldError()
+    {
+        Result<WorkoutResponse> result = await _handler.HandleAsync(_workout.Id.Value, new EditWorkoutRequest([KeptSquat(new EditedWorkoutSet(100, 5))], Name: ""), TestContext.Current.CancellationToken);
+
+        result.Error.ShouldNotBeNull().Fields.ShouldContainKey("name");
+    }
 }

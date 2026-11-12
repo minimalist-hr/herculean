@@ -46,6 +46,11 @@ internal sealed class CreateWorkoutHandler(
             return WorkoutErrors.DateTaken;
         }
 
+        if (request.Empty)
+        {
+            return await StartEmptyAsync(request.Date, calendar, cancellationToken);
+        }
+
         Result<WorkoutRoutine> routine = request.RoutineId is Guid pickedId
             ? await PickedRoutineAsync(RoutineId.From(pickedId), request.Date, cancellationToken)
             : await PlannedRoutineAsync(request.Date, calendar, cancellationToken);
@@ -68,10 +73,35 @@ internal sealed class CreateWorkoutHandler(
         return new WorkoutResponse(workout.Value.Id.Value, workout.Value.Date, workout.Value.Status, workout.Value.Name);
     }
 
-    private async Task<Result<WorkoutRoutine>> PickedRoutineAsync(RoutineId id, DateOnly date, CancellationToken cancellationToken)
+    private async Task<Result<WorkoutResponse>> StartEmptyAsync(DateOnly date, UserCalendar calendar, CancellationToken cancellationToken)
+    {
+        if (await IsBeforeFirstDayAsync(date, cancellationToken))
+        {
+            return WorkoutErrors.BeforeFirstDay;
+        }
+
+        if (await workoutRepository.InProgressExistsAsync(cancellationToken))
+        {
+            return WorkoutErrors.AnotherInProgress;
+        }
+
+        Workout workout = Workout.StartEmpty(currentUser.UserId, date, date == calendar.Today ? timeProvider.GetUtcNow() : null);
+        workoutRepository.Add(workout);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new WorkoutResponse(workout.Id.Value, workout.Date, workout.Status, workout.Name);
+    }
+
+    private async Task<bool> IsBeforeFirstDayAsync(DateOnly date, CancellationToken cancellationToken)
     {
         FirstDayResponse firstDay = await getFirstDay.HandleAsync(cancellationToken);
-        if (date < firstDay.Date)
+
+        return date < firstDay.Date;
+    }
+
+    private async Task<Result<WorkoutRoutine>> PickedRoutineAsync(RoutineId id, DateOnly date, CancellationToken cancellationToken)
+    {
+        if (await IsBeforeFirstDayAsync(date, cancellationToken))
         {
             return WorkoutErrors.BeforeFirstDay;
         }

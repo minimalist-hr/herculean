@@ -34,6 +34,11 @@ internal sealed class UpdateWorkoutHandler(
             return finished.Error;
         }
 
+        if (request.Name is not null)
+        {
+            workout.Rename(request.Name);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new WorkoutResponse(workout.Id.Value, workout.Date, workout.Status, workout.Name);

@@ -173,21 +173,21 @@ test('a row opens the group, with its count and both lists', async () => {
     await screen.findByRole('header', { name: 'Chest' }),
   ).toBeOnTheScreen();
   expect(screen.getByText('3 exercises')).toBeOnTheScreen();
-  expect(screen.getByText('No sessions yet')).toBeOnTheScreen();
+  // Its rows say what is done, so there is no card for it.
+  expect(screen.queryByText('No sessions yet')).toBeNull();
   expect(screen.getByText('Exercises')).toBeOnTheScreen();
   expect(screen.getByText('Also works')).toBeOnTheScreen();
   expect(screen.getByText('Bench press')).toBeOnTheScreen();
   expect(screen.getByText('Shoulder press')).toBeOnTheScreen();
 });
 
-test('once an exercise is done, its row shows the best set and the card goes', async () => {
+test('once an exercise is done, its row shows the best set', async () => {
   answer();
   await openGroup(/^Legs/);
 
   expect(
     await screen.findByText('100 kg × 5 · Mon, 16th Oct 2023'),
   ).toBeOnTheScreen();
-  expect(screen.queryByText('No sessions yet')).toBeNull();
 });
 
 test('an empty group keeps both sections and says how to fill them', async () => {

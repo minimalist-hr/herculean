@@ -265,6 +265,18 @@ test('with no routines, offers to create one', async () => {
   expect(await screen.findByText('New routine screen')).toBeOnTheScreen();
 });
 
+test('with no routines, an empty workout can start after asking', async () => {
+  answer({ ...restDay, hasRoutines: false });
+  await renderWorkout();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Start empty workout' }),
+  );
+
+  expect(await screen.findByText('Start an empty workout?')).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Start workout' })).toBeTruthy();
+});
+
 test('says the week and the day could not load, and tries again', async () => {
   mockFetch.mockRejectedValue(new TypeError('Network request failed'));
   await renderWorkout();
@@ -311,6 +323,7 @@ test('Start workout starts it and opens logging', async () => {
   expect(await request?.clone().json()).toEqual({
     date: '2026-11-03',
     status: 'inProgress',
+    empty: false,
   });
 });
 
@@ -430,6 +443,33 @@ describe('a day in progress', () => {
     expect(screen.getByText('Up next')).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Start workout' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Skip workout' })).toBeNull();
+  });
+
+  test('an empty workout shows its name, not a link to a routine', async () => {
+    mockFetch.mockImplementation((request) => {
+      const { pathname } = new URL(request.url);
+      if (pathname === '/api/v1/workouts/w1') {
+        return Promise.resolve(
+          Response.json({ ...workoutOf(null), name: 'Workout' }),
+        );
+      }
+
+      return Promise.resolve(
+        Response.json(
+          pathname === '/api/v1/days'
+            ? week
+            : {
+                ...inProgressDay,
+                routine: { ...legs, id: null, name: 'Workout', exists: false },
+              },
+        ),
+      );
+    });
+    await renderWorkout();
+
+    expect(await screen.findByText('In progress')).toBeOnTheScreen();
+    expect(screen.getByText('Workout')).toBeOnTheScreen();
+    expect(screen.queryByRole('link', { name: 'Workout' })).toBeNull();
   });
 
   test('shows the running time when it has one', async () => {
@@ -1014,7 +1054,7 @@ describe('skip', () => {
       {
         method: 'POST',
         path: '/api/v1/workouts',
-        body: { date: '2026-11-03', status: 'skipped' },
+        body: { date: '2026-11-03', status: 'skipped', empty: false },
       },
     ]);
     expect(screen.getByText('You skipped today’s workout.')).toBeOnTheScreen();

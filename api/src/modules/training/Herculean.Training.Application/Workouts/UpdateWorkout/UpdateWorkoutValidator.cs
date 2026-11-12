@@ -12,5 +12,6 @@ internal sealed class UpdateWorkoutValidator : AbstractValidator<UpdateWorkoutRe
             .Equal(WorkoutStatus.Completed)
             .WithMessage("'{PropertyName}' must be completed.");
         RuleFor(request => request.DurationMinutes).InclusiveBetween(Workout.MinDurationMinutes, Workout.MaxDurationMinutes);
+        RuleFor(request => request.Name).IsWorkoutName();
     }
 }

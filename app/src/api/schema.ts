@@ -2035,6 +2035,11 @@ export interface components {
              * @description The routine to start instead of the day's plan, for this date only. Only when starting. Without it, the day's planned routine is used.
              */
             routineId?: null | string;
+            /**
+             * @description Starts with no routine and no exercises, named Workout until it is named. Only when starting, and never with a routine.
+             * @default false
+             */
+            empty: boolean;
         };
         /** @description Minimalist's announcement on Home, if there is one. */
         CurrentAnnouncementResponse: {
@@ -2108,10 +2113,10 @@ export interface components {
         DayRoutineResponse: {
             /**
              * Format: uuid
-             * @description The routine's ID.
+             * @description The routine's ID. Null for a workout started empty.
              */
-            id: string;
-            /** @description The routine's name. */
+            id: null | string;
+            /** @description The routine's name, or the workout's own. */
             name: string;
             /** @description Whether the routine still exists, so it can be opened. False once it is deleted. */
             exists: boolean;
@@ -2192,6 +2197,8 @@ export interface components {
              * @description How long it took in minutes, 1 to 600. Null means no duration.
              */
             durationMinutes?: null | number;
+            /** @description A new name, 1 to 100 characters, trimmed. Null keeps the name it has. The routine it came from keeps its name. */
+            name?: null | string;
         };
         /** @description An exercise, its groups and its progress. */
         ExerciseDetailsResponse: {
@@ -3454,6 +3461,8 @@ export interface components {
              * @description How long it took in minutes, 1 to 600. Only a past day uses it: a timed workout counts its own.
              */
             durationMinutes?: null | number;
+            /** @description A new name, 1 to 100 characters, trimmed. Null keeps the name it has. The routine it came from keeps its name. */
+            name?: null | string;
         };
         /** @description The fields to change. A field left out, or null, stays the same. */
         UpdateWorkoutSettingsRequest: {

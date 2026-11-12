@@ -8,13 +8,13 @@ internal sealed record DayResponse(
     [property: Description("How the day is shown.")] DayStatus Status,
     [property: Description("Whether the user has any routine. Without one, the app offers to create it.")] bool HasRoutines,
     [property: Description("The day's workout, which is how a workout is resumed or a skip undone. Null when it has none.")] Guid? WorkoutId,
-    [property: Description("The routine planned on this day, or the one its workout came from. Null on a rest day.")] DayRoutineResponse? Routine,
+    [property: Description("The routine planned on this day, or its workout, which shows the routine it came from. Null on a rest day.")] DayRoutineResponse? Routine,
     [property: Description("The day after this one.")] UpNextResponse UpNext);
 
 [Description("A routine planned on a day.")]
 internal sealed record DayRoutineResponse(
-    [property: Description("The routine's ID.")] Guid Id,
-    [property: Description("The routine's name.")] string Name,
+    [property: Description("The routine's ID. Null for a workout started empty.")] Guid? Id,
+    [property: Description("The routine's name, or the workout's own.")] string Name,
     [property: Description("Whether the routine still exists, so it can be opened. False once it is deleted.")] bool Exists,
     [property: Description("Its exercises in order.")] List<DayExerciseResponse> Exercises);
 

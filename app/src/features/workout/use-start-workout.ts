@@ -7,7 +7,7 @@ import { notifyFailure } from '@/components/notifications';
 
 import { dayDataKeys, workoutKeys } from './query-keys';
 
-/** Starts a day's workout from its routine, or one picked for that day, then opens logging. With replace, logging takes the place of the current page. */
+/** Starts a day's workout from its routine, one picked for that day, or empty, then opens logging. With replace, logging takes the place of the current page. */
 export function useStartWorkout({ replace = false } = {}) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -16,12 +16,15 @@ export function useStartWorkout({ replace = false } = {}) {
     mutationFn: async ({
       date,
       routineId,
+      empty = false,
     }: {
       date: string;
       routineId?: string;
+      /** No routine and no exercises: they're added while logging. */
+      empty?: boolean;
     }) => {
       const { data, error } = await api.POST('/api/v1/workouts', {
-        body: { date, status: 'inProgress', routineId },
+        body: { date, status: 'inProgress', routineId, empty },
       });
       if (data === undefined) {
         throw toApiError(error);

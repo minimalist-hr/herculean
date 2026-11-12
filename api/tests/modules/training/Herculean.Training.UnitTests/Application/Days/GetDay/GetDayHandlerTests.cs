@@ -238,4 +238,23 @@ public sealed class GetDayHandlerTests
 
         day.HasRoutines.ShouldBe(hasRoutines);
     }
+
+    [Fact]
+    public async Task AnEmptyWorkoutShowsItsNameAndExercisesWithNoRoutine()
+    {
+        DayExerciseResponse curl = new(Guid.CreateVersion7(), "Curl", Guid.CreateVersion7(), "Biceps", 3, 8, 10, true);
+        _dayReadRepository.WorkoutExercises.Add(curl);
+        Guid workoutId = Guid.CreateVersion7();
+        _dayReadRepository.Workouts.Add(new DayWorkout(workoutId, Today, WorkoutStatus.InProgress, "Workout", null));
+
+        DayResponse day = await GetAsync(Today);
+
+        day.Status.ShouldBe(DayStatus.InProgress);
+        day.WorkoutId.ShouldBe(workoutId);
+        DayRoutineResponse routine = day.Routine.ShouldNotBeNull();
+        routine.Id.ShouldBeNull();
+        routine.Name.ShouldBe("Workout");
+        routine.Exists.ShouldBeFalse();
+        routine.Exercises.ShouldHaveSingleItem().ShouldBe(curl);
+    }
 }

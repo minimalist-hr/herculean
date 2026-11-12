@@ -1,6 +1,6 @@
 # Screen index
 
-389 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+388 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -423,4 +423,3 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | E63 | Exercises › New exercise · groups loading | E1 Exercises tab | 390×844 | [png](screens/exercises/E63-Exercises-New-Groups-Loading.png) · [html](html/exercises/E63-Exercises-New-Groups-Loading.html) · [source](source/exercises/E63-Exercises-New-Groups-Loading.dc.html) |
 | E64 | Exercises › Groups › New group · name missing | E4 Groups | 390×844 | [png](screens/exercises/E64-Exercises-Groups-New-Name-Missing.png) · [html](html/exercises/E64-Exercises-Groups-New-Name-Missing.html) · [source](source/exercises/E64-Exercises-Groups-New-Name-Missing.dc.html) |
 | E65 | Exercises › Groups › New group › Discard changes · confirm | E4 Groups | 390×844 | [png](screens/exercises/E65-Exercises-Groups-New-Discard.png) · [html](html/exercises/E65-Exercises-Groups-New-Discard.html) · [source](source/exercises/E65-Exercises-Groups-New-Discard.dc.html) |
-| E66 | Exercises › Groups › Group · not done yet | E4 Groups | 390×844 | [png](screens/exercises/E66-Exercises-Groups-Group-Not-Done.png) · [html](html/exercises/E66-Exercises-Groups-Group-Not-Done.html) · [source](source/exercises/E66-Exercises-Groups-Group-Not-Done.dc.html) |

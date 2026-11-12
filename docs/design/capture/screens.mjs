@@ -1717,10 +1717,6 @@ export const screens = [
     await on.waitFor('Discard changes?');
     await on.sleep(400);
   } },
-  { id: 'E66', file: 'E66-Exercises-Groups-Group-Not-Done', title: 'Exercises › Groups › Group · not done yet', row: 'E4 Groups', answers: { [`GET /api/v1/groups/${chest.id}`]: { status: 200, body: { ...chest, exerciseCount: 1, exercises: [{ ...benchPress, bestSet: null }], alsoWorksExercises: [] } } }, steps: async (on) => {
-    await on.go(groupPath);
-    await on.waitFor('No sessions yet');
-  } },
   // L · Add exercise, reached from a routine
   { id: 'L03', file: 'L03-Logging-Loading', title: 'Logging › Loading', row: 'L1 Log sets', today: friday, answers: { [workoutPath]: 'hold' }, steps: async (on) => {
     await on.go(logPath);

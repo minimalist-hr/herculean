@@ -56,6 +56,7 @@ import {
 import { OpenExercise } from './log-exercise';
 import { maxExercisesPerWorkout, type SetField } from './set-values';
 import { useEditWorkout } from './use-finish-workout';
+import { WorkoutNameField, workoutNameError } from './workout-name-field';
 import { useWorkout } from './use-workout';
 
 type WorkoutExercise = components['schemas']['WorkoutExerciseResponse'];
@@ -188,9 +189,12 @@ export function EditWorkoutScreen() {
   const savedDuration = typedDuration(workout.durationSeconds);
   const [typed, setTyped] = useState(savedDuration);
   const [typedError, setTypedError] = useState<string>();
+  const [name, setName] = useState(workout.name);
+  const [nameError, setNameError] = useState<string>();
   const savedIds = new Set(workout.exercises.map((exercise) => exercise.id));
   const guard = useLeaveGuard(
     typed !== savedDuration ||
+      name !== workout.name ||
       JSON.stringify(exercises) !== JSON.stringify(workout.exercises),
   );
 
@@ -248,8 +252,10 @@ export function EditWorkoutScreen() {
                 }
 
                 const error = durationError(typed);
-                if (error !== undefined) {
-                  setTypedError(error);
+                const badName = workoutNameError(name);
+                setTypedError(error);
+                setNameError(badName);
+                if (error !== undefined || badName !== undefined) {
                   return;
                 }
 
@@ -257,6 +263,7 @@ export function EditWorkoutScreen() {
                 guard.allow();
                 save.mutate(
                   {
+                    name: name.trim(),
                     durationMinutes: durationMinutes(typed),
                     exercises: exercises.map((exercise) => ({
                       id: savedIds.has(exercise.id) ? exercise.id : null,
@@ -301,7 +308,15 @@ export function EditWorkoutScreen() {
         </>
       }
     >
-      <View style={{ marginVertical: space.sm }}>
+      <View style={{ gap: space.lg, marginVertical: space.sm }}>
+        <WorkoutNameField
+          value={name}
+          error={nameError}
+          onChange={(next) => {
+            setName(next);
+            setNameError(undefined);
+          }}
+        />
         <DurationField
           value={typed}
           error={typedError}

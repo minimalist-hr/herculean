@@ -12,6 +12,9 @@ internal sealed class Workout : Entity<WorkoutId>
 
     internal const int MaxDurationMinutes = 600;
 
+    /// <summary>What a workout started without a routine is called until it is named.</summary>
+    internal const string EmptyName = "Workout";
+
     private const int SecondsPerMinute = 60;
 
     private readonly List<WorkoutExercise> _exercises = [];
@@ -33,7 +36,7 @@ internal sealed class Workout : Entity<WorkoutId>
 
     public RoutineId? RoutineId { get; private set; }
 
-    /// <summary>The routine's name when this was created, so a later rename leaves it alone.</summary>
+    /// <summary>The routine's name when this was created, so a later rename leaves it alone, or the name the user gave it.</summary>
     public string Name { get; private set; }
 
     /// <summary>When logging started. Empty when skipped, and on a past day, which has no elapsed time.</summary>
@@ -83,6 +86,16 @@ internal sealed class Workout : Entity<WorkoutId>
             WorkoutExercise.Start(userId, workout.Id, order, values, lastTime.GetValueOrDefault(values.ExerciseId) ?? [])));
 
         return workout;
+    }
+
+    /// <summary>A workout in progress with no routine and no exercises yet. Nothing is planned, so it plans no sets.</summary>
+    public static Workout StartEmpty(UserId userId, DateOnly date, DateTimeOffset? startedAtUtc) =>
+        new(WorkoutId.New(), userId, date, WorkoutStatus.InProgress, null, EmptyName) { StartedAtUtc = startedAtUtc };
+
+    /// <summary>Gives it a name of its own. The routine it came from keeps its name.</summary>
+    public void Rename(string name)
+    {
+        Name = name.Trim();
     }
 
     /// <summary>Adds exercises at the end, with the starting targets. Their sets start from last time. Two can be added as a superset.</summary>

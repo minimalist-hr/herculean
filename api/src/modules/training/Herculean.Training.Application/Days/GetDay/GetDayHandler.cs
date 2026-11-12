@@ -13,20 +13,9 @@ internal sealed class GetDayHandler(IDayReadRepository dayReadRepository, UserCl
 
         DayWorkout? workout = await dayReadRepository.GetWorkoutAsync(date, cancellationToken);
         PlanChange? planned = plan.RoutineOn(date);
-        RoutineId? shownRoutineId = workout is null ? planned?.RoutineId : workout.RoutineId;
-        string? shownName = workout is null ? planned?.RoutineName : workout.Name;
-
-        DayRoutineResponse? routine = null;
-        if (shownRoutineId is RoutineId routineId && shownName is not null)
-        {
-            List<DayExerciseResponse> exercises = workout is null
-                ? await dayReadRepository.ListExercisesAsync(routineId, cancellationToken)
-                : await dayReadRepository.ListWorkoutExercisesAsync(WorkoutId.From(workout.Id), cancellationToken);
-            bool exists = workout is null
-                ? planned?.RoutineDeletedAtUtc is null
-                : await dayReadRepository.RoutineExistsAsync(routineId, cancellationToken);
-            routine = new DayRoutineResponse(routineId.Value, shownName, exists, exercises);
-        }
+        DayRoutineResponse? routine = workout is null
+            ? await PlannedRoutineAsync(planned, cancellationToken)
+            : await WorkoutRoutineAsync(workout, cancellationToken);
 
         DateOnly nextDate = date.AddDays(1);
 
@@ -37,6 +26,27 @@ internal sealed class GetDayHandler(IDayReadRepository dayReadRepository, UserCl
             workout?.Id,
             routine,
             UpNextOn(plan, nextDate));
+    }
+
+    private async Task<DayRoutineResponse?> PlannedRoutineAsync(PlanChange? planned, CancellationToken cancellationToken)
+    {
+        if (planned is not { RoutineId: RoutineId routineId, RoutineName: string name })
+        {
+            return null;
+        }
+
+        List<DayExerciseResponse> exercises = await dayReadRepository.ListExercisesAsync(routineId, cancellationToken);
+
+        return new DayRoutineResponse(routineId.Value, name, planned.RoutineDeletedAtUtc is null, exercises);
+    }
+
+    /// <summary>A workout shows its own name and exercises, also when it started empty, with no routine.</summary>
+    private async Task<DayRoutineResponse> WorkoutRoutineAsync(DayWorkout workout, CancellationToken cancellationToken)
+    {
+        List<DayExerciseResponse> exercises = await dayReadRepository.ListWorkoutExercisesAsync(WorkoutId.From(workout.Id), cancellationToken);
+        bool exists = workout.RoutineId is RoutineId routineId && await dayReadRepository.RoutineExistsAsync(routineId, cancellationToken);
+
+        return new DayRoutineResponse(workout.RoutineId?.Value, workout.Name, exists, exercises);
     }
 
     private static UpNextResponse UpNextOn(DayPlan plan, DateOnly date)

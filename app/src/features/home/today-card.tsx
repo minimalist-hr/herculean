@@ -139,7 +139,7 @@ export function TodayCard({ day }: { day: Day }) {
         <UpNext upNext={day.upNext} today={day.date} />
       </Card>
     ) : (
-      <NoRoutinesCard />
+      <NoRoutinesCard date={day.date} today={day.date} />
     );
   }
 

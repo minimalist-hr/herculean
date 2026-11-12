@@ -312,6 +312,7 @@ test('confirming starts that routine for that day and opens logging', async () =
     date: '2026-11-03',
     status: 'inProgress',
     routineId: 'push',
+    empty: false,
   });
 });
 
@@ -344,4 +345,48 @@ test('closing the sheet returns to the list without starting', async () => {
   expect(
     mockFetch.mock.calls.filter(([request]) => request.method === 'POST'),
   ).toHaveLength(0);
+});
+
+test('Start empty workout asks first, then starts with no routine', async () => {
+  answer({});
+  await renderChoose();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Start empty workout' }),
+  );
+  expect(await screen.findByText('Start an empty workout?')).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Start workout' }));
+
+  expect(await screen.findByText('Logging screen')).toBeOnTheScreen();
+  const post = mockFetch.mock.calls.find(
+    ([request]) => request.method === 'POST',
+  )?.[0];
+  expect(await post?.clone().json()).toEqual({
+    date: '2026-11-03',
+    status: 'inProgress',
+    empty: true,
+  });
+});
+
+test('a past day logs an empty workout', async () => {
+  answer({});
+  await renderChoose('2026-11-02');
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Log empty workout' }),
+  );
+
+  expect(await screen.findByText('Log an empty workout?')).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Log workout' })).toBeTruthy();
+});
+
+test('with nothing in the week plan, an empty workout can still start', async () => {
+  answer({ routines: [notInPlan] });
+  await renderChoose();
+
+  await screen.findByText('No routines in your week plan');
+
+  expect(
+    screen.getByRole('button', { name: 'Start empty workout' }),
+  ).toBeOnTheScreen();
 });

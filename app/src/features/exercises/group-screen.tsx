@@ -20,7 +20,6 @@ import { useTheme } from '@/theme/theme-provider';
 import { bestSetText, ExerciseRow } from './exercise-row';
 import { DetailsSkeleton } from './exercises-skeleton';
 import { countOf } from './groups-list';
-import { NoSessionsCard } from './no-sessions-card';
 import { useDeleteGroup } from './use-delete-group';
 import { useGroup } from './use-group';
 import { usePageEnd } from '@/components/above-tab-bar';
@@ -84,9 +83,6 @@ function Details({ group }: { group: Group }) {
     group.exercises.length + group.alsoWorksExercises.length;
   const count = countOf({ exerciseCount });
   const inUse = exerciseCount > 0;
-  const done = [...group.exercises, ...group.alsoWorksExercises].some(
-    (exercise) => exercise.bestSet !== null,
-  );
 
   function renderRows(exercises: Exercise[]) {
     return exercises.map((exercise, index) => (
@@ -148,10 +144,6 @@ function Details({ group }: { group: Group }) {
         </View>
         <Text style={[text.body, { color: colors.muted }]}>{count}</Text>
       </View>
-
-      {!done && (
-        <NoSessionsCard message="Finish a workout with an exercise in this group and its best set shows below." />
-      )}
 
       <View style={{ gap: space.sm }}>
         <SectionTitle>Exercises</SectionTitle>

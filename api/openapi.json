@@ -7933,6 +7933,11 @@
             ],
             "description": "The routine to start instead of the day's plan, for this date only. Only when starting. Without it, the day's planned routine is used.",
             "format": "uuid"
+          },
+          "empty": {
+            "type": "boolean",
+            "description": "Starts with no routine and no exercises, named Workout until it is named. Only when starting, and never with a routine.",
+            "default": false
           }
         },
         "description": "A workout to add to a date."
@@ -8058,7 +8063,7 @@
                 "type": "null"
               },
               {
-                "description": "The routine planned on this day, or the one its workout came from. Null on a rest day.",
+                "description": "The routine planned on this day, or its workout, which shows the routine it came from. Null on a rest day.",
                 "$ref": "#/components/schemas/DayRoutineResponse"
               }
             ]
@@ -8080,13 +8085,16 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "description": "The routine's ID.",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The routine's ID. Null for a workout started empty.",
             "format": "uuid"
           },
           "name": {
             "type": "string",
-            "description": "The routine's name."
+            "description": "The routine's name, or the workout's own."
           },
           "exists": {
             "type": "boolean",
@@ -8239,6 +8247,13 @@
             ],
             "description": "How long it took in minutes, 1 to 600. Null means no duration.",
             "format": "int32"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "A new name, 1 to 100 characters, trimmed. Null keeps the name it has. The routine it came from keeps its name."
           }
         },
         "description": "A saved workout as edited: all its exercises in order, each with all its sets."
@@ -10794,6 +10809,13 @@
             ],
             "description": "How long it took in minutes, 1 to 600. Only a past day uses it: a timed workout counts its own.",
             "format": "int32"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "A new name, 1 to 100 characters, trimmed. Null keeps the name it has. The routine it came from keeps its name."
           }
         },
         "description": "What changes on a workout."
