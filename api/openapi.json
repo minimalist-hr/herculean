@@ -6411,6 +6411,186 @@
         ]
       }
     },
+    "/api/v1/announcement": {
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Get the announcement",
+        "description": "Minimalist's announcement for Home, or null when there is none.",
+        "operationId": "GetAnnouncement",
+        "responses": {
+          "200": {
+            "description": "The announcement, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentAnnouncementResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/announcement": {
+      "get": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Get the announcement to edit",
+        "description": "The announcement on Home, or null when there is none. Admins only.",
+        "operationId": "GetAdminAnnouncement",
+        "responses": {
+          "200": {
+            "description": "The announcement, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentAnnouncementResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Put an announcement on Home",
+        "description": "Shows an announcement on everyone's Home, replacing the last. It shows again on phones that closed the last. Admins only.",
+        "operationId": "SaveAnnouncement",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAnnouncementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "It's on Home."
+          },
+          "400": {
+            "description": "A field is not valid. The errors name each one.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Announcement"
+        ],
+        "summary": "Remove the announcement",
+        "description": "Takes the announcement off everyone's Home. Removing when there is none changes nothing. Admins only.",
+        "operationId": "RemoveAnnouncement",
+        "responses": {
+          "204": {
+            "description": "There is no announcement."
+          },
+          "401": {
+            "description": "Not signed in, or the access token expired.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account isn't an admin.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/feedback/{id}": {
       "get": {
         "tags": [
@@ -6866,6 +7046,36 @@
         },
         "description": "A user's account, as an admin sees it. Never what they logged."
       },
+      "AnnouncementResponse": {
+        "required": [
+          "id",
+          "title",
+          "text",
+          "publishedAtUtc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Its ID. A new one comes with every save, so a phone that closed the last shows it again.",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "The title."
+          },
+          "text": {
+            "type": "string",
+            "description": "The text."
+          },
+          "publishedAtUtc": {
+            "type": "string",
+            "description": "When it was saved.",
+            "format": "date-time"
+          }
+        },
+        "description": "What Minimalist tells everyone on Home."
+      },
       "BestSetResponse": {
         "required": [
           "weightKg",
@@ -7156,6 +7366,26 @@
           }
         },
         "description": "A workout to add to a date."
+      },
+      "CurrentAnnouncementResponse": {
+        "required": [
+          "announcement"
+        ],
+        "type": "object",
+        "properties": {
+          "announcement": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "The announcement, or null when there is none.",
+                "$ref": "#/components/schemas/AnnouncementResponse"
+              }
+            ]
+          }
+        },
+        "description": "Minimalist's announcement on Home, if there is one."
       },
       "DayExerciseResponse": {
         "required": [
@@ -8966,6 +9196,24 @@
         },
         "description": "A saved routine, and the days it took from other routines."
       },
+      "SaveAnnouncementRequest": {
+        "required": [
+          "title",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "1 to 60 characters, trimmed."
+          },
+          "text": {
+            "type": "string",
+            "description": "1 to 300 characters, trimmed."
+          }
+        },
+        "description": "The announcement to show on Home."
+      },
       "SaveCurrentUserPhotoRequest": {
         "required": [
           "image"
@@ -10533,6 +10781,9 @@
     },
     {
       "name": "Feedback blocks"
+    },
+    {
+      "name": "Announcement"
     },
     {
       "name": "System"

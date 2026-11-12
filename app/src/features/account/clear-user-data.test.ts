@@ -26,5 +26,5 @@ test('nothing of the last user stays in the cache or on the phone', async () => 
   expect(queryClient.getQueryData(['workouts'])).toBeUndefined();
   await expect(
     Promise.all(Object.values(storedKeys).map((key) => readStored(key))),
-  ).resolves.toEqual([null, null, null]);
+  ).resolves.toEqual(Object.values(storedKeys).map(() => null));
 });

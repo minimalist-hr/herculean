@@ -4,6 +4,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { usePullToRefresh } from '@/components/pull-to-refresh';
 import { usePageEnd } from '@/components/above-tab-bar';
 import { useCurrentUser } from '@/features/account/use-current-user';
+import { AnnouncementCard } from '@/features/announcement/announcement-card';
+import { announcementKeys } from '@/features/announcement/use-announcement';
 import { FeedbackCard } from '@/features/feedback/feedback-card';
 import { ProfileButton } from '@/features/settings/profile-button';
 import { dateText } from '@/formats/dates';
@@ -47,6 +49,7 @@ export function HomeScreen() {
       refresh(),
       queryClient.invalidateQueries({ queryKey: workoutKeys.inProgress }),
       queryClient.invalidateQueries({ queryKey: workoutKeys.all }),
+      queryClient.invalidateQueries({ queryKey: announcementKeys.all }),
     ]),
   );
 
@@ -75,6 +78,7 @@ export function HomeScreen() {
         </Text>
         <ProfileButton />
       </View>
+      <AnnouncementCard />
       <TodaySection today={dateText(now)} />
       <WeekSection now={now} />
       <MonthSection now={now} />

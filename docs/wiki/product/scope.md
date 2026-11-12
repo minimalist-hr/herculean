@@ -304,7 +304,7 @@ Changes on W30 stay in the app until Save workout.
 
 **What it does:** a dashboard that answers what to do today, whether you're on track, and whether you're getting stronger.
 
-**Screens:** H01 Home, H02 In progress, H03 Completed, H04 Rest day, H05 New account, H06 Skipped, H07 Loading, H08 A section failed, H09 Setup complete, H44 Are you ready.
+**Screens:** H01 Home, H02 In progress, H03 Completed, H04 Rest day, H05 New account, H06 Skipped, H07 Loading, H08 A section failed, H09 Setup complete, H44 Are you ready, H95 Announcement.
 
 **Flows**
 - **Today:** the one action for the day, Start workout, which asks first on H44, or Resume workout, or what's up next once it's skipped or a rest day; once done, View workout → W67 and what's up next. Open day → the Workout tab on today.
@@ -322,6 +322,7 @@ Changes on W30 stay in the app until Save workout.
 | GET | `/api/v1/month-summaries/{month}` | This month |
 | GET | `/api/v1/streak` | Streak |
 | GET | `/api/v1/records/recent` | Recent records |
+| GET | `/api/v1/announcement` | H95 |
 
 **Done when**
 - Each section loads and fails on its own.
@@ -364,7 +365,7 @@ Changes on W30 stay in the app until Save workout.
 
 **What it does:** Minimalist's own accounts see how Herculean is doing, read every user's feedback, reply and close it, help users with their accounts, and check the system. An admin sees nothing else of the app.
 
-**Screens:** M20 Overview, M21 Loading, M22 A tile failed, M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket, M18 Saved replies, M19 Add note, M77 Delete note, M78 Priority, M30 Users, M31 Loading, M32 No matches, M33 Load failure, M34 Deleting soon, M40 User, M41 Loading, M42 Load failure, M43 Feedback failed, M44 Deleting soon, M45 Sign out all devices, M46 Send reset link, M47 Cancel deletion, M48 Close account, M49 Couldn’t do it, M60 Remove photo, M61 Block feedback, M62 Unblock feedback, M70 Saved replies, M71 No saved replies, M72 Loading, M73 Load failure, M74 New saved reply, M75 Edit saved reply, M76 Delete saved reply, M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure.
+**Screens:** M20 Overview, M21 Loading, M22 A tile failed, M01 Feedback, M02 Loading, M03 Nothing in this status, M04 Load failure, M10 Ticket, M11 Loading, M12 Load failure, M15 Closed, M16 Close ticket, M17 Reopen ticket, M18 Saved replies, M19 Add note, M77 Delete note, M78 Priority, M30 Users, M31 Loading, M32 No matches, M33 Load failure, M34 Deleting soon, M40 User, M41 Loading, M42 Load failure, M43 Feedback failed, M44 Deleting soon, M45 Sign out all devices, M46 Send reset link, M47 Cancel deletion, M48 Close account, M49 Couldn’t do it, M60 Remove photo, M61 Block feedback, M62 Unblock feedback, M70 Saved replies, M71 No saved replies, M72 Loading, M73 Load failure, M74 New saved reply, M75 Edit saved reply, M76 Delete saved reply, M80 Announcement, M81 Loading, M82 Load failure, M83 Remove announcement, M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure.
 
 **Flows**
 - **Sign in:** A01 → M20, and at launch straight to M20. Tabs: Overview, Feedback, Users and Settings.
@@ -373,7 +374,7 @@ Changes on W30 stay in the app until Save workout.
 - **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again. The sender card → M40. Priority (M78), notes (M19, M77) and saved replies in the reply box (M18).
 - **Users:** search by name or email as you type, chips All and Deleting soon, 20 at a time. A user → M40.
 - **User:** photo, joined, last active, workout and routine counts, their feedback (a ticket → M10), then Remove photo, Sign out all devices, Send reset link, and Close account or Cancel deletion, each asking first (M60, M45 to M48). Closing and removing a photo email the user (H94, H93), and a closed account can't sign in (A61).
-- **Settings:** Theme and Color → H12 and H13. Saved replies → M70. System health → M51. Sign out → M05 → A01.
+- **Settings:** Theme and Color → H12 and H13. Saved replies → M70. Announcement → M80, which Overview also opens while one is on. System health → M51. Sign out → M05 → A01.
 
 **Entities:** User (role, last active). Reads Ticket, Ticket message, Screenshot, and each sender's name and email from Account.
 
@@ -396,6 +397,9 @@ Changes on W30 stay in the app until Save workout.
 | GET | `/api/v1/admin/users/{id}/feedback-block` | M40 |
 | PUT | `/api/v1/admin/users/{id}/feedback-block` | M61 |
 | DELETE | `/api/v1/admin/users/{id}/feedback-block` | M62 |
+| GET | `/api/v1/admin/announcement` | M20, M50, M80 |
+| PUT | `/api/v1/admin/announcement` | M80 |
+| DELETE | `/api/v1/admin/announcement` | M83 |
 | GET | `/api/v1/admin/users/stats` | M20 |
 | GET | `/api/v1/admin/users` | M30, `?search=`, `?deletingSoon=true`, `?cursor=` |
 | GET | `/api/v1/admin/users/{id}` | M40 |

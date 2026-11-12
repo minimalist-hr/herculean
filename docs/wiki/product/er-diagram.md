@@ -217,7 +217,7 @@ erDiagram
 
 ## Feedback
 
-Every Feedback entity but SavedReply has a `UserId` (type `UserId`): the user who sent the ticket, on Minimalist's replies and notes too, or the user who is blocked. It has no foreign key to the Account module. SavedReply is Minimalist's own (`[AdminData]`), shared by every admin.
+Every Feedback entity but SavedReply and Announcement has a `UserId` (type `UserId`): the user who sent the ticket, on Minimalist's replies and notes too, or the user who is blocked. It has no foreign key to the Account module. SavedReply and Announcement are Minimalist's own (`[AdminData]`).
 
 ```mermaid
 erDiagram
@@ -277,3 +277,12 @@ erDiagram
 | Property | Type | Notes |
 |---|---|---|
 | UserId | UserId | Unique. The user who can't send feedback |
+
+### Announcement
+
+| Property | Type | Notes |
+|---|---|---|
+| Title | string(60) | |
+| Text | string(300) | |
+
+There is one at most. Saving replaces it with a new row, so its ID tells phones it is new.

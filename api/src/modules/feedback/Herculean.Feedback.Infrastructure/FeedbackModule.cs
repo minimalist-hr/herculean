@@ -2,6 +2,10 @@ using FluentValidation;
 
 using Herculean.Account.Contracts;
 using Herculean.Feedback.Application.AccountDeleted;
+using Herculean.Feedback.Application.Announcements;
+using Herculean.Feedback.Application.Announcements.GetAnnouncement;
+using Herculean.Feedback.Application.Announcements.RemoveAnnouncement;
+using Herculean.Feedback.Application.Announcements.SaveAnnouncement;
 using Herculean.Feedback.Application.Blocks.BlockFeedback;
 using Herculean.Feedback.Application.Blocks.GetFeedbackBlock;
 using Herculean.Feedback.Application.Blocks.GetOwnFeedbackBlock;
@@ -32,9 +36,11 @@ using Herculean.Feedback.Application.Tickets.GetUnreadFeedback;
 using Herculean.Feedback.Application.Tickets.ListTickets;
 using Herculean.Feedback.Application.Tickets.MarkTicketRead;
 using Herculean.Feedback.Domain;
+using Herculean.Feedback.Domain.Announcements;
 using Herculean.Feedback.Domain.Blocks;
 using Herculean.Feedback.Domain.SavedReplies;
 using Herculean.Feedback.Domain.Tickets;
+using Herculean.Feedback.Infrastructure.Announcements;
 using Herculean.Feedback.Infrastructure.Blocks;
 using Herculean.Feedback.Infrastructure.SavedReplies;
 using Herculean.Feedback.Infrastructure.Inbox;
@@ -107,6 +113,12 @@ public static class FeedbackModule
         builder.Services.AddScoped<BlockFeedbackHandler>();
         builder.Services.AddScoped<UnblockFeedbackHandler>();
         builder.Services.AddScoped<GetOwnFeedbackBlockHandler>();
+        builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+        builder.Services.AddScoped<IAnnouncementReadRepository, AnnouncementReadRepository>();
+        builder.Services.AddScoped<GetAnnouncementHandler>();
+        builder.Services.AddScoped<IValidator<SaveAnnouncementRequest>, SaveAnnouncementValidator>();
+        builder.Services.AddScoped<SaveAnnouncementHandler>();
+        builder.Services.AddScoped<RemoveAnnouncementHandler>();
     }
 
     /// <summary>Maps every Feedback endpoint.</summary>
@@ -134,6 +146,10 @@ public static class FeedbackModule
         BlockFeedbackEndpoint.Map(endpoints);
         UnblockFeedbackEndpoint.Map(endpoints);
         GetOwnFeedbackBlockEndpoint.Map(endpoints);
+        GetAnnouncementEndpoint.Map(endpoints);
+        GetAdminAnnouncementEndpoint.Map(endpoints);
+        SaveAnnouncementEndpoint.Map(endpoints);
+        RemoveAnnouncementEndpoint.Map(endpoints);
         GetTicketEndpoint.Map(endpoints);
         GetScreenshotEndpoint.Map(endpoints);
         AddTicketMessageEndpoint.Map(endpoints);

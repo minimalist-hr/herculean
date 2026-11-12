@@ -16,6 +16,11 @@ import {
 import { noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
+import {
+  announcementStatus,
+  useAdminAnnouncement,
+} from '@/features/announcement/use-announcement';
+
 import { useSavedReplies } from './use-saved-replies';
 import { summaryOf, useSystemHealth } from './use-system-health';
 
@@ -27,8 +32,13 @@ export function AdminSettingsScreen() {
   const health = useSystemHealth();
   const user = useCurrentUser();
   const savedReplies = useSavedReplies();
+  const announcement = useAdminAnnouncement();
   const refreshControl = usePullToRefresh(() =>
-    Promise.all([health.refetch(), savedReplies.refetch()]),
+    Promise.all([
+      health.refetch(),
+      savedReplies.refetch(),
+      announcement.refetch(),
+    ]),
   );
   const [signingOut, setSigningOut] = useState(false);
   const summary =
@@ -50,6 +60,14 @@ export function AdminSettingsScreen() {
     }
 
     return user.isLoadingError ? noValue : undefined;
+  }
+
+  function announcementValue() {
+    if (announcement.data !== undefined) {
+      return announcementStatus(announcement.data, new Date());
+    }
+
+    return announcement.isLoadingError ? noValue : undefined;
   }
 
   function savedRepliesValue() {
@@ -113,6 +131,16 @@ export function AdminSettingsScreen() {
             value={savedRepliesValue()}
             onPress={() => {
               router.push('/admin/settings/saved-replies');
+            }}
+          />
+        </SettingsSection>
+        <SettingsSection title="Content">
+          <SettingsRow
+            first
+            label="Announcement"
+            value={announcementValue()}
+            onPress={() => {
+              router.push('/admin/settings/announcement');
             }}
           />
         </SettingsSection>

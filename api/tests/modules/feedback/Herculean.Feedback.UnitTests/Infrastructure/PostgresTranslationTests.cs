@@ -2,6 +2,7 @@ using Herculean.Feedback.Application.Auth;
 using Herculean.Feedback.Domain;
 using Herculean.Feedback.Domain.Tickets;
 using Herculean.Feedback.Infrastructure;
+using Herculean.Feedback.Infrastructure.Announcements;
 using Herculean.Feedback.Infrastructure.Blocks;
 using Herculean.Feedback.Infrastructure.Inbox;
 using Herculean.Feedback.Infrastructure.SavedReplies;
@@ -67,6 +68,10 @@ public sealed class PostgresTranslationTests
     [Fact]
     public Task TheSavedReplyTitlesTranslate() =>
         ShouldTranslateAsync(dbContext => new SavedReplyRepository(dbContext).ListTitlesAsync(Token));
+
+    [Fact]
+    public Task TheAnnouncementTranslates() =>
+        ShouldTranslateAsync(dbContext => new AnnouncementReadRepository(dbContext).GetAsync(Token));
 
     [Fact]
     public Task ABlockTranslates() =>

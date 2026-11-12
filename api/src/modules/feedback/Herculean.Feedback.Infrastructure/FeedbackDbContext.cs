@@ -1,8 +1,10 @@
 using Herculean.Feedback.Application.Auth;
 using Herculean.Feedback.Domain;
+using Herculean.Feedback.Domain.Announcements;
 using Herculean.Feedback.Domain.Blocks;
 using Herculean.Feedback.Domain.SavedReplies;
 using Herculean.Feedback.Domain.Tickets;
+using Herculean.Feedback.Infrastructure.Announcements;
 using Herculean.Feedback.Infrastructure.Blocks;
 using Herculean.Feedback.Infrastructure.SavedReplies;
 using Herculean.Feedback.Infrastructure.Tickets;
@@ -26,6 +28,8 @@ internal sealed class FeedbackDbContext(DbContextOptions<FeedbackDbContext> opti
 
     public DbSet<FeedbackBlock> FeedbackBlocks => Set<FeedbackBlock>();
 
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+
     private UserId CurrentUserId => currentUser.UserId;
 
     Task IUnitOfWork.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
@@ -40,6 +44,7 @@ internal sealed class FeedbackDbContext(DbContextOptions<FeedbackDbContext> opti
         modelBuilder.ApplyConfiguration(new TicketNoteConfiguration());
         modelBuilder.ApplyConfiguration(new SavedReplyConfiguration());
         modelBuilder.ApplyConfiguration(new FeedbackBlockConfiguration());
+        modelBuilder.ApplyConfiguration(new AnnouncementConfiguration());
 
         modelBuilder.Entity<Ticket>()
             .HasQueryFilter(UserFilter, ticket => ticket.UserId == CurrentUserId);

@@ -12,7 +12,11 @@ import { SkeletonLine, textLine } from '@/components/skeleton';
 import { StatTile } from '@/components/stat-tile';
 import { Tappable } from '@/components/tappable';
 import { TextLink } from '@/components/text-link';
-import { noValue } from '@/formats/formats';
+import {
+  announcementKeys,
+  useAdminAnnouncement,
+} from '@/features/announcement/use-announcement';
+import { formatLocalDate, noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { TrendLine } from './trend-line';
@@ -35,13 +39,17 @@ interface TileQuery<T> {
 export function OverviewScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { colors, size, space } = useTheme();
+  const { colors, size, space, text } = useTheme();
   const pageEnd = usePageEnd();
   const users = useUserStats();
   const training = useTrainingStats();
   const feedback = useFeedbackStats();
+  const announcement = useAdminAnnouncement().data;
   const refreshControl = usePullToRefresh(() =>
-    queryClient.invalidateQueries({ queryKey: overviewKeys.all }),
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: overviewKeys.all }),
+      queryClient.invalidateQueries({ queryKey: announcementKeys.admin }),
+    ]),
   );
 
   const activeShare =
@@ -63,10 +71,27 @@ export function OverviewScreen() {
       }}
       refreshControl={refreshControl}
     >
-      <ScreenHeading
-        title="Overview"
-        subtitle="How Herculean is doing this week."
-      />
+      <View style={{ gap: space.xs }}>
+        <ScreenHeading
+          title="Overview"
+          subtitle="How Herculean is doing this week."
+        />
+        {announcement !== undefined && announcement !== null && (
+          <Tappable
+            accessibilityRole="button"
+            accessibilityLabel={`Announcement on Home since ${formatLocalDate(announcement.publishedAtUtc)}`}
+            onPress={() => {
+              router.push('/admin/settings/announcement');
+            }}
+            style={[styles.reminder, { gap: space.xs }]}
+          >
+            <Text style={text.meta}>
+              {`Announcement on Home since ${formatLocalDate(announcement.publishedAtUtc)}`}
+            </Text>
+            <ChevronRightIcon color={colors.muted} size={14} />
+          </Tappable>
+        )}
+      </View>
       <UsersHero query={users} />
       <View style={{ gap: space.md }}>
         <View style={[styles.row, { gap: space.md }]}>
@@ -324,6 +349,11 @@ function Tile<T>({
 }
 
 const styles = StyleSheet.create({
+  reminder: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
   screen: {
     flex: 1,
   },

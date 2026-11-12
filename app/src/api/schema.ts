@@ -1592,6 +1592,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/announcement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the announcement
+         * @description Minimalist's announcement for Home, or null when there is none.
+         */
+        get: operations["GetAnnouncement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/announcement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the announcement to edit
+         * @description The announcement on Home, or null when there is none. Admins only.
+         */
+        get: operations["GetAdminAnnouncement"];
+        /**
+         * Put an announcement on Home
+         * @description Shows an announcement on everyone's Home, replacing the last. It shows again on phones that closed the last. Admins only.
+         */
+        put: operations["SaveAnnouncement"];
+        post?: never;
+        /**
+         * Remove the announcement
+         * @description Takes the announcement off everyone's Home. Removing when there is none changes nothing. Admins only.
+         */
+        delete: operations["RemoveAnnouncement"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feedback/{id}": {
         parameters: {
             query?: never;
@@ -1754,6 +1802,23 @@ export interface components {
             /** @description Whether they have a profile photo. */
             hasPhoto: boolean;
         };
+        /** @description What Minimalist tells everyone on Home. */
+        AnnouncementResponse: {
+            /**
+             * Format: uuid
+             * @description Its ID. A new one comes with every save, so a phone that closed the last shows it again.
+             */
+            id: string;
+            /** @description The title. */
+            title: string;
+            /** @description The text. */
+            text: string;
+            /**
+             * Format: date-time
+             * @description When it was saved.
+             */
+            publishedAtUtc: string;
+        };
         /** @description The best set of an exercise. */
         BestSetResponse: {
             /**
@@ -1874,6 +1939,10 @@ export interface components {
              * @description The routine to start instead of the day's plan, for this date only. Only when starting. Without it, the day's planned routine is used.
              */
             routineId?: null | string;
+        };
+        /** @description Minimalist's announcement on Home, if there is one. */
+        CurrentAnnouncementResponse: {
+            announcement: null | components["schemas"]["AnnouncementResponse"];
         };
         /** @description An exercise in a day's routine and its targets. */
         DayExerciseResponse: {
@@ -2796,6 +2865,13 @@ export interface components {
             name: string;
             /** @description The weekdays that moved here from another routine, from Monday. */
             movedDays: components["schemas"]["MovedDayResponse"][];
+        };
+        /** @description The announcement to show on Home. */
+        SaveAnnouncementRequest: {
+            /** @description 1 to 60 characters, trimmed. */
+            title: string;
+            /** @description 1 to 300 characters, trimmed. */
+            text: string;
         };
         /** @description The new profile photo. */
         SaveCurrentUserPhotoRequest: {
@@ -8298,6 +8374,158 @@ export interface operations {
             };
             /** @description Not signed in, or the access token expired. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The announcement, or null. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentAnnouncementResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetAdminAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The announcement, or null. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentAnnouncementResponse"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SaveAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveAnnouncementRequest"];
+            };
+        };
+        responses: {
+            /** @description It's on Home. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description A field is not valid. The errors name each one. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RemoveAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description There is no announcement. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in, or the access token expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description The account isn't an admin. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

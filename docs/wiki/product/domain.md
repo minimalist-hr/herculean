@@ -68,6 +68,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
   - Triceps: EZ bar skullcrusher, Rope pushdown, Parallel bar dips (Chest), Straight bar pushdown.
   - Legs: Barbell squat, Romanian deadlift, Leg extension, Smith machine calf raise.
 - The greeting uses the first word of the name.
+- Minimalist can show one announcement on everyone's Home: a title of 1 to 60 characters and a text of 1 to 300. Each phone can close it, and a new one shows again. It stays until an admin removes it.
 
 ### Units and time
 

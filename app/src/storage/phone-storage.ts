@@ -6,6 +6,7 @@ export const storedKeys = {
   appearance: 'appearance',
   restTimer: 'restTimer',
   resumeBarHiddenFor: 'resumeBarHiddenFor',
+  closedAnnouncement: 'closedAnnouncement',
 } as const;
 
 // The web has no secure storage, so there values live as long as the page.

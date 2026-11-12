@@ -13,6 +13,7 @@ import { ThemeProvider } from '@/theme/theme-provider';
 
 import { takeOpenedDay } from '@/features/workout/open-day';
 import { OpenedPage } from '@/test-utils/opened-page';
+import { forgetClosedAnnouncement } from '@/features/announcement/use-announcement';
 import { HomeScreen } from './home-screen';
 
 const mockFetch = jest.fn<Promise<Response>, [Request]>();
@@ -182,6 +183,7 @@ async function renderHome() {
 beforeEach(() => {
   mockFetch.mockReset();
   client = createTestQueryClient();
+  forgetClosedAnnouncement();
 });
 
 test('greets by first name and shows every section', async () => {
@@ -569,4 +571,41 @@ test('Open day opens the Workout tab on today', async () => {
   expect(
     await screen.findByText(`Workout page, on ${today}`),
   ).toBeOnTheScreen();
+});
+
+const announcement = (id: string, title: string) => ({
+  announcement: {
+    id,
+    title,
+    text: 'Supersets are here.',
+    publishedAtUtc: '2026-11-12T09:00:00Z',
+  },
+});
+
+test('an announcement shows under the greeting until it is closed', async () => {
+  answerWith({ '/api/v1/announcement': announcement('a1', 'New in 1.1') });
+  await renderHome();
+
+  expect(await screen.findByText('New in 1.1')).toBeOnTheScreen();
+  expect(screen.getByText('Supersets are here.')).toBeOnTheScreen();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Close the announcement' }),
+  );
+
+  expect(screen.queryByText('New in 1.1')).not.toBeOnTheScreen();
+});
+
+test('a new announcement shows again after the last was closed', async () => {
+  answerWith({ '/api/v1/announcement': announcement('a1', 'New in 1.1') });
+  await renderHome();
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Close the announcement' }),
+  );
+  answerWith({ '/api/v1/announcement': announcement('a2', 'New in 1.2') });
+
+  await act(async () => {
+    await client.invalidateQueries();
+  });
+
+  expect(await screen.findByText('New in 1.2')).toBeOnTheScreen();
 });

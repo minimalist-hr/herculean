@@ -1,24 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { toFormErrors } from '@/api/problem';
 import { Button } from '@/components/button';
 import { FormPage } from '@/components/form-page';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { TrashIcon } from '@/components/icons';
-import {
-  clearingNotification,
-  notifyFailure,
-  notifySuccess,
-} from '@/components/notifications';
+import { notifyFailure, notifySuccess } from '@/components/notifications';
 import { Sheet } from '@/components/sheet';
-import { TextField } from '@/components/text-field';
 import { useLeaveGuard } from '@/components/use-leave-guard';
 import { useTheme } from '@/theme/theme-provider';
 
+import { showSaveFailure, TitleTextFields } from './title-text-fields';
 import {
   textMaxLength,
   titleMaxLength,
@@ -73,16 +68,7 @@ export function SavedReplyForm({
       router.back();
     } catch (error) {
       guard.block();
-      const formErrors = toFormErrors(error, ['title', 'text']);
-      if (formErrors.fields.title !== undefined) {
-        setError('title', { message: formErrors.fields.title });
-      }
-      if (formErrors.fields.text !== undefined) {
-        setError('text', { message: formErrors.fields.text });
-      }
-      if (formErrors.general) {
-        notifyFailure('Couldn’t save the reply. Try again.');
-      }
+      showSaveFailure(error, setError, 'Couldn’t save the reply. Try again.');
     }
   });
 
@@ -129,39 +115,12 @@ export function SavedReplyForm({
           />
         }
       >
-        <Controller
+        <TitleTextFields
           control={control}
-          name="title"
-          render={({ field }) => (
-            <TextField
-              ref={field.ref}
-              label="Title"
-              autoCapitalize="sentences"
-              maxLength={titleMaxLength}
-              returnKeyType="next"
-              value={field.value}
-              onChangeText={clearingNotification(field.onChange)}
-              onBlur={field.onBlur}
-              error={formState.errors.title?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="text"
-          render={({ field }) => (
-            <TextField
-              ref={field.ref}
-              label="Text"
-              multiline
-              maxLength={textMaxLength}
-              helper="Write {name} for the user’s name."
-              value={field.value}
-              onChangeText={clearingNotification(field.onChange)}
-              onBlur={field.onBlur}
-              error={formState.errors.text?.message}
-            />
-          )}
+          errors={formState.errors}
+          titleMaxLength={titleMaxLength}
+          textMaxLength={textMaxLength}
+          textHelper="Write {name} for the user’s name."
         />
       </FormPage>
       {remove !== undefined && (

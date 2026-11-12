@@ -72,6 +72,7 @@ interface Answers {
   training?: number;
   services?: ServiceHealth[];
   healthStatus?: number;
+  announcement?: object;
 }
 
 function answerWith(answers: Answers = {}) {
@@ -91,6 +92,8 @@ function answerWith(answers: Answers = {}) {
         return answer(answers.training, trainingStats);
       case '/api/v1/admin/feedback/stats':
         return answer(200, { waitingForReply: 3, highWaitingForReply: 2 });
+      case '/api/v1/admin/announcement':
+        return answer(200, { announcement: answers.announcement ?? null });
       case '/api/v1/admin/health':
         return answer(answers.healthStatus, {
           checkedAtUtc: new Date().toISOString(),
@@ -180,6 +183,32 @@ describe('Overview', () => {
     );
 
     expect(await screen.findByText('Feedback page')).toBeOnTheScreen();
+  });
+
+  test('an announcement on Home shows as a reminder under the heading', async () => {
+    answerWith({
+      announcement: {
+        id: 'a1',
+        title: 'New in 1.1',
+        text: 'Supersets.',
+        publishedAtUtc: '2026-11-12T09:00:00Z',
+      },
+    });
+    await renderAt('/admin');
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Announcement on Home since Thu, 12th Nov',
+      }),
+    ).toBeOnTheScreen();
+  });
+
+  test('without an announcement, there is no reminder', async () => {
+    answerWith();
+    await renderAt('/admin');
+    await screen.findByText('+14');
+
+    expect(screen.queryByText(/^Announcement on Home/)).not.toBeOnTheScreen();
   });
 
   test('To answer says how many are high', async () => {
