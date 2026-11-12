@@ -1,6 +1,6 @@
 # Screen index
 
-388 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
+387 screens. Each row links the render, the static HTML and the original Claude Design source. Order follows the canvas: area, then flow row, then left to right.
 
 "full scroll" means the screen is drawn at its full scroll height, not 844 px.
 
@@ -61,8 +61,7 @@ Screens in `capture/screens.mjs` are captured from the running app. The others a
 | H39 | Settings · with a photo · full scroll | H2 Settings | 390×1156 | [png](screens/home/H39-Settings-With-Photo.png) · [html](html/home/H39-Settings-With-Photo.html) · [source](source/home/H39-Settings-With-Photo.dc.html) |
 | H40 | Settings › Profile photo · no photo | H2 Settings | 390×844 | [png](screens/home/H40-Settings-Photo-None.png) · [html](html/home/H40-Settings-Photo-None.html) · [source](source/home/H40-Settings-Photo-None.dc.html) |
 | H41 | Settings › Profile photo · removed | H2 Settings | 390×844 | [png](screens/home/H41-Settings-Photo-Removed.png) · [html](html/home/H41-Settings-Photo-Removed.html) · [source](source/home/H41-Settings-Photo-Removed.dc.html) |
-| H12 | Settings › Theme | H2 Settings | 390×844 | [png](screens/home/H12-Settings-Theme.png) · [html](html/home/H12-Settings-Theme.html) · [source](source/home/H12-Settings-Theme.dc.html) |
-| H13 | Settings › Color | H2 Settings | 390×844 | [png](screens/home/H13-Settings-Color.png) · [html](html/home/H13-Settings-Color.html) · [source](source/home/H13-Settings-Color.dc.html) |
+| H12 | Settings › Themes | H2 Settings | 390×844 | [png](screens/home/H12-Settings-Theme.png) · [html](html/home/H12-Settings-Theme.html) · [source](source/home/H12-Settings-Theme.dc.html) |
 | H14 | Settings › Units | H2 Settings | 390×844 | [png](screens/home/H14-Settings-Units.png) · [html](html/home/H14-Settings-Units.html) · [source](source/home/H14-Settings-Units.dc.html) |
 | H15 | Settings › Default rest time | H2 Settings | 390×844 | [png](screens/home/H15-Settings-Rest-Time.png) · [html](html/home/H15-Settings-Rest-Time.html) · [source](source/home/H15-Settings-Rest-Time.dc.html) |
 | H16 | Settings › Name | H2 Settings | 390×844 | [png](screens/home/H16-Settings-Name.png) · [html](html/home/H16-Settings-Name.html) · [source](source/home/H16-Settings-Name.dc.html) |

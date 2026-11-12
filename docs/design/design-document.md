@@ -1,6 +1,8 @@
 # Herculean: design document
 
-Version 0.87 · 13 November 2026 · Minimalist
+Version 0.88 · 13 November 2026 · Minimalist
+
+> Changes since 0.87: themes. Theme and Color become one setting, Themes (H12), with eight themes, four dark and four light: Default, Mono, Emerald and Smoke, then Paper, Fjord, Latte and Frost. A theme sets the colors, the corners and the border style, and Smoke and Frost make the tab bar, the floating bars and sheets frosted; fonts, spacing and sizes stay the same. Light, Dark and Match my phone are gone, and H13 Color with them. Signed out, the app shows Default.
 
 > Changes since 0.86: motion (4.6). Pages, tabs, the tab bar, the floating bars, cards and rows fade, all on one curve; sheets slide down before their action leaves the page.
 
@@ -182,7 +184,7 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 
 - **Platform:** phone app, designed at 390 × 844 px (iPhone 14/15 size). Long screens are drawn at full scroll height and marked "full scroll".
 - **Screens:** eight areas, plus one brand board. `screen-index.md` lists every screen.
-- **Themes:** Match my phone (default), dark and light, with two accent colors. The font is Chakra Petch and corners are sharp.
+- **Themes:** eight, four dark and four light, each with its own colors, corners and border style (section 4.1). Default is dark. The font is Chakra Petch in every theme.
 - **Not in scope yet:** see section 11, Parked.
 
 ---
@@ -215,40 +217,42 @@ This document describes the design on the canvas "Herculean app screens" (Claude
 
 Every color is a token (`{{c.*}}`). No screen uses a raw hex value for app UI. Machine-readable copy: `tokens/design-tokens.json`.
 
-**Neutrals**
+**Themes (Settings › Themes, H12)**
 
-| Token | Dark | Light | Used for |
+Every color comes from the theme in use. Default is the theme a new account starts with, and the one every signed-out screen shows.
+
+| Theme | Mode | `bg` | `card` | `raised` | `border` | `text` | `muted` | `primary` | `primaryText` | `onPrimary` |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Default** | Dark | #050506 | #0F1012 | #17181B | #2C2F34 | #F2F3F5 | #A9AEB6 | #2A62F0 | #7EA2FF | #FFFFFF |
+| **Mono** | Dark | #000000 | #0A0A0A | #171717 | #333333 | #EDEDED | #A1A1A1 | #EDEDED | #FFFFFF | #000000 |
+| **Emerald** | Dark | #121212 | #1A1A1A | #242424 | #363636 | #EDEDED | #A3A3A3 | #3ECF8E | #3ECF8E | #0A0A0A |
+| **Smoke** | Dark | #000000 | #1C1C1E | #2C2C2E | #3A3A3C | #F5F5F7 | #AEAEB2 | #0975E3 | #4DA3FF | #FFFFFF |
+| **Paper** | Light | #FFFFFF | #FAFAFA | #F2F2F2 | #E3E3E3 | #0A0A0A | #5C5C5C | #0A0A0A | #0A0A0A | #FFFFFF |
+| **Fjord** | Light | #ECEFF4 | #E5E9F0 | #D8DEE9 | #C2CAD8 | #2E3440 | #4C566A | #4C6A92 | #3B5A85 | #FFFFFF |
+| **Latte** | Light | #FAF9F5 | #F3F0E8 | #EAE5D9 | #DAD3C3 | #2D2A26 | #625B51 | #B5532F | #A0472A | #FFFFFF |
+| **Frost** | Light | #F2F2F7 | #FFFFFF | #E9E9EE | #D1D1D6 | #0B0B0F | #636366 | #0066D6 | #0060C8 | #FFFFFF |
+
+`bg` is the screen and the tab bar, `card` cards, sheets and the bottom action box, `raised` inputs, secondary buttons, the undo bar and header icon buttons, `border` every border and divider, `text` main text and `muted` labels, secondary text and inactive tabs. The accent, `primary` for buttons and fills, `primaryText` for accent text and `onPrimary` for text on `primary`, marks primary buttons, the active tab, today in the week strip and month, checked sets, links and "In progress".
+
+**Borders**
+
+| Style | Themes | Lines | Cards |
 |---|---|---|---|
-| `bg` | #050506 | #F4F5F7 | Screen background, tab bar |
-| `card` | #0F1012 | #ECEEF1 | Cards, sheets, the bottom action box |
-| `raised` | #17181B | #E2E5E9 | Inputs, secondary buttons, undo bar, header icon buttons |
-| `border` | #2C2F34 | #C5CAD1 | Every 1px border and divider |
-| `text` | #F2F3F5 | #0A0B0D | Main text |
-| `muted` | #A9AEB6 | #4F555D | Labels, secondary text, inactive tabs |
+| Thin | Default, Emerald, Fjord | 1 px | Outlined |
+| Hairline | Mono, Paper | The thinnest the phone draws | Outlined |
+| Surface | Latte | 1 px | No outline: a card stands out by its color alone. Dividers and inputs keep their lines |
+| Glass | Smoke, Frost | The thinnest the phone draws | No outline, like Surface. The tab bar, the rest bar, the Resume bar and sheets are frosted: slightly see-through, with what is behind them blurred, where the phone can blur; otherwise just slightly see-through |
 
-**Accent (Settings › Color, H13)**
-
-| Palette | Mode | `primary` (buttons, fills) | `primaryText` (accent text) | `onPrimary` (text on primary) |
-|---|---|---|---|---|
-| **Nitro** (default) | Dark | #2A62F0 | #7EA2FF | #FFFFFF |
-| | Light | #1446C8 | #1446C8 | #FFFFFF |
-| **Titanium** | Dark | #C9CED6 | #9DB4D6 | #050506 |
-| | Light | #2A2D33 | #3B5B8C | #FFFFFF |
-| **Flux** | Dark | #D946EF | #F0ABFC | #050506 |
-| | Light | #A21CAF | #A21CAF | #FFFFFF |
-| **Plasma** | Dark | #7C4DFF | #B9A2FF | #FFFFFF |
-| | Light | #6431D9 | #6431D9 | #FFFFFF |
-| **Neon** | Dark | #22C3DD | #6FE0F0 | #050506 |
-| | Light | #0B6F86 | #0B6F86 | #FFFFFF |
-
-The accent is used for primary buttons, the active tab, today in the week strip and month, checked sets, links and "In progress". `primaryText` passes 4.5:1 on `bg`, `card` and `raised`, `primary` passes 3:1 against them, and `onPrimary` passes 4.5:1 on `primary`, in every palette and mode. An accent never takes a status hue (green, orange, red), so In progress never reads as done, skipped or missed.
+**Contrast, in every theme:** `text` passes 7:1 on `bg`, `card` and `raised`; `muted`, `primaryText` and every status color pass 4.5:1 on them; `primary` and the warning icon pass 3:1 against them; and `onPrimary` passes 4.5:1 on `primary`. A theme's status colors never match its accent, so In progress never reads as done, skipped or missed: in Emerald, Done is blue, and in Latte, Skipped is brown-grey.
 
 **Status and feedback**
 
+Status colors are shared by every dark theme and every light theme, except where noted. So are the weekday colors that tag routines; the light ones are a little darker than before, so they pass 4.5:1 on every light theme.
+
 | Token | Dark | Light | Meaning |
 |---|---|---|---|
-| `success` | #4ADE80 | #166534 | Completed / Done |
-| `skipped` | #FB923C | #9A3412 | Skipped |
+| `success` | #4ADE80 | #166534 | Completed / Done. Emerald: #60A5FA |
+| `skipped` | #FB923C | #9A3412 | Skipped. Latte: #6E6259 |
 | `danger` | #F87171 | #B91C1C | Missed, errors |
 | `dangerFill` | #DC2626 | #DC2626 | Danger buttons and trash icons |
 | `onDanger` | #FFFFFF | #FFFFFF | Text on danger buttons |
@@ -282,13 +286,15 @@ Status always shows as a colored 8 px dot and a label in the same color. Week st
 
 ### 4.3 Corners
 
-| Element | Radius |
-|---|---|
-| Card | 6 px |
-| Control (button, input) | 4 px |
-| Pill (chip, status dot) | 3 px |
-| Check box | 3 px |
-| Sheet top corners | 10 px |
+Each theme has one of five corner scales.
+
+| Element | Sharp (Mono, Paper) | Default (Default, Emerald) | Soft (Fjord) | Round (Latte) | Capsule (Smoke, Frost) |
+|---|---|---|---|---|---|
+| Card | 2 px | 6 px | 8 px | 12 px | 22 px |
+| Control (button, input) | 2 px | 4 px | 6 px | 10 px | Fully round |
+| Pill (chip, status dot) | 2 px | 3 px | 4 px | 6 px | Fully round |
+| Check box | 2 px | 3 px | 4 px | 5 px | Round |
+| Sheet top corners | 4 px | 10 px | 12 px | 16 px | 28 px |
 
 ### 4.4 Spacing and sizes
 
@@ -565,7 +571,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | Row | Screens | What happens |
 |---|---|---|
 | **H1 Today states** | H07 Loading, H01 Home, H02 In progress, H03 Completed, H06 Skipped, H04 Rest day, H05 New account, H08 A section failed, H09 Setup complete, H44 Are you ready, H45 Every section failed, H46 Starting, H47 Couldn't start, H48 Start says why, H91 Feedback reply unread, H95 Announcement | The greeting on one line at 28 px (`greeting`), shrinking for a long name instead of wrapping, with the FM avatar after it on the right, then five sections that each load and fail on their own: Today, This week, This month, Streak and Recent records. While Minimalist has an announcement, a card sits between the greeting and Today (H95): its title, its text, and an X at the top right. Closing it hides it on that phone until a new announcement replaces it. It shows only once loaded, and never on failure, so nothing else waits for it. Today has one action at most. Home ends with a card, “Something off or missing?”, with a Send feedback link that opens F10 with Home as its back link (F16); it loads with nothing and never fails. H91 shows a dot on the avatar while a feedback reply is unread. H01: the planned routine and Start workout, which asks first on H44. H02: progress and time, Resume workout, and the Resume bar. H03: Done, View workout (W67, with Home as its back link) and Up next. H06: Skipped and Up next. H04: Rest day and Up next. H05: No routines yet and New routine, then Start empty workout as on W05, with every other section empty. Open day opens the Workout tab on today, and another day in This week opens the Workout tab on that day. This month compares workouts, on plan and volume with last month, and Open month opens W40, whose back link goes to the Workout tab. Streak only shows, and a streak that ended says No streak right now and keeps the best. Records sit in one card with a line between rows, and a record opens E10 (E75). Resume workout opens logging with Home as its back link. Pulling down reads everything again, with the phone's own spinner. |
-| **H2 Settings** | H10 Profile, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed, H52 Name saving, H53 Name couldn't save, H56 Email saving, H57 Couldn't send, H58 Send again says why, H59 Sending again, H60 Sent again, H61 Couldn't send again, H62 Password saving, H63 Password couldn't save, H64 Password saved, H65 Rest time loading, H66 Rest time couldn't load, H67 Rest time saving, H68 Rest time couldn't save, H69 Couldn't remove photo, H70 Signing out, H71 Password empty, H72 Deleting, H73 Email confirmed, H74 Email confirmed signed out, H75 Link expired signed out, H76 Could not confirm signed out, H84 Email taken, H86 Exporting data, H87 Couldn't export, H88 Data exported, H89 Notifications blocked, H90 Couldn't save a rest alert, H92 Feedback reply unread, H93 Photo removed email, H94 Account closed email | H10 sections: profile (photo, name); Appearance (Theme, Color); Workout (Units, Default rest time, Sound when rest ends, Vibrate when rest ends); Account (Name, Email, Password, Export data); About (Feedback, Terms of service, Privacy policy, Version, which is the app's real version), with a dot on Feedback while a reply is unread (H92); then Sign out and Delete account. The rest alert switches save at once; every other row opens its own page. H93, the email sent when Minimalist removes a photo (M60): “Your profile photo was removed”, “We removed your profile photo because it broke our terms. You can add another in Profile.” H94, the email sent when Minimalist closes an account (M48): “Your Herculean account was closed”, “We closed your account because it broke our terms. Everything in it will be deleted on Wed, 25th Nov. Questions: hello@minimalist.hr.” The theme options are Match my phone (default), Dark and Light. The colors are Nitro, Titanium, Flux, Plasma and Neon, each with a square of its buttons' color, in the mode in use, before its name. The units are Metric (kg) and Imperial (lb). |
+| **H2 Settings** | H10 Profile, H11 Profile photo, H12 Themes, H96 Couldn't save a theme, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H22 Wrong current password, H23 New password errors, H24 Name empty, H25 Password changed email, H26 Email errors, H27 Confirming email, H28 Link expired, H29 Could not confirm, H30 Confirmation email, H31 Email changed notice, H32 Email waiting, H33 Email page while waiting, H34 Delete account wrong password, H35 Could not delete, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email, H39 With a photo, H40 No photo, H41 Photo removed, H52 Name saving, H53 Name couldn't save, H56 Email saving, H57 Couldn't send, H58 Send again says why, H59 Sending again, H60 Sent again, H61 Couldn't send again, H62 Password saving, H63 Password couldn't save, H64 Password saved, H65 Rest time loading, H66 Rest time couldn't load, H67 Rest time saving, H68 Rest time couldn't save, H69 Couldn't remove photo, H70 Signing out, H71 Password empty, H72 Deleting, H73 Email confirmed, H74 Email confirmed signed out, H75 Link expired signed out, H76 Could not confirm signed out, H84 Email taken, H86 Exporting data, H87 Couldn't export, H88 Data exported, H89 Notifications blocked, H90 Couldn't save a rest alert, H92 Feedback reply unread, H93 Photo removed email, H94 Account closed email | H10 sections: profile (photo, name); Appearance (Themes); Workout (Units, Default rest time, Sound when rest ends, Vibrate when rest ends); Account (Name, Email, Password, Export data); About (Feedback, Terms of service, Privacy policy, Version, which is the app's real version), with a dot on Feedback while a reply is unread (H92); then Sign out and Delete account. The rest alert switches save at once; every other row opens its own page. H93, the email sent when Minimalist removes a photo (M60): “Your profile photo was removed”, “We removed your profile photo because it broke our terms. You can add another in Profile.” H94, the email sent when Minimalist closes an account (M48): “Your Herculean account was closed”, “We closed your account because it broke our terms. Everything in it will be deleted on Wed, 25th Nov. Questions: hello@minimalist.hr.” Themes (H12) is a page, with Profile as its back link, titled Themes, “How Herculean looks. Fonts and sizes stay the same.” It has two sections, Dark and Light, each with four themes in a grid two to a row. Each theme is a card drawn in that theme: its background, a small card with two lines of text, and a button in its accent, with its corners and borders, and the theme’s name below. The theme in use has the accent’s border and a check, and its label says “selected”. Tapping a theme uses it at once, everywhere. If saving fails, the app goes back to the theme before and says “Couldn’t save the theme. Try again.” (H96). On H10, the Themes row shows the theme’s name as its value. The units are Metric (kg) and Imperial (lb). |
 | **H3 About and legal** | H20 Terms of service, H21 Privacy policy | Full-page text with "Last updated" and numbered sections. These open from H10, or from A20 with the back link reading "Create account". |
 
 ### W · Workout
@@ -625,7 +631,7 @@ Leaving a form with changes also asks (Form pages). Nothing else asks "Are you s
 | **M9 Starter exercises** | M91 Loading, M90 Starter exercises, M92 Load failure, M93 No starter exercises, M94 New starter exercise, M95 Edit starter exercise, M96 Delete starter exercise, M97 Name taken, M98 No groups, New says why, M99 Limit reached | A page from Starter exercises on M50, with Settings as its back link, titled Starter exercises, “What new accounts start with. Accounts already made keep theirs.” Search, group chips and the list grouped by group, like E01, with Groups (→ M63) as a link chip before All, and New starter exercise floating at the bottom right. A row shows the name, and “Also Shoulders, Triceps” below it when it also works other groups, with a chevron, and opens M84. M94 and M95 are pages like E08 and E20: Name, Group and Also works with, then Save exercise in the bottom box. M94 has Starter exercises as its back link, M95 the exercise’s name, and saving M95 returns to M84. Names follow the exercise rules: 1 to 100 characters, unique in any case (“You already have a starter exercise with this name.”, M97), and at most 500 (M99, New looks muted and says why). Empty, a dashed box says “No starter exercises”, “New accounts start with none.” (M93), with search and chips muted, saying “Create a starter exercise first.”; with no groups either, they and New say “Create a group first.” (M98). A search with nothing says “No matches for “squat””, “Check the spelling, or create it as a new starter exercise.”, and an empty group “No starter exercises in Legs”, “Create one to give it to new accounts.” New starts from what was searched and the group picked. A row needs its group’s name, so the list loads and fails with the groups: it loads with rows the same size and fails with “Couldn’t load starter exercises.” and Try again (M92), and the chips say “Couldn’t load starter groups.” Leaving a form with changes asks first. Done, a notification says “Barbell squat created.”, “Barbell squat saved.” or “Barbell squat deleted.” |
 | **M6 Starter groups** | M64 Loading, M63 Starter groups, M65 Load failure, M66 New starter group, M67 Edit starter group, M68 Delete starter group, M69 Trash says why | A page from the Groups chip on M90, with Starter exercises as its back link, titled Starter groups, “Groups new accounts start with.” Groups in one card, in the order they were made, each with its exercise count and a chevron, opening M67; New starter group floats at the bottom right and opens M66, and a new group goes last. Each row opens M85. M66 and M67 are pages with Name (1 to 30 characters, unique in any case, at most 50 groups, after which New looks muted and says “At most 50 starter groups.”) and Save group in the bottom box, M66 with “It’s added at the end of the starter groups.”, M67 with the group’s name as its back link, returning to M85. Empty, a dashed box says “No starter groups”, “Add one to sort starter exercises.” It loads with rows the same size and fails with “Couldn’t load starter groups.” and Try again (M65). Done, a notification says “Back created.”, “Back saved.” or “Back deleted.” |
 | **M8 Starter details** | M86 Loading, M84 Starter exercise, M85 Starter group, M87 Load failure | Like E10 and E35, with only what starter content has. M84 opens from a row on M90, with Starter exercises as its back link, or on M85, with the group’s name. The exercise’s name is the title, with an edit icon and a trash icon beside it, then a card of rows: Group, and Also works (“Shoulders, Triceps”, or “None”). Edit opens M95. The trash asks first on M96 “Delete Bench press?”, “New accounts won’t get it. Accounts already made keep theirs.”, with a danger Delete, and returns to the list. M85 opens from a row on M63, with Starter groups as its back link: the group’s name as the title, with edit and trash icons, and how many starter exercises use it below (“2 exercises”). Then Exercises and Also works, each a card of rows like M90’s that open M84; an empty one says “No exercises yet”, “Choose this group when you create or edit one.” or “Choose this group under Also works when you create or edit an exercise.” Edit opens M67. The trash asks first on M68 “Delete Chest?”, “New accounts won’t get it.”, with a danger Delete; while a starter exercise uses the group, it looks muted and says “Move its exercises to another group first.” (M69). Both read the starter lists, so opened from a list they show at once; opened on their own, they load with a skeleton (M86) and fail with “Couldn’t load starter exercises.” and Try again (M87). |
-| **M5 Settings** | M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure | M50: the Settings tab’s first page, “Keep an eye on Herculean.”, with a section titled Appearance holding Theme and Color like H10’s, which open H12 and H13 with Settings as their back link, a section titled System holding System health, with a chevron and the summary as its value (“All working”, or “1 needs attention” in the warning color), a section titled Feedback holding Saved replies, with a chevron and how many there are as its value, a section titled Content holding Announcement, with a chevron and “Off” or “On · 3 days” as its value, and Starter exercises, with a chevron and how many there are as its value, then Sign out on its own card, which asks first on M05, H36’s sheet. Pulling down reads the summary again. When something needs attention, the System health row also has the alert icon, and says “open it to see why” to screen readers. M51 System health, with Settings as its back link: the page’s focus at the top, a 220 px card centered on a soft glow in the status color: a 72 px square mark with a check, or the alert icon, in that color, then “All systems working”, “1 needs attention” or “1 down” as a card title, and “5 of 5 services working · Checked just now” below. Below it a card for each service in one list with a line between rows: API, Database, Email, Outbox and Deletion job. A row shows the service’s name, its status as a dot and label (Working green, Slow or Behind amber, Down red), its response time (“12 ms”) and one line of detail: the database’s version, the email server it reached, “3 events waiting” or “1 failed” for the outbox, “Ran 2 hours ago” for the deletion job. A service that needs attention says why in that line (M53). While a service is down, the Settings tab has an 8 px red dot, and its label says “system down”; the admin area checks when it opens and every 5 minutes while it is open. Pulling down checks again. It loads with skeleton rows (M52) and fails with “Couldn’t check the system.” and Try again (M54). |
+| **M5 Settings** | M50 Settings, M05 Sign out, M51 System health, M52 Loading, M53 A service needs attention, M54 Load failure | M50: the Settings tab’s first page, “Keep an eye on Herculean.”, with a section titled Appearance holding Themes like H10’s, which opens H12 with Settings as its back link, a section titled System holding System health, with a chevron and the summary as its value (“All working”, or “1 needs attention” in the warning color), a section titled Feedback holding Saved replies, with a chevron and how many there are as its value, a section titled Content holding Announcement, with a chevron and “Off” or “On · 3 days” as its value, and Starter exercises, with a chevron and how many there are as its value, then Sign out on its own card, which asks first on M05, H36’s sheet. Pulling down reads the summary again. When something needs attention, the System health row also has the alert icon, and says “open it to see why” to screen readers. M51 System health, with Settings as its back link: the page’s focus at the top, a 220 px card centered on a soft glow in the status color: a 72 px square mark with a check, or the alert icon, in that color, then “All systems working”, “1 needs attention” or “1 down” as a card title, and “5 of 5 services working · Checked just now” below. Below it a card for each service in one list with a line between rows: API, Database, Email, Outbox and Deletion job. A row shows the service’s name, its status as a dot and label (Working green, Slow or Behind amber, Down red), its response time (“12 ms”) and one line of detail: the database’s version, the email server it reached, “3 events waiting” or “1 failed” for the outbox, “Ran 2 hours ago” for the deletion job. A service that needs attention says why in that line (M53). While a service is down, the Settings tab has an 8 px red dot, and its label says “system down”; the admin area checks when it opens and every 5 minutes while it is open. Pulling down checks again. It loads with skeleton rows (M52) and fails with “Couldn’t check the system.” and Try again (M54). |
 
 ---
 
@@ -665,4 +671,4 @@ This is what the capture tool answers with. Screens captured before version 0.64
 **Decided**
 - Filter chips stay on one line and scroll sideways. Chips for picking in a form wrap.
 - Completed is green, skipped is orange, missed is red and in progress uses the accent.
-- The accents are called Nitro, Titanium, Flux, Plasma and Neon.
+- The themes are called Default, Mono, Emerald, Smoke, Paper, Fjord, Latte and Frost: our own names, never another company's.

@@ -702,16 +702,10 @@ export const screens = [
     await on.waitFor('Match my phone');
     await on.sleep(400);
   } },
-  { id: 'H12', file: 'H12-Settings-Theme', title: 'Settings › Theme', row: 'H2 Settings', full: false, steps: async (on) => {
+  { id: 'H12', file: 'H12-Settings-Theme', title: 'Settings › Themes', row: 'H2 Settings', full: false, steps: async (on) => {
     await openSettings(on);
     await on.tap('Theme, Match my phone');
     await on.waitFor('Save theme');
-    await on.sleep(400);
-  } },
-  { id: 'H13', file: 'H13-Settings-Color', title: 'Settings › Color', row: 'H2 Settings', full: false, steps: async (on) => {
-    await openSettings(on);
-    await on.tap('Color, Nitro');
-    await on.waitFor('Save color');
     await on.sleep(400);
   } },
   { id: 'H14', file: 'H14-Settings-Units', title: 'Settings › Units', row: 'H2 Settings', full: false, steps: async (on) => {
