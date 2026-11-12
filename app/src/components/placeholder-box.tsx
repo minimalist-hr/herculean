@@ -14,7 +14,7 @@ export function PlaceholderBox({
   /** The space under the last line, when it isn't the usual padding. */
   roomBelow?: number;
 }) {
-  const { colors, radius, space } = useTheme();
+  const { colors, line, radius, space } = useTheme();
 
   return (
     <Animated.View
@@ -23,6 +23,7 @@ export function PlaceholderBox({
       style={[
         styles.box,
         {
+          borderWidth: line,
           gap: space.xs,
           padding: space.xl,
           paddingBottom: roomBelow ?? space.xl,
@@ -39,7 +40,6 @@ export function PlaceholderBox({
 const styles = StyleSheet.create({
   box: {
     alignItems: 'center',
-    borderWidth: 1,
     borderStyle: 'dashed',
   },
 });

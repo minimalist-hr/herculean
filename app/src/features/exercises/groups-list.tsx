@@ -40,13 +40,14 @@ export function GroupsList({
   groups: readonly Group[];
   onOpen: (group: Group) => void;
 }) {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, radius, size, space } = useTheme();
 
   return (
     <View
       style={[
         styles.card,
         {
+          borderWidth: cardLine,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
@@ -83,7 +84,6 @@ export function GroupsList({
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   row: {

@@ -35,13 +35,14 @@ import { WorkoutNameField, workoutNameError } from './workout-name-field';
 import { NewRecords, SummaryTiles } from './workout-summary-parts';
 
 function Warning({ title, message }: { title: string; message: string }) {
-  const { colors, radius, space, text } = useTheme();
+  const { cardLine, colors, radius, space, text } = useTheme();
 
   return (
     <View
       style={[
         styles.warning,
         {
+          borderWidth: cardLine,
           gap: space.md,
           padding: space.lg,
           borderRadius: radius.card,
@@ -238,7 +239,6 @@ const styles = StyleSheet.create({
   },
   warning: {
     flexDirection: 'row',
-    borderWidth: 1,
   },
   warningText: {
     flex: 1,

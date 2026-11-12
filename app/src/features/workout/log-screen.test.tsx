@@ -139,7 +139,7 @@ function answerWith(request: Request) {
 function Layout() {
   return (
     <QueryClientProvider client={createTestQueryClient()}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>
@@ -1326,7 +1326,7 @@ test('an exercise that was just added opens', async () => {
     {
       _layout: () => (
         <QueryClientProvider client={client}>
-          <ThemeProvider theme="dark">
+          <ThemeProvider theme="default">
             <Stack screenOptions={{ headerShown: false }} />
           </ThemeProvider>
         </QueryClientProvider>

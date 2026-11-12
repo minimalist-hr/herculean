@@ -16,7 +16,7 @@ export function UserAvatar({
   user?: { id: string; name: string | null; email: string; hasPhoto: boolean };
   size: number;
 }) {
-  const { colors, radius, text } = useTheme();
+  const { colors, line, radius, text } = useTheme();
   const photo = useAdminUserPhoto(user?.hasPhoto === true ? user.id : null);
   const image = photo.data?.image;
 
@@ -58,6 +58,7 @@ export function UserAvatar({
       style={[
         styles.box,
         {
+          borderWidth: line,
           width: boxSize,
           height: boxSize,
           borderRadius: radius.control,
@@ -75,7 +76,6 @@ const styles = StyleSheet.create({
   box: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
     overflow: 'hidden',
   },
 });

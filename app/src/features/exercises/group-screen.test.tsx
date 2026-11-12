@@ -130,7 +130,7 @@ function sent(method: string) {
 function Layout() {
   return (
     <QueryClientProvider client={createTestQueryClient()}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>

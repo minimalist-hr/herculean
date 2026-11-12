@@ -6,7 +6,7 @@ import { SectionTitle } from './section-title';
 
 test('screen readers read it as a heading', async () => {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <SectionTitle>Used in</SectionTitle>
     </ThemeProvider>,
   );

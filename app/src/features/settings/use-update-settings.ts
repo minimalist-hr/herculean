@@ -9,6 +9,8 @@ import { currentUserKey } from '@/features/account/use-current-user';
 import { workoutKeys } from '@/features/workout/query-keys';
 
 type WorkoutSettings = components['schemas']['WorkoutSettingsResponse'];
+type User = components['schemas']['UserResponse'];
+type Theme = components['schemas']['Theme'];
 
 type UserChanges = components['schemas']['UpdateCurrentUserRequest'];
 type PasswordChange = Omit<
@@ -16,7 +18,7 @@ type PasswordChange = Omit<
   'refreshToken'
 >;
 
-/** Saves the user's theme, color or units, and shows them everywhere at once. */
+/** Saves the user's units, and shows them everywhere at once. */
 export function useUpdateUser() {
   const queryClient = useQueryClient();
 
@@ -33,6 +35,39 @@ export function useUpdateUser() {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserKey, user);
+    },
+  });
+}
+
+/** Uses a theme at once, everywhere, and goes back to the one before if saving fails. */
+export function useUpdateTheme() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (theme: Theme) => {
+      const { data, error } = await api.PATCH('/api/v1/users/me', {
+        body: { theme },
+      });
+      if (data === undefined) {
+        throw toApiError(error);
+      }
+
+      return data;
+    },
+    onMutate: (theme) => {
+      const before = queryClient.getQueryData<User>(currentUserKey);
+      if (before !== undefined) {
+        queryClient.setQueryData(currentUserKey, { ...before, theme });
+      }
+
+      return { before };
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(currentUserKey, user);
+    },
+    onError: (_error, _theme, context) => {
+      queryClient.setQueryData(currentUserKey, context?.before);
+      notifyFailure('Couldn’t save the theme. Try again.');
     },
   });
 }

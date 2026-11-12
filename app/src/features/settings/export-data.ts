@@ -13,7 +13,7 @@ import {
   weightUnitOf,
 } from '@/formats/formats';
 
-import { colorLabels, themeLabels, unitLabels } from './settings-labels';
+import { themeLabels, unitLabels } from './settings-labels';
 
 type Schemas = components['schemas'];
 type Export = Schemas['ExportResponse'];
@@ -139,7 +139,6 @@ function accountRows({ user, settings }: ExportSources): Field[][] {
       'Email',
       'Units',
       'Theme',
-      'Color',
       'Time zone',
       'Default rest',
       'Rest sound',
@@ -150,7 +149,6 @@ function accountRows({ user, settings }: ExportSources): Field[][] {
       user.email,
       unitLabels[user.units],
       themeLabels[user.theme],
-      colorLabels[user.color],
       user.timeZone,
       formatClock(settings.defaultRestSeconds),
       onOff(settings.restSound),

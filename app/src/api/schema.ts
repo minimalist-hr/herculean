@@ -47,7 +47,7 @@ export interface paths {
         head?: never;
         /**
          * Change the signed-in user
-         * @description Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme and color.
+         * @description Changes the name, units, theme or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme.
          */
         patch: operations["UpdateCurrentUser"];
         trace?: never;
@@ -1942,11 +1942,6 @@ export interface components {
             /** @description The refresh token this device holds now. Every other one is deleted. */
             refreshToken: string;
         };
-        /**
-         * @description The accent color of buttons, links and highlights.
-         * @enum {unknown}
-         */
-        Color: "nitro" | "titanium" | "flux" | "plasma" | "neon";
         /** @description The token from the reset link, and the new password. */
         CompletePasswordResetRequest: {
             /** @description The token from the reset link. It works once. */
@@ -3199,10 +3194,10 @@ export interface components {
             services: components["schemas"]["ServiceHealthResponse"][];
         };
         /**
-         * @description Light or dark: matchPhone follows the phone's setting.
+         * @description The app's look: colors, corners and borders. Default, Mono, Emerald and Smoke are dark; Paper, Fjord, Latte and Frost are light.
          * @enum {unknown}
          */
-        Theme: "matchPhone" | "dark" | "light";
+        Theme: "default" | "mono" | "emerald" | "smoke" | "paper" | "fjord" | "latte" | "frost";
         /** @description The new ticket. */
         TicketCreatedResponse: {
             /**
@@ -3380,7 +3375,6 @@ export interface components {
             name?: null | string;
             units?: null | components["schemas"]["Units"];
             theme?: null | components["schemas"]["Theme"];
-            color?: null | components["schemas"]["Color"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Sent when the phone's changes. */
             timeZone?: null | string;
         };
@@ -3530,10 +3524,8 @@ export interface components {
             name: null | string;
             /** @description The units the app shows weights and lengths in. */
             units: components["schemas"]["Units"];
-            /** @description Light or dark, or matching the phone. */
+            /** @description The app's look. */
             theme: components["schemas"]["Theme"];
-            /** @description The accent color. */
-            color: components["schemas"]["Color"];
             /** @description The phone's IANA time zone, for example Europe/Zagreb. Dates and days use it. */
             timeZone: string;
             /** @description What the account is for. An admin sees only the feedback inbox. */

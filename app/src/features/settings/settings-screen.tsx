@@ -17,12 +17,7 @@ import { formatClock, noValue } from '@/formats/formats';
 import { useTheme } from '@/theme/theme-provider';
 
 import { DeleteAccountSheet, SignOutSheet } from './account-sheets';
-import {
-  colorLabels,
-  initialsOf,
-  themeLabels,
-  unitLabels,
-} from './settings-labels';
+import { initialsOf, themeLabels, unitLabels } from './settings-labels';
 import {
   SettingsRow,
   SettingsSection,
@@ -92,17 +87,10 @@ export function SettingsScreen() {
         <SettingsSection title="Appearance">
           <SettingsRow
             first
-            label="Theme"
+            label="Themes"
             value={userValue((data) => themeLabels[data.theme])}
             onPress={() => {
               router.push('/settings/theme');
-            }}
-          />
-          <SettingsRow
-            label="Color"
-            value={userValue((data) => colorLabels[data.color])}
-            onPress={() => {
-              router.push('/settings/color');
             }}
           />
         </SettingsSection>
@@ -251,7 +239,7 @@ export function SettingsScreen() {
 }
 
 function Profile({ name, email }: { name?: string | null; email?: string }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
   // The link keeps its full touch area, but takes only its text's height, so the name and link fit the avatar.
   const linkOverhang = (size.touchTargetMin - linkTextHeight) / 2;
   const image = useUserPhoto().data?.image;
@@ -291,6 +279,7 @@ function Profile({ name, email }: { name?: string | null; email?: string }) {
       style={[
         styles.profile,
         {
+          borderWidth: cardLine,
           gap: space.lg,
           padding: space.lg,
           borderRadius: radius.card,
@@ -344,7 +333,6 @@ const styles = StyleSheet.create({
   profile: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   avatar: {
     width: avatarSize,

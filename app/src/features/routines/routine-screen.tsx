@@ -71,7 +71,7 @@ export function RoutineScreen({
 }
 
 function Details({ routine }: { routine: Routine }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const router = useRouter();
   const links = useLinks(`routine:${routine.id}`);
   const deleteRoutine = useDeleteRoutine();
@@ -121,6 +121,7 @@ function Details({ routine }: { routine: Routine }) {
               style={[
                 styles.day,
                 {
+                  borderWidth: line,
                   height: size.chip,
                   paddingHorizontal: space.md,
                   borderRadius: radius.pill,
@@ -172,7 +173,7 @@ function Details({ routine }: { routine: Routine }) {
 }
 
 function RoutineSkeleton() {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, radius, size, space } = useTheme();
 
   return (
     <View
@@ -195,6 +196,7 @@ function RoutineSkeleton() {
             style={[
               styles.exercise,
               {
+                borderWidth: cardLine,
                 gap: space.sm,
                 minHeight: size.listRowMin,
                 paddingHorizontal: space.lg,
@@ -245,7 +247,6 @@ const styles = StyleSheet.create({
   },
   day: {
     justifyContent: 'center',
-    borderWidth: 1,
   },
   heading: {
     gap: tokens.space.xxs,
@@ -263,6 +264,5 @@ const styles = StyleSheet.create({
   exercise: {
     justifyContent: 'center',
     gap: tokens.space.xxxs,
-    borderWidth: 1,
   },
 });

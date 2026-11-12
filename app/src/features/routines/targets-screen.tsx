@@ -48,7 +48,7 @@ function Form({
   next: RoutineExerciseDraft | undefined;
   back: string;
 }) {
-  const { colors, space, text } = useTheme();
+  const { colors, line, space, text } = useTheme();
   const router = useRouter();
   const { setExercises } = useRoutineDraft();
   const [targets, setTargets] = useState({
@@ -161,7 +161,7 @@ function Form({
           <Text style={text.meta}>
             {`Logging shows this as ${targetText(targets)}. Use the same number twice for a fixed rep count.`}
           </Text>
-          <View style={{ height: 1, backgroundColor: colors.border }} />
+          <View style={{ height: line, backgroundColor: colors.border }} />
           <SwitchField
             label="Lengthened partials"
             hint="After each set, at the stretched end."

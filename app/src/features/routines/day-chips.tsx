@@ -15,7 +15,7 @@ interface DayChipsProps {
 
 /** The seven days of the week, with a routine's days picked. */
 export function DayChips({ selected, onChange }: DayChipsProps) {
-  const { colors, radius, size, text } = useTheme();
+  const { colors, line, radius, size, text } = useTheme();
 
   return (
     <View style={styles.row}>
@@ -23,6 +23,7 @@ export function DayChips({ selected, onChange }: DayChipsProps) {
         const picked = selected.includes(weekday);
         const chipStyle = {
           height: size.chip,
+          borderWidth: line,
           borderRadius: radius.pill,
           borderColor: picked ? colors.primary : colors.border,
           backgroundColor: picked ? colors.primary : colors.raised,
@@ -85,6 +86,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

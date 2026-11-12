@@ -46,7 +46,7 @@ async function scrollTo(y: number) {
 
 beforeEach(async () => {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Page />
     </ThemeProvider>,
   );

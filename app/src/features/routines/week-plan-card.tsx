@@ -26,7 +26,7 @@ export function WeekPlanCard({
   /** Set when the week plan couldn't load. */
   onRetry?: () => void;
 }) {
-  const { colors, dayColors, radius, space, text } = useTheme();
+  const { cardLine, colors, dayColors, radius, space, text } = useTheme();
   const router = useRouter();
 
   return (
@@ -53,6 +53,7 @@ export function WeekPlanCard({
         style={[
           styles.card,
           {
+            borderWidth: cardLine,
             borderRadius: radius.card,
             borderColor: colors.border,
             backgroundColor: colors.card,
@@ -147,7 +148,6 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    borderWidth: 1,
     overflow: 'hidden',
   },
   cell: {

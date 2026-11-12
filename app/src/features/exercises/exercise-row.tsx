@@ -35,7 +35,7 @@ export function ExerciseRow({
   last,
   onPress,
 }: ExerciseRowProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
 
   return (
     <Tappable
@@ -46,6 +46,9 @@ export function ExerciseRow({
       style={[
         styles.row,
         {
+          borderTopWidth: cardLine,
+          borderLeftWidth: cardLine,
+          borderRightWidth: cardLine,
           gap: space.md,
           minHeight: size.listRowMin,
           paddingVertical: space.sm,
@@ -75,9 +78,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
   },
   text: {
     flex: 1,

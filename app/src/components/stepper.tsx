@@ -40,7 +40,7 @@ export function Stepper({
   lessLabel,
   moreLabel,
 }: StepperProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const less = Math.max(min, value - step);
   const more = Math.min(max, value + step);
 
@@ -72,6 +72,7 @@ export function Stepper({
           styles.box,
           styles.value,
           {
+            borderWidth: line,
             height: size.stepper.height,
             borderRadius: radius.control,
             borderColor: colors.border,
@@ -109,7 +110,7 @@ interface StepButtonProps {
 }
 
 function StepButton({ label, muted, onPress, children }: StepButtonProps) {
-  const { colors, opacity, radius, size } = useTheme();
+  const { colors, line, opacity, radius, size } = useTheme();
 
   return (
     <Tappable
@@ -121,6 +122,7 @@ function StepButton({ label, muted, onPress, children }: StepButtonProps) {
       style={[
         styles.box,
         {
+          borderWidth: line,
           width: size.stepper.button,
           height: size.stepper.height,
           borderRadius: radius.control,
@@ -143,7 +145,6 @@ const styles = StyleSheet.create({
   box: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   value: {
     flex: 1,

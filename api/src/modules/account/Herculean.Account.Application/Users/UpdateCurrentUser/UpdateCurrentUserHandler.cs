@@ -50,11 +50,6 @@ internal sealed class UpdateCurrentUserHandler(
             user.ChangeTheme(theme);
         }
 
-        if (request.Color is Color color)
-        {
-            user.ChangeColor(color);
-        }
-
         if (request.TimeZone is not null)
         {
             user.ChangeTimeZone(request.TimeZone);

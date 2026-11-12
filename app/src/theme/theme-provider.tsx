@@ -1,33 +1,20 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
 
-import { createTheme, type ColorSetting, type Theme } from './theme';
-
-export type ThemeSetting = 'matchPhone' | 'dark' | 'light';
+import { createTheme, defaultTheme, type Theme, type ThemeName } from './theme';
 
 const ThemeContext = createContext<Theme | null>(null);
 
 interface ThemeProviderProps {
-  theme?: ThemeSetting;
-  color?: ColorSetting;
+  theme?: ThemeName;
   children: ReactNode;
 }
 
-/** Gives every screen the tokens for the chosen theme and color. Defaults until Settings saves them. */
+/** Gives every screen the tokens for the chosen theme. Default until the user's theme is known. */
 export function ThemeProvider({
-  theme = 'matchPhone',
-  color = 'nitro',
+  theme = defaultTheme,
   children,
 }: ThemeProviderProps) {
-  const phoneScheme = useColorScheme();
-  // A phone with no preference gets dark.
-  const scheme =
-    theme === 'matchPhone'
-      ? phoneScheme === 'light'
-        ? 'light'
-        : 'dark'
-      : theme;
-  const value = useMemo(() => createTheme(scheme, color), [scheme, color]);
+  const value = useMemo(() => createTheme(theme), [theme]);
 
   return <ThemeContext value={value}>{children}</ThemeContext>;
 }

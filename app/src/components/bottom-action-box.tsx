@@ -6,7 +6,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 /** The screen's actions, pinned to the bottom: the primary button first, the secondary one below it. */
 export function BottomActionBox({ children }: { children: ReactNode }) {
-  const { colors, size } = useTheme();
+  const { colors, line, size } = useTheme();
   const insets = useSafeAreaInsets();
   const { actionBoxPadding } = size;
 
@@ -15,6 +15,7 @@ export function BottomActionBox({ children }: { children: ReactNode }) {
       style={[
         styles.box,
         {
+          borderTopWidth: line,
           gap: size.gap.stackedButtons,
           paddingTop: actionBoxPadding.top,
           paddingHorizontal: actionBoxPadding.x,
@@ -34,7 +35,5 @@ export function BottomActionBox({ children }: { children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  box: {
-    borderTopWidth: 1,
-  },
+  box: {},
 });

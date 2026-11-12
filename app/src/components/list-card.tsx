@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/theme-provider';
 
 /** Rows in one card, each drawing the line above it. */
 export function ListCard({ children }: { children: ReactNode }) {
-  const { colors, radius } = useTheme();
+  const { cardLine, colors, radius } = useTheme();
 
   return (
     <Animated.View
@@ -16,6 +16,7 @@ export function ListCard({ children }: { children: ReactNode }) {
       style={[
         styles.card,
         {
+          borderWidth: cardLine,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
@@ -29,7 +30,6 @@ export function ListCard({ children }: { children: ReactNode }) {
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
 });

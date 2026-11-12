@@ -174,7 +174,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>
@@ -598,10 +598,10 @@ describe('A ticket', () => {
     await renderAt('/settings/feedback/ticket-1');
 
     expect(await screen.findByTestId('own-message')).toHaveStyle({
-      borderColor: tokens.color.accent.nitro.dark.primary,
+      borderColor: tokens.color.themes.default.colors.primary,
     });
     expect(screen.getByTestId('reply-message')).not.toHaveStyle({
-      borderColor: tokens.color.accent.nitro.dark.primary,
+      borderColor: tokens.color.themes.default.colors.primary,
     });
   });
 

@@ -7,8 +7,6 @@ interface RadioCardProps {
   label: string;
   /** A second line, for example "kg". */
   detail?: string;
-  /** A color shown before the label, for example a color setting's. */
-  swatch?: string;
   selected: boolean;
   onSelect: () => void;
 }
@@ -17,11 +15,10 @@ interface RadioCardProps {
 export function RadioCard({
   label,
   detail,
-  swatch,
   selected,
   onSelect,
 }: RadioCardProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
 
   return (
     <Tappable
@@ -32,6 +29,7 @@ export function RadioCard({
       style={[
         styles.card,
         {
+          borderWidth: line,
           minHeight: size.optionRowMin,
           padding: space.md,
           gap: space.sm,
@@ -41,17 +39,6 @@ export function RadioCard({
         },
       ]}
     >
-      {swatch !== undefined && (
-        <View
-          testID="swatch"
-          style={{
-            width: size.radio.ring,
-            height: size.radio.ring,
-            borderRadius: radius.control,
-            backgroundColor: swatch,
-          }}
-        />
-      )}
       <View style={styles.text}>
         <Text style={[text.listItemName, { color: colors.text }]}>{label}</Text>
         {detail !== undefined && <Text style={text.meta}>{detail}</Text>}
@@ -89,7 +76,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   text: {
     flex: 1,

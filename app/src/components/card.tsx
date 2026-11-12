@@ -8,7 +8,7 @@ import { appear, disappear } from '@/theme/motion';
 import { useTheme } from '@/theme/theme-provider';
 
 export function Card({ children }: { children: ReactNode }) {
-  const { colors, radius, space } = useTheme();
+  const { cardLine, colors, radius, space } = useTheme();
 
   return (
     <Animated.View
@@ -17,6 +17,7 @@ export function Card({ children }: { children: ReactNode }) {
       style={[
         styles.card,
         {
+          borderWidth: cardLine,
           gap: space.md,
           padding: space.lg,
           borderRadius: radius.card,
@@ -61,7 +62,5 @@ export function CardHeading({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-  },
+  card: {},
 });

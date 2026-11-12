@@ -74,7 +74,7 @@
           "Users"
         ],
         "summary": "Change the signed-in user",
-        "description": "Changes the name, units, theme, color or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme and color.",
+        "description": "Changes the name, units, theme or time zone. Setup sends the name and units, Profile the others; the app sends a new time zone when the phone's changes. An admin changes only the theme.",
         "operationId": "UpdateCurrentUser",
         "requestBody": {
           "content": {
@@ -7695,16 +7695,6 @@
         },
         "description": "The current and new passwords, and the refresh token of the device that stays signed in."
       },
-      "Color": {
-        "enum": [
-          "nitro",
-          "titanium",
-          "flux",
-          "plasma",
-          "neon"
-        ],
-        "description": "The accent color of buttons, links and highlights."
-      },
       "CompletePasswordResetRequest": {
         "required": [
           "token",
@@ -10215,11 +10205,16 @@
       },
       "Theme": {
         "enum": [
-          "matchPhone",
-          "dark",
-          "light"
+          "default",
+          "mono",
+          "emerald",
+          "smoke",
+          "paper",
+          "fjord",
+          "latte",
+          "frost"
         ],
-        "description": "Light or dark: matchPhone follows the phone's setting."
+        "description": "The app's look: colors, corners and borders. Default, Mono, Emerald and Smoke are dark; Paper, Fjord, Latte and Frost are light."
       },
       "TicketCreatedResponse": {
         "required": [
@@ -10584,19 +10579,8 @@
                 "type": "null"
               },
               {
-                "description": "Light or dark, or matching the phone.",
+                "description": "The app's look.",
                 "$ref": "#/components/schemas/Theme"
-              }
-            ]
-          },
-          "color": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "description": "The accent color.",
-                "$ref": "#/components/schemas/Color"
               }
             ]
           },
@@ -10956,7 +10940,6 @@
           "name",
           "units",
           "theme",
-          "color",
           "timeZone",
           "role"
         ],
@@ -10978,12 +10961,8 @@
             "$ref": "#/components/schemas/Units"
           },
           "theme": {
-            "description": "Light or dark, or matching the phone.",
+            "description": "The app's look.",
             "$ref": "#/components/schemas/Theme"
-          },
-          "color": {
-            "description": "The accent color.",
-            "$ref": "#/components/schemas/Color"
           },
           "timeZone": {
             "type": "string",

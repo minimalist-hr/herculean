@@ -73,7 +73,7 @@ let queryClient: QueryClient;
 function Layout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <ResumeBar />
       </ThemeProvider>

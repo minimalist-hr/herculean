@@ -17,12 +17,10 @@ export interface Choice<Value extends string> {
   value: Value;
   label: string;
   detail?: string;
-  /** A color shown before the label. */
-  swatch?: string;
 }
 
 interface ChoicePageProps<Value extends string> {
-  /** For example "Theme". It names the page, its button and what it says when saved. */
+  /** For example "Units". It names the page, its button and what it says when saved. */
   title: string;
   subtitle: string;
   choices: Choice<Value>[];
@@ -99,7 +97,6 @@ function ChoiceForm<Value extends string>({
               key={choice.value}
               label={choice.label}
               detail={choice.detail}
-              swatch={choice.swatch}
               selected={picked === choice.value}
               onSelect={() => {
                 setPicked(choice.value);

@@ -118,7 +118,7 @@ function Details({
   exercise: Exercise;
   sessions: ReturnType<typeof useExerciseSessions>;
 }) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { cardLine, colors, opacity, radius, size, space, text } = useTheme();
   const router = useRouter();
   const units = useUnits();
   const links = useLinks(`exercise:${exercise.id}`);
@@ -188,6 +188,7 @@ function Details({
             style={[
               styles.usedIn,
               {
+                borderWidth: cardLine,
                 borderRadius: radius.card,
                 borderColor: colors.border,
                 backgroundColor: colors.card,
@@ -314,7 +315,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   usedIn: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   usedInRow: {

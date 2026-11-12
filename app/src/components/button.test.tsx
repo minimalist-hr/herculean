@@ -9,7 +9,7 @@ async function renderButton(
 ) {
   const onPress = jest.fn();
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Button
         label="Save set"
         waitingLabel="Saving set"

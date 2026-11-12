@@ -86,7 +86,7 @@ export function MonthCalendar({
   onChangeMonth: (direction: number) => void;
   onOutOfReach: (date: string) => void;
 }) {
-  const { colors, opacity, radius, space, text } = useTheme();
+  const { cardLine, colors, line, opacity, radius, space, text } = useTheme();
   const legend = [
     { label: 'Done', color: colors.success },
     { label: 'Missed', color: colors.danger },
@@ -105,6 +105,7 @@ export function MonthCalendar({
       style={[
         styles.card,
         {
+          borderWidth: cardLine,
           gap: space.xs,
           paddingVertical: space.md,
           paddingHorizontal: space.sm,
@@ -190,6 +191,7 @@ export function MonthCalendar({
                     styles.cell,
                     styles.day,
                     {
+                      borderWidth: line,
                       gap: space.xs,
                       borderRadius: radius.control,
                       borderColor:
@@ -225,6 +227,7 @@ export function MonthCalendar({
         style={[
           styles.legend,
           {
+            borderTopWidth: line,
             marginTop: space.sm,
             marginHorizontal: -space.sm,
             paddingTop: space.md,
@@ -257,9 +260,7 @@ const monthActions = [
 const legendColumnWidth = 94;
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-  },
+  card: {},
   row: {
     flexDirection: 'row',
   },
@@ -280,11 +281,9 @@ const styles = StyleSheet.create({
     height: dayHeight,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   legend: {
     alignItems: 'center',
-    borderTopWidth: 1,
   },
   legendGrid: {
     width: legendColumnWidth * 3,

@@ -26,73 +26,14 @@ import { userNameSchema } from '@/features/account/setup-schema';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { useWorkoutSettings } from '@/features/workout/use-workout-settings';
 import { formatClock, formatSpokenDuration } from '@/formats/formats';
-import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { ChoicePage } from './choice-page';
 import { defaultRest } from './default-rest';
-import { colorLabels, themeLabels, unitLabels } from './settings-labels';
+import { unitLabels } from './settings-labels';
 import { useUpdateDefaultRest, useUpdateUser } from './use-update-settings';
 
 type Schemas = components['schemas'];
-
-/** Theme, from Profile, or from Settings for an admin. */
-export function ThemeScreen({ back }: { back?: string }) {
-  const user = useCurrentUser();
-  const update = useUpdateUser();
-
-  return (
-    <ChoicePage<Schemas['Theme']>
-      back={back}
-      title="Theme"
-      subtitle="Match my phone is the default."
-      choices={[
-        {
-          value: 'matchPhone',
-          label: themeLabels.matchPhone,
-          detail: 'Follows your phone’s setting',
-        },
-        { value: 'dark', label: themeLabels.dark },
-        { value: 'light', label: themeLabels.light },
-      ]}
-      saved={user.data?.theme}
-      saving={update.isPending}
-      onSave={(theme) => update.mutateAsync({ theme })}
-    />
-  );
-}
-
-/** Each color shows a square of its buttons' color, in the mode in use. */
-const colors: Schemas['Color'][] = [
-  'nitro',
-  'titanium',
-  'flux',
-  'plasma',
-  'neon',
-];
-
-/** Color, from Profile, or from Settings for an admin. */
-export function ColorScreen({ back }: { back?: string }) {
-  const { scheme } = useTheme();
-  const user = useCurrentUser();
-  const update = useUpdateUser();
-
-  return (
-    <ChoicePage<Schemas['Color']>
-      back={back}
-      title="Color"
-      subtitle="Used for buttons, today and completed sets."
-      choices={colors.map((color) => ({
-        value: color,
-        label: colorLabels[color],
-        swatch: tokens.color.accent[color][scheme].primary,
-      }))}
-      saved={user.data?.color}
-      saving={update.isPending}
-      onSave={(color) => update.mutateAsync({ color })}
-    />
-  );
-}
 
 export function UnitsScreen() {
   const user = useCurrentUser();

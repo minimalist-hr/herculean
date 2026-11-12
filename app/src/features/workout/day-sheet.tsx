@@ -28,13 +28,14 @@ import { useWorkoutSummary } from './use-workout-summary';
 type Day = components['schemas']['DayResponse'];
 
 function SheetTile({ label, value }: { label: string; value?: string }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
 
   return (
     <View
       style={[
         styles.tile,
         {
+          borderWidth: cardLine,
           gap: space.sm,
           padding: size.statTilePadding,
           borderRadius: radius.card,
@@ -238,6 +239,5 @@ const styles = StyleSheet.create({
   },
   tile: {
     flex: 1,
-    borderWidth: 1,
   },
 });

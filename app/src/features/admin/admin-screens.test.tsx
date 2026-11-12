@@ -145,7 +145,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>
@@ -272,7 +272,7 @@ describe('A ticket in the inbox', () => {
     ).toBeOnTheScreen();
     expect(screen.getByRole('link', { name: 'Feedback' })).toBeOnTheScreen();
     expect(screen.getByTestId('own-message')).toHaveStyle({
-      borderColor: tokens.color.accent.nitro.dark.primary,
+      borderColor: tokens.color.themes.default.colors.primary,
     });
     expect(await screen.findByLabelText('Screenshot 1')).toBeOnTheScreen();
   });

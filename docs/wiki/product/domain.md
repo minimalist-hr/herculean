@@ -43,7 +43,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 
 ### Account
 
-- An account is a user, who trains, or an admin, who manages feedback and helps users with their accounts. Admins come from configuration, have no training data or setup, can change only their theme and color, and can't change their email or delete themselves in the app.
+- An account is a user, who trains, or an admin, who manages feedback and helps users with their accounts. Admins come from configuration, have no training data or setup, can change only their theme, and can't change their email or delete themselves in the app.
 - An email is unique and not case-sensitive.
 - A password has 8 to 128 characters.
 - A name has 1 to 50 characters, trimmed.

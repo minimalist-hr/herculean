@@ -44,7 +44,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={status === 'needsSetup'}>
             <Stack.Screen name="setup" />

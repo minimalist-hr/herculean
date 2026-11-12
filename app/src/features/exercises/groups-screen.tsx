@@ -23,7 +23,7 @@ import { GroupsList } from './groups-list';
 import { noGroupsMessage, useGroups } from './use-groups';
 
 export function GroupsScreen() {
-  const { colors, opacity, radius, size, space } = useTheme();
+  const { cardLine, colors, opacity, radius, size, space } = useTheme();
   const pageEnd = usePageEnd();
   const newButtonRoom = useNewButtonRoom();
   const router = useRouter();
@@ -93,6 +93,7 @@ export function GroupsScreen() {
         style={[
           styles.skeletonCard,
           {
+            borderWidth: cardLine,
             borderRadius: radius.card,
             borderColor: colors.border,
             backgroundColor: colors.card,
@@ -225,7 +226,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   skeletonCard: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   skeletonRow: {

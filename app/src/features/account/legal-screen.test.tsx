@@ -9,7 +9,7 @@ import { LegalScreen } from './legal-screen';
 
 function Layout() {
   return (
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Stack screenOptions={{ headerShown: false }} />
     </ThemeProvider>
   );

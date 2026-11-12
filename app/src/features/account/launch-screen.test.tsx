@@ -35,7 +35,7 @@ async function renderLaunch() {
         createTestQueryClient()
       }
     >
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <LaunchScreen />
         <Status />
       </ThemeProvider>

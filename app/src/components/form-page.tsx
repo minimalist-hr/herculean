@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme/theme-provider';
 
@@ -40,6 +41,7 @@ export function FormPage({
 }: FormPageProps) {
   const { colors, size, space } = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // A failure says nothing once the form it belongs to has closed.
   useEffect(() => dismissFailure, []);
@@ -55,7 +57,9 @@ export function FormPage({
             gap: space.xl,
             paddingTop: size.topPaddingSubPage,
             paddingHorizontal: size.sidePadding,
-            paddingBottom: space.lg,
+            // Without an action box, the page ends clear of the home indicator.
+            paddingBottom:
+              action === undefined ? insets.bottom + space.lg : space.lg,
           }}
         >
           <View style={{ gap: space.xxxs }}>

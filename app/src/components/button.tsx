@@ -39,7 +39,7 @@ export function Button({
   compact = false,
   fieldHeight = false,
 }: ButtonProps) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, line, opacity, radius, size, space, text } = useTheme();
   const filled = variant === 'primary' || variant === 'danger';
   const textColor = {
     primary: colors.onPrimary,
@@ -76,6 +76,7 @@ export function Button({
           : [
               styles.outlined,
               {
+                borderWidth: line,
                 height: size.secondaryButton,
                 backgroundColor: colors.raised,
                 borderColor: colors.border,
@@ -105,7 +106,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  outlined: {
-    borderWidth: 1,
-  },
+  outlined: {},
 });

@@ -18,7 +18,7 @@ jest.mock('react-native-safe-area-context', () => ({
 
 function InTabs({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <InTabsContext.Provider value>{children}</InTabsContext.Provider>
     </ThemeProvider>
   );

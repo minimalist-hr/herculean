@@ -141,13 +141,14 @@ export function SystemHealthScreen() {
 }
 
 function ServiceList({ children }: { children: React.ReactNode }) {
-  const { colors, radius } = useTheme();
+  const { cardLine, colors, radius } = useTheme();
 
   return (
     <View
       style={[
         styles.card,
         {
+          borderWidth: cardLine,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
@@ -212,7 +213,7 @@ function HealthHero({
   color: string;
   working: boolean;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { cardLine, colors, radius, space, text } = useTheme();
 
   return (
     <View
@@ -222,6 +223,7 @@ function HealthHero({
       style={[
         styles.hero,
         {
+          borderWidth: cardLine,
           height: heroHeight,
           gap: space.md,
           padding: space.lg,
@@ -265,7 +267,6 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
     overflow: 'hidden',
   },
   mark: {
@@ -277,7 +278,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   card: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   row: {},

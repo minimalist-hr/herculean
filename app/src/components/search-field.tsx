@@ -24,7 +24,7 @@ export function SearchField({
   onChangeText,
   mutedReason,
 }: SearchFieldProps) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, line, opacity, radius, size, space, text } = useTheme();
   const muted = mutedReason !== undefined;
   const hasText = value !== '' && !muted;
 
@@ -43,6 +43,7 @@ export function SearchField({
           styles.input,
           text.input,
           {
+            borderWidth: line,
             height: size.input,
             paddingLeft: space.md + iconSize + space.sm,
             paddingRight: hasText ? size.touchTargetMin : space.md,
@@ -100,7 +101,6 @@ export function SearchField({
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
     // Android adds its own padding and top-aligns the text, so the text sits off center.
     paddingVertical: 0,
     textAlignVertical: 'center',

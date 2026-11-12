@@ -28,7 +28,7 @@ public sealed class UpdateCurrentUserHandlerTests
             new UpdateCurrentUserRequest(" Filip ", Units.Imperial, TimeZone: null),
             TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Imperial, Theme.MatchPhone, Color.Nitro, "Europe/Zagreb", Role.User));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Imperial, Theme.Default, "Europe/Zagreb", Role.User));
         _unitOfWork.Saved.ShouldBeTrue();
     }
 
@@ -41,30 +41,28 @@ public sealed class UpdateCurrentUserHandlerTests
             new UpdateCurrentUserRequest(Name: null, Units: null, TimeZone: "Europe/London"),
             TestContext.Current.CancellationToken);
 
-        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Metric, Theme.MatchPhone, Color.Nitro, "Europe/London", Role.User));
+        result.Value.ShouldBe(new UserResponse("filip@example.com", "Filip", Units.Metric, Theme.Default, "Europe/London", Role.User));
     }
 
     [Fact]
-    public async Task ThemeAndColorChange()
+    public async Task ThemeChanges()
     {
         Result<UserResponse> result = await _handler.HandleAsync(
-            new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Titanium),
+            new UpdateCurrentUserRequest(Theme: Theme.Paper),
             TestContext.Current.CancellationToken);
 
-        result.Value.Theme.ShouldBe(Theme.Light);
-        result.Value.Color.ShouldBe(Color.Titanium);
+        result.Value.Theme.ShouldBe(Theme.Paper);
     }
 
     [Fact]
-    public async Task AnAdminChangesItsThemeAndColor()
+    public async Task AnAdminChangesItsTheme()
     {
         User admin = AdminSignedIn();
 
-        Result<UserResponse> result = await _handler.HandleAsync(new UpdateCurrentUserRequest(Theme: Theme.Light, Color: Color.Flux), TestContext.Current.CancellationToken);
+        Result<UserResponse> result = await _handler.HandleAsync(new UpdateCurrentUserRequest(Theme: Theme.Smoke), TestContext.Current.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
-        admin.Theme.ShouldBe(Theme.Light);
-        admin.Color.ShouldBe(Color.Flux);
+        admin.Theme.ShouldBe(Theme.Smoke);
     }
 
     [Theory]

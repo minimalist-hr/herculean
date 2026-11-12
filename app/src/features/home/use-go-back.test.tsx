@@ -65,7 +65,7 @@ async function openFromHome(openedFromHome: boolean) {
   await renderRouter(
     {
       _layout: () => (
-        <ThemeProvider theme="dark">
+        <ThemeProvider theme="default">
           <Tabs
             tabBar={(props) => <FloatingTabBar {...props} />}
             screenOptions={tabScreenOptions}

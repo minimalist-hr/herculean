@@ -19,7 +19,7 @@ const onPress = jest.fn();
 
 async function renderButton(muted = false) {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <NewButton label="New exercise" muted={muted} onPress={onPress} />
     </ThemeProvider>,
   );

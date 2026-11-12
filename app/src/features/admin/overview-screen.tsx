@@ -145,7 +145,7 @@ type UserStats = NonNullable<ReturnType<typeof useUserStats>['data']>;
 
 /** The page's focus: how many people use Herculean, big, with a 4-week trend across the card. */
 function UsersHero({ query }: { query: TileQuery<UserStats> }) {
-  const { colors, radius, space, text } = useTheme();
+  const { cardLine, colors, radius, space, text } = useTheme();
   const { data, isLoadingError } = query;
 
   function renderNumber() {
@@ -195,6 +195,7 @@ function UsersHero({ query }: { query: TileQuery<UserStats> }) {
       style={[
         styles.hero,
         {
+          borderWidth: cardLine,
           gap: space.sm,
           padding: space.lg,
           borderRadius: radius.card,
@@ -364,7 +365,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hero: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   heroTop: {

@@ -50,7 +50,7 @@ export function ClosedExercise({
   place?: BlockPlace;
   onOpen: () => void;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
 
   return (
     <Animated.View entering={appear} exiting={disappear}>
@@ -62,6 +62,7 @@ export function ClosedExercise({
         style={[
           styles.closed,
           {
+            borderWidth: cardLine,
             gap: space.md,
             minHeight: size.listRowMin,
             paddingVertical: space.sm,
@@ -125,7 +126,7 @@ function ValueCell({
   value: string;
   onPress: () => void;
 }) {
-  const { colors, radius, size, text } = useTheme();
+  const { colors, line, radius, size, text } = useTheme();
 
   return (
     <Tappable
@@ -136,6 +137,7 @@ function ValueCell({
         styles.value,
         styles.valueWidth,
         {
+          borderWidth: line,
           height: size.touchTargetMin,
           borderRadius: radius.control,
           borderColor: colors.border,
@@ -170,7 +172,7 @@ function SetRow({
   /** Ticks lengthened partials, on an exercise that has them. */
   onTogglePartials?: (set: WorkoutSet) => void;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const number = String(index + 1);
   const lastTime = exercise.lastTime?.sets[index];
   const weight = String(weightIn(set.weightKg, units));
@@ -188,7 +190,7 @@ function SetRow({
           paddingHorizontal: space.sm,
           borderRadius: radius.control,
           // The border is always there, so marking the next set moves nothing.
-          borderWidth: 1,
+          borderWidth: line,
           borderColor: next ? colors.primary : 'transparent',
           backgroundColor:
             onToggle && set.checked
@@ -252,6 +254,7 @@ function SetRow({
             style={[
               styles.box,
               {
+                borderWidth: line,
                 borderRadius: radius.control,
                 borderColor: set.partialsDone ? colors.primary : colors.muted,
                 backgroundColor: set.partialsDone ? colors.primary : undefined,
@@ -283,6 +286,7 @@ function SetRow({
             style={[
               styles.box,
               {
+                borderWidth: line,
                 borderRadius: radius.control,
                 borderColor: set.checked ? colors.primary : colors.muted,
                 backgroundColor: set.checked ? colors.primary : undefined,
@@ -340,7 +344,7 @@ export function OpenExercise({
     onToggleSet: (set: WorkoutSet) => void;
   };
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, line, radius, space, text } = useTheme();
   const router = useRouter();
   const linkMuted =
     superset !== undefined &&
@@ -355,6 +359,7 @@ export function OpenExercise({
       style={[
         styles.open,
         {
+          borderWidth: line,
           gap: space.sm,
           padding: space.lg,
           // In a superset block, the block keeps the room around both.
@@ -528,11 +533,8 @@ const styles = StyleSheet.create({
   closed: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
-  open: {
-    borderWidth: 1,
-  },
+  open: {},
   heading: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -576,7 +578,6 @@ const styles = StyleSheet.create({
   value: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   check: {
     width: 40,
@@ -588,6 +589,5 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

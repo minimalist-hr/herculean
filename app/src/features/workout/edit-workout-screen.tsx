@@ -140,7 +140,7 @@ function EditWorkoutPage({
 }
 
 function EditWorkoutSkeleton() {
-  const { colors, radius, space } = useTheme();
+  const { cardLine, colors, radius, space } = useTheme();
 
   return (
     <View
@@ -157,6 +157,7 @@ function EditWorkoutSkeleton() {
           style={[
             styles.skeletonCard,
             {
+              borderWidth: cardLine,
               gap: space.md,
               marginVertical: space.sm,
               padding: space.lg,
@@ -507,7 +508,5 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  skeletonCard: {
-    borderWidth: 1,
-  },
+  skeletonCard: {},
 });

@@ -23,7 +23,7 @@ export function ChipLink({
   label: string;
   onPress: () => void;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
 
   return (
     <Tappable
@@ -36,7 +36,7 @@ export function ChipLink({
         alignItems: 'center',
         gap: space.xs,
         paddingHorizontal: space.md,
-        borderWidth: 1,
+        borderWidth: line,
         borderRadius: radius.pill,
         borderColor: colors.border,
         backgroundColor: colors.raised,
@@ -56,7 +56,7 @@ export function Chip({
   muted = false,
   onPress,
 }: ChipProps) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, line, opacity, radius, size, space, text } = useTheme();
 
   return (
     <Tappable
@@ -68,7 +68,7 @@ export function Chip({
         height: size.chip,
         justifyContent: 'center',
         paddingHorizontal: space.md,
-        borderWidth: 1,
+        borderWidth: line,
         borderRadius: radius.pill,
         borderColor: selected ? colors.primary : colors.border,
         backgroundColor: selected ? colors.primary : 'transparent',

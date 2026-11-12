@@ -13,6 +13,7 @@ import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { setTabBarHeight } from './above-tab-bar';
+import { Frosted, useSurfaceColor } from './frosted';
 import { Tappable } from './tappable';
 import { useReduceMotion } from './use-reduce-motion';
 
@@ -93,8 +94,9 @@ function TabBar({
   navigateToTab,
   insets,
 }: BottomTabBarProps) {
-  const { colors, radius, size, text } = useTheme();
+  const { colors, line, radius, size, text } = useTheme();
   const { tabBar } = size;
+  const surface = useSurfaceColor(colors.bg);
 
   return (
     <View
@@ -103,15 +105,17 @@ function TabBar({
       style={[
         styles.bar,
         {
+          borderTopWidth: line,
           paddingTop: tabBar.paddingTop,
           paddingHorizontal: tabBar.paddingX,
           // Clears the home indicator on phones that have one.
           paddingBottom: Math.max(insets.bottom, tabBar.paddingBottomMin),
           borderTopColor: colors.border,
-          backgroundColor: colors.bg,
+          backgroundColor: surface,
         },
       ]}
     >
+      <Frosted color={colors.bg} />
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label = options.title ?? route.name;
@@ -194,7 +198,6 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
-    borderTopWidth: 1,
   },
   item: {
     flex: 1,

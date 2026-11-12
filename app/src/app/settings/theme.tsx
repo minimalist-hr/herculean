@@ -1,5 +1,5 @@
-import { ThemeScreen } from '@/features/settings/setting-pages';
+import { ThemesScreen } from '@/features/settings/themes-screen';
 
-export default function ThemeRoute() {
-  return <ThemeScreen />;
+export default function ThemesRoute() {
+  return <ThemesScreen />;
 }

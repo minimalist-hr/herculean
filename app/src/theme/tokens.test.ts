@@ -3,18 +3,25 @@ import { join } from 'node:path';
 
 import { tokens } from './tokens';
 
+interface DesignTheme {
+  default?: boolean;
+  mode: string;
+  corners: string;
+  border: string;
+  colors: unknown;
+  status?: unknown;
+}
+
 interface DesignTokens {
   color: {
-    neutral: unknown;
-    day: { dark: unknown; light: unknown };
-    accent: Record<
-      'Nitro' | 'Titanium' | 'Flux' | 'Plasma' | 'Neon',
-      { default?: boolean; dark: unknown; light: unknown }
-    >;
+    themes: Record<string, DesignTheme>;
+    day: unknown;
     status: unknown;
     scrim: string;
   };
-  radius: { sharp: unknown };
+  radius: unknown;
+  border: Record<string, unknown>;
+  glass: Record<string, unknown>;
   font: { roles: unknown };
   space: unknown;
   opacity: unknown;
@@ -29,40 +36,37 @@ const design = JSON.parse(
   ),
 ) as DesignTokens;
 
-const { dark: nitroDark, light: nitroLight } = design.color.accent.Nitro;
-const {
-  Titanium: titanium,
-  Flux: flux,
-  Plasma: plasma,
-  Neon: neon,
-} = design.color.accent;
+test('themes match the design, by the names the API uses', () => {
+  const themes = Object.fromEntries(
+    Object.entries(design.color.themes).map(
+      ([name, { default: _default, ...theme }]) => [name.toLowerCase(), theme],
+    ),
+  );
 
-test('day colors match the design', () => {
-  expect(tokens.color.day.dark).toEqual(design.color.day.dark);
-  expect(tokens.color.day.light).toEqual(design.color.day.light);
+  expect(tokens.color.themes).toEqual(themes);
 });
 
-test('neutral colors match the design', () => {
-  expect(tokens.color.neutral).toEqual(design.color.neutral);
+test('Default is the design’s default theme', () => {
+  expect(design.color.themes.Default.default).toBe(true);
 });
 
-test('accent colors match the design', () => {
-  expect(tokens.color.accent).toEqual({
-    nitro: { dark: nitroDark, light: nitroLight },
-    titanium: { dark: titanium.dark, light: titanium.light },
-    flux: { dark: flux.dark, light: flux.light },
-    plasma: { dark: plasma.dark, light: plasma.light },
-    neon: { dark: neon.dark, light: neon.light },
-  });
-});
-
-test('status colors and scrim match the design', () => {
+test('status and day colors and the scrim match the design', () => {
   expect(tokens.color.status).toEqual(design.color.status);
+  expect(tokens.color.day).toEqual(design.color.day);
   expect(tokens.color.scrim).toBe(design.color.scrim);
 });
 
-test('radius matches the sharp corners of the design', () => {
-  expect(tokens.radius).toEqual(design.radius.sharp);
+test('corner scales and border styles match the design', () => {
+  const { $description: _description, ...border } = design.border;
+
+  expect(tokens.radius).toEqual(design.radius);
+  expect(tokens.border).toEqual(border);
+});
+
+test('glass matches the design', () => {
+  const { $description: _description, ...glass } = design.glass;
+
+  expect(tokens.glass).toEqual(glass);
 });
 
 test('type roles match the design', () => {

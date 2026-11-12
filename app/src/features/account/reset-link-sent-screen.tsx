@@ -20,7 +20,7 @@ import { useSendResetLink } from './use-send-reset-link';
 const sendAgainWaitSeconds = 60;
 
 export function ResetLinkSentScreen() {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
   const router = useRouter();
   const { email } = useLocalSearchParams<{ email: string }>();
   const sendResetLink = useSendResetLink();
@@ -72,6 +72,7 @@ export function ResetLinkSentScreen() {
             style={[
               styles.card,
               {
+                borderWidth: cardLine,
                 gap: space.sm,
                 padding: space.lg,
                 borderRadius: radius.card,
@@ -113,7 +114,5 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  card: {
-    borderWidth: 1,
-  },
+  card: {},
 });

@@ -21,7 +21,7 @@ export function SupersetStripe({
   edge?: string;
   style?: StyleProp<ViewStyle>;
 }) {
-  const { colors, radius, text } = useTheme();
+  const { colors, line, radius, text } = useTheme();
   const [height, setHeight] = useState(0);
 
   return (
@@ -31,12 +31,16 @@ export function SupersetStripe({
       }}
       style={[
         styles.stripe,
-        { borderLeftColor: colors.border, backgroundColor: colors.raised },
+        {
+          borderLeftWidth: line,
+          borderLeftColor: colors.border,
+          backgroundColor: colors.raised,
+        },
         edge !== undefined && {
           borderLeftWidth: 0,
-          borderTopWidth: 1,
-          borderRightWidth: 1,
-          borderBottomWidth: 1,
+          borderTopWidth: line,
+          borderRightWidth: line,
+          borderBottomWidth: line,
           borderColor: edge,
           borderTopRightRadius: radius.card,
           borderBottomRightRadius: radius.card,
@@ -72,7 +76,6 @@ const styles = StyleSheet.create({
   },
   stripe: {
     width: stripeWidth,
-    borderLeftWidth: 1,
     overflow: 'hidden',
   },
   turned: {

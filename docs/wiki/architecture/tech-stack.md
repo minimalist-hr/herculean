@@ -24,6 +24,7 @@ Every app library must work in Expo Go.
 | Drag lists | Own component, `components/draggable-list.tsx` |
 | Token storage | expo-secure-store |
 | Profile photo | expo-image-picker |
+| Frosted surfaces | expo-blur |
 | Browser preview, development only | react-native-web, @expo/metro-runtime |
 | Tests | Jest (jest-expo), React Native Testing Library |
 | Lint, format | ESLint, Prettier |

@@ -1,14 +1,16 @@
-import type { TextStyle } from 'react-native';
+import { StyleSheet, type TextStyle } from 'react-native';
 
 import { tokens } from './tokens';
 
 export type ColorScheme = 'dark' | 'light';
 
-export type ColorSetting = keyof typeof tokens.color.accent;
+/** The themes on Settings › Themes, by the name the API uses. */
+export type ThemeName = keyof typeof tokens.color.themes;
+
+export const defaultTheme: ThemeName = 'default';
 
 type ColorName =
-  | keyof typeof tokens.color.neutral.dark
-  | keyof typeof tokens.color.accent.nitro.dark
+  | keyof typeof tokens.color.themes.default.colors
   | keyof typeof tokens.color.status.dark
   | 'scrim';
 
@@ -20,12 +22,19 @@ type TextRole =
   | 'tabLabelInactive';
 
 export interface Theme {
-  /** Whether the app is dark or light right now. */
+  name: ThemeName;
+  /** Whether the theme is dark or light. */
   scheme: ColorScheme;
   colors: Colors;
   /** One muted color per weekday, for the week plan on the Routines tab. */
   dayColors: Record<keyof typeof tokens.color.day.dark, string>;
-  radius: typeof tokens.radius;
+  radius: Record<keyof typeof tokens.radius.default, number>;
+  /** The width of every border and divider: 1 px, or the thinnest the phone draws. */
+  line: number;
+  /** A card's border width: none when cards stand out by their color alone. */
+  cardLine: number;
+  /** The tab bar, rest and Resume bars and sheets are frosted. */
+  glass: boolean;
   space: typeof tokens.space;
   opacity: {
     dimmed: number;
@@ -58,20 +67,30 @@ interface Role {
   color?: 'muted';
 }
 
-export function createTheme(scheme: ColorScheme, color: ColorSetting): Theme {
+export function createTheme(name: ThemeName): Theme {
+  const theme = tokens.color.themes[name];
+  const scheme = theme.mode;
   const colors: Colors = {
-    ...tokens.color.neutral[scheme],
-    ...tokens.color.accent[color][scheme],
+    ...theme.colors,
     ...tokens.color.status[scheme],
+    // A theme's status colors never match its accent.
+    ...('status' in theme && theme.status),
     scrim: tokens.color.scrim,
   };
+  const border = tokens.border[theme.border];
+  const line =
+    border.line === 'hairline' ? StyleSheet.hairlineWidth : border.line;
   const { roles } = tokens.font;
 
   return {
+    name,
     scheme,
     colors,
     dayColors: tokens.color.day[scheme],
-    radius: tokens.radius,
+    radius: tokens.radius[theme.corners],
+    line,
+    cardLine: border.cardOutline ? line : 0,
+    glass: border.glass,
     space: tokens.space,
     opacity: {
       dimmed: tokens.opacity.dimmed,

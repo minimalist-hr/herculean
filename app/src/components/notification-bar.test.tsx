@@ -10,7 +10,7 @@ import { PlaceholderScreen } from '@/test-utils/placeholder-screen';
 
 function Layout() {
   return (
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Stack screenOptions={{ headerShown: false }} />
       <NotificationBar />
     </ThemeProvider>

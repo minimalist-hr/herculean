@@ -31,6 +31,15 @@ Content-Type: application/json
   "timeZone": "Europe/London"
 }
 
+### Change the theme → 200.
+PATCH {{host}}/api/v1/users/me
+Authorization: Bearer {{createAccount.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "theme": "frost"
+}
+
 ### Invalid fields → 400 validation, with errors for name and timeZone.
 PATCH {{host}}/api/v1/users/me
 Authorization: Bearer {{createAccount.response.body.$.accessToken}}

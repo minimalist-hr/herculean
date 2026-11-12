@@ -87,7 +87,7 @@ const skeletonBlocks = [2, 3, 2];
 
 /** A day's exercises while they load, in blocks the size of a typical day. */
 export function ExerciseBlocksSkeleton({ background }: { background: string }) {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, radius, size, space } = useTheme();
 
   return (
     <View style={{ gap: space.sm }}>
@@ -97,6 +97,7 @@ export function ExerciseBlocksSkeleton({ background }: { background: string }) {
           style={[
             styles.block,
             {
+              borderWidth: cardLine,
               borderRadius: radius.card,
               borderColor: colors.border,
               backgroundColor: background,
@@ -154,7 +155,7 @@ export function ExerciseTargets({
   /** Opens an exercise. Its row then has a chevron. */
   onOpen?: (exerciseId: string) => void;
 }) {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, radius, size, space } = useTheme();
   const opens = (exercise: ExerciseTarget) =>
     onOpen !== undefined && exercise.exists !== false;
 
@@ -169,6 +170,7 @@ export function ExerciseTargets({
             style={[
               styles.block,
               {
+                borderWidth: cardLine,
                 borderRadius: radius.card,
                 borderColor: colors.border,
                 backgroundColor: background ?? colors.card,
@@ -217,7 +219,6 @@ export function ExerciseTargets({
 const styles = StyleSheet.create({
   block: {
     flexDirection: 'row',
-    borderWidth: 1,
     overflow: 'hidden',
   },
   rows: {

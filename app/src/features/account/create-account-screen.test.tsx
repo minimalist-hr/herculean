@@ -45,7 +45,7 @@ function Layout() {
   const status = useSessionStatus();
   return (
     <QueryClientProvider client={createTestQueryClient()}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={status === 'signedOut'}>
             <Stack.Screen name="create-account" />

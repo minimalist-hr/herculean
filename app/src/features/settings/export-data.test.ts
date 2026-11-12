@@ -59,8 +59,7 @@ const sources: ExportSources = {
     email: 'filip@example.com',
     name: 'Filip Mučnjak',
     units: 'metric',
-    theme: 'matchPhone',
-    color: 'nitro',
+    theme: 'default',
     timeZone: 'Europe/Zagreb',
     role: 'user',
   },
@@ -158,7 +157,7 @@ test('exercises, routines and the account read like the app', () => {
     '"Legs, heavy",Monday; Thursday,1,Barbell squat,3,8,10,No,No\r\n',
   );
   expect(zip.text('account.csv')).toContain(
-    'Filip Mučnjak,filip@example.com,Metric,Match my phone,Nitro,Europe/Zagreb,3:00,On,Off\r\n',
+    'Filip Mučnjak,filip@example.com,Metric,Default,Europe/Zagreb,3:00,On,Off\r\n',
   );
 });
 

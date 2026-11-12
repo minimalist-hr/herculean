@@ -116,7 +116,7 @@ export function MessageCard({
   now: Date;
   onOpen: (image: string) => void;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, line, radius, space, text } = useTheme();
   const own = message.author === reader;
 
   return (
@@ -125,6 +125,7 @@ export function MessageCard({
       style={[
         styles.card,
         {
+          borderWidth: line,
           gap: space.md,
           padding: space.lg,
           borderRadius: radius.card,
@@ -172,12 +173,16 @@ function MessageScreenshot({
   reader: ThreadReader;
   onOpen: (image: string) => void;
 }) {
-  const { colors, radius } = useTheme();
+  const { colors, line, radius } = useTheme();
   const image = useScreenshot(ticketId, id, reader);
   const label = `Screenshot ${String(number)}`;
   const tile = [
     styles.square,
-    { borderRadius: radius.control, borderColor: colors.border },
+    {
+      borderWidth: line,
+      borderRadius: radius.control,
+      borderColor: colors.border,
+    },
   ];
 
   if (image.data !== undefined) {
@@ -268,7 +273,7 @@ export function ReplyBox({
   /** A button before Add screenshot, given a way to put text in the reply, such as the admin's saved replies. */
   extraAction?: (insert: (text: string) => void) => ReactNode;
 }) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, line, opacity, radius, size, space, text } = useTheme();
   const [message, setMessage] = useState('');
   const [screenshots, setScreenshots] = useState<string[]>([]);
   const guard = useLeaveGuard(message.trim() !== '' || screenshots.length > 0);
@@ -354,6 +359,7 @@ export function ReplyBox({
                 styles.replyInput,
                 text.input,
                 {
+                  borderWidth: line,
                   minHeight: size.input,
                   maxHeight: size.input + replyLineHeight * (replyMaxRows - 1),
                   lineHeight: replyLineHeight,
@@ -394,9 +400,7 @@ const replyMaxRows = 3;
 const replyLineHeight = 20;
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-  },
+  card: {},
   messageHeading: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -405,7 +409,6 @@ const styles = StyleSheet.create({
   square: {
     width: '100%',
     aspectRatio: 1,
-    borderWidth: 1,
   },
   clipped: {
     overflow: 'hidden',
@@ -420,7 +423,6 @@ const styles = StyleSheet.create({
   },
   replyInput: {
     flex: 1,
-    borderWidth: 1,
     textAlignVertical: 'center',
   },
 });

@@ -36,8 +36,7 @@ erDiagram
 | Name | string? | Empty until setup (A30), and always for an admin |
 | Photo | UserPhoto? | |
 | TimeZone | string | IANA name, for example `Europe/Zagreb` |
-| Theme | enum | `MatchPhone`, `Dark`, `Light`. Starts at `MatchPhone` |
-| Color | enum | `Nitro`, `Titanium`, `Flux`, `Plasma`, `Neon`. Starts at `Nitro` |
+| Theme | enum | `Default`, `Mono`, `Emerald`, `Smoke`, `Paper`, `Fjord`, `Latte`, `Frost`. Starts at `Default` |
 | Units | enum | `Metric`, `Imperial`. Starts at `Metric` |
 | DeletionScheduledForUtc | DateTimeOffset? | Set while the account waits to be deleted |
 | IsClosed | bool | Minimalist closed it for breaking the terms. It can't sign in |

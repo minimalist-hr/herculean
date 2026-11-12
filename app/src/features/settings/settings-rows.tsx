@@ -20,7 +20,7 @@ export function SettingsSection({
   note?: string;
   children: ReactNode;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { cardLine, colors, radius, space, text } = useTheme();
 
   return (
     <View style={{ gap: space.sm }}>
@@ -29,6 +29,7 @@ export function SettingsSection({
         style={[
           styles.card,
           {
+            borderWidth: cardLine,
             borderRadius: radius.card,
             borderColor: colors.border,
             backgroundColor: colors.card,
@@ -145,7 +146,7 @@ export function SettingsSwitchRow({
   failed?: boolean;
   onChange: (value: boolean) => void;
 }) {
-  const { colors, size, space, text } = useTheme();
+  const { colors, line, size, space, text } = useTheme();
 
   function renderSwitch() {
     if (value !== undefined) {
@@ -177,7 +178,7 @@ export function SettingsSwitchRow({
           gap: space.md,
           minHeight: size.listRowMin,
           paddingHorizontal: space.lg,
-          borderTopWidth: 1,
+          borderTopWidth: line,
           borderColor: colors.border,
         },
       ]}
@@ -192,7 +193,6 @@ export function SettingsSwitchRow({
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   row: {

@@ -1,35 +1,14 @@
 import { render, screen } from '@testing-library/react-native';
-import { Text, useColorScheme } from 'react-native';
+import { Text } from 'react-native';
 
 import { ThemeProvider, useTheme } from './theme-provider';
-
-jest.mock('react-native/Libraries/Utilities/useColorScheme', () => ({
-  __esModule: true,
-  default: jest.fn(),
-}));
-
-const mockColorScheme = jest.mocked(useColorScheme);
 
 function Background() {
   const theme = useTheme();
   return <Text>{theme.colors.bg}</Text>;
 }
 
-test('Match my phone follows the phone', async () => {
-  mockColorScheme.mockReturnValue('light');
-
-  await render(
-    <ThemeProvider>
-      <Background />
-    </ThemeProvider>,
-  );
-
-  expect(screen.getByText('#F4F5F7')).toBeOnTheScreen();
-});
-
-test('Match my phone is dark when the phone sets no scheme', async () => {
-  mockColorScheme.mockReturnValue(null);
-
+test('Default shows until a theme is chosen', async () => {
   await render(
     <ThemeProvider>
       <Background />
@@ -39,16 +18,14 @@ test('Match my phone is dark when the phone sets no scheme', async () => {
   expect(screen.getByText('#050506')).toBeOnTheScreen();
 });
 
-test('a chosen theme wins over the phone', async () => {
-  mockColorScheme.mockReturnValue('light');
-
+test('a chosen theme shows, whatever the phone’s setting', async () => {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="latte">
       <Background />
     </ThemeProvider>,
   );
 
-  expect(screen.getByText('#050506')).toBeOnTheScreen();
+  expect(screen.getByText('#FAF9F5')).toBeOnTheScreen();
 });
 
 test('useTheme needs a ThemeProvider', async () => {

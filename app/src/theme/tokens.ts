@@ -1,82 +1,138 @@
 // Edit docs/design/tokens/design-tokens.json first. tokens.test.ts fails until both match.
 export const tokens = {
   color: {
-    neutral: {
-      dark: {
-        bg: '#050506',
-        card: '#0F1012',
-        raised: '#17181B',
-        border: '#2C2F34',
-        text: '#F2F3F5',
-        muted: '#A9AEB6',
-      },
-      light: {
-        bg: '#F4F5F7',
-        card: '#ECEEF1',
-        raised: '#E2E5E9',
-        border: '#C5CAD1',
-        text: '#0A0B0D',
-        muted: '#4F555D',
-      },
-    },
-    accent: {
-      nitro: {
-        dark: {
+    themes: {
+      default: {
+        mode: 'dark',
+        corners: 'default',
+        border: 'thin',
+        colors: {
+          bg: '#050506',
+          card: '#0F1012',
+          raised: '#17181B',
+          border: '#2C2F34',
+          text: '#F2F3F5',
+          muted: '#A9AEB6',
           primary: '#2A62F0',
           primaryText: '#7EA2FF',
           onPrimary: '#FFFFFF',
         },
-        light: {
-          primary: '#1446C8',
-          primaryText: '#1446C8',
+      },
+      mono: {
+        mode: 'dark',
+        corners: 'sharp',
+        border: 'hairline',
+        colors: {
+          bg: '#000000',
+          card: '#0A0A0A',
+          raised: '#171717',
+          border: '#333333',
+          text: '#EDEDED',
+          muted: '#A1A1A1',
+          primary: '#EDEDED',
+          primaryText: '#FFFFFF',
+          onPrimary: '#000000',
+        },
+      },
+      emerald: {
+        mode: 'dark',
+        corners: 'default',
+        border: 'thin',
+        colors: {
+          bg: '#121212',
+          card: '#1A1A1A',
+          raised: '#242424',
+          border: '#363636',
+          text: '#EDEDED',
+          muted: '#A3A3A3',
+          primary: '#3ECF8E',
+          primaryText: '#3ECF8E',
+          onPrimary: '#0A0A0A',
+        },
+        status: {
+          success: '#60A5FA',
+        },
+      },
+      smoke: {
+        mode: 'dark',
+        corners: 'capsule',
+        border: 'glass',
+        colors: {
+          bg: '#000000',
+          card: '#1C1C1E',
+          raised: '#2C2C2E',
+          border: '#3A3A3C',
+          text: '#F5F5F7',
+          muted: '#AEAEB2',
+          primary: '#0975E3',
+          primaryText: '#4DA3FF',
           onPrimary: '#FFFFFF',
         },
       },
-      titanium: {
-        dark: {
-          primary: '#C9CED6',
-          primaryText: '#9DB4D6',
-          onPrimary: '#050506',
-        },
-        light: {
-          primary: '#2A2D33',
-          primaryText: '#3B5B8C',
+      paper: {
+        mode: 'light',
+        corners: 'sharp',
+        border: 'hairline',
+        colors: {
+          bg: '#FFFFFF',
+          card: '#FAFAFA',
+          raised: '#F2F2F2',
+          border: '#E3E3E3',
+          text: '#0A0A0A',
+          muted: '#5C5C5C',
+          primary: '#0A0A0A',
+          primaryText: '#0A0A0A',
           onPrimary: '#FFFFFF',
         },
       },
-      flux: {
-        dark: {
-          primary: '#D946EF',
-          primaryText: '#F0ABFC',
-          onPrimary: '#050506',
-        },
-        light: {
-          primary: '#A21CAF',
-          primaryText: '#A21CAF',
+      fjord: {
+        mode: 'light',
+        corners: 'soft',
+        border: 'thin',
+        colors: {
+          bg: '#ECEFF4',
+          card: '#E5E9F0',
+          raised: '#D8DEE9',
+          border: '#C2CAD8',
+          text: '#2E3440',
+          muted: '#4C566A',
+          primary: '#4C6A92',
+          primaryText: '#3B5A85',
           onPrimary: '#FFFFFF',
         },
       },
-      plasma: {
-        dark: {
-          primary: '#7C4DFF',
-          primaryText: '#B9A2FF',
+      latte: {
+        mode: 'light',
+        corners: 'round',
+        border: 'surface',
+        colors: {
+          bg: '#FAF9F5',
+          card: '#F3F0E8',
+          raised: '#EAE5D9',
+          border: '#DAD3C3',
+          text: '#2D2A26',
+          muted: '#625B51',
+          primary: '#B5532F',
+          primaryText: '#A0472A',
           onPrimary: '#FFFFFF',
         },
-        light: {
-          primary: '#6431D9',
-          primaryText: '#6431D9',
-          onPrimary: '#FFFFFF',
+        status: {
+          skipped: '#6E6259',
         },
       },
-      neon: {
-        dark: {
-          primary: '#22C3DD',
-          primaryText: '#6FE0F0',
-          onPrimary: '#050506',
-        },
-        light: {
-          primary: '#0B6F86',
-          primaryText: '#0B6F86',
+      frost: {
+        mode: 'light',
+        corners: 'capsule',
+        border: 'glass',
+        colors: {
+          bg: '#F2F2F7',
+          card: '#FFFFFF',
+          raised: '#E9E9EE',
+          border: '#D1D1D6',
+          text: '#0B0B0F',
+          muted: '#636366',
+          primary: '#0066D6',
+          primaryText: '#0060C8',
           onPrimary: '#FFFFFF',
         },
       },
@@ -112,16 +168,75 @@ export const tokens = {
       light: {
         monday: '#8E4A68',
         tuesday: '#66568F',
-        wednesday: '#3B6E82',
-        thursday: '#3C7560',
-        friday: '#5C6B32',
-        saturday: '#75621F',
-        sunday: '#8A5735',
+        wednesday: '#376679',
+        thursday: '#376A57',
+        friday: '#576630',
+        saturday: '#715F1E',
+        sunday: '#875534',
       },
     },
     scrim: 'rgba(0,0,0,0.62)',
   },
-  radius: { card: 6, control: 4, pill: 3, check: 3, sheetTop: 10 },
+  radius: {
+    sharp: {
+      card: 2,
+      control: 2,
+      pill: 2,
+      check: 2,
+      sheetTop: 4,
+    },
+    default: {
+      card: 6,
+      control: 4,
+      pill: 3,
+      check: 3,
+      sheetTop: 10,
+    },
+    soft: {
+      card: 8,
+      control: 6,
+      pill: 4,
+      check: 4,
+      sheetTop: 12,
+    },
+    round: {
+      card: 12,
+      control: 10,
+      pill: 6,
+      check: 5,
+      sheetTop: 16,
+    },
+    capsule: {
+      card: 22,
+      control: 999,
+      pill: 999,
+      check: 999,
+      sheetTop: 28,
+    },
+  },
+  border: {
+    thin: {
+      line: 1,
+      cardOutline: true,
+      glass: false,
+    },
+    hairline: {
+      line: 'hairline',
+      cardOutline: true,
+      glass: false,
+    },
+    surface: {
+      line: 1,
+      cardOutline: false,
+      glass: false,
+    },
+    glass: {
+      line: 'hairline',
+      cardOutline: false,
+      glass: true,
+    },
+  },
+  glass: { blur: 40, opacity: { blurred: 0.72, plain: 0.9 } },
   font: {
     roles: {
       pageTitle: {

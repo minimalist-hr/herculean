@@ -12,7 +12,7 @@ import { Tappable } from './tappable';
 async function renderTappable(feedback?: 'dim' | 'fill' | 'none') {
   const onPress = jest.fn();
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Tappable
         testID="tappable"
         accessibilityRole="button"

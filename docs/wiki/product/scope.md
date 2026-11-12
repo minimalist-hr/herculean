@@ -256,13 +256,13 @@ Changes on W30 stay in the app until Save workout.
 
 ## 7. Settings
 
-**What it does:** you manage your profile photo, theme, color, units, default rest time, name, email and password. You can sign out or delete your account.
+**What it does:** you manage your profile photo, theme, units, default rest time, name, email and password. You can sign out or delete your account.
 
-**Screens:** H10 Profile, H11 Profile photo, H12 Theme, H13 Color, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email, H27 to H29 Confirming a new email, H30 Confirmation email, H31 Email changed notice, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email.
+**Screens:** H10 Profile, H11 Profile photo, H12 Themes, H14 Units, H15 Default rest time, H16 Name, H17 Email, H18 Change password, H19 Delete account, H25 Password changed email, H27 to H29 Confirming a new email, H30 Confirmation email, H31 Email changed notice, H36 Sign out, H37 Account deleted email, H38 Deletion scheduled email.
 
 **Flows**
 - **Open:** the FM avatar on Home → H10.
-- **Change a setting:** a row on H10 → its page (H12 to H18) → Save → H10, which says so in a notification. Theme, color, units, default rest time, name, password, email, profile photo, sign out and delete account are built.
+- **Change a setting:** a row on H10 → its page (H14 to H18) → Save → H10, which says so in a notification. Themes (H12) has no Save: a tap uses a theme at once, and a failed save goes back to the one before (H96). Themes, units, default rest time, name, password, email, profile photo, sign out and delete account are built.
 - **Rest alerts:** the two switches under Workout on H10 save at once. A failed save switches back and says so (H90). Blocked notifications show a note under Workout (H89).
 - **Photo:** H11 → Take photo or Choose from library, dragged and zoomed to a square, made 512 × 512 px on the phone → H39. It also shows on the Home avatar. Remove photo → H41, with an undo bar. With no photo, Remove photo looks muted (H40).
 - **Email:** H17 → Save email → the Email row on H10 shows an alert icon, and H33 is H17 with the waiting message and Send link again above the form → link in H30 → H27 → the new email is active, and H31 tells the old address. An expired link opens H28, and no connection H29. The link also works signed out, then goes to A01.
@@ -277,7 +277,7 @@ Changes on W30 stay in the app until Save workout.
 | Method | Route | Used by |
 |---|---|---|
 | GET | `/api/v1/users/me` | H10 |
-| PATCH | `/api/v1/users/me` | H12, H13, H14, H16 |
+| PATCH | `/api/v1/users/me` | H12, H14, H16 |
 | GET | `/api/v1/users/me/photo` | H10, Home avatar |
 | PUT | `/api/v1/users/me/photo` | H11, undo on H41 |
 | DELETE | `/api/v1/users/me/photo` | H11 Remove photo |
@@ -295,7 +295,7 @@ Changes on W30 stay in the app until Save workout.
 | DELETE | `/api/v1/users/me` | H19 |
 
 **Done when**
-- A theme or color change applies to the whole app right away.
+- A theme applies to the whole app right away. Signed-out screens always show Default.
 - The email only changes after the link is opened.
 
 ---
@@ -374,7 +374,7 @@ Changes on W30 stay in the app until Save workout.
 - **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again. The sender card → M40. Priority (M78), notes (M19, M77) and saved replies in the reply box (M18).
 - **Users:** search by name or email as you type, chips All and Deleting soon, 20 at a time. A user → M40.
 - **User:** photo, joined, last active, workout and routine counts, their feedback (a ticket → M10), then Remove photo, Sign out all devices, Send reset link, and Close account or Cancel deletion, each asking first (M60, M45 to M48). Closing and removing a photo email the user (H94, H93), and a closed account can't sign in (A61).
-- **Settings:** Theme and Color → H12 and H13. Saved replies → M70. Announcement → M80, which Overview also opens while one is on. Starter exercises → M90, its Groups chip → M63. An exercise → M84 and a group → M85, each with Edit and Delete. System health → M51. Sign out → M05 → A01.
+- **Settings:** Themes → H12. Saved replies → M70. Announcement → M80, which Overview also opens while one is on. Starter exercises → M90, its Groups chip → M63. An exercise → M84 and a group → M85, each with Edit and Delete. System health → M51. Sign out → M05 → A01.
 
 **Entities:** User (role, last active), Starter group, Starter exercise. Reads Ticket, Ticket message, Screenshot, and each sender's name and email from Account.
 

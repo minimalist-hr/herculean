@@ -2,7 +2,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
-import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 
 import { UserThemeProvider } from './user-theme-provider';
@@ -37,9 +36,9 @@ jest.mock('@/features/account/session', () => ({
 }));
 
 function Shown() {
-  const { scheme, colors } = useTheme();
+  const { name } = useTheme();
 
-  return <Text>{`${scheme} ${colors.primary}`}</Text>;
+  return <Text>{name}</Text>;
 }
 
 async function renderProvider() {
@@ -53,54 +52,52 @@ async function renderProvider() {
   );
 }
 
-const nitroDark = `dark ${tokens.color.accent.nitro.dark.primary}`;
-const titaniumLight = `light ${tokens.color.accent.titanium.light.primary}`;
-
 beforeEach(() => {
   mockFetch.mockReset();
   mockStored.clear();
-  mockStatus = 'signedOut';
+  mockStatus = 'restoring';
 });
 
-test('the copy on the phone shows before anyone is signed in', async () => {
-  mockStored.set('appearance', '{"theme":"light","color":"titanium"}');
+test('the copy on the phone shows while the session is restored', async () => {
+  mockStored.set('appearance', '{"theme":"latte"}');
   await renderProvider();
 
-  expect(await screen.findByText(titaniumLight)).toBeOnTheScreen();
+  expect(await screen.findByText('latte')).toBeOnTheScreen();
 });
 
 test.each([
-  ['a name that no longer exists', '{"theme":"dark","color":"racingBlue"}'],
+  ['a name that no longer exists', '{"theme":"dark","color":"nitro"}'],
   ['something unreadable', '{'],
 ])('a copy with %s is ignored', async (_, stored) => {
   mockStored.set('appearance', stored);
   await renderProvider();
 
-  // The default, in whichever scheme the phone has.
-  const nitro = tokens.color.accent.nitro;
-  expect(
-    await screen.findByText(
-      new RegExp(`${nitro.dark.primary}|${nitro.light.primary}`),
-    ),
-  ).toBeOnTheScreen();
-  expect(screen.queryByText(titaniumLight)).toBeNull();
+  expect(await screen.findByText('default')).toBeOnTheScreen();
 });
 
-test('the signed-in user’s theme and color show, and are kept on the phone', async () => {
+test('signed-out screens show Default', async () => {
+  mockStatus = 'signedOut';
+  mockStored.set('appearance', '{"theme":"latte"}');
+  await renderProvider();
+
+  expect(await screen.findByText('default')).toBeOnTheScreen();
+});
+
+test('the signed-in user’s theme shows, and is kept on the phone', async () => {
   mockStatus = 'ready';
-  mockStored.set('appearance', '{"theme":"light","color":"titanium"}');
+  mockStored.set('appearance', '{"theme":"latte"}');
   mockFetch.mockResolvedValue(
     Response.json({
       email: 'filip@example.com',
       name: 'Filip',
       units: 'metric',
-      theme: 'dark',
-      color: 'nitro',
+      theme: 'frost',
       timeZone: 'Europe/Zagreb',
+      role: 'user',
     }),
   );
   await renderProvider();
 
-  expect(await screen.findByText(nitroDark)).toBeOnTheScreen();
-  expect(mockStored.get('appearance')).toBe('{"theme":"dark","color":"nitro"}');
+  expect(await screen.findByText('frost')).toBeOnTheScreen();
+  expect(mockStored.get('appearance')).toBe('{"theme":"frost"}');
 });

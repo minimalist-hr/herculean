@@ -16,7 +16,7 @@ import { Tappable } from './tappable';
 
 /** Shows the latest notification at the top of the screen. A sheet shows those that stay with it itself. */
 export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
-  const { colors, motion, radius, size, space, text } = useTheme();
+  const { cardLine, colors, motion, radius, size, space, text } = useTheme();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
   const notification = useNotification();
@@ -107,6 +107,7 @@ export function NotificationBar({ inSheet = false }: { inSheet?: boolean }) {
         style={[
           styles.bar,
           {
+            borderWidth: cardLine,
             gap: space.md,
             minHeight: size.notificationMin,
             paddingVertical: 10,
@@ -154,7 +155,6 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   message: {
     flex: 1,

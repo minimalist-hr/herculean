@@ -26,7 +26,7 @@ export function ChipsSkeleton() {
 
 /** The grouped list while it loads. */
 export function ExercisesSkeleton() {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, radius, size, space } = useTheme();
 
   return (
     <View
@@ -42,6 +42,7 @@ export function ExercisesSkeleton() {
             style={[
               styles.card,
               {
+                borderWidth: cardLine,
                 borderRadius: radius.card,
                 borderColor: colors.border,
                 backgroundColor: colors.card,
@@ -81,7 +82,7 @@ export function DetailsSkeleton({
   label: string;
   tiles?: boolean;
 }) {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, line, radius, size, space } = useTheme();
 
   return (
     <View
@@ -108,6 +109,7 @@ export function DetailsSkeleton({
               style={[
                 styles.card,
                 {
+                  borderWidth: cardLine,
                   padding: space.lg,
                   borderRadius: radius.card,
                   borderColor: colors.border,
@@ -124,6 +126,7 @@ export function DetailsSkeleton({
           style={[
             styles.noSessions,
             {
+              borderWidth: line,
               gap: space.sm,
               paddingTop: space.xl,
               paddingBottom: size.gap.sectionMax,
@@ -143,6 +146,7 @@ export function DetailsSkeleton({
           style={[
             styles.card,
             {
+              borderWidth: cardLine,
               gap: space.sm,
               padding: space.lg,
               borderRadius: radius.card,
@@ -168,11 +172,9 @@ const styles = StyleSheet.create({
   },
   noSessions: {
     alignItems: 'center',
-    borderWidth: 1,
     borderStyle: 'dashed',
   },
   card: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   tiles: {

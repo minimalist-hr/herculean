@@ -28,7 +28,7 @@ function exercise(
 
 async function renderTargets(exercises: ReturnType<typeof exercise>[]) {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <ExerciseTargets exercises={exercises} />
     </ThemeProvider>,
   );

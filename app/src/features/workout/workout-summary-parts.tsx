@@ -102,7 +102,7 @@ export function NewRecords({
   records?: Summary['records'];
   units: Units;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { cardLine, colors, radius, space, text } = useTheme();
 
   return (
     <View style={{ gap: space.sm }}>
@@ -114,6 +114,7 @@ export function NewRecords({
           style={[
             styles.records,
             {
+              borderWidth: cardLine,
               borderRadius: radius.card,
               borderColor: colors.border,
               backgroundColor: colors.card,
@@ -167,9 +168,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
-  records: {
-    borderWidth: 1,
-  },
+  records: {},
   record: {
     flexDirection: 'row',
     alignItems: 'center',

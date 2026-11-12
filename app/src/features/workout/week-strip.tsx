@@ -44,7 +44,7 @@ export function WeekStrip({
   /** 1 is the next week, and -1 the previous. Screen readers can't swipe, so each day offers these. Without it the strip stays on its week. */
   onChangeWeek?: (direction: number) => void;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, line, radius, space, text } = useTheme();
 
   return (
     <View
@@ -74,6 +74,7 @@ export function WeekStrip({
             style={[
               styles.day,
               {
+                borderWidth: line,
                 gap: space.xs,
                 borderRadius: radius.control,
                 borderColor:
@@ -124,6 +125,5 @@ const styles = StyleSheet.create({
     height: 64,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

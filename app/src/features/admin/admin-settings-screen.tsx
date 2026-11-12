@@ -8,7 +8,7 @@ import { ScreenHeading } from '@/components/screen-heading';
 import type { components } from '@/api/schema';
 import { useCurrentUser } from '@/features/account/use-current-user';
 import { SignOutSheet } from '@/features/settings/account-sheets';
-import { colorLabels, themeLabels } from '@/features/settings/settings-labels';
+import { themeLabels } from '@/features/settings/settings-labels';
 import {
   SettingsRow,
   SettingsSection,
@@ -106,17 +106,10 @@ export function AdminSettingsScreen() {
         <SettingsSection title="Appearance">
           <SettingsRow
             first
-            label="Theme"
+            label="Themes"
             value={userValue((data) => themeLabels[data.theme])}
             onPress={() => {
               router.push('/admin/settings/theme');
-            }}
-          />
-          <SettingsRow
-            label="Color"
-            value={userValue((data) => colorLabels[data.color])}
-            onPress={() => {
-              router.push('/admin/settings/color');
             }}
           />
         </SettingsSection>

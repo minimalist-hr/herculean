@@ -3,17 +3,14 @@ import type { components } from '@/api/schema';
 type Schemas = components['schemas'];
 
 export const themeLabels: Record<Schemas['Theme'], string> = {
-  matchPhone: 'Match my phone',
-  dark: 'Dark',
-  light: 'Light',
-};
-
-export const colorLabels: Record<Schemas['Color'], string> = {
-  nitro: 'Nitro',
-  titanium: 'Titanium',
-  flux: 'Flux',
-  plasma: 'Plasma',
-  neon: 'Neon',
+  default: 'Default',
+  mono: 'Mono',
+  emerald: 'Emerald',
+  smoke: 'Smoke',
+  paper: 'Paper',
+  fjord: 'Fjord',
+  latte: 'Latte',
+  frost: 'Frost',
 };
 
 export const unitLabels: Record<Schemas['Units'], string> = {

@@ -37,6 +37,7 @@ import { tokens } from '@/theme/tokens';
 import { useTheme } from '@/theme/theme-provider';
 import { motionEasing } from '@/theme/motion';
 
+import { Frosted, useSurfaceColor } from './frosted';
 import { CloseIcon } from './icons';
 import { NotificationBar } from './notification-bar';
 import {
@@ -103,7 +104,8 @@ export function Sheet({
   actionsAboveKeyboard = false,
   children,
 }: SheetProps) {
-  const { colors, motion, radius, size, space, text } = useTheme();
+  const { colors, line, motion, radius, size, space, text } = useTheme();
+  const surface = useSurfaceColor(colors.card);
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
   const keyboardHeight = useKeyboardHeight();
@@ -328,12 +330,19 @@ export function Sheet({
                   borderTopLeftRadius: radius.sheetTop,
                   borderTopRightRadius: radius.sheetTop,
                   borderTopColor: colors.border,
-                  backgroundColor: colors.card,
+                  backgroundColor: surface,
                 },
                 measured && { height: shownHeight },
                 pullStyle,
               ]}
             >
+              <Frosted
+                color={colors.card}
+                corners={{
+                  borderTopLeftRadius: radius.sheetTop,
+                  borderTopRightRadius: radius.sheetTop,
+                }}
+              />
               <DragArea
                 onMove={movePull}
                 onEnd={endPull}
@@ -407,6 +416,7 @@ export function Sheet({
                   styles.actions,
                   !actionsShown && styles.hidden,
                   {
+                    borderTopWidth: line,
                     gap: size.gap.stackedButtons,
                     paddingTop: space.lg,
                     paddingHorizontal: size.sidePadding,
@@ -584,9 +594,7 @@ const styles = StyleSheet.create({
   fillBody: {
     flex: 1,
   },
-  actions: {
-    borderTopWidth: 1,
-  },
+  actions: {},
   hidden: {
     display: 'none',
   },

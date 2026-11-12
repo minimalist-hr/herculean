@@ -27,7 +27,7 @@ export function UpNext({
   upNext: Day['upNext'];
   today: string;
 }) {
-  const { colors, space, text } = useTheme();
+  const { colors, line, space, text } = useTheme();
   const links = useLinks('day');
   // Read as maybe missing, since an API from before it was added leaves it out.
   const routineId = upNext.routineId as string | null | undefined;
@@ -37,6 +37,7 @@ export function UpNext({
       style={[
         styles.upNext,
         {
+          borderTopWidth: line,
           gap: space.md,
           paddingTop: space.md,
           borderTopColor: colors.border,
@@ -69,6 +70,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderTopWidth: 1,
   },
 });

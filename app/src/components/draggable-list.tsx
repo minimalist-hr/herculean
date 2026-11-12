@@ -262,7 +262,7 @@ function DraggableRow({
   onMoveTo,
   children,
 }: DraggableRowProps) {
-  const { colors, motion, radius, size, space } = useTheme();
+  const { colors, line, motion, radius, size, space } = useTheme();
   const reduceMotion = useReduceMotion();
   const [offset] = useState(() => new Animated.Value(0));
 
@@ -303,6 +303,7 @@ function DraggableRow({
       style={[
         styles.row,
         {
+          borderWidth: line,
           gap: space.xxxs,
           height: size.optionRowMin,
           paddingLeft: locked ? space.lg : 4,
@@ -370,7 +371,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   lifted: {
     zIndex: 1,

@@ -26,7 +26,7 @@ function findGradient(node: Node): number[] | undefined {
 
 test('the glow starts at the glow opacity and fades out', async () => {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Glow radiusX={0.7} radiusY={0.55} fadeAt={0.9} />
     </ThemeProvider>,
   );

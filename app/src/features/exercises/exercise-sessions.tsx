@@ -149,13 +149,14 @@ function Month({
 
 /** The box a month's rows sit in, like every list in the app. */
 function Card({ children }: { children: ReactNode }) {
-  const { colors, radius } = useTheme();
+  const { cardLine, colors, radius } = useTheme();
 
   return (
     <View
       style={[
         styles.card,
         {
+          borderWidth: cardLine,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
@@ -279,7 +280,6 @@ const styles = StyleSheet.create({
     width: 16,
   },
   card: {
-    borderWidth: 1,
     overflow: 'hidden',
   },
   row: {

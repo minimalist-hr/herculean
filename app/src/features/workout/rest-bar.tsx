@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { Floating } from '@/components/floating';
+import { Frosted, useSurfaceColor } from '@/components/frosted';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -102,7 +103,7 @@ function StepButton({
   spoken: string;
   onPress: () => void;
 }) {
-  const { colors, radius, size, text } = useTheme();
+  const { colors, line, radius, size, text } = useTheme();
 
   return (
     <Tappable
@@ -113,6 +114,7 @@ function StepButton({
       style={[
         styles.step,
         {
+          borderWidth: line,
           height: size.floatingBar.control,
           borderRadius: radius.control,
           borderColor: colors.border,
@@ -134,7 +136,7 @@ export function RestBar({
   rest: Rest;
   onChange: (rest: Rest) => void;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const window = useWindowDimensions();
   const fontSize = restTextSize(window.width, PixelRatio.getFontScale());
   const now = useNow(rest.endsAt !== null);
@@ -143,13 +145,17 @@ export function RestBar({
   const time = `${over ? '+' : ''}${formatClock(clock.seconds)}`;
   const timeColor = over ? colors.success : colors.text;
   const insets = useSafeAreaInsets();
+  const surface = useSurfaceColor(colors.raised);
   const box = {
     // Logging has no tab bar, so the bar keeps clear of the home indicator.
     bottom: insets.bottom + space.sm,
     borderRadius: radius.card,
     borderColor: colors.border,
-    backgroundColor: colors.raised,
+    backgroundColor: surface,
   };
+  const frosted = (
+    <Frosted color={colors.raised} corners={{ borderRadius: radius.card }} />
+  );
 
   if (!rest.open) {
     return (
@@ -164,6 +170,7 @@ export function RestBar({
             styles.small,
             box,
             {
+              borderWidth: line,
               right: size.sidePadding,
               gap: space.sm,
               height: size.floatingBar.control,
@@ -172,6 +179,7 @@ export function RestBar({
           ]}
           hitSlop={barHitSlop}
         >
+          {frosted}
           <ClockIcon color={colors.muted} size={16} />
           <Text style={[text.quickPick, { color: timeColor }]}>{time}</Text>
         </Tappable>
@@ -188,6 +196,7 @@ export function RestBar({
           styles.bar,
           box,
           {
+            borderWidth: line,
             left: size.sidePadding,
             right: size.sidePadding,
             gap: barGap,
@@ -196,6 +205,7 @@ export function RestBar({
           },
         ]}
       >
+        {frosted}
         <Tappable
           accessibilityRole="button"
           accessibilityLabel="Hide rest timer"
@@ -282,8 +292,9 @@ export function PartialsBar({
   onSkip: () => void;
   onDone: () => void;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const insets = useSafeAreaInsets();
+  const surface = useSurfaceColor(colors.raised);
 
   return (
     <Floating key="partials">
@@ -292,6 +303,7 @@ export function PartialsBar({
         style={[
           styles.bar,
           {
+            borderWidth: line,
             bottom: insets.bottom + space.sm,
             left: size.sidePadding,
             right: size.sidePadding,
@@ -300,10 +312,14 @@ export function PartialsBar({
             paddingRight: space.sm,
             borderRadius: radius.card,
             borderColor: colors.border,
-            backgroundColor: colors.raised,
+            backgroundColor: surface,
           },
         ]}
       >
+        <Frosted
+          color={colors.raised}
+          corners={{ borderRadius: radius.card }}
+        />
         <Text
           numberOfLines={2}
           style={[text.dayName, styles.reading, { color: colors.muted }]}
@@ -326,14 +342,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   bar: {
     position: 'absolute',
     height: tokens.size.floatingBar.height,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   hide: {
     width: hideWidth,
@@ -356,6 +370,5 @@ const styles = StyleSheet.create({
     width: stepWidth,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

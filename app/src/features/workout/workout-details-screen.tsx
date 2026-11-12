@@ -34,24 +34,30 @@ type Units = components['schemas']['Units'];
 
 /** A quiet line inside an exercise, so it doesn't read as the line between exercises. A view only draws dashes with a border on every side, so all but the top is clipped. */
 function DashedLine() {
-  const { colors } = useTheme();
+  const { colors, line } = useTheme();
 
   return (
     <View style={styles.dashedLine}>
-      <View style={[styles.dashes, { borderColor: colors.border }]} />
+      <View
+        style={[
+          styles.dashes,
+          { borderWidth: line, borderColor: colors.border },
+        ]}
+      />
     </View>
   );
 }
 
 /** One exercise's card while the workout loads, as tall as an exercise with three sets. */
 function SavedExercisesSkeleton() {
-  const { colors, radius, space } = useTheme();
+  const { cardLine, colors, radius, space } = useTheme();
 
   return (
     <View
       style={[
         styles.block,
         {
+          borderWidth: cardLine,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,
@@ -83,7 +89,7 @@ function SetTable({
   record?: WorkoutRecord;
   units: Units;
 }) {
-  const { colors, space, text } = useTheme();
+  const { colors, line, space, text } = useTheme();
   const recordSet = exercise.sets.find(
     (set) => set.weightKg === record?.weightKg && set.reps === record.reps,
   );
@@ -114,7 +120,7 @@ function SetTable({
               {
                 gap: space.sm,
                 paddingVertical: space.sm,
-                borderTopWidth: 1,
+                borderTopWidth: line,
                 borderTopColor: colors.border,
               },
             ]}
@@ -156,7 +162,7 @@ export function WorkoutDetailsScreen({
   /** What opened it, for its back link, for example "month". */
   from?: string;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
   const pageEnd = usePageEnd();
   const links = useLinks(`workout:${id}`);
   const units = useUnits();
@@ -224,6 +230,7 @@ export function WorkoutDetailsScreen({
               style={[
                 styles.block,
                 {
+                  borderWidth: cardLine,
                   borderRadius: radius.card,
                   borderColor: colors.border,
                   backgroundColor: colors.card,
@@ -312,7 +319,6 @@ export function WorkoutDetailsScreen({
 const styles = StyleSheet.create({
   block: {
     flexDirection: 'row',
-    borderWidth: 1,
     overflow: 'hidden',
   },
   rows: {
@@ -332,7 +338,6 @@ const styles = StyleSheet.create({
   },
   dashes: {
     height: 2,
-    borderWidth: 1,
     borderStyle: 'dashed',
   },
   setRow: {

@@ -14,7 +14,7 @@ Everything from the Claude Design canvas "Herculean app screens" (version 0.1, 2
 | `capture/` | The tool that captures built screens from the running app, with the list of every built screen and state | Updating a screen after a change |
 | `html/<area>/*.html` | Every screen as plain static HTML (dark), with exact inline styles | Exact sizes, spacing, colors, copy and aria labels |
 | `source/<area>/*.dc.html`, `source/canvas.json` | The original Claude Design files (templates plus a small `renderVals()` script with the theme logic and sample data) | Theme switching logic, list data, states |
-| `tokens/design-tokens.json` | Colors (dark/light × Nitro, Titanium, Flux, Plasma and Neon), status colors, radii, type scale, sizes | Building the theme |
+| `tokens/design-tokens.json` | The 8 themes (colors, corners, borders), status and weekday colors, corner scales, border styles, type scale, sizes | Building the theme |
 | `brand/` | Logo concepts board, the pillar mark as SVG (on dark, on light, app icon), the whole logo as PNG for email | App icon, splash, sign in |
 
 ## How to read a screen

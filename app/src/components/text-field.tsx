@@ -40,7 +40,7 @@ export function TextField({
   ref,
   ...inputProps
 }: TextFieldProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const [hidden, setHidden] = useState(true);
   const message = error ?? helper;
   const multiline = inputProps.multiline === true;
@@ -62,6 +62,7 @@ export function TextField({
             text.input,
             multiline && styles.multiline,
             {
+              borderWidth: line,
               height: multiline ? undefined : size.input,
               minHeight: multiline ? size.input * multilineRows : undefined,
               paddingVertical: multiline ? space.md : 0,
@@ -111,7 +112,6 @@ const multilineRows = 3;
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
     // Android adds its own padding and top-aligns the text, so the text sits off center.
     paddingVertical: 0,
     textAlignVertical: 'center',

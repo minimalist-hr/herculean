@@ -108,7 +108,7 @@ export function ExercisePicker({
   offersSuperset = false,
   onDone,
 }: ExercisePickerProps) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const router = useRouter();
   const [supersetOn, setSupersetOn] = useState(false);
   // Only two picks make a superset, so other counts leave it off.
@@ -179,6 +179,7 @@ export function ExercisePicker({
           style={[
             styles.row,
             {
+              borderWidth: line,
               gap: space.md,
               minHeight: size.listRowMin,
               paddingVertical: space.sm,
@@ -214,6 +215,7 @@ export function ExercisePicker({
             style={[
               styles.check,
               {
+                borderWidth: line,
                 borderRadius: radius.check,
                 borderColor: selected ? colors.primary : colors.border,
                 backgroundColor: selected ? colors.primary : 'transparent',
@@ -456,7 +458,7 @@ export function ExercisePicker({
               marginBottom: space.xl,
               marginHorizontal: size.sidePadding,
               paddingTop: space.xl,
-              borderTopWidth: 1,
+              borderTopWidth: line,
               borderTopColor: colors.border,
             }}
           >
@@ -569,7 +571,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   rowText: {
     flex: 1,
@@ -580,6 +581,5 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

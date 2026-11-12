@@ -8,7 +8,7 @@ async function renderField(
   props: Partial<React.ComponentProps<typeof TextField>> = {},
 ) {
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <TextField label="Password" {...props} />
     </ThemeProvider>,
   );

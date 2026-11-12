@@ -184,7 +184,7 @@ export function SetEditorPage({
   onRemove: () => void;
 }) {
   const router = useRouter();
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, line, opacity, radius, size, space, text } = useTheme();
   const { exercise, set, index } = edit;
   const startWeight = String(weightIn(set.weightKg, units));
   const startReps = String(set.reps);
@@ -301,6 +301,7 @@ export function SetEditorPage({
             style={[
               styles.trash,
               {
+                borderWidth: line,
                 width: size.touchTargetMin,
                 height: size.touchTargetMin,
                 borderRadius: radius.control,
@@ -381,7 +382,6 @@ const styles = StyleSheet.create({
   trash: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   pair: {
     flexDirection: 'row',

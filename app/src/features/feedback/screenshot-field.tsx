@@ -77,7 +77,7 @@ export function DraftScreenshots({
   images: string[];
   onChange: (images: string[]) => void;
 }) {
-  const { colors, radius, space } = useTheme();
+  const { colors, line, radius, space } = useTheme();
 
   if (images.length === 0) {
     return null;
@@ -93,6 +93,7 @@ export function DraftScreenshots({
             style={[
               styles.square,
               {
+                borderWidth: line,
                 borderRadius: radius.control,
                 borderColor: colors.border,
               },
@@ -149,6 +150,5 @@ const styles = StyleSheet.create({
   square: {
     width: '100%',
     aspectRatio: 1,
-    borderWidth: 1,
   },
 });

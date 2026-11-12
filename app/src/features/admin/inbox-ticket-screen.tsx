@@ -252,7 +252,7 @@ function SenderCard({
   ticket: InboxTicketDetails;
   onPress?: () => void;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { colors, line, radius, space, text } = useTheme();
   const device = [`Version ${ticket.appVersion}`, ticket.phone, ticket.os]
     .filter((part) => part !== null)
     .join(' · ');
@@ -285,7 +285,7 @@ function SenderCard({
         {
           gap: space.md,
           padding: space.lg,
-          borderWidth: 1,
+          borderWidth: line,
           borderRadius: radius.card,
           borderColor: colors.border,
           backgroundColor: colors.card,

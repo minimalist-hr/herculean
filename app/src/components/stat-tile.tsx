@@ -27,7 +27,7 @@ export function StatTile({
   /** What shows below, for example a trend line. */
   children?: ReactNode;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
   const hasStatus = labelColor !== undefined;
   const loading = value === undefined;
 
@@ -36,6 +36,7 @@ export function StatTile({
       style={[
         styles.tile,
         {
+          borderWidth: cardLine,
           gap: space.sm,
           paddingVertical: hasStatus ? space.md : size.statTilePadding,
           paddingHorizontal: size.statTilePadding,
@@ -79,6 +80,5 @@ export function StatTile({
 const styles = StyleSheet.create({
   tile: {
     flex: 1,
-    borderWidth: 1,
   },
 });

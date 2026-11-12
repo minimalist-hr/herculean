@@ -11,21 +11,15 @@ import {
   readRefreshToken,
   saveTokens,
 } from '@/features/account/session';
-import { tokens } from '@/theme/tokens';
 import { ThemeProvider } from '@/theme/theme-provider';
 
 import { ChangeEmailScreen } from './change-email-screen';
 import { ChangePasswordScreen } from './change-password-screen';
 import { initialsOf } from './settings-labels';
 import { ProfileButton } from './profile-button';
-import {
-  ColorScreen,
-  DefaultRestScreen,
-  NameScreen,
-  ThemeScreen,
-  UnitsScreen,
-} from './setting-pages';
+import { DefaultRestScreen, NameScreen, UnitsScreen } from './setting-pages';
 import { SettingsScreen } from './settings-screen';
+import { ThemesScreen } from './themes-screen';
 import { createTestQueryClient } from '@/test-utils/query-client';
 
 import { shareFile } from './share-file';
@@ -68,8 +62,7 @@ const user = {
   email: 'filip@example.com',
   name: 'Filip Mučnjak',
   units: 'metric',
-  theme: 'matchPhone',
-  color: 'nitro',
+  theme: 'default',
   timeZone: 'Europe/Zagreb',
 };
 
@@ -129,7 +122,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>
@@ -153,8 +146,7 @@ async function renderAt(initialUrl: string) {
       _layout: Layout,
       index: ProfileButton,
       'settings/index': SettingsScreen,
-      'settings/theme': () => <ThemeScreen />,
-      'settings/color': () => <ColorScreen />,
+      'settings/theme': () => <ThemesScreen />,
       'settings/units': UnitsScreen,
       'settings/rest-time': DefaultRestScreen,
       'settings/name': NameScreen,
@@ -183,8 +175,9 @@ test('the avatar shows the initials and opens Profile with every value', async (
   answerWith();
   await renderSettings();
 
-  expect(await screen.findByText('Match my phone')).toBeOnTheScreen();
-  expect(screen.getByText('Nitro')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('button', { name: 'Themes, Default' }),
+  ).toBeOnTheScreen();
   expect(screen.getByText('Metric')).toBeOnTheScreen();
   expect(await screen.findByText('1:30')).toBeOnTheScreen();
   expect(screen.getByText('filip@example.com')).toBeOnTheScreen();
@@ -199,8 +192,6 @@ function patchBody() {
 }
 
 test.each([
-  ['Theme, Match my phone', 'Light', 'Save theme', { theme: 'light' }],
-  ['Color, Nitro', 'Titanium', 'Save color', { color: 'titanium' }],
   ['Units, Metric', 'Imperial, lb', 'Save units', { units: 'imperial' }],
 ])(
   '%s: a picked choice is saved, and Profile shows it',
@@ -246,24 +237,6 @@ test('an unread feedback reply shows a dot on the avatar and on Feedback, which 
   expect(await screen.findByText('Your feedback page')).toBeOnTheScreen();
 });
 
-test('each color shows a square of its buttons’ color', async () => {
-  answerWith();
-  await renderSettings();
-
-  await fireEvent.press(
-    await screen.findByRole('button', { name: 'Color, Nitro' }),
-  );
-
-  const swatches = await screen.findAllByTestId('swatch');
-  const colors = ['nitro', 'titanium', 'flux', 'plasma', 'neon'] as const;
-  expect(swatches).toHaveLength(colors.length);
-  colors.forEach((color, index) => {
-    expect(swatches[index]).toHaveStyle({
-      backgroundColor: tokens.color.accent[color].dark.primary,
-    });
-  });
-});
-
 test('the default rest time is saved from its page', async () => {
   answerWith();
   await renderSettings();
@@ -285,15 +258,17 @@ test('a failed save says so and stays', async () => {
   await renderSettings();
 
   await fireEvent.press(
-    await screen.findByRole('button', { name: 'Theme, Match my phone' }),
+    await screen.findByRole('button', { name: 'Units, Metric' }),
   );
-  await fireEvent.press(await screen.findByRole('radio', { name: 'Dark' }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Save theme' }));
+  await fireEvent.press(
+    await screen.findByRole('radio', { name: 'Imperial, lb' }),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Save units' }));
 
   expect(
-    await screen.findByText('Couldn’t save the theme. Try again.'),
+    await screen.findByText('Couldn’t save the units. Try again.'),
   ).toBeOnTheScreen();
-  expect(screen.getByRole('button', { name: 'Save theme' })).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Save units' })).toBeOnTheScreen();
 });
 
 test('leaving with a changed choice asks first', async () => {
@@ -301,12 +276,63 @@ test('leaving with a changed choice asks first', async () => {
   await renderSettings();
 
   await fireEvent.press(
-    await screen.findByRole('button', { name: 'Theme, Match my phone' }),
+    await screen.findByRole('button', { name: 'Units, Metric' }),
   );
-  await fireEvent.press(await screen.findByRole('radio', { name: 'Dark' }));
+  await fireEvent.press(
+    await screen.findByRole('radio', { name: 'Imperial, lb' }),
+  );
   await fireEvent.press(screen.getByRole('link', { name: 'Profile' }));
 
   expect(await screen.findByText('Discard changes?')).toBeOnTheScreen();
+});
+
+test('Themes shows the dark and light themes, with the one in use selected', async () => {
+  answerWith();
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Themes, Default' }),
+  );
+
+  expect(
+    await screen.findByRole('radio', { name: 'Default, selected' }),
+  ).toBeChecked();
+  expect(screen.getByRole('header', { name: 'Dark' })).toBeOnTheScreen();
+  expect(screen.getByRole('header', { name: 'Light' })).toBeOnTheScreen();
+  expect(screen.getAllByRole('radio')).toHaveLength(8);
+});
+
+test('a tapped theme is used at once, without a Save button', async () => {
+  answerWith();
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Themes, Default' }),
+  );
+  await fireEvent.press(await screen.findByRole('radio', { name: 'Latte' }));
+
+  expect(
+    await screen.findByRole('radio', { name: 'Latte, selected' }),
+  ).toBeChecked();
+  await expect(patchBody()).resolves.toEqual({ theme: 'latte' });
+  expect(screen.queryByRole('button', { name: /^Save/ })).toBeNull();
+});
+
+test('a theme that fails to save goes back to the one before, and says so (H96)', async () => {
+  answerWith({ patchStatus: 500 });
+  await renderSettings();
+
+  await fireEvent.press(
+    await screen.findByRole('button', { name: 'Themes, Default' }),
+  );
+  await fireEvent.press(await screen.findByRole('radio', { name: 'Frost' }));
+
+  expect(
+    await screen.findByText('Couldn’t save the theme. Try again.'),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('radio', { name: 'Default, selected' }),
+  ).toBeChecked();
 });
 
 test('Terms of service opens with a back link to Profile', async () => {

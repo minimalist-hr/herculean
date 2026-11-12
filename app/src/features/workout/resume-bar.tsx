@@ -2,6 +2,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Floating } from '@/components/floating';
+import { Frosted, useSurfaceColor } from '@/components/frosted';
 
 import { setFloatingRoom, useAboveTabBar } from '@/components/above-tab-bar';
 import { hidesTabBar } from '@/components/tab-bar';
@@ -44,13 +45,14 @@ export function ResumeBar() {
 }
 
 function ResumeBarContent({ id, name }: { id: string; name: string }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { colors, line, radius, size, space, text } = useTheme();
   const router = useRouter();
   const { tabBar } = useAboveTabBar();
   const workout = useWorkout(id).data;
   const elapsed = useElapsed(workout?.startedAtUtc);
   const { hidden, setHidden } = useResumeBarHidden(id);
   const ready = workout !== undefined && hidden !== undefined;
+  const surface = useSurfaceColor(colors.raised);
 
   useEffect(() => {
     setFloatingRoom(
@@ -68,8 +70,11 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
     bottom: tabBar + space.sm,
     borderRadius: radius.card,
     borderColor: colors.border,
-    backgroundColor: colors.raised,
+    backgroundColor: surface,
   };
+  const frosted = (
+    <Frosted color={colors.raised} corners={{ borderRadius: radius.card }} />
+  );
 
   if (hidden) {
     const count = `${String(progress.done)}/${String(progress.total)}`;
@@ -86,6 +91,7 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
             styles.small,
             box,
             {
+              borderWidth: line,
               right: size.sidePadding,
               gap: space.sm,
               height: size.floatingBar.control,
@@ -94,6 +100,7 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
           ]}
           hitSlop={barHitSlop}
         >
+          {frosted}
           <WorkoutIcon color={colors.muted} size={16} />
           <Text style={[text.quickPick, { color: colors.text }]}>{count}</Text>
         </Tappable>
@@ -108,6 +115,7 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
           styles.bar,
           box,
           {
+            borderWidth: line,
             left: size.sidePadding,
             right: size.sidePadding,
             gap: barGap,
@@ -117,6 +125,7 @@ function ResumeBarContent({ id, name }: { id: string; name: string }) {
           },
         ]}
       >
+        {frosted}
         <Tappable
           accessibilityRole="button"
           accessibilityLabel="Hide workout bar"
@@ -162,14 +171,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   bar: {
     position: 'absolute',
     height: tokens.size.floatingBar.height,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
     overflow: 'hidden',
   },
   hide: {

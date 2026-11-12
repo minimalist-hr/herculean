@@ -347,7 +347,7 @@ export function StreakSection() {
 }
 
 export function RecordsSection() {
-  const { colors, size, space, text } = useTheme();
+  const { colors, line, size, space, text } = useTheme();
   const router = useRouter();
   const records = useRecentRecords();
   const units = useUnits();
@@ -359,7 +359,7 @@ export function RecordsSection() {
   // A line halfway between rows: the card's gap above, the same space below.
   const rowLine = {
     paddingTop: space.md,
-    borderTopWidth: 1,
+    borderTopWidth: line,
     borderTopColor: colors.border,
   };
 

@@ -95,7 +95,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>

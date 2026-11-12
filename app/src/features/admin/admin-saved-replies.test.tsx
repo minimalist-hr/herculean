@@ -55,8 +55,7 @@ function answerWith(answers: Answers = {}) {
           email: 'admin@minimalist.hr',
           name: null,
           units: 'metric',
-          theme: 'dark',
-          color: 'flux',
+          theme: 'smoke',
           timeZone: 'Etc/UTC',
           role: 'admin',
         }),
@@ -99,7 +98,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>
@@ -147,14 +146,13 @@ describe('Saved replies', () => {
     expect(screen.getByText('Fixed in 1.0.1, {name}.')).toBeOnTheScreen();
   });
 
-  test('Settings has Appearance, and Theme opens with Settings as its back link', async () => {
+  test('Settings has Appearance, and Themes opens with Settings as its back link', async () => {
     answerWith();
     await renderAt('/admin/settings');
 
-    expect(
-      await screen.findByRole('button', { name: 'Color, Flux' }),
-    ).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Theme, Dark' }));
+    await fireEvent.press(
+      await screen.findByRole('button', { name: 'Themes, Smoke' }),
+    );
 
     expect(
       await screen.findByRole('link', { name: 'Settings' }),

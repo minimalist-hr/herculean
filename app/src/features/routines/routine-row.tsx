@@ -22,7 +22,7 @@ export function RoutineRow({
   trailing?: ReactNode;
   onPress: () => void;
 }) {
-  const { colors, radius, size, space, text } = useTheme();
+  const { cardLine, colors, radius, size, space, text } = useTheme();
 
   return (
     <Tappable
@@ -33,6 +33,7 @@ export function RoutineRow({
       style={[
         styles.row,
         {
+          borderWidth: cardLine,
           gap: space.md,
           minHeight: size.listRowMin,
           paddingVertical: space.md,
@@ -55,13 +56,14 @@ export function RoutineRow({
 
 /** A routine row while the list loads. */
 export function RoutineRowSkeleton({ width }: { width: number }) {
-  const { colors, radius, size, space } = useTheme();
+  const { cardLine, colors, radius, size, space } = useTheme();
 
   return (
     <View
       style={[
         styles.skeleton,
         {
+          borderWidth: cardLine,
           gap: space.sm,
           minHeight: size.listRowMin,
           paddingHorizontal: space.lg,
@@ -81,7 +83,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
   },
   text: {
     flex: 1,
@@ -89,6 +90,5 @@ const styles = StyleSheet.create({
   },
   skeleton: {
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

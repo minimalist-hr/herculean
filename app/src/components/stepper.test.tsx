@@ -11,7 +11,7 @@ jest.mock('./notifications');
 async function renderStepper(value: number) {
   const onChange = jest.fn();
   await render(
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Stepper
         label="Default rest time"
         value={value}

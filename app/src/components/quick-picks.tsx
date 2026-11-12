@@ -26,7 +26,7 @@ export function QuickPicks<T extends string | number>({
   label = 'Quick picks',
   muted = false,
 }: QuickPicksProps<T>) {
-  const { colors, opacity, radius, size, space, text } = useTheme();
+  const { colors, line, opacity, radius, size, space, text } = useTheme();
 
   return (
     <View
@@ -48,6 +48,7 @@ export function QuickPicks<T extends string | number>({
             style={[
               styles.pick,
               {
+                borderWidth: line,
                 height: size.touchTargetMin,
                 borderRadius: radius.control,
                 borderColor: isSelected ? colors.primary : colors.border,
@@ -79,6 +80,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

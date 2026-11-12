@@ -70,12 +70,14 @@ app/
 ## Theme
 
 - `src/theme/tokens.ts` is a copy of `docs/design/tokens/design-tokens.json`. A test fails when they differ.
-- One provider holds Theme (Match my phone, Dark, Light) and Color (Nitro, Titanium, Flux, Plasma, Neon), saved on the user. A copy on the phone shows them from the first frame. With neither, they are Match my phone and Nitro. A phone with no preference gets dark.
+- One provider holds the user's theme, saved on the user. A copy on the phone shows it from the first frame. With neither, and on every signed-out screen, it is Default.
+- A theme sets colors, a corner scale and a border style. `useTheme` gives `line` for every border and divider, and `cardLine` for card outlines, which is 0 where cards have none. Never write a border width of 1.
+- A test checks every theme's contrast against the rules in the design document.
+- In glass themes, the tab bar, the rest and Resume bars and sheets put `Frosted` behind their content and take their color from `useSurfaceColor`. iOS and the web blur what is behind them. Android shows the surface a little see-through, because it blurs only what sits in a blur target.
 - The status bar follows the app's theme, not the phone's.
 - `useTheme` gives screens the current tokens.
 - Styles use tokens only, never raw values.
 - Every text style turns off Android's extra font padding, so text sits in the middle of its box on both platforms.
-- Corners are always sharp. Soft corners were a design-tool option, not an app setting.
 - Chakra Petch loads at startup. The native splash screen stays up until it is ready. It shows only the background; A00 draws the logo and its glow.
 
 ## Forms

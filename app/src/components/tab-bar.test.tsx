@@ -17,7 +17,7 @@ import {
 
 function Layout() {
   return (
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Tabs
         tabBar={(props) => <FloatingTabBar {...props} />}
         screenOptions={tabScreenOptions}
@@ -63,7 +63,7 @@ test('keeps at least 8 px below the tabs on phones without a home indicator', as
 
 function LayoutWithStack() {
   return (
-    <ThemeProvider theme="dark">
+    <ThemeProvider theme="default">
       <Tabs
         tabBar={(props) => <FloatingTabBar {...props} />}
         screenOptions={tabScreenOptions}

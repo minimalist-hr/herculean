@@ -47,7 +47,7 @@ export function ExerciseChart({
   done: boolean;
   units: Units;
 }) {
-  const { colors, radius, space, text } = useTheme();
+  const { cardLine, colors, radius, space, text } = useTheme();
   const [range, setRange] = useState<ProgressRange>('3m');
   const [width, setWidth] = useState(0);
   const progress = useExerciseProgress(exerciseId, range, done);
@@ -112,6 +112,7 @@ export function ExerciseChart({
         style={[
           styles.box,
           {
+            borderWidth: cardLine,
             minHeight: chartHeight + space.md + space.sm,
             paddingTop: space.md,
             paddingBottom: space.sm,
@@ -296,7 +297,6 @@ const styles = StyleSheet.create({
   },
   box: {
     justifyContent: 'center',
-    borderWidth: 1,
   },
   messageBox: {
     alignItems: 'center',

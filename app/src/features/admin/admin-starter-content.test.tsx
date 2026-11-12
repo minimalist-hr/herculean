@@ -95,8 +95,7 @@ function answerWith(answers: Answers = {}) {
               email: 'admin@minimalist.hr',
               name: null,
               units: 'metric',
-              theme: 'dark',
-              color: 'flux',
+              theme: 'smoke',
               timeZone: 'Etc/UTC',
               role: 'admin',
             }),
@@ -130,7 +129,7 @@ function Layout() {
 
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme="dark">
+      <ThemeProvider theme="default">
         <Stack screenOptions={{ headerShown: false }} />
         <NotificationBar />
       </ThemeProvider>

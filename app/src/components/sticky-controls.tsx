@@ -46,7 +46,7 @@ export function StickyControls({
   lined: boolean;
   children: ReactNode;
 }) {
-  const { colors, space } = useTheme();
+  const { colors, line, space } = useTheme();
 
   return (
     <View
@@ -56,7 +56,7 @@ export function StickyControls({
         paddingBottom: space.md,
         backgroundColor: colors.bg,
         // Always 1 px, so the line comes and goes without moving anything.
-        borderBottomWidth: 1,
+        borderBottomWidth: line,
         borderBottomColor: lined ? colors.border : colors.bg,
       }}
     >

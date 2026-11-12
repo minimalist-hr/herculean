@@ -16,7 +16,7 @@ export function HeaderIconButton({
   onPress,
   children,
 }: HeaderIconButtonProps) {
-  const { colors, radius, size } = useTheme();
+  const { colors, line, radius, size } = useTheme();
 
   return (
     <Tappable
@@ -26,6 +26,7 @@ export function HeaderIconButton({
       style={[
         styles.button,
         {
+          borderWidth: line,
           width: size.headerIconButton,
           height: size.headerIconButton,
           borderRadius: radius.control,
@@ -43,6 +44,5 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });
