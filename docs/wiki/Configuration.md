@@ -2,7 +2,7 @@
 
 - Settings come from `appsettings.json`, then from environment variables, which win.
 - Each section is a typed options class, validated at startup. A missing or wrong setting stops the API with a clear error. The build skips this check when it starts the API to write `openapi.json`.
-- Secrets never go in the repo. Locally they are Aspire parameters.
+- Secrets never go in the repo. Locally they are Aspire parameters. In CI they are GitHub Actions secrets.
 
 ### API settings
 
@@ -33,3 +33,9 @@
 | `EXPO_PUBLIC_API_URL` | Environment | API address. Set by Aspire locally. |
 | Link scheme | `app.config.ts` | `herculean` |
 | App ID | `app.config.ts` | `hr.minimalist.herculean` (iOS bundle ID and Android package). It cannot change after the app is published. |
+
+## CI
+
+| Secret | Value |
+|---|---|
+| `SONAR_TOKEN` | SonarQube Cloud token, for the `sonar` job. A repository secret for Actions |
