@@ -1,7 +1,3 @@
----
-title: Frontend architecture
----
-
 ## Folders
 
 ```
@@ -50,7 +46,7 @@ app/
 
 ## Data
 
-- **API client:** every API build writes `api/openapi.json`. `npm run api:generate` turns it into `src/api/schema.ts`, which is never edited by hand. CI fails if either file is out of date. Steps are in [Setup](/development/setup#change-an-endpoint).
+- **API client:** every API build writes `api/openapi.json`. `npm run api:generate` turns it into `src/api/schema.ts`, which is never edited by hand. CI fails if either file is out of date. Steps are in [Setup](Setup-and-getting-started#change-an-endpoint).
 - Each endpoint has a TanStack Query hook in its feature.
 - A request with no answer fails after 15 seconds and shows a notification or the screen's error, so no screen waits forever.
 - A read that fails quickly is tried once more, for a blip in the connection. One that waited out its 15 seconds, or that the API refused, is not.

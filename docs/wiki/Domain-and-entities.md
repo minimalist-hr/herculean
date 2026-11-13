@@ -1,8 +1,4 @@
----
-title: Domain and entities
----
-
-Terms on this page are used unchanged in the app, API, database and docs. Properties and relations are in the [ER diagram](/product/er-diagram).
+Terms on this page are used unchanged in the app, API, database and docs. Properties and relations are in the [ER diagram](ER-diagram).
 
 ## Terms
 
@@ -47,7 +43,7 @@ Terms on this page are used unchanged in the app, API, database and docs. Proper
 - An email is unique and not case-sensitive.
 - A password has 8 to 128 characters.
 - A name has 1 to 50 characters, trimmed.
-- Password reset and email change links expire. Their lifetimes are in [Configuration](/development/configuration#api-settings).
+- Password reset and email change links expire. Their lifetimes are in [Configuration](Configuration#api-settings).
 - A password reset link works once, and a new one cancels older ones.
 - Resetting the password deletes every refresh token, so every device is signed out.
 - An email change needs the current password, and takes effect only when the link in the email is opened. A new link cancels older ones. The old address is told, and a reset link sent to it stops working.

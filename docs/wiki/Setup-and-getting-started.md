@@ -1,7 +1,3 @@
----
-title: Setup and getting started
----
-
 ## Prerequisites
 
 - Git
@@ -24,10 +20,10 @@ api/                  .NET: solution, shared .NET settings, src/, tests/
 app/                  Expo app
 docs/
   design/             the design: UI spec
-  wiki/               this wiki
+  wiki/               this wiki, one file per page
 ```
 
-The insides of `api/` and `app/` are on [Backend architecture](/architecture/backend#projects) and [Frontend architecture](/architecture/frontend#folders).
+The insides of `api/` and `app/` are on [Backend architecture](Backend-architecture#projects) and [Frontend architecture](Frontend-architecture#folders).
 
 ## Run
 

@@ -1,7 +1,3 @@
----
-title: Tech stack
----
-
 Exact versions live in the code. We use the latest stable versions, except where a version is named here.
 
 ## App
@@ -38,7 +34,7 @@ Every app library must work in Expo Go.
 | Data access | EF Core 10, Npgsql 10. They move to 11 when their 11 releases are out |
 | Validation | FluentValidation |
 | API docs | Built-in OpenAPI, Scalar |
-| Auth | Our own, no ASP.NET Core Identity ([details](/architecture/backend#auth)) |
+| Auth | Our own, no ASP.NET Core Identity ([details](Backend-architecture#auth)) |
 | Email | Resend, over SMTP with MailKit |
 | Logs, traces | OpenTelemetry |
 | Tests | xUnit v3, ArchUnitNET, Shouldly |

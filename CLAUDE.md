@@ -5,7 +5,7 @@ Herculean is a workout log for people who train on a fixed weekly split, built b
 ## Sources of truth
 
 - UI spec: `docs/design/` (start with README.md). Refer to screens by ID, for example W10.
-- Everything else: `docs/wiki/` (start with home.md). Don't repeat it here.
+- Everything else: `docs/wiki/` (start with Home.md), published as the GitHub wiki. Don't repeat it here.
 
 ## Working together
 
