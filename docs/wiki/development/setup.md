@@ -15,7 +15,7 @@ title: Setup and getting started
 ## Repository layout
 
 ```
-.github/workflows/    GitHub Actions
+.github/             GitHub Actions, Dependabot, issue forms and the PR template
 .gitignore            OS and editor files only
 .gitattributes
 aspire/

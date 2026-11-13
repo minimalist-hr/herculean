@@ -1,0 +1,17 @@
+name: Epic
+description: A whole feature. Its stories are sub-issues.
+type: Epic
+assignees: [mucnjakf]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What the feature gives users, in a sentence or two.
+    validations:
+      required: true
+  - type: textarea
+    id: out
+    attributes:
+      label: Not in it
+      description: What is left for later, so the epic can close.

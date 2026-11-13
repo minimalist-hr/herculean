@@ -1,0 +1,41 @@
+name: Bug
+description: Something that doesn't work as designed.
+type: Bug
+assignees: [mucnjakf]
+projects: [minimalist-hr/1]
+body:
+  - type: input
+    id: screen
+    attributes:
+      label: Screen
+      description: The screen ID where it happens.
+      placeholder: L01
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Pixel 8, Android 15, app 1.0.0 or a commit

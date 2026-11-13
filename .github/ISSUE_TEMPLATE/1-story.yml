@@ -1,0 +1,27 @@
+name: Story
+description: Something a user can do, usually one PR.
+type: Story
+assignees: [mucnjakf]
+projects: [minimalist-hr/1]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What the user can do
+      description: From the user's side, in a sentence or two.
+      placeholder: Choose a theme, and see it everywhere at once.
+    validations:
+      required: true
+  - type: input
+    id: screens
+    attributes:
+      label: Screens
+      description: Screen IDs, or "New" for screens that need naming first.
+      placeholder: H10, H12, H96
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything the design and the wiki don't cover.
