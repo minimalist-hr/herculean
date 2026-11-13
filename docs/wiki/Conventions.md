@@ -115,6 +115,7 @@ GitHub Actions runs `.github/workflows/` on every PR and on `main`. Third-party 
 | Checks | `app` | `api/`, `app/` or its workflow changes | Lint, format check, type check, API client up to date, tests with coverage |
 | Checks | `api` | Same as `app` | Format check, build, OpenAPI document up to date, tests with coverage |
 | Checks | `design` | `docs/design/` changes | Checks the design's screen IDs |
+| Checks | `sonar` | After `app` and `api`, when they ran. Not for Dependabot's PRs, which get no secrets | SonarQube Cloud analysis of the API and the app, with their coverage. A failed quality gate fails the run on `main`, and only warns on a PR, so it isn't a required check |
 | Wiki | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the [wiki](https://github.com/minimalist-hr/herculean/wiki) with the workflow's own token |
 | PR rules | `pr` | A PR opens, is edited or gets a push | Checks the title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items). Skipped for Dependabot's PRs |
 

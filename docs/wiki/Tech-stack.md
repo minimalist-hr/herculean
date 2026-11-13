@@ -48,3 +48,4 @@ Every app library must work in Expo Go.
 | Local email | Mailpit |
 | CI | GitHub Actions |
 | Dependency updates | Dependabot |
+| Code quality | SonarQube Cloud |
