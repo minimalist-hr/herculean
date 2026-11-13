@@ -1,0 +1,18 @@
+name: Task
+description: One step of a story, or technical work that no user sees.
+type: Task
+assignees: [mucnjakf]
+projects: [minimalist-hr/1]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What and why
+      placeholder: Delete expired tokens daily, so the tables stop growing.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: How to tell it's finished.

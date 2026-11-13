@@ -1,0 +1,27 @@
+name: Design change
+description: The design looks wrong, or something needs a new screen. Approved before it is built.
+type: Task
+assignees: [mucnjakf]
+projects: [minimalist-hr/1]
+body:
+  - type: input
+    id: screens
+    attributes:
+      label: Screens
+      placeholder: H10
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What looks wrong
+      description: What the design says, and why it seems wrong or contradictory.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The design change.
+    validations:
+      required: true

@@ -133,6 +133,8 @@ Work items are GitHub issues, on the **Herculean** project board.
 - **Types, from big to small:** an **Epic** is a whole feature, as listed in [Scope and features](/product/scope#features). A **Story** is something a user can do, usually one PR. A **Task** is one step of a story, when it is big enough to split. Technical work that no user sees is a Task under an Epic, and the **Platform** epic holds the one-off ones. A **Bug** sits under the story or epic it belongs to. Smaller items are sub-issues of bigger ones.
 - **Board:** an item starts in **Backlog**, moves to **Ready** once it is planned and its design is approved, to **In progress** when work starts, and to **In review** when its PR is open. Closing it or merging its PR moves it to **Done**. Epics stay off the columns.
 - **Every PR names its issue** at the top of its description: `Closes #12`, or `Relates to #12` when the issue stays open or is already closed.
+- **Forms:** a new issue starts from a form in `.github/ISSUE_TEMPLATE/`: Story, Task, Bug, Design change or Epic. Each sets the type, assigns the owner and, except Epic, adds the issue to the board. Blank issues are off. The parent and the milestone are set after creating it.
+- **PR template:** `.github/pull_request_template.md` names the issue, lists the changes and screens, and has the checklist from the [Definition of done](#definition-of-done).
 - **Issues 1 to 94** were moved from GitLab with their numbers, text and dates.
 
 ## Definition of done
@@ -143,5 +145,6 @@ A feature is done when:
 2. Its tests were written first and pass.
 3. The guard tests pass.
 4. The wiki is updated.
-5. The checks pass.
-6. The PR is merged.
+5. Terms (H20) and Privacy (H21) are still true.
+6. The checks pass.
+7. The PR is merged.
