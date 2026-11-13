@@ -5,8 +5,8 @@
   "dependencies": {
     "@expo-google-fonts/chakra-petch": "^0.4.1",
     "@expo/metro-runtime": "~58.0.15",
-    "@hookform/resolvers": "^7.0.0",
-    "@tanstack/react-query": "^5.105.0",
+    "@hookform/resolvers": "^7.0.5",
+    "@tanstack/react-query": "^5.107.1",
     "expo": "~58.0.21",
     "expo-blur": "~58.0.6",
     "expo-constants": "~58.0.14",
@@ -51,7 +51,7 @@
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.10",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.2"
   },
   "scripts": {
     "start": "expo start",
