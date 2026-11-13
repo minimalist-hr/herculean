@@ -123,6 +123,8 @@ GitHub Actions runs `.github/workflows/` on every PR and on `main`. Third-party 
 
 A job that doesn't need to run is skipped, and a skipped job counts as passed. A new push to a PR stops the run it replaces. Coverage reports are kept for a day.
 
+Dependabot opens update PRs every Monday from `.github/dependabot.yml`: one for minor and patch updates per ecosystem (npm, NuGet, Actions), and one for each major update. Expo SDK packages move only with an SDK upgrade, through `npx expo install --fix`. EF Core and `dotnet-ef` move to a new major version only together with Npgsql.
+
 ## Work items
 
 Work items are GitHub issues, on the **Herculean** project board.

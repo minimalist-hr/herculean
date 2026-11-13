@@ -1,0 +1,54 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore
+    # The Expo SDK sets these versions together. They move with an SDK upgrade, through npx expo install --fix.
+    ignore:
+      - dependency-name: expo
+      - dependency-name: expo-*
+      - dependency-name: "@expo/*"
+      - dependency-name: jest-expo
+      - dependency-name: eslint-config-expo
+      - dependency-name: react
+      - dependency-name: react-dom
+      - dependency-name: "@types/react"
+      - dependency-name: react-native
+      - dependency-name: react-native-*
+      - dependency-name: typescript
+    groups:
+      npm:
+        update-types: [minor, patch]
+
+  - package-ecosystem: nuget
+    directory: /api
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore
+    # EF Core needs its PostgreSQL provider on the same major version. Npgsql's major update says when both can move.
+    ignore:
+      - dependency-name: Microsoft.EntityFrameworkCore*
+        update-types: [version-update:semver-major]
+      - dependency-name: dotnet-ef
+        update-types: [version-update:semver-major]
+    groups:
+      nuget:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore
+    groups:
+      actions:
+        patterns: ["*"]
