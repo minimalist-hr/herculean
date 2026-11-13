@@ -1,7 +1,3 @@
----
-title: Configuration
----
-
 ## API
 
 - Settings come from `appsettings.json`, then from environment variables, which win.
@@ -27,7 +23,7 @@ title: Configuration
 | Email | From | | `Herculean <no-reply@minimalist.hr>` |
 | Links | BaseUrl | | Public URL of the API, used in email links. Set by Aspire locally. |
 | Links | AppUrl | | What a link into the app starts with: `herculean://`. Set by Aspire locally to the Expo Go address, for example `exp://192.168.1.10:8081/--/`. |
-| Admin | Accounts | Yes | Minimalist's admin accounts, a list of `Email` and `Password` (8 to 128 characters). Each gets an account at startup if it has none, and a changed password replaces the old one. Locally in user secrets, see [Setup](/development/setup#run); elsewhere `Admin__Accounts__0__Email` and `Admin__Accounts__0__Password` from secrets. |
+| Admin | Accounts | Yes | Minimalist's admin accounts, a list of `Email` and `Password` (8 to 128 characters). Each gets an account at startup if it has none, and a changed password replaces the old one. Locally in user secrets, see [Setup](Setup-and-getting-started#run); elsewhere `Admin__Accounts__0__Email` and `Admin__Accounts__0__Password` from secrets. |
 | BrowserPreview | Origin | | Development only. The browser preview's address, the only origin CORS allows. Set by Aspire. |
 
 ## App

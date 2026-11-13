@@ -21,6 +21,14 @@ updates:
       - dependency-name: react-native
       - dependency-name: react-native-*
       - dependency-name: typescript
+      # Major versions move with the SDK too: its ESLint config must support them.
+      - dependency-name: eslint
+        update-types: [version-update:semver-major]
+      - dependency-name: "@eslint/*"
+        update-types: [version-update:semver-major]
+      # Node's types follow the Node version we run, which moves from LTS to LTS.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
     groups:
       npm:
         update-types: [minor, patch]

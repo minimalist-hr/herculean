@@ -1,7 +1,3 @@
----
-title: Links
----
-
 Services the project uses outside GitHub. [GitHub](https://github.com/minimalist-hr/herculean) holds the code, issues, pull requests and the [project board](https://github.com/orgs/minimalist-hr/projects).
 
 | Service | Links | Used for |

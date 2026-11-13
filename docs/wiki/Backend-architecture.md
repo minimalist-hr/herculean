@@ -1,7 +1,3 @@
----
-title: Backend architecture
----
-
 ## Principles
 
 Modular monolith, clean architecture, domain-driven design, SOLID, vertical slices, REPR, test-driven.
@@ -95,7 +91,7 @@ Herculean.Training.Application/
 
 ## Data access
 
-- **Writes** go through a repository per [aggregate](/product/domain#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure. A repository returns aggregates to change, or answers a check that a write needs, such as `NameExistsAsync`. It never returns data for display.
+- **Writes** go through a repository per [aggregate](Domain-and-entities#modules-and-aggregates). Business rules live in the aggregates, not in handlers. The interface is in Domain, the code in Infrastructure. A repository returns aggregates to change, or answers a check that a write needs, such as `NameExistsAsync`. It never returns data for display.
 - **Unit of work:** a handler saves once, through its module's `IUnitOfWork`, which is the module's DbContext. Repositories never save.
 - **Reads** query the DbContext directly with projections. Each has a read repository: its interface in Application, for example `IExerciseReadRepository`, and its code in Infrastructure. It returns what a response needs, and never changes anything.
 - **One database:** one schema and one DbContext per module.

@@ -1,12 +1,8 @@
----
-title: Conventions
----
-
 ## How we work
 
 - Every change goes on a branch and reaches `main` through a pull request (PR).
 - The wiki is updated in the same PR as the change it describes.
-- A new wiki page is listed both on [Home](/home) and in `_sidebar.md`.
+- The wiki is written in `docs/wiki/`, one file per page, named like the page: `Domain-and-entities.md` is "Domain and entities". A new page is listed both on [Home](Home) and in `_Sidebar.md`. Links name the page, like `[Domain and entities](Domain-and-entities#terms)`.
 - A design change is proposed and approved before it is built.
 - After every big feature, a consistency pass compares all built screens and fixes what differs.
 - Every state of a built screen has an ID and a capture. A PR that changes a screen also recaptures it, with all its states, using [`docs/design/capture`](https://github.com/minimalist-hr/herculean/tree/main/docs/design/capture).
@@ -16,7 +12,7 @@ title: Conventions
 
 ## Vocabulary
 
-The terms in [Domain and entities](/product/domain#terms) are used unchanged in the app, API, database and docs.
+The terms in [Domain and entities](Domain-and-entities#terms) are used unchanged in the app, API, database and docs.
 
 ## Naming
 
@@ -72,7 +68,7 @@ We follow REST as closely as possible.
   An action with nothing to return gives 204, for example `/complete`.
 
 - **Actions:** when no resource fits, a short verb is added after the resource and called with POST, for example `/restore`, `/refresh`, `/complete`, `/confirm`. This is the exception, not the rule.
-- **Errors** are Problem Details: 400 validation, 401 not signed in, 404 not found, 409 conflict. Every error has the same fields, as set out in [Errors](/architecture/backend#errors).
+- **Errors** are Problem Details: 400 validation, 401 not signed in, 404 not found, 409 conflict. Every error has the same fields, as set out in [Errors](Backend-architecture#errors).
 - **JSON** uses camelCase. Enum values are camelCase strings, for example `inProgress`. Numbers are JSON numbers, never strings.
 
 ### TypeScript
@@ -119,18 +115,19 @@ GitHub Actions runs `.github/workflows/` on every PR and on `main`. Third-party 
 | Checks | `app` | `api/`, `app/` or its workflow changes | Lint, format check, type check, API client up to date, tests with coverage |
 | Checks | `api` | Same as `app` | Format check, build, OpenAPI document up to date, tests with coverage |
 | Checks | `design` | `docs/design/` changes | Checks the design's screen IDs |
+| Wiki | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the [wiki](https://github.com/minimalist-hr/herculean/wiki) with the workflow's own token |
 | PR rules | `pr` | A PR opens, is edited or gets a push | Checks the title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items). Skipped for Dependabot's PRs |
 
-A job that doesn't need to run is skipped, and a skipped job counts as passed. A new push to a PR stops the run it replaces. Coverage reports are kept for a day.
+The wiki is a copy: edit `docs/wiki/`, never the wiki, because the next copy overwrites it. A job that doesn't need to run is skipped, and a skipped job counts as passed. A new push to a PR stops the run it replaces. Coverage reports are kept for a day.
 
-Dependabot opens update PRs every Monday from `.github/dependabot.yml`: one for minor and patch updates per ecosystem (npm, NuGet, Actions), and one for each major update. Expo SDK packages move only with an SDK upgrade, through `npx expo install --fix`. EF Core and `dotnet-ef` move to a new major version only together with Npgsql.
+Dependabot opens update PRs every Monday from `.github/dependabot.yml`: one for minor and patch updates per ecosystem (npm, NuGet, Actions), and one for each major update. Expo SDK packages move only with an SDK upgrade, through `npx expo install --fix`, and so do ESLint's major versions. Node's types move to a new major version with the Node LTS. EF Core and `dotnet-ef` move to a new major version only together with Npgsql.
 
 ## Work items
 
 Work items are GitHub issues, on the **Herculean** project board.
 
 - **Milestone** `v1` holds the release.
-- **Types, from big to small:** an **Epic** is a whole feature, as listed in [Scope and features](/product/scope#features). A **Story** is something a user can do, usually one PR. A **Task** is one step of a story, when it is big enough to split. Technical work that no user sees is a Task under an Epic, and the **Platform** epic holds the one-off ones. A **Bug** sits under the story or epic it belongs to. Smaller items are sub-issues of bigger ones.
+- **Types, from big to small:** an **Epic** is a whole feature, as listed in [Scope and features](Scope-and-features#features). A **Story** is something a user can do, usually one PR. A **Task** is one step of a story, when it is big enough to split. Technical work that no user sees is a Task under an Epic, and the **Platform** epic holds the one-off ones. A **Bug** sits under the story or epic it belongs to. Smaller items are sub-issues of bigger ones.
 - **Board:** an item starts in **Backlog**, moves to **Ready** once it is planned and its design is approved, to **In progress** when work starts, and to **In review** when its PR is open. Closing it or merging its PR moves it to **Done**. Epics stay off the columns.
 - **Every PR names its issue** at the top of its description: `Closes #12`, or `Relates to #12` when the issue stays open or is already closed.
 - **Forms:** a new issue starts from a form in `.github/ISSUE_TEMPLATE/`: Story, Task, Bug, Design change or Epic. Each sets the type, assigns the owner and, except Epic, adds the issue to the board. Blank issues are off. The parent and the milestone are set after creating it.
