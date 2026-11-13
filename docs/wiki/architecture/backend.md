@@ -170,7 +170,7 @@ Herculean.Training.Application/
 - The email change link and the notice to the old address go through the outbox too. The link's token is created when the email goes out, so the plain token is never stored.
 - The deletion scheduled and account deleted emails go through the outbox too. Their events hold the address, because the account is gone by the last one.
 - The account kept email goes through the outbox when an admin cancels a deletion, only if one was scheduled. Its event holds only the user's ID.
-- Each email has HTML and plain text. The HTML follows section 5 of the [design document](https://gitlab.com/minimalist-sds/herculean/-/blob/main/docs/design/design-document.md), and is an embedded resource next to its code.
+- Each email has HTML and plain text. The HTML follows section 5 of the [design document](https://github.com/minimalist-hr/herculean/blob/main/docs/design/design-document.md), and is an embedded resource next to its code.
 
 ## Health
 

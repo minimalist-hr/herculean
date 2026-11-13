@@ -1,13 +1,13 @@
 # Create an account. Start the API with Aspire first.
 @host = http://localhost:5279
 
-### Create an account → 201 with tokens. The email is new on every send.
+### Create an account → 201 with tokens. Send it once: a second send is the next request.
 POST {{host}}/api/v1/users
 Content-Type: application/json
 
 {
   "email": "fmucnjak@herculean.com",
-  "password": "fMucnjak123!",
+  "password": "password",
   "timeZone": "Europe/Zagreb"
 }
 

@@ -4,16 +4,15 @@ title: Conventions
 
 ## How we work
 
-- Every change goes on a branch and reaches `main` through a merge request (MR).
-- The wiki is updated in the same MR as the change it describes.
+- Every change goes on a branch and reaches `main` through a pull request (PR).
+- The wiki is updated in the same PR as the change it describes.
 - A new wiki page is listed both on [Home](/home) and in `_sidebar.md`.
 - A design change is proposed and approved before it is built.
-- Design issues are GitLab issues with the `design` label.
 - After every big feature, a consistency pass compares all built screens and fixes what differs.
-- Every state of a built screen has an ID and a capture. An MR that changes a screen also recaptures it, with all its states, using [`docs/design/capture`](https://gitlab.com/minimalist-sds/herculean/-/tree/main/docs/design/capture).
+- Every state of a built screen has an ID and a capture. A PR that changes a screen also recaptures it, with all its states, using [`docs/design/capture`](https://github.com/minimalist-hr/herculean/tree/main/docs/design/capture).
 - Screens are named by ID, for example W10.
 - Each fact is written once, in one place, and linked from elsewhere.
-- H20 and H21 stay true: a change to what the app stores, who receives it or where it lives updates them in the same MR, with a new "Last updated" date.
+- H20 and H21 stay true: a change to what the app stores, who receives it or where it lives updates them in the same PR, with a new "Last updated" date.
 
 ## Vocabulary
 
@@ -106,32 +105,29 @@ We follow REST as closely as possible.
 ## Git
 
 - **Branches:** `<type>/<short-name>` in kebab-case, for example `feat/exercise-groups`.
-- **Commits and MR titles:** [Conventional Commits](https://www.conventionalcommits.org), for example `feat: add exercise groups`. Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`.
-- **Merging:** squash merge. The MR title becomes the commit on `main`. The branch is deleted after merging.
-- **`main` is protected:** nobody pushes to it directly. The pipeline must pass and all threads must be resolved. Only the project owner merges.
+- **Commits and PR titles:** [Conventional Commits](https://www.conventionalcommits.org), for example `feat: add exercise groups`. Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`.
+- **Merging:** squash merge. The PR title becomes the commit on `main`. The branch is deleted after merging.
+- **`main` is protected** by a ruleset: nobody pushes to it directly, every change comes through a PR, all conversations must be resolved, history stays linear, and it can't be force-pushed or deleted. Only the project owner merges.
 
 ## Pipeline
 
-GitLab CI runs `.gitlab-ci.yml` on every merge request and on `main`.
+No pipeline runs yet. Before a PR is merged, run the checks it would run:
 
-| Stage | Job | Runs when | What it does |
-|---|---|---|---|
-| check | `app` | `api/`, `app/` or the pipeline changes | Lint, format check, type check, API client up to date, tests with coverage |
-| check | `api` | Same as `app` | Format check, build, OpenAPI document up to date, tests with coverage |
-| check | `mr` | Every merge request | Checks the MR title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items) |
-| analyze | `sonarqube` | After `app` and `api`, on `main` and on merge requests that change code. | SonarQube Cloud analysis of the API and the app. A failed quality gate fails the pipeline on `main`, and shows as a warning on a merge request. |
-| deploy | `wiki` | `docs/wiki/` changes on `main` | Copies `docs/wiki/` to the GitLab wiki |
-
-The GitLab wiki is a copy. Edit `docs/wiki/` in the repo, never the GitLab wiki: the next copy overwrites it.
+| Part | Run in | Checks |
+|---|---|---|
+| App | `app/` | `npm run lint`, `npm run format`, `npm run typecheck`, `npm run api:generate` with no change to `src/api/schema.ts`, `npm test` |
+| API | `api/` | `dotnet format whitespace --verify-no-changes`, `dotnet build` with no change to `openapi.json`, `dotnet test` |
+| Design | the repo | `node docs/design/capture/check.mjs`, when `docs/design/` changes |
 
 ## Work items
 
+Work items are GitHub issues, on the **Herculean** project board.
+
 - **Milestone** `v1` holds the release.
-- **One issue per flow** of a feature, app and API together. Features are listed in [Scope and features](/product/scope#features).
-- **Labels:** each issue has one type: `feature`, `bug`, `design` or `chore`. An issue about one feature also has its feature label, numbered as in [Scope and features](/product/scope#features): `1-account` to `8-home`.
-- **In progress:** the issue being worked on has the `in progress` label, which puts it in that list on the issue board. Closing the issue takes it off the list.
-- **Every MR names its issue** at the top of its description: `Closes #12`, or `Relates to #12` when the issue stays open or is already closed. The `mr` job checks this. After fixing the description, retry the job.
-- **Templates:** issue templates (Feature, Bug, Design issue) are in `.gitlab/issue_templates/`. Each assigns a new issue to its author. The MR template is in `.gitlab/merge_request_templates/`. It assigns a new MR to its author, makes the author the reviewer and sets the milestone to `v1`.
+- **Types, from big to small:** an **Epic** is a whole feature, as listed in [Scope and features](/product/scope#features). A **Story** is something a user can do, usually one PR. A **Task** is one step of a story, when it is big enough to split. Technical work that no user sees is a Task under an Epic, and the **Platform** epic holds the one-off ones. A **Bug** sits under the story or epic it belongs to. Smaller items are sub-issues of bigger ones.
+- **Board:** an item starts in **Backlog**, moves to **Ready** once it is planned and its design is approved, to **In progress** when work starts, and to **In review** when its PR is open. Closing it or merging its PR moves it to **Done**. Epics stay off the columns.
+- **Every PR names its issue** at the top of its description: `Closes #12`, or `Relates to #12` when the issue stays open or is already closed.
+- **Issues 1 to 94** were moved from GitLab with their numbers, text and dates.
 
 ## Definition of done
 
@@ -141,5 +137,5 @@ A feature is done when:
 2. Its tests were written first and pass.
 3. The guard tests pass.
 4. The wiki is updated.
-5. The pipeline is green.
-6. The MR is merged.
+5. The checks pass.
+6. The PR is merged.
