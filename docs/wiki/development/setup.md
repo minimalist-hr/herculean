@@ -15,6 +15,7 @@ title: Setup and getting started
 ## Repository layout
 
 ```
+.github/workflows/    GitHub Actions
 .gitignore            OS and editor files only
 .gitattributes
 aspire/
