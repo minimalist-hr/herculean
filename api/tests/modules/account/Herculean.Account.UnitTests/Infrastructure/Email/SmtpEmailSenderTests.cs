@@ -39,10 +39,21 @@ public sealed class SmtpEmailSenderTests
     {
         using FakeSmtpServer server = new();
 
-        await CreateSender(server, password: string.Empty).SendPasswordChangedAsync("filip@example.com", DateTimeOffset.UnixEpoch, "Europe/Zagreb", TestContext.Current.CancellationToken);
+        await CreateSender(server, password: string.Empty).SendPasswordChangedAsync("filip@example.com", DateTimeOffset.UnixEpoch, "Europe/Zagreb", withResetLink: false, TestContext.Current.CancellationToken);
 
         (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("RCPT TO:<filip@example.com>", StringComparison.Ordinal));
         server.Data.ShouldContain("Subject: Your Herculean password was changed");
+    }
+
+    [Fact]
+    public async Task SendsTheAccountKeptEmail()
+    {
+        using FakeSmtpServer server = new();
+
+        await CreateSender(server, password: string.Empty).SendAccountKeptAsync("ana@example.com", TestContext.Current.CancellationToken);
+
+        (await server.CommandsAsync()).ShouldContain(command => command.StartsWith("RCPT TO:<ana@example.com>", StringComparison.Ordinal));
+        server.Data.ShouldContain("Subject: Your Herculean account will be kept");
     }
 
     [Fact]

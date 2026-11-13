@@ -1,4 +1,5 @@
 using Herculean.Account.Application.PasswordResets.CompletePasswordReset;
+using Herculean.Account.Contracts;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Results;
 
@@ -12,6 +13,7 @@ public sealed class CompletePasswordResetHandlerTests
 
     private readonly FakeUserRepository _userRepository = new();
     private readonly FakeUnitOfWork _unitOfWork = new();
+    private readonly FakeOutbox _outbox = new();
     private readonly User _user = User.Create("filip@example.com", "hashed:password", "Europe/Zagreb");
     private readonly CompletePasswordResetHandler _handler;
 
@@ -22,6 +24,7 @@ public sealed class CompletePasswordResetHandlerTests
             new CompletePasswordResetValidator(),
             _userRepository,
             _unitOfWork,
+            _outbox,
             new FakePasswordResetTokenIssuer(),
             new FakePasswordHasher(),
             new FakeTimeProvider(Now));
@@ -40,6 +43,16 @@ public sealed class CompletePasswordResetHandlerTests
         _user.PasswordResetTokens.ShouldBeEmpty();
         _user.RefreshTokens.ShouldBeEmpty();
         _unitOfWork.Saved.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ANewPasswordIsEmailedAsChangedWithAResetLink()
+    {
+        _user.AddPasswordResetToken("hash:token", Now.AddMinutes(1));
+
+        await _handler.HandleAsync(new CompletePasswordResetRequest("token", "new-password"), TestContext.Current.CancellationToken);
+
+        _outbox.Events.ShouldBe([new PasswordChangedIntegrationEvent(_user.Id.Value, Now, WithResetLink: true)]);
     }
 
     [Fact]
@@ -63,6 +76,7 @@ public sealed class CompletePasswordResetHandlerTests
         _user.PasswordHash.ShouldBe("hashed:password");
         _user.PasswordResetTokens.ShouldBeEmpty();
         _unitOfWork.Saved.ShouldBeTrue();
+        _outbox.Events.ShouldBeEmpty();
     }
 
     [Theory]

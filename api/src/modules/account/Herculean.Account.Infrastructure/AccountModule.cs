@@ -24,6 +24,7 @@ using Herculean.Account.Application.Sessions.RefreshSession;
 using Herculean.Account.Application.Sessions.RestoreAccount;
 using Herculean.Account.Application.Sessions.RevokeSession;
 using Herculean.Account.Application.Users.AccountDeletionNotice;
+using Herculean.Account.Application.Users.AccountKept;
 using Herculean.Account.Application.Users.AccountDeletionScheduled;
 using Herculean.Account.Application.Users.DeleteCurrentUser;
 using Herculean.Account.Application.Users.DeleteCurrentUserPhoto;
@@ -176,6 +177,7 @@ public static class AccountModule
         builder.Services.AddIntegrationEventHandler<AccountDeletionScheduledIntegrationEvent, AccountDeletionScheduledIntegrationEventHandler>();
         builder.Services.AddIntegrationEventHandler<AccountClosedIntegrationEvent, AccountClosedIntegrationEventHandler>();
         builder.Services.AddIntegrationEventHandler<ProfilePhotoRemovedIntegrationEvent, ProfilePhotoRemovedIntegrationEventHandler>();
+        builder.Services.AddIntegrationEventHandler<AccountKeptIntegrationEvent, AccountKeptIntegrationEventHandler>();
         builder.Services.AddScoped<IValidator<DeleteCurrentUserRequest>, DeleteCurrentUserValidator>();
         builder.Services.AddScoped<DeleteCurrentUserHandler>();
         builder.Services.AddIntegrationEventHandler<AccountDeletionNoticeRequestedIntegrationEvent, AccountDeletionNoticeRequestedIntegrationEventHandler>();

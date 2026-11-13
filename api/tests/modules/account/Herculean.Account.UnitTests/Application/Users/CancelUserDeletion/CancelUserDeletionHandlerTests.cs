@@ -1,4 +1,5 @@
 using Herculean.Account.Application.Users.CancelUserDeletion;
+using Herculean.Account.Contracts;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Results;
 
@@ -12,13 +13,14 @@ public sealed class CancelUserDeletionHandlerTests
     private readonly User _admin = User.CreateAdmin("admin@minimalist.hr", "hash");
     private readonly FakeUserRepository _userRepository = new();
     private readonly FakeUnitOfWork _unitOfWork = new();
+    private readonly FakeOutbox _outbox = new();
     private readonly CancelUserDeletionHandler _handler;
 
     public CancelUserDeletionHandlerTests()
     {
         _userRepository.Add(_user);
         _userRepository.Add(_admin);
-        _handler = new CancelUserDeletionHandler(_userRepository, _unitOfWork);
+        _handler = new CancelUserDeletionHandler(_userRepository, _unitOfWork, _outbox);
     }
 
     private Task<Result> RunAsync(User user) => _handler.HandleAsync(user.Id.Value, TestContext.Current.CancellationToken);
@@ -47,6 +49,7 @@ public sealed class CancelUserDeletionHandlerTests
         result.IsSuccess.ShouldBeTrue();
         _user.DeletionScheduledForUtc.ShouldBeNull();
         _unitOfWork.Saved.ShouldBeTrue();
+        _outbox.Events.ShouldBe([new AccountKeptIntegrationEvent(_user.Id.Value)]);
     }
 
     [Fact]
@@ -58,5 +61,15 @@ public sealed class CancelUserDeletionHandlerTests
 
         _user.IsClosed.ShouldBeFalse();
         _user.DeletionScheduledForUtc.ShouldBeNull();
+        _outbox.Events.ShouldBe([new AccountKeptIntegrationEvent(_user.Id.Value)]);
+    }
+
+    [Fact]
+    public async Task AnAccountThatWasntGoingToBeDeletedGetsNoEmail()
+    {
+        Result result = await RunAsync(_user);
+
+        result.IsSuccess.ShouldBeTrue();
+        _outbox.Events.ShouldBeEmpty();
     }
 }

@@ -7,8 +7,12 @@ internal interface IEmailSender
     /// <param name="email">Where it goes.</param>
     /// <param name="changedAtUtc">When the password changed.</param>
     /// <param name="timeZone">The user's IANA time zone, which the email shows the time in.</param>
+    /// <param name="withResetLink">Whether a reset link changed it, which signs out every device.</param>
     /// <param name="cancellationToken">Stops the send.</param>
-    Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken);
+    Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, bool withResetLink, CancellationToken cancellationToken);
+
+    /// <summary>Says Minimalist cancelled the account's deletion.</summary>
+    Task SendAccountKeptAsync(string email, CancellationToken cancellationToken);
 
     /// <param name="email">The address the account used.</param>
     /// <param name="deletedAtUtc">When the account was deleted.</param>

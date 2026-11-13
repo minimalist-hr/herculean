@@ -18,6 +18,7 @@
     <EmbeddedResource Include="Email\AccountDeletionScheduledEmail.html" />
     <EmbeddedResource Include="Email\AccountClosedEmail.html" />
     <EmbeddedResource Include="Email\ProfilePhotoRemovedEmail.html" />
+    <EmbeddedResource Include="Email\AccountKeptEmail.html" />
     <EmbeddedResource Include="Email\wordmark-on-dark.png" />
   </ItemGroup>
 

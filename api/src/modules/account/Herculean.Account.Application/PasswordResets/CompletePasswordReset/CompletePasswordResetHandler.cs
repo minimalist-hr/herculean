@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 
 using Herculean.Account.Application.Auth;
+using Herculean.Account.Contracts;
 using Herculean.Account.Domain;
 using Herculean.Account.Domain.Users;
 using Herculean.SharedKernel.Results;
@@ -13,6 +14,7 @@ internal sealed class CompletePasswordResetHandler(
     IValidator<CompletePasswordResetRequest> validator,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
+    IOutbox outbox,
     IPasswordResetTokenIssuer passwordResetTokenIssuer,
     IPasswordHasher passwordHasher,
     TimeProvider timeProvider)
@@ -33,7 +35,8 @@ internal sealed class CompletePasswordResetHandler(
             return UserErrors.InvalidPasswordResetToken;
         }
 
-        if (passwordResetToken.IsExpired(timeProvider.GetUtcNow()))
+        DateTimeOffset nowUtc = timeProvider.GetUtcNow();
+        if (passwordResetToken.IsExpired(nowUtc))
         {
             user.RemovePasswordResetToken(passwordResetToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -41,6 +44,7 @@ internal sealed class CompletePasswordResetHandler(
         }
 
         user.ResetPassword(passwordHasher.Hash(request.Password));
+        outbox.Add(new PasswordChangedIntegrationEvent(user.Id.Value, nowUtc, WithResetLink: true));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

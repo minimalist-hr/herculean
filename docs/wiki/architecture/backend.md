@@ -166,9 +166,10 @@ Herculean.Training.Application/
 ## Email
 
 - Email goes out over SMTP with MailKit: to Resend in production and to Mailpit locally, so both run the same code.
-- The password changed email goes through the outbox, and Account handles its own event. It is sent only if the change saved, a failed send is tried again, and the event holds only the user's ID and the time. The email shows that time in the user's time zone.
+- The password changed email goes through the outbox, and Account handles its own event. It is sent after a change in Profile and after a reset link, which the event says, because a reset signs out every device. It is sent only if the change saved, a failed send is tried again, and the event holds only the user's ID, the time and that flag. The email shows that time in the user's time zone.
 - The email change link and the notice to the old address go through the outbox too. The link's token is created when the email goes out, so the plain token is never stored.
 - The deletion scheduled and account deleted emails go through the outbox too. Their events hold the address, because the account is gone by the last one.
+- The account kept email goes through the outbox when an admin cancels a deletion, only if one was scheduled. Its event holds only the user's ID.
 - Each email has HTML and plain text. The HTML follows section 5 of the [design document](https://gitlab.com/minimalist-sds/herculean/-/blob/main/docs/design/design-document.md), and is an embedded resource next to its code.
 
 ## Health

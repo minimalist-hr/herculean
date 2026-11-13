@@ -6,12 +6,34 @@ namespace Herculean.Account.UnitTests.Infrastructure.Email;
 
 public sealed class PasswordChangedEmailTests
 {
-    private static MimeMessage Create(string email, DateTimeOffset? changedAtUtc = null) =>
+    private static MimeMessage Create(string email, DateTimeOffset? changedAtUtc = null, bool withResetLink = false) =>
         PasswordChangedEmail.Create(
             new MailboxAddress("Herculean", "no-reply@minimalist.hr"),
             email,
             changedAtUtc ?? new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero),
-            "Europe/Zagreb");
+            "Europe/Zagreb",
+            withResetLink);
+
+    [Fact]
+    public void AfterAChangeTheDeviceThatMadeItStaysSignedIn()
+    {
+        using MimeMessage message = Create("filip@example.com");
+
+        const string signedOut = "The device that made the change stays signed in. Every other device was signed out.";
+        message.TextBody!.ShouldContain(signedOut);
+        message.HtmlBody!.ShouldContain(signedOut);
+    }
+
+    [Fact]
+    public void AfterAResetLinkEveryDeviceWasSignedOut()
+    {
+        using MimeMessage message = Create("filip@example.com", withResetLink: true);
+
+        const string changed = "Changed with a reset link on Sun, 8th Nov 2026 at 13:00 (Europe/Zagreb). Every device was signed out.";
+        message.TextBody!.ShouldContain(changed);
+        message.HtmlBody!.ShouldContain(changed);
+        message.HtmlBody!.ShouldNotContain("stays signed in");
+    }
 
     [Theory]
     [InlineData(1, "Sun, 1st Nov")]

@@ -18,6 +18,6 @@ internal sealed class PasswordChangedIntegrationEventHandler(
             return;
         }
 
-        await emailSender.SendPasswordChangedAsync(user.Email, @event.ChangedAtUtc, user.TimeZone, cancellationToken);
+        await emailSender.SendPasswordChangedAsync(user.Email, @event.ChangedAtUtc, user.TimeZone, @event.WithResetLink, cancellationToken);
     }
 }

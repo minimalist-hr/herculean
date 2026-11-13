@@ -62,9 +62,16 @@ internal sealed class SmtpEmailSender(IOptions<EmailOptions> options, IResetLink
         await SendAsync(message, cancellationToken);
     }
 
-    public async Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
+    public async Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, bool withResetLink, CancellationToken cancellationToken)
     {
-        using MimeMessage message = PasswordChangedEmail.Create(MailboxAddress.Parse(options.Value.From), email, changedAtUtc, timeZone);
+        using MimeMessage message = PasswordChangedEmail.Create(MailboxAddress.Parse(options.Value.From), email, changedAtUtc, timeZone, withResetLink);
+
+        await SendAsync(message, cancellationToken);
+    }
+
+    public async Task SendAccountKeptAsync(string email, CancellationToken cancellationToken)
+    {
+        using MimeMessage message = AccountKeptEmail.Create(MailboxAddress.Parse(options.Value.From), email);
 
         await SendAsync(message, cancellationToken);
     }

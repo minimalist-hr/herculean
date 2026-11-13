@@ -38,7 +38,7 @@ Each feature lists its main screens. Every state is in `docs/design/screen-index
 **Flows**
 - **Launch:** A00 checks for a stored refresh token. With one, H07 opens, or A30 if setup isn't finished. Without one, or when it is refused, A01 opens. With no connection, A02 offers to try again.
 - **Sign in:** A01 → A03 → H07, or A30 if setup isn't finished.
-- **Reset password:** A01 → A10 → A11 → A13, the email → A14, the page its link opens → A12 → A01. An expired or used link opens A10 with an error line.
+- **Reset password:** A01 → A10 → A11 → A13, the email → A14, the page its link opens → A12 → A01. An expired or used link opens A10 with an error line. A new password is emailed as changed (H25).
 - **Create account:** A01 → A20 → A30 → H05. A20 links to H20 and H21, whose back link reads "Create account".
 
 **Entities:** User, Refresh token, Password reset token. Creating an account also gives Training its settings and a copy of the starter groups and exercises, through the "Account created" event.
@@ -373,7 +373,7 @@ Changes on W30 stay in the app until Save workout.
 - **Inbox:** status chips All, Open, Answered and Closed, Open picked first. A ticket → M10.
 - **Ticket:** reply, which answers it and gives the user an unread reply; Close ticket or Reopen ticket, which ask first (M16, M17). Pulling down reads it again. The sender card → M40. Priority (M78), notes (M19, M77) and saved replies in the reply box (M18).
 - **Users:** search by name or email as you type, chips All and Deleting soon, 20 at a time. A user → M40.
-- **User:** photo, joined, last active, workout and routine counts, their feedback (a ticket → M10), then Remove photo, Sign out all devices, Send reset link, and Close account or Cancel deletion, each asking first (M60, M45 to M48). Closing and removing a photo email the user (H94, H93), and a closed account can't sign in (A61).
+- **User:** photo, joined, last active, workout and routine counts, their feedback (a ticket → M10), then Remove photo, Sign out all devices, Send reset link, and Close account or Cancel deletion, each asking first (M60, M45 to M48). Closing, removing a photo and cancelling a deletion email the user (H94, H93, H97), and a closed account can't sign in (A61).
 - **Settings:** Themes → H12. Saved replies → M70. Announcement → M80, which Overview also opens while one is on. Starter exercises → M90, its Groups chip → M63. An exercise → M84 and a group → M85, each with Edit and Delete. System health → M51. Sign out → M05 → A01.
 
 **Entities:** User (role, last active), Starter group, Starter exercise. Reads Ticket, Ticket message, Screenshot, and each sender's name and email from Account.

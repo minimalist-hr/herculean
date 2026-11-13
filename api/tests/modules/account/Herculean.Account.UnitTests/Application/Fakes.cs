@@ -225,6 +225,15 @@ internal sealed class FakeEmailSender : IEmailSender
         return Task.CompletedTask;
     }
 
+    public List<string> AccountKeptEmails { get; } = [];
+
+    public Task SendAccountKeptAsync(string email, CancellationToken cancellationToken)
+    {
+        AccountKeptEmails.Add(email);
+
+        return Task.CompletedTask;
+    }
+
     public List<string> PhotoRemovedEmails { get; } = [];
 
     public Task SendProfilePhotoRemovedAsync(string email, CancellationToken cancellationToken)
@@ -252,9 +261,12 @@ internal sealed class FakeEmailSender : IEmailSender
         return Task.CompletedTask;
     }
 
-    public Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, CancellationToken cancellationToken)
+    public List<bool> PasswordChangedWithResetLink { get; } = [];
+
+    public Task SendPasswordChangedAsync(string email, DateTimeOffset changedAtUtc, string timeZone, bool withResetLink, CancellationToken cancellationToken)
     {
         PasswordChangedEmails.Add(new SentPasswordChangedEmail(email, changedAtUtc, timeZone));
+        PasswordChangedWithResetLink.Add(withResetLink);
 
         return Task.CompletedTask;
     }

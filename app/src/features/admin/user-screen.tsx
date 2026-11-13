@@ -106,7 +106,8 @@ const actions: Record<
     label: 'Cancel deletion',
     waitingLabel: 'Cancelling',
     title: 'Cancel the deletion?',
-    message: 'The account stays as it was, and a closed one can sign in again.',
+    message:
+      'The account stays as it was, and a closed one can sign in again. They get an email saying so.',
     done: 'Deletion cancelled.',
   },
   closeAccount: {
