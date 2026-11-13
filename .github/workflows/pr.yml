@@ -1,0 +1,36 @@
+name: PR rules
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  pr:
+    name: pr
+    # Dependabot names its own branches and pull requests.
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Title, branch and issue
+        # Through the environment, never inline, so a title can't run as a command.
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BRANCH: ${{ github.head_ref }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          failed=0
+          if ! printf '%s' "$TITLE" | grep -Eq '^(feat|fix|docs|test|refactor|chore): \S'; then
+            echo "::error::PR title must look like 'feat: add exercise groups'."
+            failed=1
+          fi
+          if ! printf '%s' "$BRANCH" | grep -Eq '^(feat|fix|docs|test|refactor|chore)/[a-z0-9]+(-[a-z0-9]+)*$'; then
+            echo "::error::Branch name must look like 'feat/exercise-groups'."
+            failed=1
+          fi
+          if ! printf '%s' "$BODY" | grep -Eiq '(closes|relates to) #[0-9]+'; then
+            echo "::error::PR description must name its issue, for example 'Closes #12'."
+            failed=1
+          fi
+          exit "$failed"

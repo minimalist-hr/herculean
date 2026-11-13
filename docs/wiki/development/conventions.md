@@ -107,17 +107,21 @@ We follow REST as closely as possible.
 - **Branches:** `<type>/<short-name>` in kebab-case, for example `feat/exercise-groups`.
 - **Commits and PR titles:** [Conventional Commits](https://www.conventionalcommits.org), for example `feat: add exercise groups`. Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`.
 - **Merging:** squash merge. The PR title becomes the commit on `main`. The branch is deleted after merging.
-- **`main` is protected** by a ruleset: nobody pushes to it directly, every change comes through a PR, all conversations must be resolved, history stays linear, and it can't be force-pushed or deleted. Only the project owner merges.
+- **`main` is protected** by a ruleset: nobody pushes to it directly, every change comes through a PR, the `app`, `api`, `design` and `pr` jobs must pass, all conversations must be resolved, history stays linear, and it can't be force-pushed or deleted. Only the project owner merges.
 
 ## Pipeline
 
-No pipeline runs yet. Before a PR is merged, run the checks it would run:
+GitHub Actions runs `.github/workflows/` on every PR and on `main`. Third-party actions are pinned to a commit.
 
-| Part | Run in | Checks |
-|---|---|---|
-| App | `app/` | `npm run lint`, `npm run format`, `npm run typecheck`, `npm run api:generate` with no change to `src/api/schema.ts`, `npm test` |
-| API | `api/` | `dotnet format whitespace --verify-no-changes`, `dotnet build` with no change to `openapi.json`, `dotnet test` |
-| Design | the repo | `node docs/design/capture/check.mjs`, when `docs/design/` changes |
+| Workflow | Job | Runs when | What it does |
+|---|---|---|---|
+| Checks | `changes` | Always | Works out which parts changed, so the other jobs run only for those |
+| Checks | `app` | `api/`, `app/` or its workflow changes | Lint, format check, type check, API client up to date, tests with coverage |
+| Checks | `api` | Same as `app` | Format check, build, OpenAPI document up to date, tests with coverage |
+| Checks | `design` | `docs/design/` changes | Checks the design's screen IDs |
+| PR rules | `pr` | A PR opens, is edited or gets a push | Checks the title and branch name, as set out in [Git](#git), and that it names its issue, as set out in [Work items](#work-items). Skipped for Dependabot's PRs |
+
+A job that doesn't need to run is skipped, and a skipped job counts as passed. A new push to a PR stops the run it replaces. Coverage reports are kept for a day.
 
 ## Work items
 

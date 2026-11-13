@@ -1,0 +1,110 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A new push to a pull request stops the run it replaces. Runs on main always finish.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Decides what runs. A job it skips still counts as passed, so required checks never wait.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      design: ${{ steps.filter.outputs.design }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          # The app and the API run together, because code analysis needs the coverage of both.
+          filters: |
+            code:
+              - 'api/**'
+              - 'app/**'
+              - '.github/workflows/checks.yml'
+            design:
+              - 'docs/design/**'
+
+  app:
+    name: app
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+      - run: npm run format
+      - run: npm run typecheck
+      - name: API client is up to date
+        run: |
+          npm run api:generate
+          git diff --exit-code -- src/api/schema.ts || { echo "::error::Run npm run api:generate and commit app/src/api/schema.ts."; exit 1; }
+      - run: npm test -- --coverage
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: app-coverage
+          path: app/coverage/lcov.info
+          retention-days: 1
+
+  api:
+    name: api
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 11.0.x
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('api/Directory.Packages.props', 'api/dotnet-tools.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+      - run: dotnet format whitespace --verify-no-changes
+      - run: dotnet build
+      - name: OpenAPI document is up to date
+        run: git diff --exit-code -- openapi.json || { echo "::error::Build the API and commit api/openapi.json."; exit 1; }
+      - run: dotnet test --no-build --coverage --coverage-output-format xml --results-directory TestResults
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-coverage
+          path: api/TestResults/
+          retention-days: 1
+
+  design:
+    name: design
+    needs: changes
+    if: needs.changes.outputs.design == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: node docs/design/capture/check.mjs
