@@ -51,3 +51,4 @@ Every app library must work in Expo Go.
 | Local run | Aspire |
 | Local email | Mailpit |
 | CI | GitHub Actions |
+| Dependency updates | Dependabot |
