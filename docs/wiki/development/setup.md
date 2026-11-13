@@ -15,10 +15,8 @@ title: Setup and getting started
 ## Repository layout
 
 ```
-.gitlab-ci.yml
 .gitignore            OS and editor files only
 .gitattributes
-.gitlab/              issue and merge request templates
 aspire/
   apphost.cs          starts PostgreSQL, pgweb, Mailpit, the API and the app
 api/                  .NET: solution, shared .NET settings, src/, tests/
